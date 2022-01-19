@@ -1,5 +1,4 @@
 # feder
-We are going to release this package by the end of March.
 
 ## What is feder
 Feder is built for visualize anns index files, so that we can have a better understanding of anns and high dimensional vectors. so far, we are focusing on Faiss index and HNSW index, we will cover more index types later.
@@ -13,7 +12,7 @@ npm install @zilliz/Feder
 
 ### basic usage
 ```js
-import { Feder } from @zilliz/Feder;
+import { Feder } from '@zilliz/Feder';
 
 const feder = new Feder({
     file: 'faiss_file',    // file path
