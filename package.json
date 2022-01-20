@@ -1,0 +1,51 @@
+{
+  "name": "feder",
+  "author": "ued@zilliz.com",
+  "version": "0.1.0",
+  "description": "visualization packages for vector space",
+  "main": "./cjs/index.js",
+  "scripts": {
+    "build": "npm run cjs && npm run test",
+    "cjs": "ascjs --no-default esm cjs",
+    "test": "c8 node test/index.js",
+    "coverage": "mkdir -p ./coverage; c8 report --reporter=text-lcov > ./coverage/lcov.info"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/zilliztech/feder.git"
+  },
+  "keywords": [
+    "vector-index",
+    "visualization",
+    "faiss",
+    "hnsw"
+  ],
+  "devDependencies": {
+    "ascjs": "^5.0.1",
+    "c8": "^7.11.0"
+  },
+  "exports": {
+    ".": {
+      "import": "./esm/index.js",
+      "default": "./cjs/index.js"
+    },
+    "./utils": {
+      "import": "./esm/utils.js",
+      "default": "./cjs/utils.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "license": "Apache-2.0",
+  "bugs": {
+    "url": "https://github.com/zilliztech/feder/issues"
+  },
+  "prettier": {
+    "trailingComma": "es5",
+    "tabWidth": 2,
+    "semi": true,
+    "singleQuote": true
+  },
+  "module": "./esm/index.js",
+  "type": "module",
+  "homepage": "https://github.com/zilliztech/feder#readme"
+}
