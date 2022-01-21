@@ -13,7 +13,13 @@ export const MetricType = {
 };
 
 export const DirectMapType = {
-  NoMap: 0,    // default
-  Array: 1,    // sequential ids (only for add, no add_with_ids)
-  Hashtable: 2 // arbitrary ids
-}
+  NoMap: 0, // default
+  Array: 1, // sequential ids (only for add, no add_with_ids)
+  Hashtable: 2, // arbitrary ids
+};
+
+export const IndexHeader = {
+  IVFFlat: 'IwFl',
+  FlatL2: 'IxF2',
+  FlatIR: 'IxFI',
+};

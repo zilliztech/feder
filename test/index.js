@@ -1,4 +1,5 @@
 import { Feder, FederCore } from '../esm/index.js';
+import { csv } from 'd3-fetch';
 
 import * as fs from 'fs';
 

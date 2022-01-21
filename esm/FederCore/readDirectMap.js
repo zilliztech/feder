@@ -12,13 +12,13 @@ const checkDmSize = (dmSize) => {
   }
 };
 
-const readDirectMap = (reader) => {
+const readDirectMap = (reader, index) => {
   const directMap = {};
   directMap.dmType = reader.readUint8();
   checkDmType(directMap.dmType);
   directMap.size = reader.readUint64();
   checkDmSize(directMap.size);
-  return directMap;
+  index.directMap = directMap;
 };
 
 export default readDirectMap;

@@ -36,7 +36,7 @@ const readArrayInvLists = (reader, invlists) => {
   invlists.vector = vectors;
 };
 
-export const readInvertedLists = (reader) => {
+export const readInvertedLists = (reader, index) => {
   const invlists = {};
   invlists.h = reader.readH();
   checkInvH(invlists.h);
@@ -45,7 +45,7 @@ export const readInvertedLists = (reader) => {
 
   readArrayInvLists(reader, invlists);
 
-  return invlists;
+  index.invlists = invlists;
 };
 
 export default readInvertedLists;

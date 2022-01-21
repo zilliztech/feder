@@ -3,6 +3,7 @@ import { generateArray } from '../Utils/index.js';
 import readInvertedLists from './readInvertedLists.js';
 import readDirectMap from './readDirectMap.js';
 import readIndexHeader from './readIndexHeader.js';
+import { IndexHeader } from './faissConfig.js';
 
 const readIvfHeader = (reader, index) => {
   readIndexHeader(reader, index);
@@ -12,7 +13,7 @@ const readIvfHeader = (reader, index) => {
 
   index.childIndex = readIndex(reader);
 
-  index.directMap = readDirectMap(reader);
+  readDirectMap(reader, index);
 };
 
 const readXbVectors = (reader, index) => {
@@ -26,10 +27,10 @@ const readXbVectors = (reader, index) => {
 const readIndex = (reader) => {
   const index = {};
   index.h = reader.readH();
-  if (index.h === 'IwFl') {
+  if (index.h === IndexHeader.IVFFlat) {
     readIvfHeader(reader, index);
-    index.invlists = readInvertedLists(reader);
-  } else if (index.h === 'IxF2' || index.h === 'IxFI') {
+    readInvertedLists(reader, index);
+  } else if (index.h === IndexHeader.FlatIR || index.h === IndexHeader.FlatL2) {
     readIndexHeader(reader, index);
     readXbVectors(reader, index);
   } else {
