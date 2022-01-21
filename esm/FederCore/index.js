@@ -1,6 +1,4 @@
-import { xml } from 'd3-fetch';
 import { project } from '../Utils/index.js';
-
 import faissIndexParser from './faissIndexParser.js';
 
 /* Feder core class */
