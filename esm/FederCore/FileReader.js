@@ -1,6 +1,6 @@
-import { project, uint8toChars, generateArray } from './Utils.js';
+import { generateArray } from '../Utils/index.js';
 
-class FileReader {
+export default class FileReader {
   constructor(arrayBuffer) {
     this.data = arrayBuffer;
     this.dataview = new DataView(arrayBuffer);
@@ -51,54 +51,5 @@ class FileReader {
   readUint64Array(n) {
     const res = generateArray(n).map((_) => this.readUint64());
     return res;
-  }
-}
-
-class FaissFileReader extends FileReader {
-  constructor(data) {
-    super(data);
-  }
-  readH() {
-    const uint8Array = generateArray(4).map((_) => this.readUint8());
-    const h = uint8toChars(uint8Array);
-    return h;
-  }
-  readDummy() {
-    const dummy = this.readUint64();
-    return dummy;
-  }
-}
-
-/* Feder core class */
-export default class Feder_core {
-  constructor({ data, type, project_params }) {
-    console.info('feder-core initialized');
-    if (type === 'faiss') {
-      const faissFileReader = new FaissFileReader(data);
-      this.h = faissFileReader.readH();
-      console.log('h', this.h);
-    }
-  }
-
-  get meta() {
-    // define ivf-meta
-    // define hnsw-meta
-  }
-  get id2Vector() {
-    // id to vector map
-  }
-  search() {
-    // define ivf-vis_records
-    // define hnsw-vis_records
-  }
-  project() {
-    project(...arguments);
-  }
-  setProjectParams() {}
-  _parseFaissIVFFlat() {
-    this.index = index;
-  }
-  _parseHNSWlibHNSW() {
-    this.index = index;
   }
 }
