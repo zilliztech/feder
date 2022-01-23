@@ -47,5 +47,8 @@
   },
   "module": "./esm/index.js",
   "type": "module",
-  "homepage": "https://github.com/zilliztech/feder#readme"
+  "homepage": "https://github.com/zilliztech/feder#readme",
+  "dependencies": {
+    "d3-fetch": "^3.0.1"
+  }
 }
