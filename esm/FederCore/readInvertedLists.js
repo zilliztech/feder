@@ -21,19 +21,15 @@ const readArrayInvLists = (reader, invlists) => {
     reader.readUint64()
   );
 
-  const vectors = [];
-  const ids = [];
-
+  const data = [];
   generateArray(invlists.listSizesSize).forEach((_, i) => {
-    vectors.push(
-      generateArray(invlists.listSizes[i]).map((_) =>
-        reader.readFloat32Array(invlists.codeSize / 4)
-      )
+    const vectors = generateArray(invlists.listSizes[i]).map((_) =>
+      reader.readFloat32Array(invlists.codeSize / 4)
     );
-    ids.push(reader.readUint64Array(invlists.listSizes[i]));
+    const ids = reader.readUint64Array(invlists.listSizes[i]);
+    data.push({ ids, vectors });
   });
-  invlists.ids = ids;
-  invlists.vector = vectors;
+  invlists.data = data;
 };
 
 export const readInvertedLists = (reader, index) => {
