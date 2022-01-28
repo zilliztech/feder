@@ -106,10 +106,7 @@ export default class FederCore {
   }
 
   getVectoreById(id) {
-    if (id in this.id2Vector) {
-      return this.id2Vector[id];
-    }
-    return null;
+    return this.id2Vector[id] || null;
   }
   setSearchParams(params) {
     this.searchParams = Object.assign(this.searchParams, params);
@@ -126,8 +123,5 @@ export default class FederCore {
   setProjectParams(projectMethod, projectParams = {}) {
     this.project = getProjectFunc(projectMethod, projectParams);
     this.PROJECT_PARAMETERS = getProjectParamsGuide(projectMethod);
-  }
-  project(vectors) {
-    return this.projector.project(vectors);
   }
 }
