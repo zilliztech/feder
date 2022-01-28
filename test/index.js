@@ -28,9 +28,22 @@ console.assert(typeof feder.reset === 'function', {
 const filePath = 'test/data/index';
 const file = fs.readFileSync(filePath);
 const fileArrayBuffer = file.buffer;
-
 const core = new FederCore({
   data: fileArrayBuffer,
   source: 'faiss',
   projectParams: {},
 });
+
+// console.log(core.index);
+console.log(core.indexMeta);
+
+const { testId, testVec } = core.getTestIdAndVec();
+console.log(testId);
+
+const res = core.search(testVec);
+console.log('search res', res);
+
+console.log(core.projector.PROJECT_PARAMETERS);
+core.setProjectParams('tsne');
+console.log(core.indexMeta);
+console.log(core.projector.PROJECT_PARAMETERS);
