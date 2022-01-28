@@ -43,7 +43,7 @@ console.log(testId);
 const res = core.search(testVec);
 console.log('search res', res);
 
-console.log(core.projector.PROJECT_PARAMETERS);
+console.log(core.PROJECT_PARAMETERS);
 core.setProjectParams('tsne');
 console.log(core.indexMeta);
-console.log(core.projector.PROJECT_PARAMETERS);
+console.log(core.PROJECT_PARAMETERS);

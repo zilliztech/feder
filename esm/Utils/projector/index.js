@@ -8,22 +8,30 @@ export const ProjectMethod = {
   PCA: 'pca',
 };
 
-class Projector {
-  constructor(projectMethod = ProjectMethod.UMAP, projectParams = {}) {
-    this.project = () => null;
-    this.setProjectParams(projectMethod, projectParams);
-  }
-  setProjectParams(projectMethod, projectParams = {}) {
-    if (projectMethod === ProjectMethod.UMAP) {
-      this.project = umapProject(projectParams);
-      this.PROJECT_PARAMETERS = UMAP_PROJECT_PARAMETERS;
-    } else if (projectMethod === ProjectMethod.TSNE) {
-      this.project = tsneProject(projectParams);
-      this.PROJECT_PARAMETERS = TSNE_PROJECT_PARAMETERS;
-    } else {
-      console.log('Unknown project method', projectMethod);
-    }
-  }
-}
+const projectFuncMap = {
+  [ProjectMethod.UMAP]: umapProject,
+  [ProjectMethod.TSNE]: tsneProject,
+};
 
-export default Projector;
+const projectParamsDescMap = {
+  [ProjectMethod.UMAP]: UMAP_PROJECT_PARAMETERS,
+  [ProjectMethod.TSNE]: TSNE_PROJECT_PARAMETERS,
+};
+
+export const getProjectFunc = (projectMethod, projectParams = {}) => {
+  if (projectMethod in projectFuncMap) {
+    return projectFuncMap[projectMethod](projectParams);
+  }
+  console.warn('Unknown project method, use default UMAP');
+  return projectFuncMap[ProjectMethod.UMAP](projectParams);
+};
+
+export const getProjectParamsGuide = (projectMethod) => {
+  if (projectMethod in projectParamsDescMap) {
+    return projectParamsDescMap[projectMethod];
+  }
+  console.warn('Unknown project method. current support tsne and umap');
+  return {};
+};
+
+export default getProjectFunc;
