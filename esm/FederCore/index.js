@@ -1,8 +1,11 @@
 import Projector from '../Utils/projector/index.js';
 import faissIndexParser from './faissIndexParser.js';
 import faissIVFFlatSearch from './faissIVFFlatSearch.js';
-import { IndexType } from '../Utils/config.js';
-import { ProjectMethod } from '../Utils/projector/index.js';
+import {
+  ProjectMethod,
+  getProjectFunc,
+  getProjectParamsGuide,
+} from '../Utils/projector/index.js';
 
 const indexSearchHandlerMap = {
   faissIVFFlat: faissIVFFlatSearch,
@@ -26,14 +29,16 @@ export default class FederCore {
     this.data = data;
     this.setIndexSource(source);
     this.parseIndex();
-    this.setIndexSearchHandler();
-    this.updateId2Vec();
 
-    this.initProjector(projectMethod, projectParams);
+    if (this.index) {
+      this.setIndexSearchHandler();
+      this[`_updateId2Vec_${this.index.indexType}`]();
+    }
+
+    this.setProjectParams(projectMethod, projectParams);
 
     // need parsed_index and projector.
-    this.index && this[`_updateIndexMeta_${this.index.indexType}`];
-    
+    this.index && this[`_updateIndexMeta_${this.index.indexType}`]();
   }
   setIndexSource(source) {
     this.indexParser = null;
@@ -50,33 +55,26 @@ export default class FederCore {
     }
   }
   setIndexSearchHandler() {
-    this.indexSearchHandler = null;
-    if (this.index) {
-      this.indexSearchHandler =
-        indexSearchHandlerMap[this.indexSource + this.index.indexType];
-    } else {
-      console.error('Unknown index');
-    }
+    this.indexSearchHandler =
+      indexSearchHandlerMap[this.indexSource + this.index.indexType];
     if (!this.indexSearchHandler) {
       console.error('indexSearchHandler not found');
     }
   }
 
-  updateId2Vec() {
+  _updateId2Vec_IVFFlat() {
     const id2vector = {};
-    if (this.index) {
-      if (this.index.indexType === IndexType.IVFFlat) {
-        const inv = this.index.invlists;
-        for (let list_no = 0; list_no < inv.nlist; list_no++) {
-          inv.data[list_no].ids.forEach((id, ofs) => {
-            id2vector[id] = inv.data[list_no].vectors[ofs];
-          });
-        }
-      }
-      if (this.index.indexType === IndexType.HNSW) {
-        // todo
-      }
+    const inv = this.index.invlists;
+    for (let list_no = 0; list_no < inv.nlist; list_no++) {
+      inv.data[list_no].ids.forEach((id, ofs) => {
+        id2vector[id] = inv.data[list_no].vectors[ofs];
+      });
     }
+    this.id2vector = id2vector;
+  }
+  _updateId2Vec_HNSW() {
+    const id2vector = {};
+    // todo;
     this.id2vector = id2vector;
   }
   _updateIndexMeta_IVFFlat() {
@@ -125,14 +123,9 @@ export default class FederCore {
     return res;
   }
 
-  initProjector(projectMethod, projectParams = {}) {
-    this.projector = new Projector(projectMethod, projectParams);
-  }
   setProjectParams(projectMethod, projectParams = {}) {
-    if (this.projector) {
-      this.projector.setProjectParams(projectMethod, projectParams);
-      this.index && this[`_updateIndexMeta_${this.index.indexType}`];
-    }
+    this.project = getProjectFunc(projectMethod, projectParams);
+    this.PROJECT_PARAMETERS = getProjectParamsGuide(projectMethod);
   }
   project(vectors) {
     return this.projector.project(vectors);
