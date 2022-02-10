@@ -10,6 +10,7 @@ export const faissIVFSearch = ({ index, csListIds, target }) => {
               id,
               listId,
               dis: disFunc(cur.vectors[ofs], target),
+              vec: cur.vectors[ofs]
             }))
           : []
       ),

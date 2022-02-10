@@ -4,7 +4,7 @@ import readInvertedLists from './readInvertedLists.js';
 import readDirectMap from './readDirectMap.js';
 import readIndexHeader from './readIndexHeader.js';
 import { IndexHeader } from './faissConfig.js';
-import { IndexType } from '../Utils/config.js';
+import { INDEX_TYPE } from '../Utils/config.js';
 
 const readIvfHeader = (reader, index) => {
   readIndexHeader(reader, index);
@@ -29,11 +29,11 @@ const readIndex = (reader) => {
   const index = {};
   index.h = reader.readH();
   if (index.h === IndexHeader.IVFFlat) {
-    index.indexType = IndexType.IVFFlat;
+    index.indexType = INDEX_TYPE.IVFFlat;
     readIvfHeader(reader, index);
     readInvertedLists(reader, index);
   } else if (index.h === IndexHeader.FlatIR || index.h === IndexHeader.FlatL2) {
-    index.indexType = IndexType.Flat;
+    index.indexType = INDEX_TYPE.Flat;
     readIndexHeader(reader, index);
     readXbVectors(reader, index);
   } else {
