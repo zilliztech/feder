@@ -8,7 +8,8 @@
     "build": "npm run cjs && npm run test",
     "cjs": "ascjs --no-default esm cjs",
     "test": "c8 node test/index.js",
-    "coverage": "mkdir -p ./coverage; c8 report --reporter=text-lcov > ./coverage/lcov.info"
+    "coverage": "mkdir -p ./coverage; c8 report --reporter=text-lcov > ./coverage/lcov.info",
+    "dev": "esbuild test/test.js --bundle --outfile=test/bundle.js --watch"
   },
   "repository": {
     "type": "git",
@@ -22,7 +23,8 @@
   ],
   "devDependencies": {
     "ascjs": "^5.0.1",
-    "c8": "^7.11.0"
+    "c8": "^7.11.0",
+    "esbuild": "^0.14.21"
   },
   "exports": {
     ".": {
