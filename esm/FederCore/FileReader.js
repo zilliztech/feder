@@ -39,10 +39,22 @@ export default class FileReader {
     const right = this.readUint32();
     const int64 = left + Math.pow(2, 32) * right;
     if (!Number.isSafeInteger(int64))
-      console.warn(int64, 'exceeds MAX_SAFE_INTEGER. Precision may be lost');
+      console.warn(int64, 'Exceeds MAX_SAFE_INTEGER. Precision may be lost');
     return int64;
   }
+  readFloat64() {
+    const float64 = this.dataview.getFloat64(this.p, true);
+    this.p += 8;
+    return float64;
+  }
+  readDouble() {
+    return this.readFloat64();
+  }
 
+  readUint32Array(n) {
+    const res = generateArray(n).map((_) => this.readUint32());
+    return res;
+  }
   readFloat32Array(n) {
     const res = new Float32Array(this.data.slice(this.p, this.p + n * 4));
     this.p += n * 4;
