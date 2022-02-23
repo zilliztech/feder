@@ -3,13 +3,15 @@ import { Feder } from '../esm/index.js';
 window.addEventListener('DOMContentLoaded', async () => {
   const container = document.querySelector('#container');
 
-  const filePath = 'data/index';
+  // const filePath = 'data/index';
+  const filePath = 'data/hnswlib_hnsw.index'
   const fileArrayBuffer = await fetch(filePath).then((res) =>
     res.arrayBuffer()
   );
   const feder = new Feder({
     data: fileArrayBuffer,
-    source: 'faiss',
+    // source: 'faiss',
+    source: 'hnswlib',
     dom: container,
     // projectMethod: 'umap',
     projectParams: {

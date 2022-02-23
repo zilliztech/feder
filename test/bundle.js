@@ -6788,8 +6788,20 @@ ${indentData}`);
       const right = this.readUint32();
       const int64 = left + Math.pow(2, 32) * right;
       if (!Number.isSafeInteger(int64))
-        console.warn(int64, "exceeds MAX_SAFE_INTEGER. Precision may be lost");
+        console.warn(int64, "Exceeds MAX_SAFE_INTEGER. Precision may be lost");
       return int64;
+    }
+    readFloat64() {
+      const float64 = this.dataview.getFloat64(this.p, true);
+      this.p += 8;
+      return float64;
+    }
+    readDouble() {
+      return this.readFloat64();
+    }
+    readUint32Array(n) {
+      const res = generateArray(n).map((_) => this.readUint32());
+      return res;
     }
     readFloat32Array(n) {
       const res = new Float32Array(this.data.slice(this.p, this.p + n * 4));
@@ -6950,6 +6962,10 @@ ${indentData}`);
     Enter: "Enter",
     Exit: "Exit"
   };
+  var SOURCE_TYPE = {
+    Faiss: "faiss",
+    HNSWlib: "hnswlib"
+  };
 
   // esm/FederCore/faissIndexParser.js
   var readIvfHeader = (reader, index2) => {
@@ -6985,6 +7001,63 @@ ${indentData}`);
     return index2;
   };
   var faissIndexParser_default = faissIndexParser;
+
+  // esm/FederCore/HNSWlibFileReader.js
+  var HNSWlibFileReader = class extends FileReader {
+    constructor(arrayBuffer) {
+      super(arrayBuffer);
+    }
+  };
+
+  // esm/FederCore/hnswlibIndexParser.js
+  var hnswlibIndexParser = (arrayBuffer, dim = 60) => {
+    const reader = new HNSWlibFileReader(arrayBuffer);
+    const index2 = { dim };
+    index2.offsetLevel0_ = reader.readUint64();
+    index2.max_elements_ = reader.readUint64();
+    index2.cur_element_count = reader.readUint64();
+    index2.size_data_per_element_ = reader.readUint64();
+    index2.label_offset_ = reader.readUint64();
+    index2.offsetData_ = reader.readUint64();
+    index2.maxlevel_ = reader.readUint32();
+    index2.enterpoint_node_ = reader.readUint32();
+    index2.maxM_ = reader.readUint64();
+    index2.maxM0_ = reader.readUint64();
+    index2.M_ = reader.readUint64();
+    index2.mult_ = reader.readFloat64();
+    index2.ef_construction_ = reader.readUint64();
+    index2.size_links_per_element_ = index2.maxM_ * 4 + 4;
+    index2.size_links_level0_ = index2.maxM0_ * 4 + 4;
+    index2.revSize_ = 1 / index2.mult_;
+    index2.ef_ = 10;
+    read_data_level0_memory_(reader, index2);
+    const linkListSizes = [];
+    const linkLists_ = [];
+    for (let i = 0; i < index2.cur_element_count; i++) {
+      const linkListSize = reader.readUint32();
+      linkListSizes.push(linkListSize);
+      linkLists_[i] = linkListSize === 0 ? [] : reader.readUint32Array(linkListSize / 4);
+    }
+    index2.linkListSizes = linkListSizes;
+    index2.linkLists_ = linkLists_;
+    console.log("index", index2);
+    console.log("isEmpty", reader.isEmpty);
+    return "";
+  };
+  var read_data_level0_memory_ = (reader, index2) => {
+    const linkLists_level0 = [];
+    const vectors = [];
+    const externalLabel = [];
+    for (let i = 0; i < index2.cur_element_count; i++) {
+      linkLists_level0.push(reader.readUint32Array(index2.size_links_level0_ / 4));
+      vectors.push(reader.readFloat32Array(index2.dim));
+      externalLabel.push(reader.readUint64());
+    }
+    index2.linkLists_level0 = linkLists_level0;
+    index2.vectors = vectors;
+    index2.externalLabel = externalLabel;
+  };
+  var hnswlibIndexParser_default = hnswlibIndexParser;
 
   // esm/FederCore/distance.js
   var getDisL2 = (vec1, vec2) => {
@@ -7123,10 +7196,14 @@ ${indentData}`);
     faissHNSW: null,
     hnswlibHNSW: null
   };
+  var indexParserMap = {
+    [SOURCE_TYPE.Faiss]: faissIndexParser_default,
+    [SOURCE_TYPE.HNSWlib]: hnswlibIndexParser_default
+  };
   var FederCore = class {
     constructor({
       data,
-      source = "faiss",
+      source = SOURCE_TYPE.Faiss,
       projectMethod = ProjectMethod.UMAP,
       projectParams = {}
     }) {
@@ -7150,10 +7227,8 @@ ${indentData}`);
     }
     setIndexSource(source) {
       this.indexParser = null;
-      this.indexSource = source;
-      if (source === "faiss") {
-        this.indexParser = faissIndexParser_default;
-      }
+      this.indexSource = source.toLowerCase();
+      this.indexParser = indexParserMap[source];
     }
     parseIndex() {
       if (this.indexParser) {
@@ -13494,7 +13569,6 @@ ${indentData}`);
       }
       this.core = core;
       this.dom = dom;
-      this.setViewParams(viewParams);
     }
     update() {
       this._render();
@@ -13546,11 +13620,11 @@ ${indentData}`);
   // test/test.js
   window.addEventListener("DOMContentLoaded", async () => {
     const container = document.querySelector("#container");
-    const filePath = "data/index";
+    const filePath = "data/hnswlib_hnsw.index";
     const fileArrayBuffer = await fetch(filePath).then((res) => res.arrayBuffer());
     const feder = new Feder({
       data: fileArrayBuffer,
-      source: "faiss",
+      source: "hnswlib",
       dom: container,
       projectParams: {},
       viewParams: {
