@@ -38,6 +38,8 @@ export default class FederCore {
     this.setIndexSource(source);
     this.parseIndex();
 
+    console.log(this.index);
+
     if (this.index) {
       this.setIndexSearchHandler();
       this[`_updateId2Vec_${this.index.indexType}`]();
