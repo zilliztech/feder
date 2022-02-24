@@ -24,6 +24,11 @@ export default class FileReader {
     const int8 = this.readInt8();
     return Boolean(int8);
   }
+  readUint16() {
+    const uint16 = this.dataview.getUint16(this.p, true);
+    this.p += 2;
+    return uint16;
+  }
   readInt32() {
     const int32 = this.dataview.getInt32(this.p, true);
     this.p += 4;

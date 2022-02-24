@@ -6713,7 +6713,7 @@ ${indentData}`);
     return String.fromCharCode(...data);
   };
   var generateArray = (num) => {
-    return Array.from(new Array(num).keys());
+    return Array.from(new Array(Math.floor(num)).keys());
   };
   var polyPoints2path = (points) => {
     return "M" + points.join("L") + "Z";
@@ -6772,6 +6772,11 @@ ${indentData}`);
     readBool() {
       const int8 = this.readInt8();
       return Boolean(int8);
+    }
+    readUint16() {
+      const uint16 = this.dataview.getUint16(this.p, true);
+      this.p += 2;
+      return uint16;
     }
     readInt32() {
       const int32 = this.dataview.getInt32(this.p, true);
@@ -7007,23 +7012,33 @@ ${indentData}`);
     constructor(arrayBuffer) {
       super(arrayBuffer);
     }
+    readIsDeleted() {
+      return this.readUint8();
+    }
+    readIsReused() {
+      return this.readUint8();
+    }
+    readLevelOCount() {
+      return this.readUint16();
+    }
   };
 
   // esm/FederCore/hnswlibIndexParser.js
-  var hnswlibIndexParser = (arrayBuffer, dim = 60) => {
+  var hnswlibIndexParser = (arrayBuffer) => {
     const reader = new HNSWlibFileReader(arrayBuffer);
-    const index2 = { dim };
+    const index2 = {};
     index2.offsetLevel0_ = reader.readUint64();
     index2.max_elements_ = reader.readUint64();
     index2.cur_element_count = reader.readUint64();
     index2.size_data_per_element_ = reader.readUint64();
     index2.label_offset_ = reader.readUint64();
     index2.offsetData_ = reader.readUint64();
+    index2.dim = (index2.size_data_per_element_ - index2.offsetData_ - 8) / 4;
     index2.maxlevel_ = reader.readUint32();
     index2.enterpoint_node_ = reader.readUint32();
     index2.maxM_ = reader.readUint64();
     index2.maxM0_ = reader.readUint64();
-    index2.M_ = reader.readUint64();
+    index2.M = reader.readUint64();
     index2.mult_ = reader.readFloat64();
     index2.ef_construction_ = reader.readUint64();
     index2.size_links_per_element_ = index2.maxM_ * 4 + 4;
@@ -7036,23 +7051,45 @@ ${indentData}`);
     for (let i = 0; i < index2.cur_element_count; i++) {
       const linkListSize = reader.readUint32();
       linkListSizes.push(linkListSize);
-      linkLists_[i] = linkListSize === 0 ? [] : reader.readUint32Array(linkListSize / 4);
+      if (linkListSize === 0) {
+        linkLists_[i] = [];
+      } else {
+        const levelCount = linkListSize / 4 / (index2.maxM_ + 1);
+        linkLists_[i] = generateArray(levelCount).map((_) => reader.readUint32Array(index2.maxM_ + 1));
+      }
     }
     index2.linkListSizes = linkListSizes;
     index2.linkLists_ = linkLists_;
-    console.log("index", index2);
-    console.log("isEmpty", reader.isEmpty);
-    return "";
+    console.assert(reader.isEmpty, "HNSWlib Parser Failed. Not empty when the parser completes.");
+    return {
+      indexType: INDEX_TYPE.HNSW,
+      ntotal: index2.cur_element_count,
+      vectors: index2.vectors,
+      maxLevel: index2.maxlevel_,
+      linkLists_level0_count: index2.linkLists_level0_count,
+      linkLists_level_0: index2.linkLists_level0,
+      linkLists_levels: index2.linkLists_,
+      enterPoint: index2.enterpoint_node_,
+      labels: index2.externalLabel,
+      isDeleted: index2.isDeleted
+    };
   };
   var read_data_level0_memory_ = (reader, index2) => {
+    const isDeleted = [];
+    const linkLists_level0_count = [];
     const linkLists_level0 = [];
     const vectors = [];
     const externalLabel = [];
     for (let i = 0; i < index2.cur_element_count; i++) {
-      linkLists_level0.push(reader.readUint32Array(index2.size_links_level0_ / 4));
+      linkLists_level0_count.push(reader.readLevelOCount());
+      isDeleted.push(reader.readIsDeleted());
+      reader.readIsReused();
+      linkLists_level0.push(reader.readUint32Array(index2.maxM0_));
       vectors.push(reader.readFloat32Array(index2.dim));
       externalLabel.push(reader.readUint64());
     }
+    index2.isDeleted = isDeleted;
+    index2.linkLists_level0_count = linkLists_level0_count;
     index2.linkLists_level0 = linkLists_level0;
     index2.vectors = vectors;
     index2.externalLabel = externalLabel;
@@ -7216,6 +7253,7 @@ ${indentData}`);
       this.data = data;
       this.setIndexSource(source);
       this.parseIndex();
+      console.log(this.index);
       if (this.index) {
         this.setIndexSearchHandler();
         this[`_updateId2Vec_${this.index.indexType}`]();
