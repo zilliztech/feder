@@ -1,7 +1,13 @@
 import faissFlatSearch from './faissFlatSearch.js';
 import faissIVFSearch from './faissIVFSearch.js';
 
-export const faissIVFFlatSearch = ({ index, target, params = {} }) => {
+export const faissIVFFlatSearch = ({
+  index,
+  target,
+  params = {},
+  project,
+  fineWithProjection = false,
+}) => {
   const { nprobe = 8, k = 10 } = params;
 
   // cs: coarse-search
@@ -16,12 +22,23 @@ export const faissIVFFlatSearch = ({ index, target, params = {} }) => {
   );
   const csListIds = csRes.map((res) => res.id);
 
-  const fsAllIdsAndDistances = faissIVFSearch({ index, csListIds, target });
+  const fsAllIdsAndDistances = faissIVFSearch({
+    index,
+    csListIds,
+    target,
+  });
+  // console.log('fsResProjections', fsResProjections);
   const fsRes = fsAllIdsAndDistances.slice(0, Math.min(index.ntotal, k));
 
+  const coarse = csAllListIdsAndDistances;
+  const fine = fsAllIdsAndDistances;
+  if (fineWithProjection) {
+    const fsResProjections = project(fsAllIdsAndDistances.map((d) => d.vec));
+    fine.map((d, i) => (d.projection = fsResProjections[i]));
+  }
   const res = {
-    coarse: csAllListIdsAndDistances,
-    fine: fsAllIdsAndDistances,
+    coarse,
+    fine,
     csResIds: csListIds,
     fsResIds: fsRes.map((d) => d.id),
   };

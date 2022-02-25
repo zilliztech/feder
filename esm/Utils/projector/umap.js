@@ -23,6 +23,8 @@ export const UMAP_PROJECT_PARAMETERS = {
 
 export const umapProject = (projectParams = {}) => {
   const params = Object.assign({}, projectParams, fixedParams);
-  const umap = new UMAP(params);
-  return (vectors) => umap.fit(vectors);
+  return (vectors) => {
+    const umap = new UMAP(params);
+    return umap.fit(vectors);
+  };
 };

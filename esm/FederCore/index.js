@@ -1,4 +1,3 @@
-import Projector from '../Utils/projector/index.js';
 import faissIndexParser from './faissIndexParser.js';
 import faissIVFFlatSearch from './faissIVFFlatSearch.js';
 import {
@@ -21,10 +20,11 @@ export default class FederCore {
     projectParams = {},
   }) {
     this.index = null;
+    this.searchParams = {};
     this.meta = null;
     this.indexParser = null;
     this.indexSearchHandler = null;
-    this.projector = null;
+    this.project = null;
 
     this.data = data;
     this.setIndexSource(source);
@@ -38,7 +38,10 @@ export default class FederCore {
     this.setProjectParams(projectMethod, projectParams);
 
     // need parsed_index and projector.
-    this.index && this[`_updateIndexMeta_${this.index.indexType}`]();
+    // this.index && this[`_updateIndexMeta_${this.index.indexType}`]();
+  }
+  get indexType() {
+    return this.index.indexType || '';
   }
   setIndexSource(source) {
     this.indexParser = null;
@@ -82,10 +85,14 @@ export default class FederCore {
     indexMeta.ntotal = this.index.ntotal;
     indexMeta.nlist = this.index.nlist;
     // indexMeta.listCentroidVectors = this.index.childIndex.vectors;
-    indexMeta.listCentroidProjections = this.project(
-      this.index.childIndex.vectors
-    );
-    indexMeta.listIds = this.index.invlists.data.map((d) => d.ids);
+    const { coarseWithProjection = false } = this.projectParams;
+    if (coarseWithProjection) {
+      indexMeta.listCentroidProjections = this.project(
+        this.index.childIndex.vectors
+      );
+    }
+    // indexMeta.listIds = this.index.invlists.data.map((d) => d.ids);
+    indexMeta.listSizes = this.index.invlists.data.map((d) => d.ids.length);
     this.indexMeta = indexMeta;
   }
   _updateIndexMeta_HNSW() {
@@ -109,19 +116,26 @@ export default class FederCore {
     return this.id2Vector[id] || null;
   }
   setSearchParams(params) {
-    this.searchParams = Object.assign(this.searchParams, params);
+    const newSearchParams = Object.assign(this.searchParams, params);
+    this.searchParams = newSearchParams;
   }
   search(target) {
+    const { fineWithProjection = false } = this.projectParams;
     const res = this.indexSearchHandler({
       index: this.index,
       target,
       params: this.searchParams,
+      project: this.project,
+      fineWithProjection,
     });
     return res;
   }
 
   setProjectParams(projectMethod, projectParams = {}) {
+    this.projectMethod = projectMethod;
+    this.projectParams = projectParams;
     this.project = getProjectFunc(projectMethod, projectParams);
     this.PROJECT_PARAMETERS = getProjectParamsGuide(projectMethod);
+    this.index && this[`_updateIndexMeta_${this.index.indexType}`]();
   }
 }
