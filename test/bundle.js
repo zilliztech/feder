@@ -7055,7 +7055,7 @@ ${indentData}`);
         linkLists_[i] = [];
       } else {
         const levelCount = linkListSize / 4 / (index2.maxM_ + 1);
-        linkLists_[i] = generateArray(levelCount).map((_) => reader.readUint32Array(index2.maxM_ + 1));
+        linkLists_[i] = generateArray(levelCount).map((_) => reader.readUint32Array(index2.maxM_ + 1)).map((linkLists) => linkLists.slice(1, linkLists[0] + 1)).filter((a2) => a2.length > 0);
       }
     }
     index2.linkListSizes = linkListSizes;
@@ -7071,7 +7071,8 @@ ${indentData}`);
       linkLists_levels: index2.linkLists_,
       enterPoint: index2.enterpoint_node_,
       labels: index2.externalLabel,
-      isDeleted: index2.isDeleted
+      isDeleted: index2.isDeleted,
+      numDeleted: index2.num_deleted_
     };
   };
   var read_data_level0_memory_ = (reader, index2) => {
@@ -7089,6 +7090,7 @@ ${indentData}`);
       externalLabel.push(reader.readUint64());
     }
     index2.isDeleted = isDeleted;
+    index2.num_deleted_ = isDeleted.reduce((acc, cur) => acc + cur, 0);
     index2.linkLists_level0_count = linkLists_level0_count;
     index2.linkLists_level0 = linkLists_level0;
     index2.vectors = vectors;
@@ -7176,6 +7178,26 @@ ${indentData}`);
   };
   var faissIVFFlatSearch_default = faissIVFFlatSearch;
 
+  // esm/FederCore/hnswlibHNSWSearch.js
+  var hnswlibHNSWSearch = ({ index: index2, target, params = {} }) => {
+    const { ef = 10, k = 8 } = params;
+    return "";
+  };
+  var hnswlibHNSWSearch_default = hnswlibHNSWSearch;
+
+  // esm/FederCore/getHnswlibHNSWOverviewData.js
+  var getHnswlibHNSWOverviewData = ({ index: index2, overviewLevel = 2 }) => {
+    const { maxLevel, linkLists_levels } = index2;
+    const highlevel = Math.min(maxLevel - 1, overviewLevel);
+    const lowlevel = maxLevel - highlevel;
+    const highLevelNodes = linkLists_levels.map((linkLists_levels_item, internalId) => linkLists_levels_item.length >= lowlevel ? {
+      internalId,
+      linksLevels: linkLists_levels_item.slice(lowlevel - 1, linkLists_levels_item.length)
+    } : null).filter((d) => d);
+    return highLevelNodes;
+  };
+  var getHnswlibHNSWOverviewData_default = getHnswlibHNSWOverviewData;
+
   // esm/Utils/projector/umap.js
   var import_umap_js = __toESM(require_dist(), 1);
   var fixedParams = {
@@ -7231,7 +7253,7 @@ ${indentData}`);
   var indexSearchHandlerMap = {
     faissIVFFlat: faissIVFFlatSearch_default,
     faissHNSW: null,
-    hnswlibHNSW: null
+    hnswlibHNSW: hnswlibHNSWSearch_default
   };
   var indexParserMap = {
     [SOURCE_TYPE.Faiss]: faissIndexParser_default,
@@ -7276,6 +7298,7 @@ ${indentData}`);
       }
     }
     setIndexSearchHandler() {
+      console.log(this.indexSource + this.index.indexType);
       this.indexSearchHandler = indexSearchHandlerMap[this.indexSource + this.index.indexType];
       if (!this.indexSearchHandler) {
         console.error("indexSearchHandler not found");
@@ -7307,7 +7330,8 @@ ${indentData}`);
       this.indexMeta = indexMeta;
     }
     _updateIndexMeta_HNSW() {
-      const indexMeta = {};
+      const indexMeta = getHnswlibHNSWOverviewData_default({ index: this.index, overviewLevel: 2 });
+      console.log("indexMeta: ", indexMeta);
       this.indexMeta = indexMeta;
     }
     getTestIdAndVec() {
@@ -13637,6 +13661,7 @@ ${indentData}`);
     search(target) {
       const searchRes = this.core.search(target);
       this.searchRes = searchRes;
+      console.log("search res", searchRes);
       this.fenderView.search({ searchRes });
       return searchRes;
     }

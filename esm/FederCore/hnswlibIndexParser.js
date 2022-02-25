@@ -39,9 +39,10 @@ const hnswlibIndexParser = (arrayBuffer) => {
       linkLists_[i] = [];
     } else {
       const levelCount = linkListSize / 4 / (index.maxM_ + 1);
-      linkLists_[i] = generateArray(levelCount).map((_) =>
-        reader.readUint32Array(index.maxM_ + 1)
-      );
+      linkLists_[i] = generateArray(levelCount)
+        .map((_) => reader.readUint32Array(index.maxM_ + 1))
+        .map((linkLists) => linkLists.slice(1, linkLists[0] + 1))
+        .filter((a) => a.length > 0);
     }
   }
   index.linkListSizes = linkListSizes;
@@ -63,6 +64,7 @@ const hnswlibIndexParser = (arrayBuffer) => {
     enterPoint: index.enterpoint_node_,
     labels: index.externalLabel,
     isDeleted: index.isDeleted,
+    numDeleted: index.num_deleted_,
   };
 };
 
@@ -83,6 +85,7 @@ const read_data_level0_memory_ = (reader, index) => {
     // console.log(isDeleted, linkLists_level0_count);
   }
   index.isDeleted = isDeleted;
+  index.num_deleted_ = isDeleted.reduce((acc, cur) => acc + cur, 0);
   index.linkLists_level0_count = linkLists_level0_count;
   index.linkLists_level0 = linkLists_level0;
   index.vectors = vectors;
