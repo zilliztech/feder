@@ -1,4 +1,4 @@
-import FileReader from './FileReader.js'
+import FileReader from './FileReader.js';
 import { uint8toChars, generateArray } from '../Utils/index.js';
 
 export default class FaissFileReader extends FileReader {
