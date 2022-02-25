@@ -3,7 +3,7 @@ export const uint8toChars = (data) => {
 };
 
 export const generateArray = (num) => {
-  return Array.from(new Array(num).keys());
+  return Array.from(new Array(Math.floor(num)).keys());
 };
 
 export const polyPoints2path = (points) => {

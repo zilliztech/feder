@@ -1,21 +1,29 @@
 import faissIndexParser from './faissIndexParser.js';
+import hnswlibIndexParser from './hnswlibIndexParser.js';
 import faissIVFFlatSearch from './faissIVFFlatSearch.js';
 import {
   ProjectMethod,
   getProjectFunc,
   getProjectParamsGuide,
 } from '../Utils/projector/index.js';
+import { SOURCE_TYPE } from '../Utils/config.js';
 
 const indexSearchHandlerMap = {
   faissIVFFlat: faissIVFFlatSearch,
   faissHNSW: null, // todo,
   hnswlibHNSW: null, // todo,
 };
+
+const indexParserMap = {
+  [SOURCE_TYPE.Faiss]: faissIndexParser,
+  [SOURCE_TYPE.HNSWlib]: hnswlibIndexParser,
+};
+
 /* Feder core class */
 export default class FederCore {
   constructor({
     data,
-    source = 'faiss',
+    source = SOURCE_TYPE.Faiss,
     projectMethod = ProjectMethod.UMAP,
     projectParams = {},
   }) {
@@ -30,25 +38,22 @@ export default class FederCore {
     this.setIndexSource(source);
     this.parseIndex();
 
+    console.log(this.index);
+
     if (this.index) {
       this.setIndexSearchHandler();
       this[`_updateId2Vec_${this.index.indexType}`]();
     }
 
     this.setProjectParams(projectMethod, projectParams);
-
-    // need parsed_index and projector.
-    // this.index && this[`_updateIndexMeta_${this.index.indexType}`]();
   }
   get indexType() {
     return this.index.indexType || '';
   }
   setIndexSource(source) {
     this.indexParser = null;
-    this.indexSource = source;
-    if (source === 'faiss') {
-      this.indexParser = faissIndexParser;
-    }
+    this.indexSource = source.toLowerCase();
+    this.indexParser = indexParserMap[source];
   }
   parseIndex() {
     if (this.indexParser) {

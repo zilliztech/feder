@@ -21,7 +21,7 @@ export default class Feder {
     }
     this.core = core;
     this.dom = dom;
-    this.setViewParams(viewParams);
+    // this.setViewParams(viewParams);
   }
   update() {
     // update core

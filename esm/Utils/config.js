@@ -26,3 +26,8 @@ export const ANiMATION_TYPE = {
   Enter: 'Enter',
   Exit: 'Exit',
 }
+
+export const SOURCE_TYPE = {
+  Faiss: 'faiss',
+  HNSWlib: 'hnswlib',
+}
