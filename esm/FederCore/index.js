@@ -13,7 +13,7 @@ import { SOURCE_TYPE } from '../Utils/config.js';
 const indexSearchHandlerMap = {
   faissIVFFlat: faissIVFFlatSearch,
   faissHNSW: null, // todo,
-  hnswlibHNSW: hnswlibHNSWSearch, // todo,
+  hnswlibHNSW: hnswlibHNSWSearch,
 };
 
 const indexParserMap = {
@@ -84,9 +84,17 @@ export default class FederCore {
     this.id2vector = id2vector;
   }
   _updateId2Vec_HNSW() {
+    const { labels, vectors } = this.index;
+
     const id2vector = {};
-    // todo;
+    const internalId2Label = {};
+    labels.forEach((id, i) => {
+      id2vector[id] = vectors[i];
+      internalId2Label[i] = id;
+    });
+
     this.id2vector = id2vector;
+    this.internalId2Label = internalId2Label;
   }
   _updateIndexMeta_IVFFlat() {
     const indexMeta = {};
@@ -104,8 +112,11 @@ export default class FederCore {
     this.indexMeta = indexMeta;
   }
   _updateIndexMeta_HNSW() {
-    const indexMeta = getHnswlibHNSWOverviewData({ index: this.index, overviewLevel: 2 });
-    console.log('indexMeta: ', indexMeta);
+    const indexMeta = getHnswlibHNSWOverviewData({
+      index: this.index,
+      overviewLevel: 2,
+    });
+    // console.log('indexMeta: ', indexMeta);
     this.indexMeta = indexMeta;
   }
 

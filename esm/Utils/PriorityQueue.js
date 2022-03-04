@@ -19,14 +19,14 @@ class PriorityQueue {
       }
     }
   }
-  get first() {
+  get top() {
     return this._tree[0];
   }
   pop() {
     if (this.isEmpty) {
       return 'empty';
     }
-    const item = this.first;
+    const item = this.top;
     if (this._tree.length > 1) {
       const lastItem = this._tree.pop();
       let id = 0;
@@ -52,6 +52,9 @@ class PriorityQueue {
   }
   get isEmpty() {
     return this._tree.length === 0;
+  }
+  get size() {
+    return this._tree.length;
   }
   get _firstLeaf() {
     return Math.floor(this._tree.length / 2);
