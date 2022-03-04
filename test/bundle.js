@@ -7178,12 +7178,198 @@ ${indentData}`);
   };
   var faissIVFFlatSearch_default = faissIVFFlatSearch;
 
+  // esm/Utils/PriorityQueue.js
+  var PriorityQueue = class {
+    constructor(arr = [], key = null) {
+      if (typeof key == "string") {
+        this._key = (item) => item[key];
+      } else
+        this._key = key;
+      this._tree = [];
+      arr.forEach((d) => this.add(d));
+    }
+    add(item) {
+      this._tree.push(item);
+      let id2 = this._tree.length - 1;
+      while (id2) {
+        const fatherId = Math.floor((id2 - 1) / 2);
+        if (this._getValue(id2) >= this._getValue(fatherId))
+          break;
+        else {
+          this._swap(fatherId, id2);
+          id2 = fatherId;
+        }
+      }
+    }
+    get top() {
+      return this._tree[0];
+    }
+    pop() {
+      if (this.isEmpty) {
+        return "empty";
+      }
+      const item = this.top;
+      if (this._tree.length > 1) {
+        const lastItem = this._tree.pop();
+        let id2 = 0;
+        this._tree[id2] = lastItem;
+        while (!this._isLeaf(id2)) {
+          const curValue = this._getValue(id2);
+          const leftId = id2 * 2 + 1;
+          const leftValue = this._getValue(leftId);
+          const rightId = leftId >= this._tree.length - 1 ? leftId : id2 * 2 + 2;
+          const rightValue = this._getValue(rightId);
+          const minValue = Math.min(leftValue, rightValue);
+          if (curValue <= minValue)
+            break;
+          else {
+            const minId = leftValue < rightValue ? leftId : rightId;
+            this._swap(minId, id2);
+            id2 = minId;
+          }
+        }
+      } else {
+        this._tree = [];
+      }
+      return item;
+    }
+    get isEmpty() {
+      return this._tree.length === 0;
+    }
+    get size() {
+      return this._tree.length;
+    }
+    get _firstLeaf() {
+      return Math.floor(this._tree.length / 2);
+    }
+    _isLeaf(id2) {
+      return id2 >= this._firstLeaf;
+    }
+    _getValue(id2) {
+      if (this._key) {
+        return this._key(this._tree[id2]);
+      } else {
+        return this._tree[id2];
+      }
+    }
+    _swap(id0, id1) {
+      const tree = this._tree;
+      [tree[id0], tree[id1]] = [tree[id1], tree[id0]];
+    }
+  };
+  var PriorityQueue_default = PriorityQueue;
+
   // esm/FederCore/hnswlibHNSWSearch.js
   var hnswlibHNSWSearch = ({ index: index2, target, params = {} }) => {
-    const { ef = 10, k = 8 } = params;
+    const { ef = 10, k = 8, metricType = MetricType.METRIC_L2 } = params;
+    const disfunc = getDisFunc(metricType);
+    let result = [];
+    const {
+      enterPoint,
+      vectors,
+      maxLevel,
+      linkLists_levels,
+      linkLists_level_0,
+      numDeleted,
+      labels
+    } = index2;
+    let curNodeId = enterPoint;
+    let curDist = disfunc(vectors[curNodeId], target);
+    console.log(curNodeId, curDist);
+    for (let level = maxLevel - 1; level > 0; level--) {
+      let changed = true;
+      while (changed) {
+        changed = false;
+        curlinks = linkLists_levels[curNodeId][level - 1];
+        curlinks.forEach((candidateId) => {
+          const dist3 = disfunc(vectors[candidateId], target);
+          if (dist3 < curDist) {
+            curDist = dist3;
+            curNodeId = candidateId;
+            changed = true;
+          }
+        });
+        console.log(curNodeId, curDist, changed, level);
+      }
+    }
+    const hasDeleted = numDeleted > 0;
+    const top_candidates = searchLevelO({
+      ep_id: curNodeId,
+      target,
+      vectors,
+      ef: Math.max(ef, k),
+      hasDeleted,
+      linkLists_level_0,
+      disfunc
+    });
+    while (top_candidates.size > k) {
+      top_candidates.pop();
+    }
+    while (top_candidates.size > 0) {
+      const res = top_candidates.pop();
+      result.push({
+        id: labels[res[1]],
+        dis: -res[0]
+      });
+    }
+    result = result.reverse();
+    console.log(result);
     return "";
   };
   var hnswlibHNSWSearch_default = hnswlibHNSWSearch;
+  var searchLevelO = ({
+    ep_id,
+    target,
+    vectors,
+    ef,
+    isDeleted,
+    hasDeleted,
+    linkLists_level_0,
+    disfunc
+  }) => {
+    const top_candidates = new PriorityQueue_default([], (d) => d[0]);
+    const candidates = new PriorityQueue_default([], (d) => d[0]);
+    const visited = /* @__PURE__ */ new Set();
+    let lowerBound;
+    if (!hasDeleted || !isDeleted[ep_id]) {
+      const dist3 = disfunc(vectors[ep_id], target);
+      lowerBound = dist3;
+      top_candidates.add([-dist3, ep_id]);
+      candidates.add([dist3, ep_id]);
+    } else {
+      lowerBound = 9999999;
+      candidates.add([lowerBound, ep_id]);
+    }
+    visited.add(ep_id);
+    while (!candidates.isEmpty) {
+      const curNodePair = candidates.top;
+      if (curNodePair[0] > lowerBound && (top_candidates.size === ef || !hasDeleted)) {
+        break;
+      }
+      candidates.pop();
+      const curNodeId = curNodePair[1];
+      const curLinks = linkLists_level_0[curNodeId];
+      curLinks.forEach((candidateId) => {
+        if (!visited.has(candidateId)) {
+          visited.add(candidateId);
+          const dist3 = disfunc(vectors[candidateId], target);
+          if (top_candidates.size < ef || lowerBound > dist3) {
+            candidates.add([dist3, candidateId]);
+            if (!hasDeleted || !isDeleted(candidateId)) {
+              top_candidates.add([-dist3, candidateId]);
+            }
+            if (top_candidates.size > ef) {
+              top_candidates.pop();
+            }
+            if (!top_candidates.isEmpty) {
+              lowerBound = -top_candidates.top[0];
+            }
+          }
+        }
+      });
+      return top_candidates;
+    }
+  };
 
   // esm/FederCore/getHnswlibHNSWOverviewData.js
   var getHnswlibHNSWOverviewData = ({ index: index2, overviewLevel = 2 }) => {
@@ -7315,8 +7501,15 @@ ${indentData}`);
       this.id2vector = id2vector;
     }
     _updateId2Vec_HNSW() {
+      const { labels, vectors } = this.index;
       const id2vector = {};
+      const internalId2Label = {};
+      labels.forEach((id2, i) => {
+        id2vector[id2] = vectors[i];
+        internalId2Label[i] = id2;
+      });
       this.id2vector = id2vector;
+      this.internalId2Label = internalId2Label;
     }
     _updateIndexMeta_IVFFlat() {
       const indexMeta = {};
@@ -7330,8 +7523,10 @@ ${indentData}`);
       this.indexMeta = indexMeta;
     }
     _updateIndexMeta_HNSW() {
-      const indexMeta = getHnswlibHNSWOverviewData_default({ index: this.index, overviewLevel: 2 });
-      console.log("indexMeta: ", indexMeta);
+      const indexMeta = getHnswlibHNSWOverviewData_default({
+        index: this.index,
+        overviewLevel: 2
+      });
       this.indexMeta = indexMeta;
     }
     getTestIdAndVec() {
@@ -13662,7 +13857,6 @@ ${indentData}`);
       const searchRes = this.core.search(target);
       this.searchRes = searchRes;
       console.log("search res", searchRes);
-      this.fenderView.search({ searchRes });
       return searchRes;
     }
     switchStep(step, stepType = null) {
