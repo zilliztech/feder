@@ -7263,7 +7263,8 @@ ${indentData}`);
   var hnswlibHNSWSearch = ({ index: index2, target, params = {} }) => {
     const { ef = 10, k = 8, metricType = MetricType.METRIC_L2 } = params;
     const disfunc = getDisFunc(metricType);
-    let result = [];
+    let topkResults = [];
+    const vis_records_all = [];
     const {
       enterPoint,
       vectors,
@@ -7275,46 +7276,49 @@ ${indentData}`);
     } = index2;
     let curNodeId = enterPoint;
     let curDist = disfunc(vectors[curNodeId], target);
-    console.log(curNodeId, curDist);
     for (let level = maxLevel - 1; level > 0; level--) {
+      const vis_records = [];
+      vis_records.push([labels[curNodeId], labels[curNodeId], curDist]);
       let changed = true;
       while (changed) {
         changed = false;
         curlinks = linkLists_levels[curNodeId][level - 1];
         curlinks.forEach((candidateId) => {
           const dist3 = disfunc(vectors[candidateId], target);
+          vis_records.push([labels[curNodeId], labels[candidateId], dist3]);
           if (dist3 < curDist) {
             curDist = dist3;
             curNodeId = candidateId;
             changed = true;
           }
         });
-        console.log(curNodeId, curDist, changed, level);
       }
+      vis_records_all.push(vis_records);
     }
     const hasDeleted = numDeleted > 0;
-    const top_candidates = searchLevelO({
+    const { top_candidates, vis_records_level_0 } = searchLevelO({
       ep_id: curNodeId,
       target,
       vectors,
       ef: Math.max(ef, k),
       hasDeleted,
       linkLists_level_0,
-      disfunc
+      disfunc,
+      labels
     });
+    vis_records_all.push(vis_records_level_0);
     while (top_candidates.size > k) {
       top_candidates.pop();
     }
     while (top_candidates.size > 0) {
       const res = top_candidates.pop();
-      result.push({
+      topkResults.push({
         id: labels[res[1]],
         dis: -res[0]
       });
     }
-    result = result.reverse();
-    console.log(result);
-    return "";
+    topkResults = topkResults.reverse();
+    return { vis_records: vis_records_all, topkResults };
   };
   var hnswlibHNSWSearch_default = hnswlibHNSWSearch;
   var searchLevelO = ({
@@ -7325,10 +7329,12 @@ ${indentData}`);
     isDeleted,
     hasDeleted,
     linkLists_level_0,
-    disfunc
+    disfunc,
+    labels
   }) => {
     const top_candidates = new PriorityQueue_default([], (d) => d[0]);
     const candidates = new PriorityQueue_default([], (d) => d[0]);
+    const vis_records_level_0 = [];
     const visited = /* @__PURE__ */ new Set();
     let lowerBound;
     if (!hasDeleted || !isDeleted[ep_id]) {
@@ -7341,6 +7347,7 @@ ${indentData}`);
       candidates.add([lowerBound, ep_id]);
     }
     visited.add(ep_id);
+    vis_records_level_0.push([labels[ep_id], labels[ep_id], lowerBound]);
     while (!candidates.isEmpty) {
       const curNodePair = candidates.top;
       if (curNodePair[0] > lowerBound && (top_candidates.size === ef || !hasDeleted)) {
@@ -7353,6 +7360,11 @@ ${indentData}`);
         if (!visited.has(candidateId)) {
           visited.add(candidateId);
           const dist3 = disfunc(vectors[candidateId], target);
+          vis_records_level_0.push([
+            labels[curNodeId],
+            labels[candidateId],
+            dist3
+          ]);
           if (top_candidates.size < ef || lowerBound > dist3) {
             candidates.add([dist3, candidateId]);
             if (!hasDeleted || !isDeleted(candidateId)) {
@@ -7365,10 +7377,12 @@ ${indentData}`);
               lowerBound = -top_candidates.top[0];
             }
           }
+        } else {
+          vis_records_level_0.push([labels[curNodeId], labels[candidateId], -1]);
         }
       });
-      return top_candidates;
     }
+    return { top_candidates, vis_records_level_0 };
   };
 
   // esm/FederCore/getHnswlibHNSWOverviewData.js
@@ -13856,7 +13870,6 @@ ${indentData}`);
     search(target) {
       const searchRes = this.core.search(target);
       this.searchRes = searchRes;
-      console.log("search res", searchRes);
       return searchRes;
     }
     switchStep(step, stepType = null) {

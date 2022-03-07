@@ -5,9 +5,9 @@ import PriorityQueue from '../Utils/PriorityQueue.js';
 const hnswlibHNSWSearch = ({ index, target, params = {} }) => {
   const { ef = 10, k = 8, metricType = MetricType.METRIC_L2 } = params;
   const disfunc = getDisFunc(metricType);
-  // console.log(index, target, params);
 
-  let result = [];
+  let topkResults = [];
+  const vis_records_all = [];
 
   const {
     enterPoint,
@@ -21,9 +21,10 @@ const hnswlibHNSWSearch = ({ index, target, params = {} }) => {
 
   let curNodeId = enterPoint;
   let curDist = disfunc(vectors[curNodeId], target);
-  console.log(curNodeId, curDist);
 
   for (let level = maxLevel - 1; level > 0; level--) {
+    const vis_records = [];
+    vis_records.push([labels[curNodeId], labels[curNodeId], curDist]);
     let changed = true;
     while (changed) {
       changed = false;
@@ -32,18 +33,19 @@ const hnswlibHNSWSearch = ({ index, target, params = {} }) => {
 
       curlinks.forEach((candidateId) => {
         const dist = disfunc(vectors[candidateId], target);
+        vis_records.push([labels[curNodeId], labels[candidateId], dist]);
         if (dist < curDist) {
           curDist = dist;
           curNodeId = candidateId;
           changed = true;
         }
       });
-      console.log(curNodeId, curDist, changed, level);
     }
+    vis_records_all.push(vis_records);
   }
 
   const hasDeleted = numDeleted > 0;
-  const top_candidates = searchLevelO({
+  const { top_candidates, vis_records_level_0 } = searchLevelO({
     ep_id: curNodeId,
     target,
     vectors,
@@ -51,7 +53,9 @@ const hnswlibHNSWSearch = ({ index, target, params = {} }) => {
     hasDeleted,
     linkLists_level_0,
     disfunc,
+    labels,
   });
+  vis_records_all.push(vis_records_level_0);
 
   while (top_candidates.size > k) {
     top_candidates.pop();
@@ -59,16 +63,15 @@ const hnswlibHNSWSearch = ({ index, target, params = {} }) => {
 
   while (top_candidates.size > 0) {
     const res = top_candidates.pop();
-    result.push({
+    topkResults.push({
       id: labels[res[1]],
       dis: -res[0],
     });
   }
 
-  result = result.reverse();
-  console.log(result);
+  topkResults = topkResults.reverse();
 
-  return '';
+  return { vis_records: vis_records_all, topkResults };
 };
 
 export default hnswlibHNSWSearch;
@@ -82,9 +85,11 @@ const searchLevelO = ({
   hasDeleted,
   linkLists_level_0,
   disfunc,
+  labels,
 }) => {
   const top_candidates = new PriorityQueue([], (d) => d[0]);
   const candidates = new PriorityQueue([], (d) => d[0]);
+  const vis_records_level_0 = [];
 
   const visited = new Set();
 
@@ -100,6 +105,7 @@ const searchLevelO = ({
   }
 
   visited.add(ep_id);
+  vis_records_level_0.push([labels[ep_id], labels[ep_id], lowerBound]);
 
   while (!candidates.isEmpty) {
     const curNodePair = candidates.top;
@@ -119,6 +125,12 @@ const searchLevelO = ({
         visited.add(candidateId);
 
         const dist = disfunc(vectors[candidateId], target);
+        vis_records_level_0.push([
+          labels[curNodeId],
+          labels[candidateId],
+          dist,
+        ]);
+
         if (top_candidates.size < ef || lowerBound > dist) {
           candidates.add([dist, candidateId]);
 
@@ -134,9 +146,10 @@ const searchLevelO = ({
             lowerBound = -top_candidates.top[0];
           }
         }
+      } else {
+        vis_records_level_0.push([labels[curNodeId], labels[candidateId], -1]);
       }
     });
-
-    return top_candidates;
   }
+  return { top_candidates, vis_records_level_0 };
 };
