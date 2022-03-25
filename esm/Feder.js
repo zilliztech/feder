@@ -56,7 +56,8 @@ export default class Feder {
   search(target) {
     const searchRes = this.core.search(target);
     this.searchRes = searchRes;
-    this.fenderView.search({ searchRes });
+    // console.log('search res', searchRes);
+    // this.fenderView.search({ searchRes });
     return searchRes;
   }
   switchStep(step, stepType = null) {
