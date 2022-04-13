@@ -42,7 +42,7 @@ const hnswlibIndexParser = (arrayBuffer) => {
       linkLists_[i] = generateArray(levelCount)
         .map((_) => reader.readUint32Array(index.maxM_ + 1))
         .map((linkLists) => linkLists.slice(1, linkLists[0] + 1))
-        .filter((a) => a.length > 0);
+        // .filter((a) => a.length > 0);
     }
   }
   index.linkListSizes = linkListSizes;
@@ -65,6 +65,8 @@ const hnswlibIndexParser = (arrayBuffer) => {
     labels: index.externalLabel,
     isDeleted: index.isDeleted,
     numDeleted: index.num_deleted_,
+    M: index.M,
+    ef_construction: index.ef_construction_,
   };
 };
 
