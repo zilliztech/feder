@@ -83,6 +83,10 @@ export default class HnswView extends BaseView {
   }
   computeIndexOverview({ indexMeta }) {
     // console.log('computeIndexOverview', indexMeta);
+
+    this.selectedNode = null;
+    this.hoveredNode = null;
+    
     this.indexMeta = indexMeta;
     const padding = this.padding;
     const allNodes = indexMeta.visData;
@@ -634,6 +638,8 @@ export default class HnswView extends BaseView {
     this.setDom(dom);
     // this.initCanvas();
     const ctx = this.canvas.getContext('2d');
+    this.selectedNode = null;
+    this.hoveredNode = null;
 
     await this.computeSearchView({ searchRes });
 

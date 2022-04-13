@@ -15126,6 +15126,8 @@ ${indentData}`);
       this.searchIntraLevelTime = 100;
     }
     computeIndexOverview({ indexMeta }) {
+      this.selectedNode = null;
+      this.hoveredNode = null;
       this.indexMeta = indexMeta;
       const padding = this.padding;
       const allNodes = indexMeta.visData;
@@ -15556,6 +15558,8 @@ ${indentData}`);
     async search({ searchRes = null, dom = this.dom } = {}) {
       this.setDom(dom);
       const ctx = this.canvas.getContext("2d");
+      this.selectedNode = null;
+      this.hoveredNode = null;
       await this.computeSearchView({ searchRes });
       const overviewInfo = [
         {
