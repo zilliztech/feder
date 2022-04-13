@@ -21,13 +21,8 @@ export default class Feder {
     }
     this.core = core;
     this.dom = dom;
-    // this.setViewParams(viewParams);
-  }
-  update() {
-    // update core
-
-    // render
-    this._render();
+    this.viewParams = viewParams;
+    this.initFederView();
   }
   getTestIdAndVec() {
     return this.core.getTestIdAndVec();
@@ -38,12 +33,18 @@ export default class Feder {
   setProjectParams(params) {
     this.core.setProjectParams(params);
   }
-  setViewParams(viewParams) {
+  initFederView() {
+    const getVectorById = (id) => {
+      if (id in this.core.id2vector) {
+        return [...this.core.id2vector[id]];
+      } else return null;
+    };
     this.fenderView = new FederView({
       indexType: this.core.indexType,
       indexMeta: this.core.indexMeta,
       dom: this.dom,
-      ...viewParams,
+      getVectorById,
+      ...this.viewParams,
     });
   }
 
@@ -53,12 +54,19 @@ export default class Feder {
   resetOverview() {
     this.fenderView.resetOverview();
   }
-  search(target) {
-    const searchRes = this.core.search(target);
-    this.searchRes = searchRes;
-    // console.log('search res', searchRes);
-    // this.fenderView.search({ searchRes });
-    return searchRes;
+  search(target = null) {
+    if (target) {
+      const searchRes = this.core.search(target);
+      this.searchRes = searchRes;
+      this.fenderView.search({ searchRes });
+    } else {
+      if (!this.searchRes) {
+        console.error('No target');
+        return;
+      }
+      const searchRes = this.searchRes;
+      this.fenderView.search({ searchRes });
+    }
   }
   switchStep(step, stepType = null) {
     this.fenderView.switchStep(step, stepType);
@@ -74,17 +82,3 @@ export default class Feder {
     this.fenderView.switchStep(STEP.FineSearch, stepType);
   }
 }
-
-/* Feder
-
-let feder = new Feder(data, dom);
-
-feder.setProjectParams(params);
-feder.setViewParams(params);
-feder.setSearchParams(params);
-
-Feder.overview();
-
-Feder.search(target);
-
-*/

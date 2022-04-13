@@ -22,7 +22,7 @@ const hnswlibHNSWSearch = ({ index, target, params = {} }) => {
   let curNodeId = enterPoint;
   let curDist = disfunc(vectors[curNodeId], target);
 
-  for (let level = maxLevel - 1; level > 0; level--) {
+  for (let level = maxLevel; level > 0; level--) {
     const vis_records = [];
     vis_records.push([labels[curNodeId], labels[curNodeId], curDist]);
     let changed = true;
@@ -65,13 +65,14 @@ const hnswlibHNSWSearch = ({ index, target, params = {} }) => {
     const res = top_candidates.pop();
     topkResults.push({
       id: labels[res[1]],
+      internalId: res[1],
       dis: -res[0],
     });
   }
 
   topkResults = topkResults.reverse();
 
-  return { vis_records: vis_records_all, topkResults };
+  return { vis_records: vis_records_all, topkResults, searchParams: { k, ef } };
 };
 
 export default hnswlibHNSWSearch;

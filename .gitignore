@@ -3,3 +3,7 @@
 coverage/
 node_modules/
 # test/data/*
+hnswlib_hnsw_1M.index
+images/
+*.index
+# *.csv
