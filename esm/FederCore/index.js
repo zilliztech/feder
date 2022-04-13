@@ -40,7 +40,7 @@ export default class FederCore {
     this.setIndexSource(source);
     this.parseIndex();
 
-    console.log(this.index);
+    console.log('index', this.index);
 
     if (this.index) {
       this.setIndexSearchHandler();
@@ -112,11 +112,19 @@ export default class FederCore {
     this.indexMeta = indexMeta;
   }
   _updateIndexMeta_HNSW() {
-    const indexMeta = getHnswlibHNSWOverviewData({
-      index: this.index,
-      overviewLevel: 2,
+    const index = this.index;
+
+    const visData = getHnswlibHNSWOverviewData({
+      index,
+      overviewLevel: 3,
     });
-    // console.log('indexMeta: ', indexMeta);
+    const indexMeta = {
+      visData,
+      ntotal: index.ntotal,
+      M: index.M,
+      ef_construction: index.ef_construction,
+      levelCount: index.maxLevel + 1,
+    };
     this.indexMeta = indexMeta;
   }
 

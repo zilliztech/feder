@@ -1,16 +1,20 @@
 import * as d3 from 'd3';
+import BaseView from './BaseView.js';
 import { VIEW_TYPE } from '../Utils/config.js';
-import { vecSort, inCircle } from '../Utils/index.js';
+import { vecSort, inCircle, colorScheme } from '../Utils/index.js';
 import { STEP, STEP_TYPE, ANiMATION_TYPE } from '../Utils/config.js';
 import {
-  colorScheme,
   backgroundColor,
   whiteColor,
+  blackColor,
+  ZBlue,
+  ZYellow,
   voronoiHighlightColor,
   voronoiHoverColor,
   hexWithOpacity,
   voronoiStrokeWidth,
   drawVoronoi,
+  drawVoronoiWithDots,
   drawRect,
   drawCircle,
 } from './render.js';
@@ -28,20 +32,22 @@ const polarAxisStrokeWidth = 1;
 const polarAxisOpacity = 0.4;
 
 const targetNodeStrokeWidth = 6;
-const targetNodeR = 8.5;
+const targetNodeR = 12;
 
 const stepExitTime = 1600;
 const stepEnterTime = 1600;
 const stepAllTime = stepExitTime + stepEnterTime;
 const nodeTransTime = 1800;
 
-export default class IVFFlatView {
+export default class IVFFlatView extends BaseView {
   constructor({
     width,
     height,
     forceTime = 3000,
     projectPadding = [10, 5],
   } = {}) {
+    super({ width, height });
+
     this.supportSwitchStep = true;
     this.overviewForceFinished = false;
     this.overviewForcePromise = null;
@@ -55,9 +61,6 @@ export default class IVFFlatView {
     this.searchLayoutFinished = false;
     this.searchLayoutPromise = null;
 
-    this.width = width;
-    this.height = height;
-
     this.voronoiClickHandler = function () {
       console.log(arguments[0]);
     };
@@ -70,12 +73,7 @@ export default class IVFFlatView {
     const width = this.width;
     const height = this.height;
     const allArea = width * height;
-    const {
-      ntotal,
-      nlist,
-      listCentroidProjections = null,
-      listSizes,
-    } = indexMeta;
+    const { ntotal, listCentroidProjections = null, listSizes } = indexMeta;
     const clusters = listSizes.map((listSize, i) => ({
       clusterId: i,
       oriProjection: listCentroidProjections
@@ -399,15 +397,15 @@ export default class IVFFlatView {
   }
 
   async overview({ dom = this.dom }) {
-    this.dom = dom;
-    this.canvas = this.initCanvas();
+    this.setDom(dom);
+    this.initCanvas();
     this.viewType = VIEW_TYPE.Overview;
     this._renderVoronoiView();
     this._mouseListener();
   }
 
-  async search({ searchRes = null, dom }) {
-    this.dom = dom;
+  async search({ searchRes = null, dom = this.dom }) {
+    this.setDom(dom);
     this.searchComputeFinished = false;
     this.searchComputePromise = new Promise(async (resolve, reject) => {
       this.overviewForceFinished || (await this.overviewForcePromise);
@@ -435,7 +433,7 @@ export default class IVFFlatView {
     // console.log('coarse search');
     this.viewType = VIEW_TYPE.Search;
     this.step = STEP.CoarseSearch;
-    this.canvas = this.initCanvas();
+    this.initCanvas();
     this._renderVoronoiView();
     this._mouseListener();
   }
@@ -443,20 +441,9 @@ export default class IVFFlatView {
   fineSearch() {
     this.viewType = VIEW_TYPE.Search;
     this.step = STEP.FineSearch;
-    this.canvas = this.initCanvas();
+    this.initCanvas();
     this._renderNodeView();
     this._mouseListener();
-  }
-
-  initCanvas() {
-    const dom = this.dom;
-    dom.innerHTML = '';
-    const canvas = document.createElement('canvas');
-    canvas.setAttribute('id', 'feder-canvas');
-    canvas.width = this.width;
-    canvas.height = this.height;
-    dom.appendChild(canvas);
-    return canvas;
   }
 
   async _renderVoronoiView() {
@@ -497,9 +484,25 @@ export default class IVFFlatView {
       ctx,
       pointsList,
       hasStroke: true,
-      strokeStyle: voronoiHighlightColor,
+      strokeStyle: blackColor,
       lineWidth: voronoiStrokeWidth,
+      hasFill: true,
+      fillStyle: hexWithOpacity(ZBlue, 1),
     });
+    // pointsList.forEach((points) =>
+    //   drawVoronoiWithDots({
+    //     ctx,
+    //     points,
+    //     hasStroke: true,
+    //     strokeStyle: blackColor,
+    //     lineWidth: voronoiStrokeWidth * 2,
+    //     hasFill: false,
+    //     dotColor: hexWithOpacity(ZBlue, 0.8),
+    //     dotR: 1.5,
+    //     dotGap: 1.5,
+    //     dotAngle: Math.PI / 12,
+    //   })
+    // );
   }
 
   _renderVoronoiNprobeClusters({ ctx }) {
@@ -510,11 +513,26 @@ export default class IVFFlatView {
       ctx,
       pointsList,
       hasStroke: true,
-      strokeStyle: whiteColor,
+      strokeStyle: blackColor,
       lineWidth: voronoiStrokeWidth,
       hasFill: true,
-      fillStyle: voronoiHighlightColor,
+      fillStyle: hexWithOpacity(ZYellow, 1),
     });
+    // pointsList.forEach((points) =>
+    //   drawVoronoiWithDots({
+    //     ctx,
+    //     points,
+    //     hasStroke: true,
+    //     strokeStyle: blackColor,
+    //     lineWidth: voronoiStrokeWidth * 2,
+    //     hasFill: false,
+    //     // fillStyle: hexWithOpacity(blackColor, 1),
+    //     dotColor: hexWithOpacity(ZYellow, 1),
+    //     dotR: 2,
+    //     dotGap: 2,
+    //     dotAngle: Math.PI / 12,
+    //   })
+    // );
   }
 
   _renderVoronoiHover({ ctx }) {
@@ -530,11 +548,25 @@ export default class IVFFlatView {
       ctx,
       pointsList,
       hasStroke: true,
-      strokeStyle: whiteColor,
+      strokeStyle: blackColor,
       lineWidth: voronoiStrokeWidth,
       hasFill: true,
-      fillStyle: voronoiHoverColor,
+      fillStyle: whiteColor,
     });
+    // pointsList.forEach((points) =>
+    //   drawVoronoiWithDots({
+    //     ctx,
+    //     points,
+    //     hasStroke: true,
+    //     strokeStyle: blackColor,
+    //     lineWidth: voronoiStrokeWidth * 2,
+    //     hasFill: false,
+    //     dotColor: hexWithOpacity(whiteColor, 1),
+    //     dotR: 2,
+    //     dotGap: 2,
+    //     dotAngle: Math.PI / 12,
+    //   })
+    // );
   }
 
   _renderTarget({ ctx }) {
@@ -656,7 +688,8 @@ export default class IVFFlatView {
 
     this.searchComputeFinished || (await this.searchComputePromise);
 
-    const canvas = this.initCanvas({ dom: this.dom });
+    this.initCanvas({ dom: this.dom });
+    const canvas = this.canvas;
     const ctx = canvas.getContext('2d');
 
     // Coarse => Fine
@@ -1039,14 +1072,15 @@ export default class IVFFlatView {
       ) ||
       null;
     const clickedNodeId = clickedNode ? clickedNode.id : null;
-    clickedNodeId && this.nodeClickHandler({ x, y, clickedNodeId, clickedNode });
+    clickedNodeId &&
+      this.nodeClickHandler({ x, y, clickedNodeId, clickedNode });
   }
   _mouseListener() {
     const canvas = this.canvas;
     canvas.addEventListener('mousemove', (e) => {
       const { offsetX: x, offsetY: y } = e;
       // console.log('mouse', x, y);
-      this.mouse = { x, y };
+      this.mouse = { x: x * 2, y: y * 2 };
       if (this.step === STEP.FineSearch) {
         this._nodeMouseHandler();
       } else {
@@ -1056,7 +1090,7 @@ export default class IVFFlatView {
     canvas.addEventListener('click', (e) => {
       const { offsetX: x, offsetY: y } = e;
       // console.log('mouse', x, y);
-      this.mouseClick = { x, y };
+      this.mouseClick = { x: x * 2, y: y * 2 };
       if (this.step === STEP.FineSearch) {
         this._nodeClickHandler();
       } else {
