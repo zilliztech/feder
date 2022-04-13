@@ -1,9 +1,10 @@
 .DS_Store
 .nyc_output
+.vscode
 coverage/
 node_modules/
 # test/data/*
 hnswlib_hnsw_1M.index
 images/
-*.index
+hnswlib_hnsw_1M.index.index
 # *.csv
