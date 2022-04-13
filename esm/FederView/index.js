@@ -1,15 +1,17 @@
 import { INDEX_TYPE, VIEW_TYPE } from '../Utils/config.js';
 import IVFFlatView from './IVFFlatView.js';
+import HnswView from './HnswView.js';
 
 const viewMap = {
   [INDEX_TYPE.IVFFlat]: IVFFlatView,
-  [INDEX_TYPE.HNSW]: null,
+  [INDEX_TYPE.HNSW]: HnswView,
 };
 
 export default class FederView {
   constructor({
     indexType,
     indexMeta,
+    getVectorById,
     dom,
     width = 800,
     height = 600,
@@ -21,12 +23,12 @@ export default class FederView {
     this.dom = dom;
     this.indexMeta = indexMeta;
 
-    this.initView({ indexType, width, height, ...viewParams });
+    this.initView({ indexType, width, height, getVectorById, ...viewParams });
     this.computeIndexOverview({ indexMeta });
   }
   initView({ indexType, width, height, ...viewParams }) {
     if (!viewMap[indexType]) {
-      console.error('Illegal INDEX_TYPE.', indexType);
+      console.error('Illegal INDEX_TYPE -', indexType);
       return;
     }
     if (indexType !== this.indexType) {
@@ -39,17 +41,17 @@ export default class FederView {
       console.error('View Not Found.');
       return;
     }
-    if (!VIEW_TYPE[viewType]) {
-      console.error('Illegal ViewType.', viewType);
-      return;
-    }
+    // if (!VIEW_TYPE[viewType]) {
+    //   console.error('Illegal ViewType -', viewType);
+    //   return;
+    // }
     if (viewType !== this.viewType) {
       this.viewType = viewType;
     }
   }
 
-  computeIndexOverview(params) {
-    this.view.computeIndexOverview(params);
+  computeIndexOverview({ indexMeta }) {
+    this.view.computeIndexOverview({ indexMeta });
   }
 
   search({ searchRes }) {
