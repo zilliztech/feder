@@ -15284,7 +15284,7 @@ ${indentData}`);
         const minDistIndex = minIndex(allDis);
         const minDist = allDis[minDistIndex];
         const clearestNode = nodesLevels[selectedLevel][minDistIndex];
-        selectedNode = minDist < Math.pow(clearestNode.r + 5, 2) ? clearestNode : null;
+        selectedNode = minDist < Math.pow(Math.max(clearestNode.r + 5, 10), 2) ? clearestNode : null;
       } else {
         selectedNode = null;
       }
