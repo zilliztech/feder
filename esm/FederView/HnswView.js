@@ -86,7 +86,7 @@ export default class HnswView extends BaseView {
 
     this.selectedNode = null;
     this.hoveredNode = null;
-    
+
     this.indexMeta = indexMeta;
     const padding = this.padding;
     const allNodes = indexMeta.visData;
@@ -306,7 +306,7 @@ export default class HnswView extends BaseView {
       const minDist = allDis[minDistIndex];
       const clearestNode = nodesLevels[selectedLevel][minDistIndex];
       selectedNode =
-        minDist < Math.pow(clearestNode.r + 5, 2) ? clearestNode : null;
+        minDist < Math.pow(Math.max(clearestNode.r + 5, 10), 2) ? clearestNode : null;
     } else {
       selectedNode = null;
     }
