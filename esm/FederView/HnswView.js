@@ -43,23 +43,21 @@ import computeSearchViewTransition from './computeSearchViewTransition.js';
 import TimerController from './TimerController.js';
 import TimeControllerView from './TimeControllerView.js';
 
-const HoveredPanelLine_1_x = 60;
-const HoveredPanelLine_1_y = -60;
-const HoveredPanelLine_2_x = 140;
+const HoveredPanelLine_1_x = 30;
+const HoveredPanelLine_1_y = -30;
+const HoveredPanelLine_2_x = 60;
 
 const ellipseRation = 1.4;
+const shortenLineD = 10;
 
 export default class HnswView extends BaseView {
-  constructor({
-    width,
-    height,
-    forceTime = 3000,
-    padding = [150, 280, 50, 280],
-    itemType = null,
-    hoverCallback = () => null,
-    getVectorById = () => null,
-  } = {}) {
-    super({ width, height, forceTime, padding, getVectorById });
+  constructor(params) {
+    super(params);
+    const {
+      forceTime = 3000,
+      itemType = null,
+      hoverCallback = () => null,
+    } = params;
 
     this.forceTime = forceTime;
     this.itemType = itemType;
@@ -74,6 +72,7 @@ export default class HnswView extends BaseView {
     this.isSelected = false;
 
     this.selectedNode = null;
+    this.selectedLevel = null;
     this.highlightLinksLevels = [];
     this.highlightNodesLevels = [];
 
@@ -190,11 +189,16 @@ export default class HnswView extends BaseView {
   async overview({ dom = this.dom }) {
     this.setDom(dom);
     // this.initCanvas();
+    this.selectedNode = null;
+    this.hoveredNode = null;
+    this._renderSelectedPanel();
+    this._renderHoveredPanel();
+    this.searchTransitionTimer && this.searchTransitionTimer.stop();
+
     this.computeOverviewPromise && (await this.computeOverviewPromise);
 
     const ctx = this.canvas.getContext('2d');
-    this.selectedNode = null;
-    this.selectedLevel = null;
+
     this.renderOverview({ ctx });
 
     const overviewInfo = [
@@ -306,7 +310,9 @@ export default class HnswView extends BaseView {
       const minDist = allDis[minDistIndex];
       const clearestNode = nodesLevels[selectedLevel][minDistIndex];
       selectedNode =
-        minDist < Math.pow(Math.max(clearestNode.r + 5, 10), 2) ? clearestNode : null;
+        minDist < Math.pow(Math.max(clearestNode.r + 5, 20), 2)
+          ? clearestNode
+          : null;
     } else {
       selectedNode = null;
     }
@@ -561,7 +567,7 @@ export default class HnswView extends BaseView {
       shortenLine(
         link.source.overviewPosLevels[level],
         link.target.overviewPosLevels[level],
-        20
+        shortenLineD
       )
     );
     drawLinesWithLinearGradient({
@@ -592,7 +598,7 @@ export default class HnswView extends BaseView {
             ]
       )
       .filter((a) => a)
-      .map((points) => shortenLine(...points, 20));
+      .map((points) => shortenLine(...points, shortenLineD));
     drawLinesWithLinearGradient({
       ctx,
       pointsList,
@@ -609,7 +615,7 @@ export default class HnswView extends BaseView {
         link.source.overviewPosLevels[level],
         link.target.overviewPosLevels[level],
       ])
-      .map((points) => shortenLine(...points, 20));
+      .map((points) => shortenLine(...points, shortenLineD));
     drawLinesWithLinearGradient({
       ctx,
       pointsList,
@@ -640,6 +646,8 @@ export default class HnswView extends BaseView {
     const ctx = this.canvas.getContext('2d');
     this.selectedNode = null;
     this.hoveredNode = null;
+    this._renderSelectedPanel();
+    this._renderHoveredPanel();
 
     await this.computeSearchView({ searchRes });
 
@@ -677,7 +685,7 @@ export default class HnswView extends BaseView {
       overviewInfo.push({
         isFlex: true,
         title: `Level ${level}`,
-        text: `${nodes.length} vectors, ${links.length} links, min-distance: ${minDist}`,
+        text: `${nodes.length} vectors, ${links.length} links, min-dist: ${minDist}`,
       });
     }
     this._renderOverviewPanel(overviewInfo, whiteColor);
@@ -714,7 +722,7 @@ export default class HnswView extends BaseView {
       this.selectedLevel = selectedLevel;
       this.selectedNode = selectedNode;
       if (this.selectedNodeChanged) {
-        console.log('mouse', selectedLevel, selectedNode);
+        // console.log('mouse', selectedLevel, selectedNode);
         if (this.selectedNodeChanged) {
           const itemList = [];
           if (!!this.selectedNode) {
@@ -733,11 +741,11 @@ export default class HnswView extends BaseView {
                 imgUrl: this.hoverCallback(selectedNode.id),
               });
             itemList.push({
-              title: `Vectors:`,
+              title: `Vector:`,
               text: `${showVectors(this.getVectorById(selectedNode.id))}`,
             });
           }
-          console.log('itemList', itemList);
+          // console.log('itemList', itemList);
           this._renderSelectedPanel(itemList, ZYellow);
         }
 
@@ -820,6 +828,7 @@ export default class HnswView extends BaseView {
 
     this.searchTarget = {
       id: 'target',
+      r: 6,
       searchViewPosLevels: d3
         .range(visData.length)
         .map((i) => transformFunc(...targetOrigin, i)),
@@ -831,7 +840,7 @@ export default class HnswView extends BaseView {
         node.searchViewPosLevels = d3
           .range(level + 1)
           .map((i) => transformFunc(...node.forcePos, i));
-        node.r = node.type * 2;
+        node.r = 3 + node.type * 0.5;
       });
     });
 
@@ -1001,7 +1010,24 @@ export default class HnswView extends BaseView {
       } else {
         this._renderHoveredPanel([], ZYellow);
       }
+
+      if (!!this.selectedNode) {
+        this.renderSearchViewSelectedNode({
+          ctx,
+          pos: this.selectedNode.searchViewPosLevels[this.selectedLevel],
+          r: this.selectedNode.r + 4.5,
+        });
+      }
     }
+  }
+  renderSearchViewSelectedNode({ ctx, pos, r }) {
+    drawEllipse({
+      ctx,
+      circles: [[...pos, r * ellipseRation, r]],
+      hasStroke: true,
+      strokeStyle: hexWithOpacity(ZYellow, 0.8),
+      lineWidth: 3,
+    });
   }
   renderSearchViewNodes({ ctx, nodes, level, shadowBlur = 4 }) {
     let _nodes = [];
@@ -1010,9 +1036,13 @@ export default class HnswView extends BaseView {
     _nodes = nodes.filter((node) => node.type === HNSW_NODE_TYPE.Coarse);
     drawEllipse({
       ctx,
-      circles: _nodes.map((node) => [...node.searchViewPosLevels[level], 6, 4]),
+      circles: _nodes.map((node) => [
+        ...node.searchViewPosLevels[level],
+        node.r * ellipseRation,
+        node.r,
+      ]),
       hasFill: true,
-      fillStyle: hexWithOpacity(ZBlue, 0.5),
+      fillStyle: hexWithOpacity(ZBlue, 0.7),
       shadowColor: ZBlue,
       shadowBlur,
     });
@@ -1021,7 +1051,11 @@ export default class HnswView extends BaseView {
     _nodes = nodes.filter((node) => node.type === HNSW_NODE_TYPE.Candidate);
     drawEllipse({
       ctx,
-      circles: _nodes.map((node) => [...node.searchViewPosLevels[level], 8, 5]),
+      circles: _nodes.map((node) => [
+        ...node.searchViewPosLevels[level],
+        node.r * ellipseRation,
+        node.r,
+      ]),
       hasFill: true,
       fillStyle: hexWithOpacity(ZYellow, 0.8),
       shadowColor: ZYellow,
@@ -1034,8 +1068,8 @@ export default class HnswView extends BaseView {
       ctx,
       circles: _nodes.map((node) => [
         ...node.searchViewPosLevels[level],
-        10,
-        7,
+        node.r * ellipseRation,
+        node.r,
       ]),
       hasFill: true,
       fillStyle: hexWithOpacity(colorScheme[2], 1),
@@ -1057,7 +1091,7 @@ export default class HnswView extends BaseView {
       shortenLine(
         node.searchViewPosLevels[level + 1],
         node.searchViewPosLevels[level],
-        16
+        shortenLineD
       )
     );
     drawLinesWithLinearGradient({
@@ -1076,7 +1110,7 @@ export default class HnswView extends BaseView {
             shortenLine(
               searchTarget.searchViewPosLevels[level + 1],
               searchTarget.searchViewPosLevels[level],
-              16
+              shortenLineD
             ),
           ];
     drawLinesWithLinearGradient({
@@ -1097,7 +1131,7 @@ export default class HnswView extends BaseView {
           node.searchViewPosLevels[level],
           t
         ),
-        16
+        shortenLineD
       )
     );
     drawLinesWithLinearGradient({
@@ -1120,7 +1154,7 @@ export default class HnswView extends BaseView {
                 searchTarget.searchViewPosLevels[level],
                 inprocessEntryNodes[0].t
               ),
-              16
+              shortenLineD
             ),
           ];
     drawLinesWithLinearGradient({
@@ -1136,7 +1170,6 @@ export default class HnswView extends BaseView {
   renderSearchViewLinks({ ctx, links, inProcessLinks, level }) {
     let pointsList = [];
     let inprocessPointsList = [];
-    const shortenLineD = 18;
 
     // Visited
     pointsList = links
@@ -1309,7 +1342,9 @@ export default class HnswView extends BaseView {
   _renderSearchViewTarget({ ctx, node, level }) {
     drawEllipse({
       ctx,
-      circles: [[...node.searchViewPosLevels[level], 10, 7]],
+      circles: [
+        [...node.searchViewPosLevels[level], node.r * ellipseRation, node.r],
+      ],
       hasFill: true,
       fillStyle: hexWithOpacity(whiteColor, 1),
       shadowColor: whiteColor,

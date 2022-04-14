@@ -26,9 +26,9 @@ const testHNSW = async (filePath) => {
       // coarseWithProjection: false,
     },
     viewParams: {
-      width: 1400,
-      height: 1000,
-      padding: [150, 240, 100, 280],
+      // width: 1400,
+      // height: 1000,
+      // padding: [150, 240, 100, 280],
       itemType: 'img',
       hoverCallback,
     },
@@ -37,7 +37,7 @@ const testHNSW = async (filePath) => {
   // const core = feder.core;
   // feder.overview();
   console.log(feder);
-  // feder.overview();
+  feder.overview();
   // feder.search(feder.core.id2vector[6341]);
 };
 

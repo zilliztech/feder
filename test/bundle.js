@@ -13745,7 +13745,12 @@ ${indentData}`);
   var hoveredPanelId = "feder-info-hovered-panel";
   var panelBackgroundColor = hexWithOpacity(blackColor, 0.6);
   var BaseView = class {
-    constructor({ width = 600, height = 380, padding = [0, 0, 0, 0], getVectorById } = {}) {
+    constructor({
+      width = 1e3,
+      height = 600,
+      padding = [80, 200, 60, 220],
+      getVectorById
+    } = {}) {
       this.width = width * canvasScale;
       this.height = height * canvasScale;
       this.padding = padding.map((num) => num * canvasScale);
@@ -13780,9 +13785,9 @@ ${indentData}`);
       overviewPanel.className = overviewPanel.className + " panel-border panel hide";
       const overviewPanelStyle = {
         position: "absolute",
-        left: "30px",
-        top: "24px",
-        width: "350px",
+        left: "16px",
+        top: "10px",
+        width: "260px",
         borderColor: whiteColor,
         backgroundColor: panelBackgroundColor
       };
@@ -13793,9 +13798,9 @@ ${indentData}`);
       selectedPanel.className = selectedPanel.className + " panel-border panel hide";
       const selectedPanelStyle = {
         position: "absolute",
-        right: "30px",
-        top: "24px",
-        "max-width": "230px",
+        right: "16px",
+        top: "10px",
+        "max-width": "160px",
         borderColor: ZYellow,
         backgroundColor: panelBackgroundColor
       };
@@ -13824,21 +13829,21 @@ ${indentData}`);
         border-width: 1px;
       }
       .panel {
-        padding: 18px 26px;
+        padding: 6px 8px;
         point-events: none;
-        font-size: 14px;
+        font-size: 12px;
       }
       .hide {
         opacity: 0;
       }
       .panel-item {
-        margin-bottom: 10px;
+        margin-bottom: 6px;
       }
       .panel-img {
-        width: 200px;
-        height: 150px;
+        width: 150px;
+        height: 100px;
         background-size: cover;
-        margin-bottom: 15px;
+        margin-bottom: 12px;
         border-radius: 4px;
         border: 1px solid ${ZYellow};
       }
@@ -13847,18 +13852,18 @@ ${indentData}`);
       }
       .panel-item-title {
         font-weight: 600;
+        margin-bottom: 3px;
       }
       .panel-item-text {
-        margin-top: 3px;
         font-weight: 400;
-        font-size: 12px;
+        font-size: 10px;
         word-break: break-all;
       }
       .panel-item-text-flex {
-        margin-left: 10px;
+        margin-left: 8px;
       }
       .panel-item-text-margin {
-        margin: 0 10px;
+        margin: 0 6px;
       }
       .text-no-wrap {
         white-space: nowrap;
@@ -13885,7 +13890,7 @@ ${indentData}`);
         this.mouseLeaveHandler && this.mouseLeaveHandler();
       });
     }
-    _renderSelectedPanel(itemList = [], color2) {
+    _renderSelectedPanel(itemList = [], color2 = "#000") {
       const panel = select_default2(`#${selectedPanelId}`);
       panel.style("color", color2);
       if (itemList.length === 0)
@@ -13894,7 +13899,7 @@ ${indentData}`);
         this._renderPanel(panel, itemList);
       }
     }
-    _renderHoveredPanel(itemList = [], color2, x3 = 0, y4 = 0, isLeft = false) {
+    _renderHoveredPanel(itemList = [], color2 = "#000", x3 = 0, y4 = 0, isLeft = false) {
       const panel = select_default2(`#${hoveredPanelId}`);
       if (itemList.length === 0)
         panel.classed("hide", true);
@@ -15026,6 +15031,7 @@ ${indentData}`);
       this.stop();
       const p = t / this.duration;
       this.tAlready = t;
+      this.t = t;
       this.callback({
         t,
         p
@@ -15035,6 +15041,7 @@ ${indentData}`);
       this.stop();
       const t = this.duration * p;
       this.tAlready = t;
+      this.t = t;
       this.callback({
         t,
         p
@@ -15059,7 +15066,9 @@ ${indentData}`);
       };
     }
     render(dom) {
-      const svg = select_default2(`#${dom.id}`).append("svg").attr("width", 300).attr("height", 100).style("position", "absolute").style("left", "40px").style("bottom", "12px");
+      const _dom = select_default2(`#${dom.id}`);
+      _dom.selectAll("svg").remove();
+      const svg = _dom.append("svg").attr("width", 300).attr("height", rectW).style("position", "absolute").style("left", "20px").style("bottom", "32px");
       const playPauseG = svg.append("g");
       playPauseG.append("rect").attr("x", 0).attr("y", 0).attr("width", rectW).attr("height", rectW).attr("fill", "#fff");
       playPauseG.append("path").attr("d", `M${rectW * 0.36},${rectW * 0.3}L${rectW * 0.64},${rectW * 0.5}L${rectW * 0.36},${rectW * 0.7}Z`).attr("fill", "#000");
@@ -15094,21 +15103,19 @@ ${indentData}`);
   var TimeControllerView_default = TimeControllerView;
 
   // esm/FederView/HnswView.js
-  var HoveredPanelLine_1_x = 60;
-  var HoveredPanelLine_1_y = -60;
-  var HoveredPanelLine_2_x = 140;
+  var HoveredPanelLine_1_x = 30;
+  var HoveredPanelLine_1_y = -30;
+  var HoveredPanelLine_2_x = 60;
   var ellipseRation = 1.4;
+  var shortenLineD = 10;
   var HnswView = class extends BaseView {
-    constructor({
-      width,
-      height,
-      forceTime = 3e3,
-      padding = [150, 280, 50, 280],
-      itemType = null,
-      hoverCallback = () => null,
-      getVectorById = () => null
-    } = {}) {
-      super({ width, height, forceTime, padding, getVectorById });
+    constructor(params) {
+      super(params);
+      const {
+        forceTime = 3e3,
+        itemType = null,
+        hoverCallback = () => null
+      } = params;
       this.forceTime = forceTime;
       this.itemType = itemType;
       this.hoverCallback = hoverCallback;
@@ -15119,6 +15126,7 @@ ${indentData}`);
       this.searchTransitionTimer = null;
       this.isSelected = false;
       this.selectedNode = null;
+      this.selectedLevel = null;
       this.highlightLinksLevels = [];
       this.highlightNodesLevels = [];
       this.targetOrigin = [0, 0];
@@ -15190,10 +15198,13 @@ ${indentData}`);
     }
     async overview({ dom = this.dom }) {
       this.setDom(dom);
+      this.selectedNode = null;
+      this.hoveredNode = null;
+      this._renderSelectedPanel();
+      this._renderHoveredPanel();
+      this.searchTransitionTimer && this.searchTransitionTimer.stop();
       this.computeOverviewPromise && await this.computeOverviewPromise;
       const ctx = this.canvas.getContext("2d");
-      this.selectedNode = null;
-      this.selectedLevel = null;
       this.renderOverview({ ctx });
       const overviewInfo = [
         {
@@ -15284,7 +15295,7 @@ ${indentData}`);
         const minDistIndex = minIndex(allDis);
         const minDist = allDis[minDistIndex];
         const clearestNode = nodesLevels[selectedLevel][minDistIndex];
-        selectedNode = minDist < Math.pow(Math.max(clearestNode.r + 5, 10), 2) ? clearestNode : null;
+        selectedNode = minDist < Math.pow(Math.max(clearestNode.r + 5, 20), 2) ? clearestNode : null;
       } else {
         selectedNode = null;
       }
@@ -15499,7 +15510,7 @@ ${indentData}`);
       });
     }
     renderLinks({ ctx, links, level }) {
-      const pointsList = links.map((link) => shortenLine(link.source.overviewPosLevels[level], link.target.overviewPosLevels[level], 20));
+      const pointsList = links.map((link) => shortenLine(link.source.overviewPosLevels[level], link.target.overviewPosLevels[level], shortenLineD));
       drawLinesWithLinearGradient({
         ctx,
         pointsList,
@@ -15517,7 +15528,7 @@ ${indentData}`);
       ] : null : [
         link.source.overviewPosLevels[level],
         link.target.overviewPosLevels[level]
-      ]).filter((a2) => a2).map((points) => shortenLine(...points, 20));
+      ]).filter((a2) => a2).map((points) => shortenLine(...points, shortenLineD));
       drawLinesWithLinearGradient({
         ctx,
         pointsList,
@@ -15532,7 +15543,7 @@ ${indentData}`);
       const pointsList = links.map((link) => [
         link.source.overviewPosLevels[level],
         link.target.overviewPosLevels[level]
-      ]).map((points) => shortenLine(...points, 20));
+      ]).map((points) => shortenLine(...points, shortenLineD));
       drawLinesWithLinearGradient({
         ctx,
         pointsList,
@@ -15560,6 +15571,8 @@ ${indentData}`);
       const ctx = this.canvas.getContext("2d");
       this.selectedNode = null;
       this.hoveredNode = null;
+      this._renderSelectedPanel();
+      this._renderHoveredPanel();
       await this.computeSearchView({ searchRes });
       const overviewInfo = [
         {
@@ -15585,7 +15598,7 @@ ${indentData}`);
         overviewInfo.push({
           isFlex: true,
           title: `Level ${level}`,
-          text: `${nodes.length} vectors, ${links.length} links, min-distance: ${minDist}`
+          text: `${nodes.length} vectors, ${links.length} links, min-dist: ${minDist}`
         });
       }
       this._renderOverviewPanel(overviewInfo, whiteColor);
@@ -15616,7 +15629,6 @@ ${indentData}`);
         this.selectedLevel = selectedLevel;
         this.selectedNode = selectedNode;
         if (this.selectedNodeChanged) {
-          console.log("mouse", selectedLevel, selectedNode);
           if (this.selectedNodeChanged) {
             const itemList = [];
             if (!!this.selectedNode) {
@@ -15634,11 +15646,10 @@ ${indentData}`);
                 imgUrl: this.hoverCallback(selectedNode.id)
               });
               itemList.push({
-                title: `Vectors:`,
+                title: `Vector:`,
                 text: `${showVectors(this.getVectorById(selectedNode.id))}`
               });
             }
-            console.log("itemList", itemList);
             this._renderSelectedPanel(itemList, ZYellow);
           }
           this.renderSearchViewTransition({
@@ -15703,13 +15714,14 @@ ${indentData}`);
       });
       this.searchTarget = {
         id: "target",
+        r: 6,
         searchViewPosLevels: range(visData.length).map((i) => transformFunc(...targetOrigin, i))
       };
       this.searchLayerPosLevels = layerPosLevels;
       searchNodesLevels.forEach((nodes, level) => {
         nodes.forEach((node) => {
           node.searchViewPosLevels = range(level + 1).map((i) => transformFunc(...node.forcePos, i));
-          node.r = node.type * 2;
+          node.r = 3 + node.type * 0.5;
         });
       });
       this.searchNodesLevels = searchNodesLevels;
@@ -15792,23 +15804,47 @@ ${indentData}`);
         } else {
           this._renderHoveredPanel([], ZYellow);
         }
+        if (!!this.selectedNode) {
+          this.renderSearchViewSelectedNode({
+            ctx,
+            pos: this.selectedNode.searchViewPosLevels[this.selectedLevel],
+            r: this.selectedNode.r + 4.5
+          });
+        }
       }
+    }
+    renderSearchViewSelectedNode({ ctx, pos, r }) {
+      drawEllipse({
+        ctx,
+        circles: [[...pos, r * ellipseRation, r]],
+        hasStroke: true,
+        strokeStyle: hexWithOpacity(ZYellow, 0.8),
+        lineWidth: 3
+      });
     }
     renderSearchViewNodes({ ctx, nodes, level, shadowBlur = 4 }) {
       let _nodes = [];
       _nodes = nodes.filter((node) => node.type === HNSW_NODE_TYPE.Coarse);
       drawEllipse({
         ctx,
-        circles: _nodes.map((node) => [...node.searchViewPosLevels[level], 6, 4]),
+        circles: _nodes.map((node) => [
+          ...node.searchViewPosLevels[level],
+          node.r * ellipseRation,
+          node.r
+        ]),
         hasFill: true,
-        fillStyle: hexWithOpacity(ZBlue, 0.5),
+        fillStyle: hexWithOpacity(ZBlue, 0.7),
         shadowColor: ZBlue,
         shadowBlur
       });
       _nodes = nodes.filter((node) => node.type === HNSW_NODE_TYPE.Candidate);
       drawEllipse({
         ctx,
-        circles: _nodes.map((node) => [...node.searchViewPosLevels[level], 8, 5]),
+        circles: _nodes.map((node) => [
+          ...node.searchViewPosLevels[level],
+          node.r * ellipseRation,
+          node.r
+        ]),
         hasFill: true,
         fillStyle: hexWithOpacity(ZYellow, 0.8),
         shadowColor: ZYellow,
@@ -15819,8 +15855,8 @@ ${indentData}`);
         ctx,
         circles: _nodes.map((node) => [
           ...node.searchViewPosLevels[level],
-          10,
-          7
+          node.r * ellipseRation,
+          node.r
         ]),
         hasFill: true,
         fillStyle: hexWithOpacity(colorScheme[2], 1),
@@ -15838,7 +15874,7 @@ ${indentData}`);
       searchTarget,
       level
     }) {
-      const pointsList = entryNodes.map((node) => shortenLine(node.searchViewPosLevels[level + 1], node.searchViewPosLevels[level], 16));
+      const pointsList = entryNodes.map((node) => shortenLine(node.searchViewPosLevels[level + 1], node.searchViewPosLevels[level], shortenLineD));
       drawLinesWithLinearGradient({
         ctx,
         pointsList,
@@ -15849,7 +15885,7 @@ ${indentData}`);
         lineCap: "round"
       });
       const targetPointsList = pointsList.length === 0 ? [] : [
-        shortenLine(searchTarget.searchViewPosLevels[level + 1], searchTarget.searchViewPosLevels[level], 16)
+        shortenLine(searchTarget.searchViewPosLevels[level + 1], searchTarget.searchViewPosLevels[level], shortenLineD)
       ];
       drawLinesWithLinearGradient({
         ctx,
@@ -15860,7 +15896,7 @@ ${indentData}`);
         lineWidth: 6,
         lineCap: "round"
       });
-      const inprocessPointsList = inprocessEntryNodes.map(({ node, t }) => shortenLine(node.searchViewPosLevels[level + 1], getInprocessPos(node.searchViewPosLevels[level + 1], node.searchViewPosLevels[level], t), 16));
+      const inprocessPointsList = inprocessEntryNodes.map(({ node, t }) => shortenLine(node.searchViewPosLevels[level + 1], getInprocessPos(node.searchViewPosLevels[level + 1], node.searchViewPosLevels[level], t), shortenLineD));
       drawLinesWithLinearGradient({
         ctx,
         pointsList: inprocessPointsList,
@@ -15871,7 +15907,7 @@ ${indentData}`);
         lineCap: "round"
       });
       const inprocessTargetPointsList = inprocessPointsList.length === 0 ? [] : [
-        shortenLine(searchTarget.searchViewPosLevels[level + 1], getInprocessPos(searchTarget.searchViewPosLevels[level + 1], searchTarget.searchViewPosLevels[level], inprocessEntryNodes[0].t), 16)
+        shortenLine(searchTarget.searchViewPosLevels[level + 1], getInprocessPos(searchTarget.searchViewPosLevels[level + 1], searchTarget.searchViewPosLevels[level], inprocessEntryNodes[0].t), shortenLineD)
       ];
       drawLinesWithLinearGradient({
         ctx,
@@ -15886,7 +15922,6 @@ ${indentData}`);
     renderSearchViewLinks({ ctx, links, inProcessLinks, level }) {
       let pointsList = [];
       let inprocessPointsList = [];
-      const shortenLineD = 18;
       pointsList = links.filter((link) => link.type === HNSW_LINK_TYPE.Visited).map((link) => shortenLine(link.source.searchViewPosLevels[level], link.target.searchViewPosLevels[level], shortenLineD));
       drawLinesWithLinearGradient({
         ctx,
@@ -15971,7 +16006,9 @@ ${indentData}`);
     _renderSearchViewTarget({ ctx, node, level }) {
       drawEllipse({
         ctx,
-        circles: [[...node.searchViewPosLevels[level], 10, 7]],
+        circles: [
+          [...node.searchViewPosLevels[level], node.r * ellipseRation, node.r]
+        ],
         hasFill: true,
         fillStyle: hexWithOpacity(whiteColor, 1),
         shadowColor: whiteColor,
@@ -15986,29 +16023,21 @@ ${indentData}`);
     [INDEX_TYPE.HNSW]: HnswView
   };
   var FederView = class {
-    constructor({
-      indexType,
-      indexMeta,
-      getVectorById,
-      dom,
-      width = 800,
-      height = 600,
-      ...viewParams
-    }) {
+    constructor({ indexType, indexMeta, dom, ...viewParams }) {
       this.indexType = null;
       this.view = null;
       this.dom = dom;
       this.indexMeta = indexMeta;
-      this.initView({ indexType, width, height, getVectorById, ...viewParams });
+      this.initView(indexType, viewParams);
       this.computeIndexOverview({ indexMeta });
     }
-    initView({ indexType, width, height, ...viewParams }) {
+    initView(indexType, viewParams) {
       if (!viewMap[indexType]) {
         console.error("Illegal INDEX_TYPE -", indexType);
         return;
       }
       if (indexType !== this.indexType) {
-        this.view = new viewMap[indexType]({ width, height, ...viewParams });
+        this.view = new viewMap[indexType](viewParams);
         this.setViewType(VIEW_TYPE.Overview);
       }
     }
@@ -16139,14 +16168,12 @@ ${indentData}`);
       dom: container,
       projectParams: {},
       viewParams: {
-        width: 1400,
-        height: 1e3,
-        padding: [150, 240, 100, 280],
         itemType: "img",
         hoverCallback
       }
     });
     console.log(feder);
+    feder.overview();
   };
   window.addEventListener("DOMContentLoaded", async () => {
     testHNSW("data/hnswlib_hnsw_voc_17k.index");
