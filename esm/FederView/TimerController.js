@@ -12,7 +12,7 @@ export default class TimerController {
     this.isPlaying = false;
   }
   get currentT() {
-    return this.t
+    return this.t;
   }
   start() {
     const speed = this.speed;
@@ -56,6 +56,7 @@ export default class TimerController {
     this.stop();
     const p = t / this.duration;
     this.tAlready = t;
+    this.t = t;
     this.callback({
       t,
       p,
@@ -66,6 +67,7 @@ export default class TimerController {
     this.stop();
     const t = this.duration * p;
     this.tAlready = t;
+    this.t = t;
     this.callback({
       t,
       p,

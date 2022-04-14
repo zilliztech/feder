@@ -8,31 +8,23 @@ const viewMap = {
 };
 
 export default class FederView {
-  constructor({
-    indexType,
-    indexMeta,
-    getVectorById,
-    dom,
-    width = 800,
-    height = 600,
-    ...viewParams
-  }) {
+  constructor({ indexType, indexMeta, dom, ...viewParams }) {
     this.indexType = null;
     this.view = null;
 
     this.dom = dom;
     this.indexMeta = indexMeta;
 
-    this.initView({ indexType, width, height, getVectorById, ...viewParams });
+    this.initView(indexType, viewParams);
     this.computeIndexOverview({ indexMeta });
   }
-  initView({ indexType, width, height, ...viewParams }) {
+  initView(indexType, viewParams) {
     if (!viewMap[indexType]) {
       console.error('Illegal INDEX_TYPE -', indexType);
       return;
     }
     if (indexType !== this.indexType) {
-      this.view = new viewMap[indexType]({ width, height, ...viewParams });
+      this.view = new viewMap[indexType](viewParams);
       this.setViewType(VIEW_TYPE.Overview);
     }
   }

@@ -1,45 +1,85 @@
 # feder
 
 ## What is feder
-Feder is built for visualize anns index files, so that we can have a better understanding of anns and high dimensional vectors. so far, we are focusing on Faiss index and HNSW index, we will cover more index types later.
+
+Feder is built for visualizing anns index files, so that we can have a better understanding of anns and high dimensional vectors. so far, we are focusing on the index from Faiss (only ivf_flat) and HNSWlib (hnsw), we will cover more index types later.
 
 ## Quick start
+
 ### installation
-``` shell
+
+Use npm or yarn.
+
+```shell
 #install
 npm install @zilliz/Feder
 ```
 
-### basic usage
+or
+
+```shell
+#install
+yarn add @zilliz/Feder
+```
+
+### Material Preparation
+
+Build an index and dump the index file by Faiss or HNSWlib.
+
+### Init Feder
+
+Specifying the dom container that you want to show the visualizations.
+
 ```js
-import { Feder } from '@zilliz/Feder';
+import Feder from '@zilliz/Feder';
 
 const feder = new Feder({
-    file: 'faiss_file',    // file path
-    type: 'faiss',        // faiss | hnsw
-    domContainer,         // attach dom to render
+  file: 'faiss_file', // file path
+  type: 'faiss', // faiss | hnsw
+  dom: '#container', // attach dom to render
 });
-
-// you can call search to visualize the search process
-feder.search(target, params);
-// or reset to initialize state
-feder.reset();
 ```
+
+### Visualize the index structure.
+
+```js
+feder.overview();
+```
+
+### Explore the search process.
+
+Set search parameters (optional) and Specify the query vector.
+
+```js
+feder.setSearchParams({ k: 8, ef_search: 100 });
+feder.search(target_vector);
+```
+
 ## API
+
 TBD
 
 ## Examples
+
+index
+images
+
+html +
+
 ### Use feder with d3
+
 TBD
 
 ### Use feder with react
+
 TBD
 
 ## How feder works
+
 TBD
 
-
 ## How to contribute
+
 ```shell
 # install dependencies
 npm install
