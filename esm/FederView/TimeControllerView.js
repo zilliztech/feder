@@ -16,14 +16,16 @@ export class TimeControllerView {
     this.moveSilderBar = () => {};
   }
   render(dom) {
-    const svg = d3
-      .select(`#${dom.id}`)
+    const _dom = d3.select(`#${dom.id}`);
+    _dom.selectAll('svg#feder-timer').remove();
+    const svg = _dom
       .append('svg')
+      .attr("id", "feder-timer")
       .attr('width', 300)
-      .attr('height', 100)
+      .attr('height', rectW)
       .style('position', 'absolute')
-      .style('left', '40px')
-      .style('bottom', '12px');
+      .style('left', '20px')
+      .style('bottom', '32px');
     // .style('border', '1px solid red');
 
     const playPauseG = svg.append('g');
