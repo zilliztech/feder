@@ -23,11 +23,8 @@ const testHNSW = async (filePath) => {
       mediaCallback,
     },
   });
-
-  console.log(feder);
-  // feder.overview();
-  feder.searchRandTestVec();
-}; 
+  return feder;
+};
 
 const testIVFFlat = async (filePath) => {
   const feder = new Feder({
@@ -42,15 +39,15 @@ const testIVFFlat = async (filePath) => {
       width: 1100,
       height: 1000,
     },
-  });
-
-  console.log(feder);
-  // feder.overview();
-  feder.searchRandTestVec();
+  })
+  return feder;
 };
 
 window.addEventListener('DOMContentLoaded', async () => {
-  // testIVFFlat('data/faiss_ivf_flat.index');
-  // testHNSW('data/hnswlib_hnsw_random_1M.index');
-  testHNSW('data/hnswlib_hnsw_voc_17k.index');
+  // const feder = testIVFFlat('data/faiss_ivf_flat.index');
+  // const feder = testHNSW('data/hnswlib_hnsw_random_1M.index');
+  const feder = testHNSW('data/hnswlib_hnsw_voc_17k.index');
+  console.log(feder);
+  feder.overview();
+  // feder.searchRandTestVec();
 });
