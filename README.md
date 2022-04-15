@@ -34,14 +34,16 @@ Specifying the dom container that you want to show the visualizations.
 import Feder from '@zilliz/feder';
 
 const feder = new Feder({
-  filePath: 'faiss_file',     // file path
-  source: 'faiss',          // faiss | hnswlib
-  domSelector: '#container',      // attach dom to render
-  viewParams: {}          // optional
+  filePath: 'faiss_file', // file path
+  source: 'faiss', // faiss | hnswlib
+  domSelector: '#container', // attach dom to render
+  viewParams: {}, // optional
 });
 ```
 
 ### Visualize the index structure.
+
+- HNSW - Feder will show the top-3 levels of the hnsw-tree
 
 ```js
 feder.overview();
@@ -52,9 +54,44 @@ feder.overview();
 Set search parameters (optional) and Specify the query vector.
 
 ```js
-feder.setSearchParams({ k: 8, ef_search: 100 });
+feder.setSearchParams({ k: 8, ef_search: 100 }); // hnsw
+feder.setSearchParams({ k: 8, nprobe: 8 }); // faiss ivf_flat
 feder.search(target_vector);
 ```
+
+### Advanced
+
+use **viewParams** to control.
+
+```js
+const feder = new Feder({
+  filePath,
+  source: 'hnswlib',
+  domSelector,
+  viewParams: {
+    width: 1000,
+    height: 600,
+    padding: [80, 200, 60, 220],
+    mediaType: 'img',
+    mediaCallback: (rowId) => url,
+  },
+});
+```
+
+#### view style
+
+Specify the visual style of the view.
+
+- width - canvas width
+- height - canvas height
+- padding - the main view padding
+
+#### media supports
+
+Support mapping from Row No. to media files. (current support img)
+
+- mediaType - null | img
+- mediaCallback - func: rowId => url,
 
 ## API
 
