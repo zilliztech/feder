@@ -136,7 +136,7 @@ export default class FederCore {
     const r = Math.floor(Math.random() * ids.length);
     const testId = ids[r];
     const testVec = this.id2vector[testId];
-    return { testId, testVec };
+    return [testId, testVec];
   }
 
   getVectoreById(id) {

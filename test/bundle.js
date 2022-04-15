@@ -13538,7 +13538,7 @@ ${indentData}`);
       const r = Math.floor(Math.random() * ids.length);
       const testId = ids[r];
       const testVec = this.id2vector[testId];
-      return { testId, testVec };
+      return [testId, testVec];
     }
     getVectoreById(id2) {
       return this.id2Vector[id2] || null;
@@ -13934,7 +13934,7 @@ ${indentData}`);
         const div = panel.append("div");
         div.classed("panel-item", true);
         item.isFlex && div.classed("panel-item-display-flex", true);
-        if (item.isImg) {
+        if (item.isImg && item.imgUrl) {
           div.classed("panel-img", true);
           div.style("background-image", `url(${item.imgUrl})`);
         }
@@ -16143,6 +16143,9 @@ ${indentData}`);
           this.initFederView();
         });
       } else {
+        this.dom = document.querySelector(domSelector2);
+        this.viewParams = viewParams;
+        this.initFederView();
       }
     }
     getTestIdAndVec() {
@@ -16161,7 +16164,6 @@ ${indentData}`);
         } else
           return null;
       };
-      console.log(getVectorById);
       this.federView = new FederView({
         indexType: this.core.indexType,
         indexMeta: this.core.indexMeta,
@@ -16191,6 +16193,12 @@ ${indentData}`);
         const searchRes = this.searchRes;
         this.federView.search({ searchRes });
       }
+    }
+    async searchRandTestVec() {
+      this.initCorePromise && await this.initCorePromise;
+      const [testId, testVec] = this.core.getTestIdAndVec();
+      console.log("random test vector:", testId, testVec);
+      this.search(testVec);
     }
     switchStep(step, stepType = null) {
       this.federView.switchStep(step, stepType);
@@ -16227,10 +16235,11 @@ ${indentData}`);
         mediaCallback
       }
     });
-    console.log(feder);
-    feder.overview();
+    return feder;
   };
   window.addEventListener("DOMContentLoaded", async () => {
-    testHNSW("data/hnswlib_hnsw_voc_17k.index");
+    const feder = await testHNSW("data/hnswlib_hnsw_voc_17k.index");
+    console.log(feder);
+    feder.overview();
   });
 })();
