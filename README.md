@@ -5,7 +5,7 @@
 Feder is built for visualizing anns index files, so that we can have a better understanding of anns and high dimensional vectors. so far, we are focusing on the index from Faiss (only ivf_flat) and HNSWlib (hnsw), we will cover more index types later.
 
 - HNSW
-![image](./fig/hnsw_overview.png)
+  ![image](./fig/hnsw_overview.png)
 
 ## Quick start
 
@@ -98,7 +98,70 @@ Support mapping from Row No. to media files. (current support img)
 
 ## Examples
 
-### 
+### Step 1. Dataset preparation
+
+Images from VOC2012 [Download](http://host.robots.ox.ac.uk/pascal/VOC/voc2012/VOCtrainval_11-May-2012.tar)
+
+You can also generate random vectors for index building and skip to **step 3**.
+
+### Step 2. Generate embedding vectors
+
+Recommend to use [towhee](https://github.com/towhee-io/towhee), one line of code to generating embedding vectors!
+
+We have the encoded vectors ready for you. (**test/data/voc_vectors.csv**)
+
+### Step 3. Build an index and dump it.
+
+You can use [faiss](https://github.com/facebookresearch/faiss) and [hnswlib](https://github.com/nmslib/hnswlib) to build the index.
+
+Referring to **test/data/gen*hnswlib_index*\*.py** or **test/data/gen*faiss_index*\*.py**
+
+Or we have the index files ready for you. (**test/data/\*.index**)
+
+### Step 4. Init Feder.
+
+```js
+import { Feder } from '@zilliz/feder';
+import * as d3 from 'd3';
+
+const domSelector = '#container';
+const filePath = '/data/hnswlib_hnsw_voc_17k.index';
+
+const getId2name = async () => {
+  const data = await d3.csv('./data/voc_vectors.csv');
+  const rowId2name = {};
+  data.forEach((d, i) => (rowId2name[i] = d.name));
+  return rowId2name;
+};
+
+const rowId2name = await getId2name();
+const mediaCallback = (rowId) =>
+  rowId in rowId2name ? `./data/images/${rowId2name[rowId]}` : null;
+const feder = new Feder({
+  filePath,
+  source: 'hnswlib',
+  domSelector,
+  viewParams: {
+    mediaType: 'img',
+    mediaCallback,
+  },
+});
+```
+
+### Step 5. Explore the index!
+
+Visualize the overview
+```js
+feder.overview();
+```
+or 
+```
+feder.search(target_vector);
+```
+
+### Build an index and dump the index file
+
+###
 
 ## Join us
 
