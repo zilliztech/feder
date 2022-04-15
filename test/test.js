@@ -44,9 +44,9 @@ const testIVFFlat = async (filePath) => {
 };
 
 window.addEventListener('DOMContentLoaded', async () => {
-  // const feder = testIVFFlat('data/faiss_ivf_flat.index');
-  // const feder = testHNSW('data/hnswlib_hnsw_random_1M.index');
-  const feder = testHNSW('data/hnswlib_hnsw_voc_17k.index');
+  // const feder = await testIVFFlat('data/faiss_ivf_flat.index');
+  // const feder = await testHNSW('data/hnswlib_hnsw_random_1M.index');
+  const feder = await testHNSW('data/hnswlib_hnsw_voc_17k.index');
   console.log(feder);
   feder.overview();
   // feder.searchRandTestVec();
