@@ -12682,7 +12682,7 @@ ${indentData}`);
     const y4 = point_0[1] * (1 - t) + point_1[1] * t;
     return [x3, y4];
   };
-  var showVectors = (vec2, precision = 6, maxLength = 40) => {
+  var showVectors = (vec2, precision = 6, maxLength = 30) => {
     return vec2.slice(0, maxLength).map((num) => num.toFixed(precision)).join(", ") + ", ...";
   };
 
@@ -13918,7 +13918,7 @@ ${indentData}`);
         this._renderPanel(panel, itemList);
       }
     }
-    _renderOverviewPanel(itemList, color2) {
+    _renderOverviewPanel(itemList = [], color2) {
       const panel = select_default2(`#${overviewPanelId}`);
       panel.style("color", color2);
       if (itemList.length === 0)
@@ -15067,8 +15067,8 @@ ${indentData}`);
     }
     render(dom) {
       const _dom = select_default2(`#${dom.id}`);
-      _dom.selectAll("svg").remove();
-      const svg = _dom.append("svg").attr("width", 300).attr("height", rectW).style("position", "absolute").style("left", "20px").style("bottom", "32px");
+      _dom.selectAll("svg#feder-timer").remove();
+      const svg = _dom.append("svg").attr("id", "feder-timer").attr("width", 300).attr("height", rectW).style("position", "absolute").style("left", "20px").style("bottom", "32px");
       const playPauseG = svg.append("g");
       playPauseG.append("rect").attr("x", 0).attr("y", 0).attr("width", rectW).attr("height", rectW).attr("fill", "#fff");
       playPauseG.append("path").attr("d", `M${rectW * 0.36},${rectW * 0.3}L${rectW * 0.64},${rectW * 0.5}L${rectW * 0.36},${rectW * 0.7}Z`).attr("fill", "#000");
@@ -15101,6 +15101,43 @@ ${indentData}`);
     }
   };
   var TimeControllerView_default = TimeControllerView;
+
+  // esm/Utils/loading.js
+  var loadingSvgId2 = "feder-loading";
+  var loadingWidth2 = 30;
+  var loadingStrokeWidth = 6;
+  var renderLoading = (dom) => {
+    const style = document.createElement("style");
+    style.type = "text/css";
+    style.innerHTML = `
+      @keyframes rotation {
+        from {
+          transform: translate(${loadingWidth2 / 2}px,${loadingWidth2 / 2}px) rotate(0deg);
+        }
+        to {
+          transform: translate(${loadingWidth2 / 2}px,${loadingWidth2 / 2}px) rotate(359deg);
+        }
+      }
+      .rotate {
+        animation: rotation 2s infinite linear;
+      }
+    `;
+    document.getElementsByTagName("head").item(0).appendChild(style);
+    const _dom = select_default2(`#${dom.id}`);
+    const { width, height } = _dom.node().getBoundingClientRect();
+    const svg = _dom.append("svg").attr("id", loadingSvgId2).attr("width", loadingWidth2).attr("height", loadingWidth2).style("position", "absolute").style("left", width / 2 - loadingWidth2 / 2).style("bottom", height / 2 - loadingWidth2 / 2).style("overflow", "visible");
+    const defsG = svg.append("defs");
+    const linearGradientId = `feder-loading-gradient`;
+    const linearGradient = defsG.append("linearGradient").attr("id", linearGradientId).attr("x1", 0).attr("y1", 0).attr("x2", 0).attr("y2", 1);
+    linearGradient.append("stop").attr("offset", "0%").style("stop-color", "#1E64FF");
+    linearGradient.append("stop").attr("offset", "100%").style("stop-color", "#061982");
+    const loadingCircle = svg.append("circle").attr("cx", loadingWidth2 / 2).attr("cy", loadingWidth2 / 2).attr("fill", "none").attr("r", loadingWidth2 / 2).attr("stroke", "#1E64FF").attr("stroke-width", loadingStrokeWidth);
+    const semiCircle = svg.append("path").attr("d", `M0,${-loadingWidth2 / 2} a ${loadingWidth2 / 2} ${loadingWidth2 / 2} 0 1 1 ${0} ${loadingWidth2}`).attr("fill", "none").attr("stroke", `url(#${linearGradientId})`).attr("stroke-width", loadingStrokeWidth).classed("rotate", true);
+  };
+  var finishLoading = (dom) => {
+    const _dom = select_default2(`#${dom.id}`);
+    _dom.select(`#${loadingSvgId2}`).remove();
+  };
 
   // esm/FederView/HnswView.js
   var HoveredPanelLine_1_x = 30;
@@ -15172,7 +15209,7 @@ ${indentData}`);
         nodesLevels.forEach((nodes, level) => {
           nodes.forEach((node) => {
             node.overviewPosLevels = range(level + 1).map((i) => transformFunc(node.x, node.y, i));
-            node.r = 2 + 1.5 * node.overviewPosLevels.length;
+            node.r = 2 + 1 * node.overviewPosLevels.length;
           });
         });
         this.nodes = allNodes;
@@ -15198,12 +15235,15 @@ ${indentData}`);
     }
     async overview({ dom = this.dom }) {
       this.setDom(dom);
+      renderLoading(dom);
       this.selectedNode = null;
       this.hoveredNode = null;
       this._renderSelectedPanel();
       this._renderHoveredPanel();
+      this._renderOverviewPanel();
       this.searchTransitionTimer && this.searchTransitionTimer.stop();
       this.computeOverviewPromise && await this.computeOverviewPromise;
+      finishLoading(dom);
       const ctx = this.canvas.getContext("2d");
       this.renderOverview({ ctx });
       const overviewInfo = [
@@ -15377,6 +15417,13 @@ ${indentData}`);
         this.renderHoveredPanelLine({ ctx, x: x3, y: y4, isLeft });
       } else {
         this._renderHoveredPanel([], ZYellow);
+      }
+      if (!!this.selectedNode) {
+        this.renderSelectedNode({
+          ctx,
+          pos: this.selectedNode.overviewPosLevels[this.selectedLevel],
+          r: this.selectedNode.r + 5
+        });
       }
     }
     renderHoveredPanelLine({ ctx, x: x3, y: y4, isLeft }) {
@@ -15568,12 +15615,16 @@ ${indentData}`);
     }
     async search({ searchRes = null, dom = this.dom } = {}) {
       this.setDom(dom);
+      renderLoading(dom);
       const ctx = this.canvas.getContext("2d");
+      this.renderBackground({ ctx });
       this.selectedNode = null;
       this.hoveredNode = null;
       this._renderSelectedPanel();
       this._renderHoveredPanel();
+      this._renderOverviewPanel();
       await this.computeSearchView({ searchRes });
+      finishLoading(dom);
       const overviewInfo = [
         {
           title: "HNSW"
@@ -15805,7 +15856,7 @@ ${indentData}`);
           this._renderHoveredPanel([], ZYellow);
         }
         if (!!this.selectedNode) {
-          this.renderSearchViewSelectedNode({
+          this.renderSelectedNode({
             ctx,
             pos: this.selectedNode.searchViewPosLevels[this.selectedLevel],
             r: this.selectedNode.r + 4.5
@@ -15813,13 +15864,13 @@ ${indentData}`);
         }
       }
     }
-    renderSearchViewSelectedNode({ ctx, pos, r }) {
+    renderSelectedNode({ ctx, pos, r }) {
       drawEllipse({
         ctx,
         circles: [[...pos, r * ellipseRation, r]],
         hasStroke: true,
         strokeStyle: hexWithOpacity(ZYellow, 0.8),
-        lineWidth: 3
+        lineWidth: 4
       });
     }
     renderSearchViewNodes({ ctx, nodes, level, shadowBlur = 4 }) {
@@ -16107,7 +16158,7 @@ ${indentData}`);
         } else
           return null;
       };
-      this.fenderView = new FederView({
+      this.federView = new FederView({
         indexType: this.core.indexType,
         indexMeta: this.core.indexMeta,
         dom: this.dom,
@@ -16116,37 +16167,37 @@ ${indentData}`);
       });
     }
     overview() {
-      this.fenderView.overview();
+      this.federView.overview();
     }
     resetOverview() {
-      this.fenderView.resetOverview();
+      this.federView.resetOverview();
     }
     search(target = null) {
       if (target) {
         const searchRes = this.core.search(target);
         this.searchRes = searchRes;
-        this.fenderView.search({ searchRes });
+        this.federView.search({ searchRes });
       } else {
         if (!this.searchRes) {
           console.error("No target");
           return;
         }
         const searchRes = this.searchRes;
-        this.fenderView.search({ searchRes });
+        this.federView.search({ searchRes });
       }
     }
     switchStep(step, stepType = null) {
-      this.fenderView.switchStep(step, stepType);
+      this.federView.switchStep(step, stepType);
     }
     coarseSearch() {
-      this.fenderView.switchStep(STEP.CoarseSearch);
+      this.federView.switchStep(STEP.CoarseSearch);
     }
     fineSearch(stepType) {
       if (!STEP_TYPE[stepType] || STEP_TYPE[stepType] === STEP_TYPE.Init) {
         stepType = STEP_TYPE.Polar;
         console.log("Illegal Step_Type, default Polar");
       }
-      this.fenderView.switchStep(STEP.FineSearch, stepType);
+      this.federView.switchStep(STEP.FineSearch, stepType);
     }
   };
 

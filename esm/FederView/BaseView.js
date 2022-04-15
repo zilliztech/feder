@@ -216,7 +216,7 @@ export default class BaseView {
       this._renderPanel(panel, itemList);
     }
   }
-  _renderOverviewPanel(itemList, color) {
+  _renderOverviewPanel(itemList = [], color) {
     const panel = d3.select(`#${overviewPanelId}`);
     panel.style('color', color);
     if (itemList.length === 0) panel.classed('hide', true);
