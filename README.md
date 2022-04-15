@@ -120,6 +120,11 @@ window.addEventListener('DOMContentLoaded', async () => {
   feder.searchRandTestVec();
 });
 ```
+then open a new cmdline, 
+```shell
+yarn dev
+```
+It makes the new changes to test.js take effect.
 
 If you want to display the image during the interaction, need to [download the image dataset (VOC 2012)](<(http://host.robots.ox.ac.uk/pascal/VOC/voc2012/VOCtrainval_11-May-2012.tar)>).
 
