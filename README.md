@@ -6,7 +6,6 @@ Feder is built for visualizing anns index files, so that we can have a better un
 
 - HNSW
   ![image](./fig/hnsw_overview.png)
-
 ## Quick start
 
 ### installation
@@ -130,7 +129,7 @@ const filePath = '/data/hnswlib_hnsw_voc_17k.index';
 const getId2name = async () => {
   const data = await d3.csv('./data/voc_vectors.csv');
   const rowId2name = {};
-  data.forEach((d, i) => (rowId2name[i] = d.name));
+  data.forEach((d, i) => (rowId2name[i] = d['name']));
   return rowId2name;
 };
 
@@ -148,20 +147,37 @@ const feder = new Feder({
 });
 ```
 
+If use the random_data, no need to specify the mediaType.
+
+```js
+import { Feder } from '@zilliz/feder';
+import * as d3 from 'd3';
+
+const domSelector = '#container';
+const filePath = '/data/hnswlib_hnsw_random_1M.index';
+
+const feder = new Feder({
+  filePath,
+  source: 'hnswlib',
+  domSelector,
+});
+```
+
 ### Step 5. Explore the index!
 
 Visualize the overview
+
 ```js
 feder.overview();
 ```
-or 
+
+or
+
 ```
 feder.search(target_vector);
 ```
 
-### Build an index and dump the index file
-
-###
+![image](./fig/hnsw_search.png)
 
 ## Join us
 
