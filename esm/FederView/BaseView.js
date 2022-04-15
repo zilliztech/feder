@@ -232,7 +232,7 @@ export default class BaseView {
       const div = panel.append('div');
       div.classed('panel-item', true);
       item.isFlex && div.classed('panel-item-display-flex', true);
-      if (item.isImg) {
+      if (item.isImg && item.imgUrl) {
         div.classed('panel-img', true);
         div.style('background-image', `url(${item.imgUrl})`);
       }

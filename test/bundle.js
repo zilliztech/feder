@@ -13934,7 +13934,7 @@ ${indentData}`);
         const div = panel.append("div");
         div.classed("panel-item", true);
         item.isFlex && div.classed("panel-item-display-flex", true);
-        if (item.isImg) {
+        if (item.isImg && item.imgUrl) {
           div.classed("panel-img", true);
           div.style("background-image", `url(${item.imgUrl})`);
         }
@@ -16235,10 +16235,11 @@ ${indentData}`);
         mediaCallback
       }
     });
-    console.log(feder);
-    feder.searchRandTestVec();
+    return feder;
   };
   window.addEventListener("DOMContentLoaded", async () => {
-    testHNSW("data/hnswlib_hnsw_voc_17k.index");
+    const feder = testHNSW("data/hnswlib_hnsw_voc_17k.index");
+    console.log(feder);
+    feder.overview();
   });
 })();
