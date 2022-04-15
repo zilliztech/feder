@@ -34,7 +34,7 @@ Make sure that you have Built an index and dumped the index file by Faiss or HNS
 Specifying the dom container that you want to show the visualizations.
 
 ```js
-import Feder from '@zilliz/feder';
+import { Feder } from '@zilliz/feder';
 
 const feder = new Feder({
   filePath: 'faiss_file', // file path
@@ -64,7 +64,7 @@ feder.search(target_vector);
 
 ### Advanced
 
-use **viewParams** to control.
+Use **viewParams** to adjust the details of the view.
 
 ```js
 const feder = new Feder({
