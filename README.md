@@ -12,31 +12,32 @@ Use npm or yarn.
 
 ```shell
 #install
-npm install @zilliz/Feder
+npm install @zilliz/feder
 ```
 
 or
 
 ```shell
 #install
-yarn add @zilliz/Feder
+yarn add @zilliz/feder
 ```
 
 ### Material Preparation
 
-Build an index and dump the index file by Faiss or HNSWlib.
+Make sure that you have Built an index and dumped the index file by Faiss or HNSWlib.
 
 ### Init Feder
 
 Specifying the dom container that you want to show the visualizations.
 
 ```js
-import Feder from '@zilliz/Feder';
+import Feder from '@zilliz/feder';
 
 const feder = new Feder({
-  file: 'faiss_file', // file path
-  type: 'faiss', // faiss | hnsw
-  dom: '#container', // attach dom to render
+  filePath: 'faiss_file',     // file path
+  source: 'faiss',          // faiss | hnswlib
+  domSelector: '#container',      // attach dom to render
+  viewParams: {}          // optional
 });
 ```
 

@@ -56,13 +56,13 @@ export default class HnswView extends BaseView {
     super(params);
     const {
       forceTime = 3000,
-      itemType = null,
-      hoverCallback = () => null,
+      mediaType = null,
+      mediaCallback = () => null,
     } = params;
 
     this.forceTime = forceTime;
-    this.itemType = itemType;
-    this.hoverCallback = hoverCallback;
+    this.mediaType = mediaType;
+    this.mediaCallback = mediaCallback;
 
     this.dom = null;
     this.searchRes = null;
@@ -259,10 +259,10 @@ export default class HnswView extends BaseView {
           itemList.push({
             title: `Row No. ${selectedNode.id}`,
           });
-          this.itemType === 'img' &&
+          this.mediaType === 'img' &&
             itemList.push({
               isImg: true,
-              imgUrl: this.hoverCallback(selectedNode.id),
+              imgUrl: this.mediaCallback(selectedNode.id),
             });
           itemList.push({
             title: `Shortest path from the entry:`,
@@ -459,10 +459,10 @@ export default class HnswView extends BaseView {
         textWithMargin: true,
         noWrap: true,
       });
-      this.itemType === 'img' &&
+      this.mediaType === 'img' &&
         itemList.push({
           isImg: true,
-          imgUrl: this.hoverCallback(this.hoveredNode.id),
+          imgUrl: this.mediaCallback(this.hoveredNode.id),
         });
 
       this._renderHoveredPanel(itemList, ZYellow, endX, endY, isLeft);
@@ -752,10 +752,10 @@ export default class HnswView extends BaseView {
             itemList.push({
               title: `Distance to the target: ${selectedNode.dist.toFixed(3)}`,
             });
-            this.itemType === 'img' &&
+            this.mediaType === 'img' &&
               itemList.push({
                 isImg: true,
-                imgUrl: this.hoverCallback(selectedNode.id),
+                imgUrl: this.mediaCallback(selectedNode.id),
               });
             itemList.push({
               title: `Vector:`,
