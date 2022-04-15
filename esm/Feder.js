@@ -39,7 +39,7 @@ export default class Feder {
         return [...this.core.id2vector[id]];
       } else return null;
     };
-    this.fenderView = new FederView({
+    this.federView = new FederView({
       indexType: this.core.indexType,
       indexMeta: this.core.indexMeta,
       dom: this.dom,
@@ -49,36 +49,36 @@ export default class Feder {
   }
 
   overview() {
-    this.fenderView.overview();
+    this.federView.overview();
   }
   resetOverview() {
-    this.fenderView.resetOverview();
+    this.federView.resetOverview();
   }
   search(target = null) {
     if (target) {
       const searchRes = this.core.search(target);
       this.searchRes = searchRes;
-      this.fenderView.search({ searchRes });
+      this.federView.search({ searchRes });
     } else {
       if (!this.searchRes) {
         console.error('No target');
         return;
       }
       const searchRes = this.searchRes;
-      this.fenderView.search({ searchRes });
+      this.federView.search({ searchRes });
     }
   }
   switchStep(step, stepType = null) {
-    this.fenderView.switchStep(step, stepType);
+    this.federView.switchStep(step, stepType);
   }
   coarseSearch() {
-    this.fenderView.switchStep(STEP.CoarseSearch);
+    this.federView.switchStep(STEP.CoarseSearch);
   }
   fineSearch(stepType) {
     if (!STEP_TYPE[stepType] || STEP_TYPE[stepType] === STEP_TYPE.Init) {
       stepType = STEP_TYPE.Polar;
       console.log('Illegal Step_Type, default Polar');
     }
-    this.fenderView.switchStep(STEP.FineSearch, stepType);
+    this.federView.switchStep(STEP.FineSearch, stepType);
   }
 }

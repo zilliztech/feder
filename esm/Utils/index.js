@@ -95,7 +95,7 @@ export const getInprocessPos = (point_0, point_1, t) => {
   return [x, y];
 };
 
-export const showVectors = (vec, precision = 6, maxLength = 40) => {
+export const showVectors = (vec, precision = 6, maxLength = 30) => {
   return vec
     .slice(0, maxLength)
     .map((num) => num.toFixed(precision))

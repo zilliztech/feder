@@ -17,9 +17,10 @@ export class TimeControllerView {
   }
   render(dom) {
     const _dom = d3.select(`#${dom.id}`);
-    _dom.selectAll('svg').remove();
+    _dom.selectAll('svg#feder-timer').remove();
     const svg = _dom
       .append('svg')
+      .attr("id", "feder-timer")
       .attr('width', 300)
       .attr('height', rectW)
       .style('position', 'absolute')

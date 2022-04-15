@@ -42,6 +42,7 @@ import forceSearchView from './forceSearchView.js';
 import computeSearchViewTransition from './computeSearchViewTransition.js';
 import TimerController from './TimerController.js';
 import TimeControllerView from './TimeControllerView.js';
+import { renderLoading, finishLoading } from '../Utils/loading.js';
 
 const HoveredPanelLine_1_x = 30;
 const HoveredPanelLine_1_y = -30;
@@ -141,7 +142,7 @@ export default class HnswView extends BaseView {
           node.overviewPosLevels = d3
             .range(level + 1)
             .map((i) => transformFunc(node.x, node.y, i));
-          node.r = 2 + 1.5 * node.overviewPosLevels.length;
+          node.r = 2 + 1 * node.overviewPosLevels.length;
         });
       });
 
@@ -188,14 +189,17 @@ export default class HnswView extends BaseView {
   }
   async overview({ dom = this.dom }) {
     this.setDom(dom);
+    renderLoading(dom);
     // this.initCanvas();
     this.selectedNode = null;
     this.hoveredNode = null;
     this._renderSelectedPanel();
     this._renderHoveredPanel();
+    this._renderOverviewPanel();
     this.searchTransitionTimer && this.searchTransitionTimer.stop();
 
     this.computeOverviewPromise && (await this.computeOverviewPromise);
+    finishLoading(dom);
 
     const ctx = this.canvas.getContext('2d');
 
@@ -418,6 +422,14 @@ export default class HnswView extends BaseView {
       this.renderHoveredPanelLine({ ctx, x, y, isLeft });
     } else {
       this._renderHoveredPanel([], ZYellow);
+    }
+
+    if (!!this.selectedNode) {
+      this.renderSelectedNode({
+        ctx,
+        pos: this.selectedNode.overviewPosLevels[this.selectedLevel],
+        r: this.selectedNode.r + 5,
+      });
     }
   }
   renderHoveredPanelLine({ ctx, x, y, isLeft }) {
@@ -643,13 +655,18 @@ export default class HnswView extends BaseView {
   async search({ searchRes = null, dom = this.dom } = {}) {
     this.setDom(dom);
     // this.initCanvas();
+    renderLoading(dom);
+
     const ctx = this.canvas.getContext('2d');
+    this.renderBackground({ ctx });
     this.selectedNode = null;
     this.hoveredNode = null;
     this._renderSelectedPanel();
     this._renderHoveredPanel();
+    this._renderOverviewPanel();
 
     await this.computeSearchView({ searchRes });
+    finishLoading(dom);
 
     const overviewInfo = [
       {
@@ -1012,7 +1029,7 @@ export default class HnswView extends BaseView {
       }
 
       if (!!this.selectedNode) {
-        this.renderSearchViewSelectedNode({
+        this.renderSelectedNode({
           ctx,
           pos: this.selectedNode.searchViewPosLevels[this.selectedLevel],
           r: this.selectedNode.r + 4.5,
@@ -1020,13 +1037,13 @@ export default class HnswView extends BaseView {
       }
     }
   }
-  renderSearchViewSelectedNode({ ctx, pos, r }) {
+  renderSelectedNode({ ctx, pos, r }) {
     drawEllipse({
       ctx,
       circles: [[...pos, r * ellipseRation, r]],
       hasStroke: true,
       strokeStyle: hexWithOpacity(ZYellow, 0.8),
-      lineWidth: 3,
+      lineWidth: 4,
     });
   }
   renderSearchViewNodes({ ctx, nodes, level, shadowBlur = 4 }) {
