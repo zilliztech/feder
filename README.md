@@ -4,6 +4,9 @@
 
 Feder is built for visualizing anns index files, so that we can have a better understanding of anns and high dimensional vectors. so far, we are focusing on the index from Faiss (only ivf_flat) and HNSWlib (hnsw), we will cover more index types later.
 
+- HNSW
+![image](./fig/hnsw_overview.png)
+
 ## Quick start
 
 ### installation
@@ -55,7 +58,7 @@ Set search parameters (optional) and Specify the query vector.
 
 ```js
 feder.setSearchParams({ k: 8, ef_search: 100 }); // hnsw
-feder.setSearchParams({ k: 8, nprobe: 8 }); // faiss ivf_flat
+feder.setSearchParams({ k: 8, nprobe: 8 }); // ivf_flat
 feder.search(target_vector);
 ```
 
@@ -93,36 +96,16 @@ Support mapping from Row No. to media files. (current support img)
 - mediaType - null | img
 - mediaCallback - func: rowId => url,
 
-## API
-
-TBD
-
 ## Examples
 
-index
-images
+### 
 
-html +
+## Join us
 
-### Use feder with d3
+Welcome to Zilliz!
 
-TBD
+## Acknowledgments
 
-### Use feder with react
-
-TBD
-
-## How feder works
-
-TBD
-
-## How to contribute
-
-```shell
-# install dependencies
-npm install
-# create build
-npm run build
-# test
-npm run test
-```
+- [faiss](https://github.com/facebookresearch/faiss)
+- [hnswlib](https://github.com/nmslib/hnswlib)
+- [d3](https://github.com/d3/d3)
