@@ -16161,6 +16161,7 @@ ${indentData}`);
         } else
           return null;
       };
+      console.log(getVectorById);
       this.federView = new FederView({
         indexType: this.core.indexType,
         indexMeta: this.core.indexMeta,
@@ -16209,14 +16210,14 @@ ${indentData}`);
   // test/test.js
   var getId2name = async () => {
     const data = await csv2("./data/voc_vectors.csv");
-    const id2name = {};
-    data.forEach((d, i) => id2name[i] = d.name);
-    return id2name;
+    const rowId2name = {};
+    data.forEach((d, i) => rowId2name[i] = d.name);
+    return rowId2name;
   };
   var domSelector = "#container";
   var testHNSW = async (filePath) => {
-    const id2name = await getId2name();
-    const mediaCallback = (id2) => id2 in id2name ? `./data/images/${id2name[id2]}` : null;
+    const rowId2name = await getId2name();
+    const mediaCallback = (rowId) => rowId in rowId2name ? `./data/images/${rowId2name[rowId]}` : null;
     const feder = new Feder({
       filePath,
       source: "hnswlib",
@@ -16230,6 +16231,6 @@ ${indentData}`);
     feder.overview();
   };
   window.addEventListener("DOMContentLoaded", async () => {
-    testHNSW("data/hnswlib_hnsw_random_1M.index");
+    testHNSW("data/hnswlib_hnsw_voc_17k.index");
   });
 })();

@@ -3,17 +3,17 @@ import * as d3 from 'd3';
 
 const getId2name = async () => {
   const data = await d3.csv('./data/voc_vectors.csv');
-  const id2name = {};
-  data.forEach((d, i) => (id2name[i] = d.name));
-  return id2name;
+  const rowId2name = {};
+  data.forEach((d, i) => (rowId2name[i] = d.name));
+  return rowId2name;
 };
 
 const domSelector = '#container';
 
 const testHNSW = async (filePath) => {
-  const id2name = await getId2name();
-  const mediaCallback = (id) =>
-    id in id2name ? `./data/images/${id2name[id]}` : null;
+  const rowId2name = await getId2name();
+  const mediaCallback = (rowId) =>
+    rowId in rowId2name ? `./data/images/${rowId2name[rowId]}` : null;
   const feder = new Feder({
     filePath,
     source: 'hnswlib',
@@ -30,7 +30,6 @@ const testHNSW = async (filePath) => {
 };
 
 const testIVFFlat = async (filePath) => {
-  const container = document.querySelector('#container');
   const feder = new Feder({
     filePath,
     source: 'faiss',
@@ -54,6 +53,6 @@ const testIVFFlat = async (filePath) => {
 
 window.addEventListener('DOMContentLoaded', async () => {
   // testIVFFlat('data/faiss_ivf_flat.index');
-  testHNSW('data/hnswlib_hnsw_random_1M.index');
-  // testHNSW('data/hnswlib_hnsw_voc_17k.index');
+  // testHNSW('data/hnswlib_hnsw_random_1M.index');
+  testHNSW('data/hnswlib_hnsw_voc_17k.index');
 });

@@ -45,6 +45,7 @@ export default class Feder {
         return [...this.core.id2vector[id]];
       } else return null;
     };
+    console.log(getVectorById)
     this.federView = new FederView({
       indexType: this.core.indexType,
       indexMeta: this.core.indexMeta,
