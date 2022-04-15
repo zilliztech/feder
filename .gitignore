@@ -6,4 +6,5 @@ node_modules/
 # test/data/*
 hnswlib_hnsw_random_1M.index
 images/
+dist
 # *.csv
