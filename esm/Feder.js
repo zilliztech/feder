@@ -7,22 +7,28 @@ import { STEP, STEP_TYPE } from './Utils/config.js';
 export default class Feder {
   constructor({
     core = null,
-    data = '',
+    filePath = '',
     source = '',
     projectParams = {},
-
-    dom,
+    domSelector,
     viewParams = {},
   } = {}) {
-    // console.info('feder initialized');
     if (!core) {
       console.log('no core found, create a new one');
-      core = new FederCore({ data, source, projectParams });
+
+      this.initCorePromise = fetch(filePath)
+        .then((res) => res.arrayBuffer())
+        .then((data) => {
+          core = new FederCore({ data, source, projectParams });
+          this.core = core;
+          this.dom = document.querySelector(domSelector);
+          this.viewParams = viewParams;
+          this.initFederView();
+        });
+    } else {
+      // todo
     }
-    this.core = core;
-    this.dom = dom;
-    this.viewParams = viewParams;
-    this.initFederView();
+    // console.info('feder initialized');
   }
   getTestIdAndVec() {
     return this.core.getTestIdAndVec();
@@ -48,13 +54,15 @@ export default class Feder {
     });
   }
 
-  overview() {
+  async overview() {
+    this.initCorePromise && (await this.initCorePromise);
     this.federView.overview();
   }
   resetOverview() {
     this.federView.resetOverview();
   }
-  search(target = null) {
+  async search(target = null) {
+    this.initCorePromise && (await this.initCorePromise);
     if (target) {
       const searchRes = this.core.search(target);
       this.searchRes = searchRes;

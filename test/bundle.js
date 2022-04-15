@@ -15150,12 +15150,12 @@ ${indentData}`);
       super(params);
       const {
         forceTime = 3e3,
-        itemType = null,
-        hoverCallback = () => null
+        mediaType = null,
+        mediaCallback = () => null
       } = params;
       this.forceTime = forceTime;
-      this.itemType = itemType;
-      this.hoverCallback = hoverCallback;
+      this.mediaType = mediaType;
+      this.mediaCallback = mediaCallback;
       this.dom = null;
       this.searchRes = null;
       this.indexMeta = null;
@@ -15290,9 +15290,9 @@ ${indentData}`);
             itemList.push({
               title: `Row No. ${selectedNode.id}`
             });
-            this.itemType === "img" && itemList.push({
+            this.mediaType === "img" && itemList.push({
               isImg: true,
-              imgUrl: this.hoverCallback(selectedNode.id)
+              imgUrl: this.mediaCallback(selectedNode.id)
             });
             itemList.push({
               title: `Shortest path from the entry:`,
@@ -15453,9 +15453,9 @@ ${indentData}`);
           textWithMargin: true,
           noWrap: true
         });
-        this.itemType === "img" && itemList.push({
+        this.mediaType === "img" && itemList.push({
           isImg: true,
-          imgUrl: this.hoverCallback(this.hoveredNode.id)
+          imgUrl: this.mediaCallback(this.hoveredNode.id)
         });
         this._renderHoveredPanel(itemList, ZYellow, endX, endY, isLeft);
       } else {
@@ -15692,9 +15692,9 @@ ${indentData}`);
               itemList.push({
                 title: `Distance to the target: ${selectedNode.dist.toFixed(3)}`
               });
-              this.itemType === "img" && itemList.push({
+              this.mediaType === "img" && itemList.push({
                 isImg: true,
-                imgUrl: this.hoverCallback(selectedNode.id)
+                imgUrl: this.mediaCallback(selectedNode.id)
               });
               itemList.push({
                 title: `Vector:`,
@@ -16127,20 +16127,23 @@ ${indentData}`);
   var Feder = class {
     constructor({
       core = null,
-      data = "",
+      filePath = "",
       source = "",
       projectParams = {},
-      dom,
+      domSelector: domSelector2,
       viewParams = {}
     } = {}) {
       if (!core) {
         console.log("no core found, create a new one");
-        core = new FederCore({ data, source, projectParams });
+        this.initCorePromise = fetch(filePath).then((res) => res.arrayBuffer()).then((data) => {
+          core = new FederCore({ data, source, projectParams });
+          this.core = core;
+          this.dom = document.querySelector(domSelector2);
+          this.viewParams = viewParams;
+          this.initFederView();
+        });
+      } else {
       }
-      this.core = core;
-      this.dom = dom;
-      this.viewParams = viewParams;
-      this.initFederView();
     }
     getTestIdAndVec() {
       return this.core.getTestIdAndVec();
@@ -16166,13 +16169,15 @@ ${indentData}`);
         ...this.viewParams
       });
     }
-    overview() {
+    async overview() {
+      this.initCorePromise && await this.initCorePromise;
       this.federView.overview();
     }
     resetOverview() {
       this.federView.resetOverview();
     }
-    search(target = null) {
+    async search(target = null) {
+      this.initCorePromise && await this.initCorePromise;
       if (target) {
         const searchRes = this.core.search(target);
         this.searchRes = searchRes;
@@ -16203,30 +16208,28 @@ ${indentData}`);
 
   // test/test.js
   var getId2name = async () => {
-    const data = await csv2("./data/vectors.csv");
+    const data = await csv2("./data/voc_vectors.csv");
     const id2name = {};
     data.forEach((d, i) => id2name[i] = d.name);
     return id2name;
   };
+  var domSelector = "#container";
   var testHNSW = async (filePath) => {
-    const container = document.querySelector("#container");
-    const fileArrayBuffer = await fetch(filePath).then((res) => res.arrayBuffer());
     const id2name = await getId2name();
-    const hoverCallback = (id2) => id2 in id2name ? `./data/images/${id2name[id2]}` : null;
+    const mediaCallback = (id2) => id2 in id2name ? `./data/images/${id2name[id2]}` : null;
     const feder = new Feder({
-      data: fileArrayBuffer,
+      filePath,
       source: "hnswlib",
-      dom: container,
-      projectParams: {},
+      domSelector,
       viewParams: {
-        itemType: "img",
-        hoverCallback
+        mediaType: "img",
+        mediaCallback
       }
     });
     console.log(feder);
     feder.overview();
   };
   window.addEventListener("DOMContentLoaded", async () => {
-    testHNSW("data/hnswlib_hnsw_voc_17k.index");
+    testHNSW("data/hnswlib_hnsw_random_1M.index");
   });
 })();
