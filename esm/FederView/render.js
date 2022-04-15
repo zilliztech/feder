@@ -270,3 +270,21 @@ export const drawLinesWithLinearGradient = ({
     draw({ ctx, drawFunc, isStrokeLinearGradient, gradientPos, ...styles });
   });
 };
+
+export const renderLoading = ({ dom, width, height }) => {
+  const _dom = d3.select(`#${dom.id}`);
+  const svg = _dom
+    .append('svg')
+    .attr('id', loadingSvgId)
+    .attr('width', loadingWidth)
+    .attr('height', loadingWidth)
+    .style('position', 'absolute')
+    .style('left', width / 2 - loadingWidth / 2)
+    .style('bottom', height / 2 - loadingWidth / 2)
+    .style('border', '1px solid red');
+};
+
+export const finishLoading = ({ dom }) => {
+  const _dom = d3.select(`#${dom.id}`);
+  _dom.select(`#${loadingSvgId}`).remove();
+};

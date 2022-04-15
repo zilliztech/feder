@@ -14,7 +14,12 @@ export const hoveredPanelId = 'feder-info-hovered-panel';
 
 const panelBackgroundColor = hexWithOpacity(blackColor, 0.6);
 export default class BaseView {
-  constructor({ width = 600, height = 380, padding = [0, 0, 0, 0], getVectorById } = {}) {
+  constructor({
+    width = 1000,
+    height = 600,
+    padding = [80, 200, 60, 220],
+    getVectorById,
+  } = {}) {
     this.width = width * canvasScale;
     this.height = height * canvasScale;
     this.padding = padding.map((num) => num * canvasScale);
@@ -54,9 +59,9 @@ export default class BaseView {
     const overviewPanelStyle = {
       position: 'absolute',
       // left: `${canvas.width - 10}px`,
-      left: '30px',
-      top: '24px',
-      width: '350px',
+      left: '16px',
+      top: '10px',
+      width: '260px',
       // height: '250px',
       borderColor: whiteColor,
       backgroundColor: panelBackgroundColor,
@@ -71,9 +76,9 @@ export default class BaseView {
     const selectedPanelStyle = {
       position: 'absolute',
       // left: `${canvas.width - 10}px`,
-      right: '30px',
-      top: '24px',
-      'max-width': '230px',
+      right: '16px',
+      top: '10px',
+      'max-width': '160px',
       // height: '400px',
       borderColor: ZYellow,
       backgroundColor: panelBackgroundColor,
@@ -111,21 +116,21 @@ export default class BaseView {
         border-width: 1px;
       }
       .panel {
-        padding: 18px 26px;
+        padding: 6px 8px;
         point-events: none;
-        font-size: 14px;
+        font-size: 12px;
       }
       .hide {
         opacity: 0;
       }
       .panel-item {
-        margin-bottom: 10px;
+        margin-bottom: 6px;
       }
       .panel-img {
-        width: 200px;
-        height: 150px;
+        width: 150px;
+        height: 100px;
         background-size: cover;
-        margin-bottom: 15px;
+        margin-bottom: 12px;
         border-radius: 4px;
         border: 1px solid ${ZYellow};
       }
@@ -134,18 +139,18 @@ export default class BaseView {
       }
       .panel-item-title {
         font-weight: 600;
+        margin-bottom: 3px;
       }
       .panel-item-text {
-        margin-top: 3px;
         font-weight: 400;
-        font-size: 12px;
+        font-size: 10px;
         word-break: break-all;
       }
       .panel-item-text-flex {
-        margin-left: 10px;
+        margin-left: 8px;
       }
       .panel-item-text-margin {
-        margin: 0 10px;
+        margin: 0 6px;
       }
       .text-no-wrap {
         white-space: nowrap;
@@ -175,7 +180,7 @@ export default class BaseView {
       this.mouseLeaveHandler && this.mouseLeaveHandler();
     });
   }
-  _renderSelectedPanel(itemList = [], color) {
+  _renderSelectedPanel(itemList = [], color = '#000') {
     const panel = d3.select(`#${selectedPanelId}`);
     panel.style('color', color);
     if (itemList.length === 0) panel.classed('hide', true);
@@ -183,7 +188,13 @@ export default class BaseView {
       this._renderPanel(panel, itemList);
     }
   }
-  _renderHoveredPanel(itemList = [], color, x = 0, y = 0, isLeft = false) {
+  _renderHoveredPanel(
+    itemList = [],
+    color = '#000',
+    x = 0,
+    y = 0,
+    isLeft = false
+  ) {
     const panel = d3.select(`#${hoveredPanelId}`);
     if (itemList.length === 0) panel.classed('hide', true);
     else {
@@ -205,7 +216,7 @@ export default class BaseView {
       this._renderPanel(panel, itemList);
     }
   }
-  _renderOverviewPanel(itemList, color) {
+  _renderOverviewPanel(itemList = [], color) {
     const panel = d3.select(`#${overviewPanelId}`);
     panel.style('color', color);
     if (itemList.length === 0) panel.classed('hide', true);
