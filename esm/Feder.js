@@ -26,7 +26,9 @@ export default class Feder {
           this.initFederView();
         });
     } else {
-      // todo
+      this.dom = document.querySelector(domSelector);
+      this.viewParams = viewParams;
+      this.initFederView();
     }
     // console.info('feder initialized');
   }
@@ -45,7 +47,7 @@ export default class Feder {
         return [...this.core.id2vector[id]];
       } else return null;
     };
-    console.log(getVectorById)
+
     this.federView = new FederView({
       indexType: this.core.indexType,
       indexMeta: this.core.indexMeta,
@@ -76,6 +78,12 @@ export default class Feder {
       const searchRes = this.searchRes;
       this.federView.search({ searchRes });
     }
+  }
+  async searchRandTestVec() {
+    this.initCorePromise && (await this.initCorePromise);
+    const [testId, testVec] = this.core.getTestIdAndVec();
+    console.log('random test vector:', testId, testVec);
+    this.search(testVec);
   }
   switchStep(step, stepType = null) {
     this.federView.switchStep(step, stepType);

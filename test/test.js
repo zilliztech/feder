@@ -25,9 +25,9 @@ const testHNSW = async (filePath) => {
   });
 
   console.log(feder);
-  feder.overview();
-  // feder.search(feder.core.id2vector[6341]);
-};
+  // feder.overview();
+  feder.searchRandTestVec();
+}; 
 
 const testIVFFlat = async (filePath) => {
   const feder = new Feder({
@@ -43,9 +43,10 @@ const testIVFFlat = async (filePath) => {
       height: 1000,
     },
   });
+
   console.log(feder);
-  feder.overview();
-  // feder.search(feder.core.id2vector[6341]);
+  // feder.overview();
+  feder.searchRandTestVec();
 };
 
 window.addEventListener('DOMContentLoaded', async () => {
