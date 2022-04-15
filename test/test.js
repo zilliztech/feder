@@ -43,9 +43,6 @@ const testIVFFlat = async (filePath) => {
       height: 1000,
     },
   });
-
-  // const core = feder.core;
-  // feder.overview();
   console.log(feder);
   feder.overview();
   // feder.search(feder.core.id2vector[6341]);
