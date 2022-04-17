@@ -40,7 +40,7 @@ export default class FederCore {
     this.setIndexSource(source);
     this.parseIndex();
 
-    console.log('index', this.index);
+    // console.log('index', this.index);
 
     if (this.index) {
       this.setIndexSearchHandler();
@@ -65,7 +65,7 @@ export default class FederCore {
     }
   }
   setIndexSearchHandler() {
-    console.log(this.indexSource + this.index.indexType);
+    // console.log(this.indexSource + this.index.indexType);
     this.indexSearchHandler =
       indexSearchHandlerMap[this.indexSource + this.index.indexType];
     if (!this.indexSearchHandler) {

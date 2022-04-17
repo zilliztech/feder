@@ -13454,7 +13454,6 @@ ${indentData}`);
       this.data = data;
       this.setIndexSource(source);
       this.parseIndex();
-      console.log("index", this.index);
       if (this.index) {
         this.setIndexSearchHandler();
         this[`_updateId2Vec_${this.index.indexType}`]();
@@ -13477,7 +13476,6 @@ ${indentData}`);
       }
     }
     setIndexSearchHandler() {
-      console.log(this.indexSource + this.index.indexType);
       this.indexSearchHandler = indexSearchHandlerMap[this.indexSource + this.index.indexType];
       if (!this.indexSearchHandler) {
         console.error("indexSearchHandler not found");

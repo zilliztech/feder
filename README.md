@@ -34,7 +34,7 @@ Make sure that you have Built an index and dumped the index file by Faiss or HNS
 Specifying the dom container that you want to show the visualizations.
 
 ```js
-import Feder from '@zilliz/feder';
+import { Feder } from '@zilliz/feder';
 
 const feder = new Feder({
   filePath: 'faiss_file', // file path
@@ -64,7 +64,7 @@ feder.search(target_vector);
 
 ### Advanced
 
-use **viewParams** to control.
+Use **viewParams** to adjust the details of the view.
 
 ```js
 const feder = new Feder({
@@ -126,7 +126,7 @@ yarn dev
 ```
 It makes the new changes to test.js take effect.
 
-If you want to display the image during the interaction, need to [download the image dataset (VOC 2012)](<(http://host.robots.ox.ac.uk/pascal/VOC/voc2012/VOCtrainval_11-May-2012.tar)>).
+If you want to display the image during the interaction, need to [download the image dataset (VOC 2012)](http://host.robots.ox.ac.uk/pascal/VOC/voc2012/VOCtrainval_11-May-2012.tar).
 
 Then unzip to **test/data/images/**.
 
@@ -136,7 +136,7 @@ If you want to use a new dataset, the following process will help you.
 
 ### Step 1. Dataset preparation
 
-Put all images to **test/data/images/**. (example dataset [VOC 2012](<(http://host.robots.ox.ac.uk/pascal/VOC/voc2012/VOCtrainval_11-May-2012.tar)>))
+Put all images to **test/data/images/**. (example dataset [VOC 2012](http://host.robots.ox.ac.uk/pascal/VOC/voc2012/VOCtrainval_11-May-2012.tar))
 
 You can also generate random vectors without embedding for index building and skip to **step 3**.
 
