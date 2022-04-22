@@ -716,6 +716,8 @@ export default class HnswView extends BaseView {
     const timer = new TimerController({
       duration: this.searchTransitionDuration,
       callback,
+      playCallback: () => timeControllerView.play(),
+      pauseCallback: () => timeControllerView.pause(),
     });
     timeControllerView.setTimer(timer);
     timer.start();
