@@ -98,10 +98,11 @@ Support mapping from Row No. to media files. (current support img)
 
 ## Examples
 
-We prepare a simple case, which is an overview of an hnsw with 17,000 vectors.
+We prepare a simple case, which is an overview of an hnsw with 17,000+ vectors.
 Only need enable a web service and open 'http://localhost:8000/'.
 
 ```shell
+git clone git@github.com:zilliztech/feder.git
 cd test
 python -m http.server
 ```
@@ -112,12 +113,10 @@ If you want to explore the search process of hnsw, you can modify **test/test.js
 
 ```js
 window.addEventListener('DOMContentLoaded', async () => {
-  // testIVFFlat('data/faiss_ivf_flat.index');
-  // testHNSW('data/hnswlib_hnsw_random_1M.index');
-  const feder = testHNSW('data/hnswlib_hnsw_voc_17k.index');
-  console.log(feder);
+  ...
   // feder.overview();
   feder.searchRandTestVec();
+  ...
 });
 ```
 then open a new cmdline, 
@@ -126,9 +125,22 @@ yarn dev
 ```
 It makes the new changes to test.js take effect.
 
-If you want to display the image during the interaction, need to [download the image dataset (VOC 2012)](http://host.robots.ox.ac.uk/pascal/VOC/voc2012/VOCtrainval_11-May-2012.tar).
+If you want to display the image during the interaction, need to [download the vectors dataset (csv)](https://assets.zilliz.com/voc_vectors_e8ec5a5eae.csv), rename it as "voc_vectors.csv", and put it to "test/data/".
 
-Then unzip to **test/data/images/**.
+Then you can modify **test/test.js**, and use the **testHNSWWithImages** function.
+
+```js
+window.addEventListener('DOMContentLoaded', async () => {
+  ...
+  // const feder = await testHNSW(
+  //   'https://assets.zilliz.com/hnswlib_hnsw_voc_17k_1f1dfd63a9.index'
+  // );
+  const feder = await testHNSWWithImages(
+    'https://assets.zilliz.com/hnswlib_hnsw_voc_17k_1f1dfd63a9.index'
+  );
+  ...
+});
+```
 
 If you want to use a new dataset, the following process will help you.
 
@@ -144,7 +156,7 @@ You can also generate random vectors without embedding for index building and sk
 
 Recommend to use [towhee](https://github.com/towhee-io/towhee), one line of code to generating embedding vectors!
 
-We have the encoded vectors ready for you. (**test/data/voc_vectors.csv**)
+We have the encoded vectors ([download](https://assets.zilliz.com/voc_vectors_e8ec5a5eae.csv)) ready for you. 
 
 ### Step 3. Build an index and dump it.
 
@@ -154,7 +166,7 @@ You can use [faiss](https://github.com/facebookresearch/faiss) or [hnswlib](http
 
 Referring to **test/data/gen_hnswlib_index_*.py** or **test/data/gen_faiss_index_*.py**
 
-Or we have the index files ready for you. (**test/data/\*.index**)
+Or we have the index files ([download](https://assets.zilliz.com/hnswlib_hnsw_voc_17k_1f1dfd63a9.index)) ready for you. 
 
 ### Step 4. Init Feder.
 
@@ -163,18 +175,10 @@ import { Feder } from '@zilliz/feder';
 import * as d3 from 'd3';
 
 const domSelector = '#container';
-const filePath = '/data/hnswlib_hnsw_voc_17k.index';
+const filePath = [index_file_path];
 
-const getId2name = async () => {
-  const data = await d3.csv('./data/voc_vectors.csv');
-  const rowId2name = {};
-  data.forEach((d, i) => (rowId2name[i] = d['name']));
-  return rowId2name;
-};
+const mediaCallback = (rowId) => mediaUrl;
 
-const rowId2name = await getId2name();
-const mediaCallback = (rowId) =>
-  rowId in rowId2name ? `./data/images/${rowId2name[rowId]}` : null;
 const feder = new Feder({
   filePath,
   source: 'hnswlib',
@@ -193,7 +197,7 @@ import { Feder } from '@zilliz/feder';
 import * as d3 from 'd3';
 
 const domSelector = '#container';
-const filePath = '/data/hnswlib_hnsw_random_1M.index';
+const filePath = [index_file_path];
 
 const feder = new Feder({
   filePath,
@@ -212,8 +216,14 @@ feder.overview();
 
 or
 
-```
+```js
 feder.search(target_vector);
+```
+
+or
+
+```js
+feder.searchRandTestVec();
 ```
 
 ![image](./fig/hnsw_search.png)
