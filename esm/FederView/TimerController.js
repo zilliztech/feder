@@ -1,10 +1,12 @@
 import * as d3 from 'd3';
 
 export default class TimerController {
-  constructor({ duration, speed = 1, callback }) {
+  constructor({ duration, speed = 1, callback, playCallback, pauseCallback }) {
     this.callback = callback;
     this.speed = speed;
     this.duration = duration;
+    this.playCallback = playCallback;
+    this.pauseCallback = pauseCallback;
 
     this.tAlready = 0;
     this.t = 0;
@@ -16,6 +18,7 @@ export default class TimerController {
   }
   start() {
     const speed = this.speed;
+    this.isPlaying || this.playCallback();
     this.isPlaying = true;
     this.timer = d3.timer((elapsed) => {
       const t = elapsed * speed + this.tAlready;
@@ -38,6 +41,8 @@ export default class TimerController {
   stop() {
     this.timer.stop();
     this.tAlready = this.t;
+
+    this.isPlaying && this.pauseCallback();
     this.isPlaying = false;
   }
   playPause() {
