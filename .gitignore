@@ -1,6 +1,7 @@
 .DS_Store
 .nyc_output
 .vscode
+.ipynb_checkpoints
 coverage/
 node_modules/
 # test/data/*

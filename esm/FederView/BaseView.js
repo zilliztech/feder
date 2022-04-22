@@ -78,7 +78,9 @@ export default class BaseView {
       // left: `${canvas.width - 10}px`,
       right: '16px',
       top: '10px',
-      'max-width': '160px',
+      'max-width': '180px',
+      'max-height': `${height - 20}px`,
+      overflow: 'auto',
       // height: '400px',
       borderColor: ZYellow,
       backgroundColor: panelBackgroundColor,
@@ -181,7 +183,7 @@ export default class BaseView {
     });
   }
   _renderSelectedPanel(itemList = [], color = '#000') {
-    const panel = d3.select(`#${selectedPanelId}`);
+    const panel = d3.select(`#${this.dom.id}`).select(`#${selectedPanelId}`);
     panel.style('color', color);
     if (itemList.length === 0) panel.classed('hide', true);
     else {
@@ -195,7 +197,7 @@ export default class BaseView {
     y = 0,
     isLeft = false
   ) {
-    const panel = d3.select(`#${hoveredPanelId}`);
+    const panel = d3.select(`#${this.dom.id}`).select(`#${hoveredPanelId}`);
     if (itemList.length === 0) panel.classed('hide', true);
     else {
       panel.style('color', color);
@@ -217,7 +219,7 @@ export default class BaseView {
     }
   }
   _renderOverviewPanel(itemList = [], color) {
-    const panel = d3.select(`#${overviewPanelId}`);
+    const panel = d3.select(`#${this.dom.id}`).select(`#${overviewPanelId}`);
     panel.style('color', color);
     if (itemList.length === 0) panel.classed('hide', true);
     else {
