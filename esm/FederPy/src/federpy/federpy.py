@@ -1,7 +1,6 @@
 from IPython.display import display, HTML
 import random
 
-
 class FederPy:
     def __init__(self, indexFile, indexSource, width=1000, height=620, mediaType="", mediaUrls=[]):
         self.indexFile = indexFile
