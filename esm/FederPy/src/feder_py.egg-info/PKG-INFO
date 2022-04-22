@@ -1,0 +1,16 @@
+Metadata-Version: 2.1
+Name: feder-py
+Version: 0.1.0
+Summary: Feder for python
+Home-page: https://github.com/zilliztech/feder
+Author: min.tian@zilliz
+Author-email: min.tian@zilliz.com
+License: UNKNOWN
+Platform: UNKNOWN
+Classifier: ANNS Visualization
+Requires-Python: >=3.6
+Description-Content-Type: text/markdown
+License-File: LICENSE
+
+# Feder for Python
+

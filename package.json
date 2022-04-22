@@ -8,7 +8,9 @@
     "dist"
   ],
   "scripts": {
-    "build": "esbuild `find esm \\( -name '*.js' \\)` --bundle --platform=node --outdir=dist",
+    "build": "esbuild esm/index.js --format=esm --bundle --outdir=dist",
+    "build_iife_global": "esbuild esm/index.js --format=iife --global-name=Feder --bundle --outfile=test/feder_iife_global.js",
+    "build_esm": "esbuild esm/index.js --format=esm --bundle --outfile=test/feder_esm.js --watch",
     "cjs": "ascjs --no-default esm cjs",
     "test": "c8 node test/index.js",
     "coverage": "mkdir -p ./coverage; c8 report --reporter=text-lcov > ./coverage/lcov.info",

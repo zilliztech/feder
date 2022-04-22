@@ -1216,9 +1216,9 @@
     }
   });
 
-  // node_modules/is-any-array/lib/index.js
+  // node_modules/ml-levenberg-marquardt/node_modules/is-any-array/lib/index.js
   var require_lib = __commonJS({
-    "node_modules/is-any-array/lib/index.js"(exports) {
+    "node_modules/ml-levenberg-marquardt/node_modules/is-any-array/lib/index.js"(exports) {
       "use strict";
       Object.defineProperty(exports, "__esModule", { value: true });
       var toString = Object.prototype.toString;
@@ -1229,23 +1229,9 @@
     }
   });
 
-  // node_modules/ml-array-rescale/node_modules/is-any-array/lib/index.js
+  // node_modules/is-any-array/lib/index.js
   var require_lib2 = __commonJS({
-    "node_modules/ml-array-rescale/node_modules/is-any-array/lib/index.js"(exports) {
-      "use strict";
-      Object.defineProperty(exports, "__esModule", { value: true });
-      exports.isAnyArray = void 0;
-      var toString = Object.prototype.toString;
-      function isAnyArray(value) {
-        return toString.call(value).endsWith("Array]");
-      }
-      exports.isAnyArray = isAnyArray;
-    }
-  });
-
-  // node_modules/ml-array-max/node_modules/is-any-array/lib/index.js
-  var require_lib3 = __commonJS({
-    "node_modules/ml-array-max/node_modules/is-any-array/lib/index.js"(exports) {
+    "node_modules/is-any-array/lib/index.js"(exports) {
       "use strict";
       Object.defineProperty(exports, "__esModule", { value: true });
       exports.isAnyArray = void 0;
@@ -1258,10 +1244,10 @@
   });
 
   // node_modules/ml-array-max/lib/index.js
-  var require_lib4 = __commonJS({
+  var require_lib3 = __commonJS({
     "node_modules/ml-array-max/lib/index.js"(exports, module) {
       "use strict";
-      var isAnyArray = require_lib3();
+      var isAnyArray = require_lib2();
       function max3(input, options = {}) {
         if (!isAnyArray.isAnyArray(input)) {
           throw new TypeError("input must be an array");
@@ -1287,25 +1273,11 @@
     }
   });
 
-  // node_modules/ml-array-min/node_modules/is-any-array/lib/index.js
-  var require_lib5 = __commonJS({
-    "node_modules/ml-array-min/node_modules/is-any-array/lib/index.js"(exports) {
-      "use strict";
-      Object.defineProperty(exports, "__esModule", { value: true });
-      exports.isAnyArray = void 0;
-      var toString = Object.prototype.toString;
-      function isAnyArray(value) {
-        return toString.call(value).endsWith("Array]");
-      }
-      exports.isAnyArray = isAnyArray;
-    }
-  });
-
   // node_modules/ml-array-min/lib/index.js
-  var require_lib6 = __commonJS({
+  var require_lib4 = __commonJS({
     "node_modules/ml-array-min/lib/index.js"(exports, module) {
       "use strict";
-      var isAnyArray = require_lib5();
+      var isAnyArray = require_lib2();
       function min3(input, options = {}) {
         if (!isAnyArray.isAnyArray(input)) {
           throw new TypeError("input must be an array");
@@ -1332,12 +1304,12 @@
   });
 
   // node_modules/ml-array-rescale/lib/index.js
-  var require_lib7 = __commonJS({
+  var require_lib5 = __commonJS({
     "node_modules/ml-array-rescale/lib/index.js"(exports, module) {
       "use strict";
       var isAnyArray = require_lib2();
-      var max3 = require_lib4();
-      var min3 = require_lib6();
+      var max3 = require_lib3();
+      var min3 = require_lib4();
       function _interopDefaultLegacy(e) {
         return e && typeof e === "object" && "default" in e ? e : { "default": e };
       }
@@ -1385,7 +1357,7 @@
     "node_modules/ml-matrix/matrix.js"(exports) {
       "use strict";
       Object.defineProperty(exports, "__esModule", { value: true });
-      var rescale = require_lib7();
+      var rescale = require_lib5();
       function _interopDefaultLegacy(e) {
         return e && typeof e === "object" && "default" in e ? e : { "default": e };
       }
@@ -5759,7 +5731,7 @@ ${indentData}`);
   });
 
   // node_modules/ml-levenberg-marquardt/lib/index.js
-  var require_lib8 = __commonJS({
+  var require_lib6 = __commonJS({
     "node_modules/ml-levenberg-marquardt/lib/index.js"(exports, module) {
       "use strict";
       function _interopDefault(ex) {
@@ -6016,7 +5988,7 @@ ${indentData}`);
       var nnDescent = __importStar(require_nn_descent());
       var tree = __importStar(require_tree());
       var utils = __importStar(require_utils());
-      var ml_levenberg_marquardt_1 = __importDefault(require_lib8());
+      var ml_levenberg_marquardt_1 = __importDefault(require_lib6());
       var SMOOTH_K_TOLERANCE = 1e-5;
       var MIN_K_DIST_SCALE = 1e-3;
       var UMAP2 = function() {
@@ -13234,7 +13206,7 @@ ${indentData}`);
       let changed = true;
       while (changed) {
         changed = false;
-        curlinks = linkLists_levels[curNodeId][level - 1];
+        const curlinks = linkLists_levels[curNodeId][level - 1];
         curlinks.forEach((candidateId) => {
           const dist4 = disfunc(vectors[candidateId], target);
           vis_records.push([labels[curNodeId], labels[candidateId], dist4]);
@@ -13798,7 +13770,9 @@ ${indentData}`);
         position: "absolute",
         right: "16px",
         top: "10px",
-        "max-width": "160px",
+        "max-width": "180px",
+        "max-height": `${height - 20}px`,
+        overflow: "auto",
         borderColor: ZYellow,
         backgroundColor: panelBackgroundColor
       };
@@ -13889,7 +13863,7 @@ ${indentData}`);
       });
     }
     _renderSelectedPanel(itemList = [], color2 = "#000") {
-      const panel = select_default2(`#${selectedPanelId}`);
+      const panel = select_default2(`#${this.dom.id}`).select(`#${selectedPanelId}`);
       panel.style("color", color2);
       if (itemList.length === 0)
         panel.classed("hide", true);
@@ -13898,7 +13872,7 @@ ${indentData}`);
       }
     }
     _renderHoveredPanel(itemList = [], color2 = "#000", x3 = 0, y4 = 0, isLeft = false) {
-      const panel = select_default2(`#${hoveredPanelId}`);
+      const panel = select_default2(`#${this.dom.id}`).select(`#${hoveredPanelId}`);
       if (itemList.length === 0)
         panel.classed("hide", true);
       else {
@@ -13917,7 +13891,7 @@ ${indentData}`);
       }
     }
     _renderOverviewPanel(itemList = [], color2) {
-      const panel = select_default2(`#${overviewPanelId}`);
+      const panel = select_default2(`#${this.dom.id}`).select(`#${overviewPanelId}`);
       panel.style("color", color2);
       if (itemList.length === 0)
         panel.classed("hide", true);
