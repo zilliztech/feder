@@ -2,6 +2,7 @@
 .nyc_output
 .vscode
 .ipynb_checkpoints
+*.egg-info
 coverage/
 node_modules/
 # test/data/*

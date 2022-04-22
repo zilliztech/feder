@@ -1,8 +1,0 @@
-LICENSE
-README.md
-pyproject.toml
-setup.py
-src/feder_py.egg-info/PKG-INFO
-src/feder_py.egg-info/SOURCES.txt
-src/feder_py.egg-info/dependency_links.txt
-src/feder_py.egg-info/top_level.txt
