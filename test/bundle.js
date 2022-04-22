@@ -11030,185 +11030,6 @@ ${indentData}`);
     }
   }
 
-  // node_modules/d3-dsv/src/dsv.js
-  var EOL = {};
-  var EOF = {};
-  var QUOTE = 34;
-  var NEWLINE = 10;
-  var RETURN = 13;
-  function objectConverter(columns) {
-    return new Function("d", "return {" + columns.map(function(name, i) {
-      return JSON.stringify(name) + ": d[" + i + '] || ""';
-    }).join(",") + "}");
-  }
-  function customConverter(columns, f) {
-    var object = objectConverter(columns);
-    return function(row, i) {
-      return f(object(row), i, columns);
-    };
-  }
-  function inferColumns(rows) {
-    var columnSet = /* @__PURE__ */ Object.create(null), columns = [];
-    rows.forEach(function(row) {
-      for (var column in row) {
-        if (!(column in columnSet)) {
-          columns.push(columnSet[column] = column);
-        }
-      }
-    });
-    return columns;
-  }
-  function pad(value, width) {
-    var s = value + "", length = s.length;
-    return length < width ? new Array(width - length + 1).join(0) + s : s;
-  }
-  function formatYear(year) {
-    return year < 0 ? "-" + pad(-year, 6) : year > 9999 ? "+" + pad(year, 6) : pad(year, 4);
-  }
-  function formatDate(date) {
-    var hours = date.getUTCHours(), minutes = date.getUTCMinutes(), seconds = date.getUTCSeconds(), milliseconds = date.getUTCMilliseconds();
-    return isNaN(date) ? "Invalid Date" : formatYear(date.getUTCFullYear(), 4) + "-" + pad(date.getUTCMonth() + 1, 2) + "-" + pad(date.getUTCDate(), 2) + (milliseconds ? "T" + pad(hours, 2) + ":" + pad(minutes, 2) + ":" + pad(seconds, 2) + "." + pad(milliseconds, 3) + "Z" : seconds ? "T" + pad(hours, 2) + ":" + pad(minutes, 2) + ":" + pad(seconds, 2) + "Z" : minutes || hours ? "T" + pad(hours, 2) + ":" + pad(minutes, 2) + "Z" : "");
-  }
-  function dsv_default(delimiter) {
-    var reFormat = new RegExp('["' + delimiter + "\n\r]"), DELIMITER = delimiter.charCodeAt(0);
-    function parse(text, f) {
-      var convert, columns, rows = parseRows(text, function(row, i) {
-        if (convert)
-          return convert(row, i - 1);
-        columns = row, convert = f ? customConverter(row, f) : objectConverter(row);
-      });
-      rows.columns = columns || [];
-      return rows;
-    }
-    function parseRows(text, f) {
-      var rows = [], N = text.length, I = 0, n = 0, t, eof = N <= 0, eol = false;
-      if (text.charCodeAt(N - 1) === NEWLINE)
-        --N;
-      if (text.charCodeAt(N - 1) === RETURN)
-        --N;
-      function token() {
-        if (eof)
-          return EOF;
-        if (eol)
-          return eol = false, EOL;
-        var i, j = I, c2;
-        if (text.charCodeAt(j) === QUOTE) {
-          while (I++ < N && text.charCodeAt(I) !== QUOTE || text.charCodeAt(++I) === QUOTE)
-            ;
-          if ((i = I) >= N)
-            eof = true;
-          else if ((c2 = text.charCodeAt(I++)) === NEWLINE)
-            eol = true;
-          else if (c2 === RETURN) {
-            eol = true;
-            if (text.charCodeAt(I) === NEWLINE)
-              ++I;
-          }
-          return text.slice(j + 1, i - 1).replace(/""/g, '"');
-        }
-        while (I < N) {
-          if ((c2 = text.charCodeAt(i = I++)) === NEWLINE)
-            eol = true;
-          else if (c2 === RETURN) {
-            eol = true;
-            if (text.charCodeAt(I) === NEWLINE)
-              ++I;
-          } else if (c2 !== DELIMITER)
-            continue;
-          return text.slice(j, i);
-        }
-        return eof = true, text.slice(j, N);
-      }
-      while ((t = token()) !== EOF) {
-        var row = [];
-        while (t !== EOL && t !== EOF)
-          row.push(t), t = token();
-        if (f && (row = f(row, n++)) == null)
-          continue;
-        rows.push(row);
-      }
-      return rows;
-    }
-    function preformatBody(rows, columns) {
-      return rows.map(function(row) {
-        return columns.map(function(column) {
-          return formatValue(row[column]);
-        }).join(delimiter);
-      });
-    }
-    function format2(rows, columns) {
-      if (columns == null)
-        columns = inferColumns(rows);
-      return [columns.map(formatValue).join(delimiter)].concat(preformatBody(rows, columns)).join("\n");
-    }
-    function formatBody(rows, columns) {
-      if (columns == null)
-        columns = inferColumns(rows);
-      return preformatBody(rows, columns).join("\n");
-    }
-    function formatRows(rows) {
-      return rows.map(formatRow).join("\n");
-    }
-    function formatRow(row) {
-      return row.map(formatValue).join(delimiter);
-    }
-    function formatValue(value) {
-      return value == null ? "" : value instanceof Date ? formatDate(value) : reFormat.test(value += "") ? '"' + value.replace(/"/g, '""') + '"' : value;
-    }
-    return {
-      parse,
-      parseRows,
-      format: format2,
-      formatBody,
-      formatRows,
-      formatRow,
-      formatValue
-    };
-  }
-
-  // node_modules/d3-dsv/src/csv.js
-  var csv = dsv_default(",");
-  var csvParse = csv.parse;
-  var csvParseRows = csv.parseRows;
-  var csvFormat = csv.format;
-  var csvFormatBody = csv.formatBody;
-  var csvFormatRows = csv.formatRows;
-  var csvFormatRow = csv.formatRow;
-  var csvFormatValue = csv.formatValue;
-
-  // node_modules/d3-dsv/src/tsv.js
-  var tsv = dsv_default("	");
-  var tsvParse = tsv.parse;
-  var tsvParseRows = tsv.parseRows;
-  var tsvFormat = tsv.format;
-  var tsvFormatBody = tsv.formatBody;
-  var tsvFormatRows = tsv.formatRows;
-  var tsvFormatRow = tsv.formatRow;
-  var tsvFormatValue = tsv.formatValue;
-
-  // node_modules/d3-fetch/src/text.js
-  function responseText(response) {
-    if (!response.ok)
-      throw new Error(response.status + " " + response.statusText);
-    return response.text();
-  }
-  function text_default3(input, init2) {
-    return fetch(input, init2).then(responseText);
-  }
-
-  // node_modules/d3-fetch/src/dsv.js
-  function dsvParse(parse) {
-    return function(input, init2, row) {
-      if (arguments.length === 2 && typeof init2 === "function")
-        row = init2, init2 = void 0;
-      return text_default3(input, init2).then(function(response) {
-        return parse(response, row);
-      });
-    };
-  }
-  var csv2 = dsvParse(csvParse);
-  var tsv2 = dsvParse(tsvParse);
-
   // node_modules/d3-force/src/center.js
   function center_default(x3, y4) {
     var nodes, strength = 1;
@@ -16216,29 +16037,17 @@ ${indentData}`);
   };
 
   // test/test.js
-  var getId2name = async () => {
-    const data = await csv2("./data/voc_vectors.csv");
-    const rowId2name = {};
-    data.forEach((d, i) => rowId2name[i] = d.name);
-    return rowId2name;
-  };
   var domSelector = "#container";
   var testHNSW = async (filePath) => {
-    const rowId2name = await getId2name();
-    const mediaCallback = (rowId) => rowId in rowId2name ? `./data/images/${rowId2name[rowId]}` : null;
     const feder = new Feder({
       filePath,
       source: "hnswlib",
-      domSelector,
-      viewParams: {
-        mediaType: "img",
-        mediaCallback
-      }
+      domSelector
     });
     return feder;
   };
   window.addEventListener("DOMContentLoaded", async () => {
-    const feder = await testHNSW("data/hnswlib_hnsw_voc_17k.index");
+    const feder = await testHNSW("https://assets.zilliz.com/hnswlib_hnsw_voc_17k_1f1dfd63a9.index");
     console.log(feder);
     feder.searchRandTestVec();
   });
