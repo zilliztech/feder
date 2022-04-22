@@ -49,6 +49,6 @@ window.addEventListener('DOMContentLoaded', async () => {
   // const feder = await testHNSW('data/hnswlib_hnsw_random_1M.index');
   const feder = await testHNSW('data/hnswlib_hnsw_voc_17k.index');
   console.log(feder);
-  feder.overview();
-  // feder.searchRandTestVec();
+  // feder.overview();
+  feder.searchRandTestVec();
 });
