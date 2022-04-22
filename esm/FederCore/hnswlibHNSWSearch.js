@@ -29,7 +29,7 @@ const hnswlibHNSWSearch = ({ index, target, params = {} }) => {
     while (changed) {
       changed = false;
 
-      curlinks = linkLists_levels[curNodeId][level - 1];
+      const curlinks = linkLists_levels[curNodeId][level - 1];
 
       curlinks.forEach((candidateId) => {
         const dist = disfunc(vectors[candidateId], target);

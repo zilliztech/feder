@@ -1,4 +1,5 @@
 import { Feder } from '../esm/index.js';
+// import { Feder } from '@zilliz/feder';
 import * as d3 from 'd3';
 
 const getId2name = async () => {
@@ -39,7 +40,7 @@ const testIVFFlat = async (filePath) => {
       width: 1100,
       height: 1000,
     },
-  })
+  });
   return feder;
 };
 
