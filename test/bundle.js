@@ -13206,7 +13206,7 @@ ${indentData}`);
       let changed = true;
       while (changed) {
         changed = false;
-        curlinks = linkLists_levels[curNodeId][level - 1];
+        const curlinks = linkLists_levels[curNodeId][level - 1];
         curlinks.forEach((candidateId) => {
           const dist4 = disfunc(vectors[candidateId], target);
           vis_records.push([labels[curNodeId], labels[candidateId], dist4]);
@@ -13770,7 +13770,9 @@ ${indentData}`);
         position: "absolute",
         right: "16px",
         top: "10px",
-        "max-width": "160px",
+        "max-width": "180px",
+        "max-height": `${height - 20}px`,
+        overflow: "auto",
         borderColor: ZYellow,
         backgroundColor: panelBackgroundColor
       };
@@ -16208,7 +16210,7 @@ ${indentData}`);
     return feder;
   };
   window.addEventListener("DOMContentLoaded", async () => {
-    const feder = await testHNSW("http://192.168.0.101:12357/data/hnswlib_hnsw_voc_17k.index");
+    const feder = await testHNSW("data/hnswlib_hnsw_voc_17k.index");
     console.log(feder);
     feder.overview();
   });
