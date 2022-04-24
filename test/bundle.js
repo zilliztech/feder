@@ -15432,9 +15432,10 @@ ${indentData}`);
         shadowBlur: 5
       });
     }
-    async search({ searchRes = null, dom = this.dom } = {}) {
+    async search({ searchRes = null, targetMediaUrl = this.targetMediaUrl, dom = this.dom } = {}) {
       this.setDom(dom);
       renderLoading(dom);
+      this.targetMediaUrl = targetMediaUrl;
       const ctx = this.canvas.getContext("2d");
       this.renderBackground({ ctx });
       this.selectedNode = null;
@@ -15446,7 +15447,11 @@ ${indentData}`);
       finishLoading(dom);
       const overviewInfo = [
         {
-          title: "HNSW"
+          title: "HNSW - Search"
+        },
+        {
+          isImg: true,
+          imgUrl: targetMediaUrl
         },
         {
           title: `M = ${this.indexMeta.M}, ef_construction = ${this.indexMeta.ef_construction}.`
@@ -15925,8 +15930,8 @@ ${indentData}`);
     computeIndexOverview({ indexMeta }) {
       this.view.computeIndexOverview({ indexMeta });
     }
-    search({ searchRes }) {
-      this.view.search({ searchRes, dom: this.dom });
+    search({ searchRes, targetMediaUrl }) {
+      this.view.search({ searchRes, targetMediaUrl, dom: this.dom });
     }
     overview() {
       this.view.overview({ dom: this.dom });
@@ -16000,26 +16005,28 @@ ${indentData}`);
     resetOverview() {
       this.federView.resetOverview();
     }
-    async search(target = null) {
+    async search(target = null, targetMediaUrl = null) {
       this.initCorePromise && await this.initCorePromise;
       if (target) {
         const searchRes = this.core.search(target);
         this.searchRes = searchRes;
-        this.federView.search({ searchRes });
+        this.federView.search({ searchRes, targetMediaUrl });
       } else {
         if (!this.searchRes) {
           console.error("No target");
           return;
         }
         const searchRes = this.searchRes;
-        this.federView.search({ searchRes });
+        const targetMediaUrl2 = this.targetMediaUrl;
+        this.federView.search({ searchRes, targetMediaUrl: targetMediaUrl2 });
       }
     }
     async searchRandTestVec() {
       this.initCorePromise && await this.initCorePromise;
       const [testId, testVec] = this.core.getTestIdAndVec();
       console.log("random test vector:", testId, testVec);
-      this.search(testVec);
+      const targetMediaUrl = this.viewParams && this.viewParams.mediaCallback ? this.viewParams.mediaCallback(testId) : null;
+      this.search(testVec, targetMediaUrl);
     }
     switchStep(step, stepType = null) {
       this.federView.switchStep(step, stepType);
