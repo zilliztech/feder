@@ -64,26 +64,31 @@ export default class Feder {
   resetOverview() {
     this.federView.resetOverview();
   }
-  async search(target = null) {
+  async search(target = null, targetMediaUrl = null) {
     this.initCorePromise && (await this.initCorePromise);
     if (target) {
       const searchRes = this.core.search(target);
       this.searchRes = searchRes;
-      this.federView.search({ searchRes });
+      this.federView.search({ searchRes, targetMediaUrl });
     } else {
       if (!this.searchRes) {
         console.error('No target');
         return;
       }
       const searchRes = this.searchRes;
-      this.federView.search({ searchRes });
+      const targetMediaUrl = this.targetMediaUrl;
+      this.federView.search({ searchRes, targetMediaUrl });
     }
   }
   async searchRandTestVec() {
     this.initCorePromise && (await this.initCorePromise);
     const [testId, testVec] = this.core.getTestIdAndVec();
     console.log('random test vector:', testId, testVec);
-    this.search(testVec);
+    const targetMediaUrl =
+      this.viewParams && this.viewParams.mediaCallback
+        ? this.viewParams.mediaCallback(testId)
+        : null;
+    this.search(testVec, targetMediaUrl);
   }
   switchStep(step, stepType = null) {
     this.federView.switchStep(step, stepType);

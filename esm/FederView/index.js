@@ -46,8 +46,8 @@ export default class FederView {
     this.view.computeIndexOverview({ indexMeta });
   }
 
-  search({ searchRes }) {
-    this.view.search({ searchRes, dom: this.dom });
+  search({ searchRes, targetMediaUrl }) {
+    this.view.search({ searchRes, targetMediaUrl, dom: this.dom });
   }
 
   overview() {
