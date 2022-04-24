@@ -652,10 +652,11 @@ export default class HnswView extends BaseView {
     });
   }
 
-  async search({ searchRes = null, dom = this.dom } = {}) {
+  async search({ searchRes = null, targetMediaUrl = this.targetMediaUrl, dom = this.dom } = {}) {
     this.setDom(dom);
     // this.initCanvas();
     renderLoading(dom);
+    this.targetMediaUrl = targetMediaUrl;
 
     const ctx = this.canvas.getContext('2d');
     this.renderBackground({ ctx });
@@ -670,7 +671,11 @@ export default class HnswView extends BaseView {
 
     const overviewInfo = [
       {
-        title: 'HNSW',
+        title: 'HNSW - Search',
+      },
+      {
+        isImg: true,
+        imgUrl: targetMediaUrl,
       },
       {
         title: `M = ${this.indexMeta.M}, ef_construction = ${this.indexMeta.ef_construction}.`,
