@@ -5,12 +5,10 @@
 Feder is built for visualizing anns index files, so that we can have a better understanding of anns and high dimensional vectors. so far, we are focusing on the index from Faiss (only ivf_flat) and HNSWlib (hnsw), we will cover more index types later.
 
 - HNSW - Overview
+  ![image](./fig/hnsw_overview.png)
 
-<iframe src="./fig/case_hnsw_overview_with_images.html" width="1000px" height="600px" frameborder="0" scrolling="no"> </iframe>
-
-- HNSW - Search
-
-<iframe src="./fig/case_hnsw_search_with_images.html" width="1000px" height="600px" frameborder="0" scrolling="no"> </iframe>
+- HNSW - Search View
+  ![image](./fig/hnsw_search.png)
 
 ## Quick start
 
