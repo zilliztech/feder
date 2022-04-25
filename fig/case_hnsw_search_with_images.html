@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta name="theme-color" content="#ffffff" />
+  <title>Feder</title>
+  <script src="https://d3js.org/d3.v7.min.js"></script>
+</head>
+
+<body style="background: #000">
+  <div id="container-case-123">?????????</div>
+</body>
+
+<script type="module">
+  import { Feder } from "https://unpkg.com/@zilliz/feder"
+
+  const domSelector = '#container-case-123';
+  const filePath = 'https://assets.zilliz.com/hnswlib_hnsw_voc_17k_1f1dfd63a9.index';
+
+  const namesAndVectors = await d3.csv('https://assets.zilliz.com/voc_vectors_e8ec5a5eae.csv')
+  const rowId2name = namesAndVectors.map(d => d.name)
+  const mediaCallback = (rowId) => `https://assets.zilliz.com/voc2012/JPEGImages/${rowId2name[rowId]}`
+
+  const feder = new Feder({
+    filePath,
+    source: 'hnswlib',
+    domSelector,
+    viewParams: {
+      mediaType: 'img',
+      mediaCallback,
+    },
+  });
+
+  feder.searchRandTestVec();
+</script>
+
+</html>

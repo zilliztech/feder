@@ -60,12 +60,12 @@ const testIVFFlat = async (filePath) => {
 window.addEventListener('DOMContentLoaded', async () => {
   // const feder = await testIVFFlat('data/faiss_ivf_flat.index');
   // const feder = await testHNSW('data/hnswlib_hnsw_random_1M.index');
-  // const feder = await testHNSW(
-  //   'https://assets.zilliz.com/hnswlib_hnsw_voc_17k_1f1dfd63a9.index'
-  // );
-  const feder = await testHNSWWithImages(
+  const feder = await testHNSW(
     'https://assets.zilliz.com/hnswlib_hnsw_voc_17k_1f1dfd63a9.index'
   );
+  // const feder = await testHNSWWithImages(
+  //   'https://assets.zilliz.com/hnswlib_hnsw_voc_17k_1f1dfd63a9.index'
+  // );
   console.log(feder);
   // feder.overview();
   feder.searchRandTestVec();
