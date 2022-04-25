@@ -4,8 +4,11 @@
 
 Feder is built for visualizing anns index files, so that we can have a better understanding of anns and high dimensional vectors. so far, we are focusing on the index from Faiss (only ivf_flat) and HNSWlib (hnsw), we will cover more index types later.
 
-- HNSW
-  ![image](./fig/hnsw_overview.png)
+- HNSW - Overview
+  <iframe src="./fig/case_hnsw_overview_with_images.html" width="1000px" height="600px" frameborder="0" scrolling="no"> </iframe>
+
+- HNSW - Search
+  <iframe src="./fig/case_hnsw_search_with_images.html" width="1000px" height="600px" frameborder="0" scrolling="no"> </iframe>
 
 ## Quick start
 
@@ -121,10 +124,13 @@ Then open http://localhost:8000/
     ...
   });
   ```
-  then open a new cmdline, 
+
+  then open a new cmdline,
+
   ```shell
   yarn dev
   ```
+
   It makes the new changes to test.js take effect.
 
 - If you want to display the image during the interaction, you can modify **test/test.js**, and use the **testHNSWWithImages** function.
@@ -152,7 +158,7 @@ You can also generate random vectors without embedding for index building and sk
 
 Recommend to use [towhee](https://github.com/towhee-io/towhee), one line of code to generating embedding vectors!
 
-We have the [encoded vectors](https://assets.zilliz.com/voc_vectors_e8ec5a5eae.csv) ready for you. 
+We have the [encoded vectors](https://assets.zilliz.com/voc_vectors_e8ec5a5eae.csv) ready for you.
 
 ### Step 3. Build an index and dump it.
 
@@ -160,9 +166,9 @@ You can use [faiss](https://github.com/facebookresearch/faiss) or [hnswlib](http
 
 (\*Detailed procedures please refer to their tutorials.)
 
-Referring to **test/data/gen_hnswlib_index_*.py** or **test/data/gen_faiss_index_*.py**
+Referring to **test/data/gen*hnswlib_index*\*.py** or **test/data/gen*faiss_index*\*.py**
 
-Or we have the [index file](https://assets.zilliz.com/hnswlib_hnsw_voc_17k_1f1dfd63a9.index) ready for you. 
+Or we have the [index file](https://assets.zilliz.com/hnswlib_hnsw_voc_17k_1f1dfd63a9.index) ready for you.
 
 ### Step 4. Init Feder.
 
