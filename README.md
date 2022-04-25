@@ -4,8 +4,11 @@
 
 Feder is built for visualizing anns index files, so that we can have a better understanding of anns and high dimensional vectors. so far, we are focusing on the index from Faiss (only ivf_flat) and HNSWlib (hnsw), we will cover more index types later.
 
-- HNSW
+- HNSW - Overview
   ![image](./fig/hnsw_overview.png)
+
+- HNSW - Search View
+  ![image](./fig/hnsw_search.png)
 
 ## Quick start
 
@@ -15,7 +18,7 @@ Use npm or yarn.
 
 ```shell
 #install
-npm install @zilliz/feder
+yarn install @zilliz/feder
 ```
 
 or
@@ -99,7 +102,7 @@ Support mapping from Row No. to media files. (current support img)
 ## Examples
 
 We prepare a simple case, which is an overview of an hnsw with 17,000+ vectors.
-Only need enable a web service and open 'http://localhost:8000/'.
+Only need enable a web service.
 
 ```shell
 git clone git@github.com:zilliztech/feder.git
@@ -107,42 +110,41 @@ cd test
 python -m http.server
 ```
 
-If you want to explore the search process of hnsw, you can modify **test/test.js**.
+Then open http://localhost:8000/
 
-**searchRandTestVec** will randomly select a vector from the index file as the target vector.
+- If you want to explore the search process of hnsw, you can modify **test/test.js**.
 
-```js
-window.addEventListener('DOMContentLoaded', async () => {
-  ...
-  // feder.overview();
-  feder.searchRandTestVec();
-  ...
-});
-```
-then open a new cmdline, 
-```shell
-yarn dev
-```
-It makes the new changes to test.js take effect.
+  **searchRandTestVec** will randomly select a vector from the index file as the target vector.
 
-If you want to display the image during the interaction, need to [download the vectors dataset (csv)](https://assets.zilliz.com/voc_vectors_e8ec5a5eae.csv), rename it as "voc_vectors.csv", and put it to "test/data/".
+  ```js
+  window.addEventListener('DOMContentLoaded', async () => {
+    ...
+    // feder.overview();
+    feder.searchRandTestVec();
+    ...
+  });
+  ```
 
-Then you can modify **test/test.js**, and use the **testHNSWWithImages** function.
+  then open a new cmdline,
 
-```js
-window.addEventListener('DOMContentLoaded', async () => {
-  ...
-  // const feder = await testHNSW(
-  //   'https://assets.zilliz.com/hnswlib_hnsw_voc_17k_1f1dfd63a9.index'
-  // );
-  const feder = await testHNSWWithImages(
-    'https://assets.zilliz.com/hnswlib_hnsw_voc_17k_1f1dfd63a9.index'
-  );
-  ...
-});
-```
+  ```shell
+  yarn dev
+  ```
 
-If you want to use a new dataset, the following process will help you.
+  It makes the new changes to test.js take effect.
+
+- If you want to display the image during the interaction, you can modify **test/test.js**, and use the **testHNSWWithImages** function.
+
+  ```js
+  window.addEventListener('DOMContentLoaded', async () => {
+    ...
+    // const feder = await testHNSW('https://assets.zilliz.com/hnswlib_hnsw_voc_17k_1f1dfd63a9.index');
+    const feder = await testHNSWWithImages('https://assets.zilliz.com/hnswlib_hnsw_voc_17k_1f1dfd63a9.index');
+    ...
+  });
+  ```
+
+- If you want to use a new dataset, the following process will help you.
 
 ## Explore a new data
 
@@ -156,7 +158,7 @@ You can also generate random vectors without embedding for index building and sk
 
 Recommend to use [towhee](https://github.com/towhee-io/towhee), one line of code to generating embedding vectors!
 
-We have the encoded vectors ([download](https://assets.zilliz.com/voc_vectors_e8ec5a5eae.csv)) ready for you. 
+We have the [encoded vectors](https://assets.zilliz.com/voc_vectors_e8ec5a5eae.csv) ready for you.
 
 ### Step 3. Build an index and dump it.
 
@@ -164,9 +166,9 @@ You can use [faiss](https://github.com/facebookresearch/faiss) or [hnswlib](http
 
 (\*Detailed procedures please refer to their tutorials.)
 
-Referring to **test/data/gen_hnswlib_index_*.py** or **test/data/gen_faiss_index_*.py**
+Referring to **test/data/gen*hnswlib_index*\*.py** or **test/data/gen*faiss_index*\*.py**
 
-Or we have the index files ([download](https://assets.zilliz.com/hnswlib_hnsw_voc_17k_1f1dfd63a9.index)) ready for you. 
+Or we have the [index file](https://assets.zilliz.com/hnswlib_hnsw_voc_17k_1f1dfd63a9.index) ready for you.
 
 ### Step 4. Init Feder.
 
@@ -190,7 +192,7 @@ const feder = new Feder({
 });
 ```
 
-If use the random_data, no need to specify the mediaType.
+If use the random_data, **no need** to specify the mediaType.
 
 ```js
 import { Feder } from '@zilliz/feder';

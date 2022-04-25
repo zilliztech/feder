@@ -1357,6 +1357,7 @@
     "node_modules/ml-matrix/matrix.js"(exports) {
       "use strict";
       Object.defineProperty(exports, "__esModule", { value: true });
+      var isAnyArray = require_lib2();
       var rescale = require_lib5();
       function _interopDefaultLegacy(e) {
         return e && typeof e === "object" && "default" in e ? e : { "default": e };
@@ -2160,39 +2161,25 @@ ${indentData}`);
         }
         return vector;
       }
-      function checkIndices(matrix, rowIndices, columnIndices) {
-        return {
-          row: checkRowIndices(matrix, rowIndices),
-          column: checkColumnIndices(matrix, columnIndices)
-        };
-      }
       function checkRowIndices(matrix, rowIndices) {
-        if (typeof rowIndices !== "object") {
-          throw new TypeError("unexpected type for row indices");
+        if (!isAnyArray.isAnyArray(rowIndices)) {
+          throw new TypeError("row indices must be an array");
         }
-        let rowOut = rowIndices.some((r) => {
-          return r < 0 || r >= matrix.rows;
-        });
-        if (rowOut) {
-          throw new RangeError("row indices are out of range");
+        for (let i = 0; i < rowIndices.length; i++) {
+          if (rowIndices[i] < 0 || rowIndices[i] >= matrix.rows) {
+            throw new RangeError("row indices are out of range");
+          }
         }
-        if (!Array.isArray(rowIndices))
-          rowIndices = Array.from(rowIndices);
-        return rowIndices;
       }
       function checkColumnIndices(matrix, columnIndices) {
-        if (typeof columnIndices !== "object") {
-          throw new TypeError("unexpected type for column indices");
+        if (!isAnyArray.isAnyArray(columnIndices)) {
+          throw new TypeError("column indices must be an array");
         }
-        let columnOut = columnIndices.some((c2) => {
-          return c2 < 0 || c2 >= matrix.columns;
-        });
-        if (columnOut) {
-          throw new RangeError("column indices are out of range");
+        for (let i = 0; i < columnIndices.length; i++) {
+          if (columnIndices[i] < 0 || columnIndices[i] >= matrix.columns) {
+            throw new RangeError("column indices are out of range");
+          }
         }
-        if (!Array.isArray(columnIndices))
-          columnIndices = Array.from(columnIndices);
-        return columnIndices;
       }
       function checkRange(matrix, startRow, endRow, startColumn, endColumn) {
         if (arguments.length !== 5) {
@@ -2897,19 +2884,47 @@ ${indentData}`);
           }
           return this;
         }
-        max() {
+        max(by) {
           if (this.isEmpty()) {
             return NaN;
           }
-          let v2 = this.get(0, 0);
-          for (let i = 0; i < this.rows; i++) {
-            for (let j = 0; j < this.columns; j++) {
-              if (this.get(i, j) > v2) {
-                v2 = this.get(i, j);
+          switch (by) {
+            case "row": {
+              const max3 = new Array(this.rows).fill(Number.NEGATIVE_INFINITY);
+              for (let row = 0; row < this.rows; row++) {
+                for (let column = 0; column < this.columns; column++) {
+                  if (this.get(row, column) > max3[row]) {
+                    max3[row] = this.get(row, column);
+                  }
+                }
               }
+              return max3;
             }
+            case "column": {
+              const max3 = new Array(this.columns).fill(Number.NEGATIVE_INFINITY);
+              for (let row = 0; row < this.rows; row++) {
+                for (let column = 0; column < this.columns; column++) {
+                  if (this.get(row, column) > max3[column]) {
+                    max3[column] = this.get(row, column);
+                  }
+                }
+              }
+              return max3;
+            }
+            case void 0: {
+              let max3 = this.get(0, 0);
+              for (let row = 0; row < this.rows; row++) {
+                for (let column = 0; column < this.columns; column++) {
+                  if (this.get(row, column) > max3) {
+                    max3 = this.get(row, column);
+                  }
+                }
+              }
+              return max3;
+            }
+            default:
+              throw new Error(`invalid option: ${by}`);
           }
-          return v2;
         }
         maxIndex() {
           checkNonEmpty(this);
@@ -2926,19 +2941,47 @@ ${indentData}`);
           }
           return idx;
         }
-        min() {
+        min(by) {
           if (this.isEmpty()) {
             return NaN;
           }
-          let v2 = this.get(0, 0);
-          for (let i = 0; i < this.rows; i++) {
-            for (let j = 0; j < this.columns; j++) {
-              if (this.get(i, j) < v2) {
-                v2 = this.get(i, j);
+          switch (by) {
+            case "row": {
+              const min3 = new Array(this.rows).fill(Number.POSITIVE_INFINITY);
+              for (let row = 0; row < this.rows; row++) {
+                for (let column = 0; column < this.columns; column++) {
+                  if (this.get(row, column) < min3[row]) {
+                    min3[row] = this.get(row, column);
+                  }
+                }
               }
+              return min3;
             }
+            case "column": {
+              const min3 = new Array(this.columns).fill(Number.POSITIVE_INFINITY);
+              for (let row = 0; row < this.rows; row++) {
+                for (let column = 0; column < this.columns; column++) {
+                  if (this.get(row, column) < min3[column]) {
+                    min3[column] = this.get(row, column);
+                  }
+                }
+              }
+              return min3;
+            }
+            case void 0: {
+              let min3 = this.get(0, 0);
+              for (let row = 0; row < this.rows; row++) {
+                for (let column = 0; column < this.columns; column++) {
+                  if (this.get(row, column) < min3) {
+                    min3 = this.get(row, column);
+                  }
+                }
+              }
+              return min3;
+            }
+            default:
+              throw new Error(`invalid option: ${by}`);
           }
-          return v2;
         }
         minIndex() {
           checkNonEmpty(this);
@@ -3475,12 +3518,13 @@ ${indentData}`);
           return this;
         }
         selection(rowIndices, columnIndices) {
-          let indices = checkIndices(this, rowIndices, columnIndices);
+          checkRowIndices(this, rowIndices);
+          checkColumnIndices(this, columnIndices);
           let newMatrix = new Matrix(rowIndices.length, columnIndices.length);
-          for (let i = 0; i < indices.row.length; i++) {
-            let rowIndex = indices.row[i];
-            for (let j = 0; j < indices.column.length; j++) {
-              let columnIndex = indices.column[j];
+          for (let i = 0; i < rowIndices.length; i++) {
+            let rowIndex = rowIndices[i];
+            for (let j = 0; j < columnIndices.length; j++) {
+              let columnIndex = columnIndices[j];
               newMatrix.set(i, j, this.get(rowIndex, columnIndex));
             }
           }
@@ -3562,13 +3606,13 @@ ${indentData}`);
           }
           switch (by) {
             case "row": {
-              if (!Array.isArray(mean)) {
+              if (!isAnyArray.isAnyArray(mean)) {
                 throw new TypeError("mean must be an array");
               }
               return varianceByRow(this, unbiased, mean);
             }
             case "column": {
-              if (!Array.isArray(mean)) {
+              if (!isAnyArray.isAnyArray(mean)) {
                 throw new TypeError("mean must be an array");
               }
               return varianceByColumn(this, unbiased, mean);
@@ -3609,14 +3653,14 @@ ${indentData}`);
           const { center = this.mean(by) } = options;
           switch (by) {
             case "row": {
-              if (!Array.isArray(center)) {
+              if (!isAnyArray.isAnyArray(center)) {
                 throw new TypeError("center must be an array");
               }
               centerByRow(this, center);
               return this;
             }
             case "column": {
-              if (!Array.isArray(center)) {
+              if (!isAnyArray.isAnyArray(center)) {
                 throw new TypeError("center must be an array");
               }
               centerByColumn(this, center);
@@ -3646,7 +3690,7 @@ ${indentData}`);
             case "row": {
               if (scale2 === void 0) {
                 scale2 = getScaleByRow(this);
-              } else if (!Array.isArray(scale2)) {
+              } else if (!isAnyArray.isAnyArray(scale2)) {
                 throw new TypeError("scale must be an array");
               }
               scaleByRow(this, scale2);
@@ -3655,7 +3699,7 @@ ${indentData}`);
             case "column": {
               if (scale2 === void 0) {
                 scale2 = getScaleByColumn(this);
-              } else if (!Array.isArray(scale2)) {
+              } else if (!isAnyArray.isAnyArray(scale2)) {
                 throw new TypeError("scale must be an array");
               }
               scaleByColumn(this, scale2);
@@ -3706,7 +3750,7 @@ ${indentData}`);
             } else {
               throw new TypeError("nColumns must be a positive integer");
             }
-          } else if (Array.isArray(nRows)) {
+          } else if (isAnyArray.isAnyArray(nRows)) {
             const arrayData = nRows;
             nRows = arrayData.length;
             nColumns = nRows ? arrayData[0].length : 0;
@@ -3813,7 +3857,7 @@ ${indentData}`);
       };
       var MatrixColumnSelectionView = class extends BaseView2 {
         constructor(matrix, columnIndices) {
-          columnIndices = checkColumnIndices(matrix, columnIndices);
+          checkColumnIndices(matrix, columnIndices);
           super(matrix, matrix.rows, columnIndices.length);
           this.columnIndices = columnIndices;
         }
@@ -3865,7 +3909,7 @@ ${indentData}`);
       };
       var MatrixRowSelectionView = class extends BaseView2 {
         constructor(matrix, rowIndices) {
-          rowIndices = checkRowIndices(matrix, rowIndices);
+          checkRowIndices(matrix, rowIndices);
           super(matrix, rowIndices.length, matrix.columns);
           this.rowIndices = rowIndices;
         }
@@ -3879,10 +3923,11 @@ ${indentData}`);
       };
       var MatrixSelectionView = class extends BaseView2 {
         constructor(matrix, rowIndices, columnIndices) {
-          let indices = checkIndices(matrix, rowIndices, columnIndices);
-          super(matrix, indices.row.length, indices.column.length);
-          this.rowIndices = indices.row;
-          this.columnIndices = indices.column;
+          checkRowIndices(matrix, rowIndices);
+          checkColumnIndices(matrix, columnIndices);
+          super(matrix, rowIndices.length, columnIndices.length);
+          this.rowIndices = rowIndices;
+          this.columnIndices = columnIndices;
         }
         set(rowIndex, columnIndex, value) {
           this.matrix.set(this.rowIndices[rowIndex], this.columnIndices[columnIndex], value);
@@ -3959,8 +4004,8 @@ ${indentData}`);
         }
       };
       function wrap(array2, options) {
-        if (Array.isArray(array2)) {
-          if (array2[0] && Array.isArray(array2[0])) {
+        if (isAnyArray.isAnyArray(array2)) {
+          if (array2[0] && isAnyArray.isAnyArray(array2[0])) {
             return new WrapperMatrix2D(array2);
           } else {
             return new WrapperMatrix1D(array2, options);
@@ -4828,7 +4873,7 @@ ${indentData}`);
       function covariance(xMatrix, yMatrix = xMatrix, options = {}) {
         xMatrix = new Matrix(xMatrix);
         let yIsSame = false;
-        if (typeof yMatrix === "object" && !Matrix.isMatrix(yMatrix) && !Array.isArray(yMatrix)) {
+        if (typeof yMatrix === "object" && !Matrix.isMatrix(yMatrix) && !isAnyArray.isAnyArray(yMatrix)) {
           options = yMatrix;
           yMatrix = xMatrix;
           yIsSame = true;
@@ -4856,7 +4901,7 @@ ${indentData}`);
       function correlation(xMatrix, yMatrix = xMatrix, options = {}) {
         xMatrix = new Matrix(xMatrix);
         let yIsSame = false;
-        if (typeof yMatrix === "object" && !Matrix.isMatrix(yMatrix) && !Array.isArray(yMatrix)) {
+        if (typeof yMatrix === "object" && !Matrix.isMatrix(yMatrix) && !isAnyArray.isAnyArray(yMatrix)) {
           options = yMatrix;
           yMatrix = xMatrix;
           yIsSame = true;
@@ -5636,7 +5681,7 @@ ${indentData}`);
           } = options;
           let u4;
           if (Y2) {
-            if (Array.isArray(Y2) && typeof Y2[0] === "number") {
+            if (isAnyArray.isAnyArray(Y2) && typeof Y2[0] === "number") {
               Y2 = Matrix.columnVector(Y2);
             } else {
               Y2 = WrapperMatrix2D.checkMatrix(Y2);
@@ -6710,15 +6755,22 @@ ${indentData}`);
     return a2 == null || b == null ? NaN : a2 < b ? -1 : a2 > b ? 1 : a2 >= b ? 0 : NaN;
   }
 
+  // node_modules/d3-array/src/descending.js
+  function descending(a2, b) {
+    return a2 == null || b == null ? NaN : b < a2 ? -1 : b > a2 ? 1 : b >= a2 ? 0 : NaN;
+  }
+
   // node_modules/d3-array/src/bisector.js
   function bisector(f) {
-    let delta = f;
-    let compare1 = f;
-    let compare2 = f;
+    let compare1, compare2, delta;
     if (f.length !== 2) {
-      delta = (d, x3) => f(d) - x3;
       compare1 = ascending;
       compare2 = (d, x3) => ascending(f(d), x3);
+      delta = (d, x3) => f(d) - x3;
+    } else {
+      compare1 = f === ascending || f === descending ? f : zero;
+      compare2 = f;
+      delta = f;
     }
     function left(a2, x3, lo = 0, hi = a2.length) {
       if (lo < hi) {
@@ -6753,6 +6805,9 @@ ${indentData}`);
       return i > lo && delta(a2[i - 1], x3) > -delta(a2[i], x3) ? i - 1 : i;
     }
     return { left, center, right };
+  }
+  function zero() {
+    return 0;
   }
 
   // node_modules/d3-array/src/number.js
@@ -8112,15 +8167,15 @@ ${indentData}`);
   var darker = 0.7;
   var brighter = 1 / darker;
   var reI = "\\s*([+-]?\\d+)\\s*";
-  var reN = "\\s*([+-]?\\d*\\.?\\d+(?:[eE][+-]?\\d+)?)\\s*";
-  var reP = "\\s*([+-]?\\d*\\.?\\d+(?:[eE][+-]?\\d+)?)%\\s*";
+  var reN = "\\s*([+-]?(?:\\d*\\.)?\\d+(?:[eE][+-]?\\d+)?)\\s*";
+  var reP = "\\s*([+-]?(?:\\d*\\.)?\\d+(?:[eE][+-]?\\d+)?)%\\s*";
   var reHex = /^#([0-9a-f]{3,8})$/;
-  var reRgbInteger = new RegExp("^rgb\\(" + [reI, reI, reI] + "\\)$");
-  var reRgbPercent = new RegExp("^rgb\\(" + [reP, reP, reP] + "\\)$");
-  var reRgbaInteger = new RegExp("^rgba\\(" + [reI, reI, reI, reN] + "\\)$");
-  var reRgbaPercent = new RegExp("^rgba\\(" + [reP, reP, reP, reN] + "\\)$");
-  var reHslPercent = new RegExp("^hsl\\(" + [reN, reP, reP] + "\\)$");
-  var reHslaPercent = new RegExp("^hsla\\(" + [reN, reP, reP, reN] + "\\)$");
+  var reRgbInteger = new RegExp(`^rgb\\(${reI},${reI},${reI}\\)$`);
+  var reRgbPercent = new RegExp(`^rgb\\(${reP},${reP},${reP}\\)$`);
+  var reRgbaInteger = new RegExp(`^rgba\\(${reI},${reI},${reI},${reN}\\)$`);
+  var reRgbaPercent = new RegExp(`^rgba\\(${reP},${reP},${reP},${reN}\\)$`);
+  var reHslPercent = new RegExp(`^hsl\\(${reN},${reP},${reP}\\)$`);
+  var reHslaPercent = new RegExp(`^hsla\\(${reN},${reP},${reP},${reN}\\)$`);
   var named = {
     aliceblue: 15792383,
     antiquewhite: 16444375,
@@ -8272,20 +8327,24 @@ ${indentData}`);
     yellowgreen: 10145074
   };
   define_default(Color, color, {
-    copy: function(channels) {
+    copy(channels) {
       return Object.assign(new this.constructor(), this, channels);
     },
-    displayable: function() {
+    displayable() {
       return this.rgb().displayable();
     },
     hex: color_formatHex,
     formatHex: color_formatHex,
+    formatHex8: color_formatHex8,
     formatHsl: color_formatHsl,
     formatRgb: color_formatRgb,
     toString: color_formatRgb
   });
   function color_formatHex() {
     return this.rgb().formatHex();
+  }
+  function color_formatHex8() {
+    return this.rgb().formatHex8();
   }
   function color_formatHsl() {
     return hslConvert(this).formatHsl();
@@ -8324,35 +8383,47 @@ ${indentData}`);
     this.opacity = +opacity;
   }
   define_default(Rgb, rgb, extend(Color, {
-    brighter: function(k) {
+    brighter(k) {
       k = k == null ? brighter : Math.pow(brighter, k);
       return new Rgb(this.r * k, this.g * k, this.b * k, this.opacity);
     },
-    darker: function(k) {
+    darker(k) {
       k = k == null ? darker : Math.pow(darker, k);
       return new Rgb(this.r * k, this.g * k, this.b * k, this.opacity);
     },
-    rgb: function() {
+    rgb() {
       return this;
     },
-    displayable: function() {
+    clamp() {
+      return new Rgb(clampi(this.r), clampi(this.g), clampi(this.b), clampa(this.opacity));
+    },
+    displayable() {
       return -0.5 <= this.r && this.r < 255.5 && (-0.5 <= this.g && this.g < 255.5) && (-0.5 <= this.b && this.b < 255.5) && (0 <= this.opacity && this.opacity <= 1);
     },
     hex: rgb_formatHex,
     formatHex: rgb_formatHex,
+    formatHex8: rgb_formatHex8,
     formatRgb: rgb_formatRgb,
     toString: rgb_formatRgb
   }));
   function rgb_formatHex() {
-    return "#" + hex(this.r) + hex(this.g) + hex(this.b);
+    return `#${hex(this.r)}${hex(this.g)}${hex(this.b)}`;
+  }
+  function rgb_formatHex8() {
+    return `#${hex(this.r)}${hex(this.g)}${hex(this.b)}${hex((isNaN(this.opacity) ? 1 : this.opacity) * 255)}`;
   }
   function rgb_formatRgb() {
-    var a2 = this.opacity;
-    a2 = isNaN(a2) ? 1 : Math.max(0, Math.min(1, a2));
-    return (a2 === 1 ? "rgb(" : "rgba(") + Math.max(0, Math.min(255, Math.round(this.r) || 0)) + ", " + Math.max(0, Math.min(255, Math.round(this.g) || 0)) + ", " + Math.max(0, Math.min(255, Math.round(this.b) || 0)) + (a2 === 1 ? ")" : ", " + a2 + ")");
+    const a2 = clampa(this.opacity);
+    return `${a2 === 1 ? "rgb(" : "rgba("}${clampi(this.r)}, ${clampi(this.g)}, ${clampi(this.b)}${a2 === 1 ? ")" : `, ${a2})`}`;
+  }
+  function clampa(opacity) {
+    return isNaN(opacity) ? 1 : Math.max(0, Math.min(1, opacity));
+  }
+  function clampi(value) {
+    return Math.max(0, Math.min(255, Math.round(value) || 0));
   }
   function hex(value) {
-    value = Math.max(0, Math.min(255, Math.round(value) || 0));
+    value = clampi(value);
     return (value < 16 ? "0" : "") + value.toString(16);
   }
   function hsla(h, s, l, a2) {
@@ -8399,27 +8470,36 @@ ${indentData}`);
     this.opacity = +opacity;
   }
   define_default(Hsl, hsl, extend(Color, {
-    brighter: function(k) {
+    brighter(k) {
       k = k == null ? brighter : Math.pow(brighter, k);
       return new Hsl(this.h, this.s, this.l * k, this.opacity);
     },
-    darker: function(k) {
+    darker(k) {
       k = k == null ? darker : Math.pow(darker, k);
       return new Hsl(this.h, this.s, this.l * k, this.opacity);
     },
-    rgb: function() {
+    rgb() {
       var h = this.h % 360 + (this.h < 0) * 360, s = isNaN(h) || isNaN(this.s) ? 0 : this.s, l = this.l, m2 = l + (l < 0.5 ? l : 1 - l) * s, m1 = 2 * l - m2;
       return new Rgb(hsl2rgb(h >= 240 ? h - 240 : h + 120, m1, m2), hsl2rgb(h, m1, m2), hsl2rgb(h < 120 ? h + 240 : h - 120, m1, m2), this.opacity);
     },
-    displayable: function() {
+    clamp() {
+      return new Hsl(clamph(this.h), clampt(this.s), clampt(this.l), clampa(this.opacity));
+    },
+    displayable() {
       return (0 <= this.s && this.s <= 1 || isNaN(this.s)) && (0 <= this.l && this.l <= 1) && (0 <= this.opacity && this.opacity <= 1);
     },
-    formatHsl: function() {
-      var a2 = this.opacity;
-      a2 = isNaN(a2) ? 1 : Math.max(0, Math.min(1, a2));
-      return (a2 === 1 ? "hsl(" : "hsla(") + (this.h || 0) + ", " + (this.s || 0) * 100 + "%, " + (this.l || 0) * 100 + "%" + (a2 === 1 ? ")" : ", " + a2 + ")");
+    formatHsl() {
+      const a2 = clampa(this.opacity);
+      return `${a2 === 1 ? "hsl(" : "hsla("}${clamph(this.h)}, ${clampt(this.s) * 100}%, ${clampt(this.l) * 100}%${a2 === 1 ? ")" : `, ${a2})`}`;
     }
   }));
+  function clamph(value) {
+    value = (value || 0) % 360;
+    return value < 0 ? value + 360 : value;
+  }
+  function clampt(value) {
+    return Math.max(0, Math.min(1, value || 0));
+  }
   function hsl2rgb(h, m1, m2) {
     return (h < 60 ? m1 + (m2 - m1) * h / 60 : h < 180 ? m2 : h < 240 ? m1 + (m2 - m1) * (240 - h) / 60 : m1) * 255;
   }
@@ -8578,7 +8658,7 @@ ${indentData}`);
   // node_modules/d3-interpolate/src/string.js
   var reA = /[-+]?(?:\d+\.?\d*|\.?\d+)(?:[eE][-+]?\d+)?/g;
   var reB = new RegExp(reA.source, "g");
-  function zero(b) {
+  function zero2(b) {
     return function() {
       return b;
     };
@@ -8617,7 +8697,7 @@ ${indentData}`);
       else
         s[++i] = bs;
     }
-    return s.length < 2 ? q[0] ? one(q[0].x) : zero(b) : (b = q.length, function(t) {
+    return s.length < 2 ? q[0] ? one(q[0].x) : zero2(b) : (b = q.length, function(t) {
       for (var i2 = 0, o; i2 < b; ++i2)
         s[(o = q[i2]).i] = o.x(t);
       return s.join("");
@@ -12006,13 +12086,13 @@ ${indentData}`);
     var group = locale2.grouping === void 0 || locale2.thousands === void 0 ? identity_default : formatGroup_default(map.call(locale2.grouping, Number), locale2.thousands + ""), currencyPrefix = locale2.currency === void 0 ? "" : locale2.currency[0] + "", currencySuffix = locale2.currency === void 0 ? "" : locale2.currency[1] + "", decimal = locale2.decimal === void 0 ? "." : locale2.decimal + "", numerals = locale2.numerals === void 0 ? identity_default : formatNumerals_default(map.call(locale2.numerals, String)), percent = locale2.percent === void 0 ? "%" : locale2.percent + "", minus = locale2.minus === void 0 ? "\u2212" : locale2.minus + "", nan = locale2.nan === void 0 ? "NaN" : locale2.nan + "";
     function newFormat(specifier) {
       specifier = formatSpecifier(specifier);
-      var fill = specifier.fill, align = specifier.align, sign = specifier.sign, symbol = specifier.symbol, zero2 = specifier.zero, width = specifier.width, comma = specifier.comma, precision = specifier.precision, trim = specifier.trim, type2 = specifier.type;
+      var fill = specifier.fill, align = specifier.align, sign = specifier.sign, symbol = specifier.symbol, zero3 = specifier.zero, width = specifier.width, comma = specifier.comma, precision = specifier.precision, trim = specifier.trim, type2 = specifier.type;
       if (type2 === "n")
         comma = true, type2 = "g";
       else if (!formatTypes_default[type2])
         precision === void 0 && (precision = 12), trim = true, type2 = "g";
-      if (zero2 || fill === "0" && align === "=")
-        zero2 = true, fill = "0", align = "=";
+      if (zero3 || fill === "0" && align === "=")
+        zero3 = true, fill = "0", align = "=";
       var prefix = symbol === "$" ? currencyPrefix : symbol === "#" && /[boxX]/.test(type2) ? "0" + type2.toLowerCase() : "", suffix = symbol === "$" ? currencySuffix : /[%p]/.test(type2) ? percent : "";
       var formatType = formatTypes_default[type2], maybeSuffix = /[defgprs%]/.test(type2);
       precision = precision === void 0 ? 6 : /[gprs]/.test(type2) ? Math.max(1, Math.min(21, precision)) : Math.max(0, Math.min(20, precision));
@@ -12042,10 +12122,10 @@ ${indentData}`);
             }
           }
         }
-        if (comma && !zero2)
+        if (comma && !zero3)
           value = group(value, Infinity);
         var length = valuePrefix.length + value.length + valueSuffix.length, padding = length < width ? new Array(width - length + 1).join(fill) : "";
-        if (comma && zero2)
+        if (comma && zero3)
           value = group(padding + value, padding.length ? width - valueSuffix.length : Infinity), padding = "";
         switch (align) {
           case "<":

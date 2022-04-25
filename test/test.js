@@ -14,7 +14,9 @@ const testHNSW = async (filePath) => {
 };
 
 const getId2name = async () => {
-  const data = await d3.csv('./data/voc_vectors.csv');
+  const data = await d3.csv(
+    'https://assets.zilliz.com/voc_vectors_e8ec5a5eae.csv'
+  );
   const rowId2name = {};
   data.forEach((d, i) => (rowId2name[i] = d.name));
   return rowId2name;
