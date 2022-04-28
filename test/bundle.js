@@ -13415,7 +13415,7 @@ ${indentData}`);
       return this.id2Vector[id2] || null;
     }
     setSearchParams(params) {
-      const newSearchParams = Object.assign(this.searchParams, params);
+      const newSearchParams = Object.assign({}, this.searchParams, params);
       this.searchParams = newSearchParams;
     }
     search(target) {
@@ -13687,7 +13687,8 @@ ${indentData}`);
         left: 0,
         top: 0,
         width: "240px",
-        display: "flex"
+        display: "flex",
+        pointerEvents: "none"
       };
       Object.assign(hoveredPanel.style, hoveredPanelStyle);
       dom.appendChild(hoveredPanel);
@@ -16054,13 +16055,16 @@ ${indentData}`);
         this.initFederView();
       }
     }
-    getTestIdAndVec() {
+    async getTestIdAndVec() {
+      this.initCorePromise && await this.initCorePromise;
       return this.core.getTestIdAndVec();
     }
-    setSearchParams(params) {
+    async setSearchParams(params) {
+      this.initCorePromise && await this.initCorePromise;
       this.core.setSearchParams(params);
     }
-    setProjectParams(params) {
+    async setProjectParams(params) {
+      this.initCorePromise && await this.initCorePromise;
       this.core.setProjectParams(params);
     }
     initFederView() {
@@ -16103,7 +16107,7 @@ ${indentData}`);
     }
     async searchRandTestVec() {
       this.initCorePromise && await this.initCorePromise;
-      const [testId, testVec] = this.core.getTestIdAndVec();
+      const [testId, testVec] = await this.core.getTestIdAndVec();
       console.log("random test vector:", testId, testVec);
       const targetMediaUrl = this.viewParams && this.viewParams.mediaCallback ? this.viewParams.mediaCallback(testId) : null;
       this.search(testVec, targetMediaUrl);
@@ -16136,6 +16140,6 @@ ${indentData}`);
   window.addEventListener("DOMContentLoaded", async () => {
     const feder = await testHNSW("https://assets.zilliz.com/hnswlib_hnsw_voc_17k_1f1dfd63a9.index");
     console.log(feder);
-    feder.searchRandTestVec();
+    feder.overview();
   });
 })();
