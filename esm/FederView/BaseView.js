@@ -61,8 +61,9 @@ export default class BaseView {
       // left: `${canvas.width - 10}px`,
       left: '16px',
       top: '10px',
-      width: '260px',
-      // height: '250px',
+      width: '280px',
+      'max-height': `${height - 20}px`,
+      overflow: 'auto',
       borderColor: whiteColor,
       backgroundColor: panelBackgroundColor,
     };
@@ -81,7 +82,6 @@ export default class BaseView {
       'max-width': '180px',
       'max-height': `${height - 20}px`,
       overflow: 'auto',
-      // height: '400px',
       borderColor: ZYellow,
       backgroundColor: panelBackgroundColor,
     };
@@ -99,11 +99,6 @@ export default class BaseView {
       width: '240px',
       display: 'flex',
       pointerEvents: 'none',
-      // height: '500px',
-      // borderStyle: 'dashed',
-      // borderColor: ZYellow,
-      // borderWidth: '1px',
-      // backgroundColor: panelBackgroundColor,
     };
     Object.assign(hoveredPanel.style, hoveredPanelStyle);
     dom.appendChild(hoveredPanel);
@@ -120,7 +115,6 @@ export default class BaseView {
       }
       .panel {
         padding: 6px 8px;
-        point-events: none;
         font-size: 12px;
       }
       .hide {
