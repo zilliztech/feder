@@ -12,6 +12,7 @@ class FederPy:
         # self.federjs = "http://192.168.0.101:12357/feder_esm.js"
 
         self.actionJs = ""
+        self.searchParams = ""
         self.width = width
         self.height = height
         self.mediaType = mediaType
@@ -55,6 +56,9 @@ const feder = new Feder({
         else:
             return self.getHtml()
 
+    def setSearchParams(self, searchParams):
+        self.searchParams = searchParams
+
     def getJs(self):
         return """
 %s
@@ -81,9 +85,7 @@ const feder = new Feder({
 %s
 </script>
 
-</html>        
-        
-        
+</html> 
 """ % (self.getDiv(), self.getJs())
 
     def showHtml(self):

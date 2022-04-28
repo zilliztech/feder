@@ -98,6 +98,7 @@ export default class BaseView {
       top: 0,
       width: '240px',
       display: 'flex',
+      pointerEvents: 'none',
       // height: '500px',
       // borderStyle: 'dashed',
       // borderColor: ZYellow,
