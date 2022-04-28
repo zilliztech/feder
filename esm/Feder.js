@@ -32,13 +32,16 @@ export default class Feder {
     }
     // console.info('feder initialized');
   }
-  getTestIdAndVec() {
+  async getTestIdAndVec() {
+    this.initCorePromise && (await this.initCorePromise);
     return this.core.getTestIdAndVec();
   }
-  setSearchParams(params) {
+  async setSearchParams(params) {
+    this.initCorePromise && (await this.initCorePromise);
     this.core.setSearchParams(params);
   }
-  setProjectParams(params) {
+  async setProjectParams(params) {
+    this.initCorePromise && (await this.initCorePromise);
     this.core.setProjectParams(params);
   }
   initFederView() {
@@ -82,7 +85,7 @@ export default class Feder {
   }
   async searchRandTestVec() {
     this.initCorePromise && (await this.initCorePromise);
-    const [testId, testVec] = this.core.getTestIdAndVec();
+    const [testId, testVec] = await this.core.getTestIdAndVec();
     console.log('random test vector:', testId, testVec);
     const targetMediaUrl =
       this.viewParams && this.viewParams.mediaCallback
