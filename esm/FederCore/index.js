@@ -143,7 +143,7 @@ export default class FederCore {
     return this.id2Vector[id] || null;
   }
   setSearchParams(params) {
-    const newSearchParams = Object.assign(this.searchParams, params);
+    const newSearchParams = Object.assign({}, this.searchParams, params);
     this.searchParams = newSearchParams;
   }
   search(target) {
