@@ -13658,7 +13658,9 @@ ${indentData}`);
         position: "absolute",
         left: "16px",
         top: "10px",
-        width: "260px",
+        width: "280px",
+        "max-height": `${height - 20}px`,
+        overflow: "auto",
         borderColor: whiteColor,
         backgroundColor: panelBackgroundColor
       };
@@ -13704,7 +13706,6 @@ ${indentData}`);
       }
       .panel {
         padding: 6px 8px;
-        point-events: none;
         font-size: 12px;
       }
       .hide {
