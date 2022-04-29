@@ -12,7 +12,7 @@ class FederPy:
         # self.federjs = "http://192.168.0.101:12357/feder_esm.js"
 
         self.actionJs = ""
-        self.searchParams = ""
+        self.searchParams = {}
         self.width = width
         self.height = height
         self.mediaType = mediaType
@@ -50,7 +50,7 @@ const feder = new Feder({
             return self.getHtml()
 
     def searchRandTestVec(self, isDisplay=True):
-        self.actionJs = "feder.searchRandTestVec()"
+        self.actionJs = "feder.setSearchParams(%s)\nfeder.searchRandTestVec()" % self.searchParams
         if isDisplay:
             self.showHtml()
         else:

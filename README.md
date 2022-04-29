@@ -12,6 +12,12 @@ Feder is built for visualizing anns index files, so that we can have a better un
 
 ## Quick start
 
+Feder is implemented in **javascript**, and we also provide a python library **federpy**, which is based on federjs.
+- In IPython environment, it supports users to generate the corresponding visualization directly.
+- In other environments, it supports outputting visualizations as html files, which can be opened by the user through the browser with web service enabled.
+
+To get more details about federpy you can refer to [federpy-example](https://colab.research.google.com/drive/12L_oJPR-yFDlORpPondsqGNTPVsSsUwi#scrollTo=N3qqBAYxYcbt).
+
 ### installation
 
 Use npm or yarn.
