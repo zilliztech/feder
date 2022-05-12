@@ -10,3 +10,4 @@ hnswlib_hnsw_random_1M.index
 images/
 dist
 *.csv
+*.index
