@@ -4,5 +4,6 @@
     "target": "es6",
     "baseUrl": "federjs",
   },
-  "include": ["federjs"]
+  "include": ["federjs"],
+  "exclude": []
 }
