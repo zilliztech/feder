@@ -1,10 +1,39 @@
 (() => {
   var __create = Object.create;
   var __defProp = Object.defineProperty;
+  var __defProps = Object.defineProperties;
   var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+  var __getOwnPropDescs = Object.getOwnPropertyDescriptors;
   var __getOwnPropNames = Object.getOwnPropertyNames;
+  var __getOwnPropSymbols = Object.getOwnPropertySymbols;
   var __getProtoOf = Object.getPrototypeOf;
   var __hasOwnProp = Object.prototype.hasOwnProperty;
+  var __propIsEnum = Object.prototype.propertyIsEnumerable;
+  var __defNormalProp = (obj, key, value) => key in obj ? __defProp(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
+  var __spreadValues = (a2, b) => {
+    for (var prop in b || (b = {}))
+      if (__hasOwnProp.call(b, prop))
+        __defNormalProp(a2, prop, b[prop]);
+    if (__getOwnPropSymbols)
+      for (var prop of __getOwnPropSymbols(b)) {
+        if (__propIsEnum.call(b, prop))
+          __defNormalProp(a2, prop, b[prop]);
+      }
+    return a2;
+  };
+  var __spreadProps = (a2, b) => __defProps(a2, __getOwnPropDescs(b));
+  var __objRest = (source, exclude) => {
+    var target = {};
+    for (var prop in source)
+      if (__hasOwnProp.call(source, prop) && exclude.indexOf(prop) < 0)
+        target[prop] = source[prop];
+    if (source != null && __getOwnPropSymbols)
+      for (var prop of __getOwnPropSymbols(source)) {
+        if (exclude.indexOf(prop) < 0 && __propIsEnum.call(source, prop))
+          target[prop] = source[prop];
+      }
+    return target;
+  };
   var __commonJS = (cb, mod) => function __require() {
     return mod || (0, cb[__getOwnPropNames(cb)[0]])((mod = { exports: {} }).exports, mod), mod.exports;
   };
@@ -17,6 +46,26 @@
     return to;
   };
   var __toESM = (mod, isNodeMode, target) => (target = mod != null ? __create(__getProtoOf(mod)) : {}, __copyProps(isNodeMode || !mod || !mod.__esModule ? __defProp(target, "default", { value: mod, enumerable: true }) : target, mod));
+  var __async = (__this, __arguments, generator) => {
+    return new Promise((resolve, reject) => {
+      var fulfilled = (value) => {
+        try {
+          step(generator.next(value));
+        } catch (e) {
+          reject(e);
+        }
+      };
+      var rejected = (value) => {
+        try {
+          step(generator.throw(value));
+        } catch (e) {
+          reject(e);
+        }
+      };
+      var step = (x3) => x3.done ? resolve(x3.value) : Promise.resolve(x3.value).then(fulfilled, rejected);
+      step((generator = generator.apply(__this, __arguments)).next());
+    });
+  };
 
   // node_modules/umap-js/dist/utils.js
   var require_utils = __commonJS({
@@ -1357,7 +1406,6 @@
     "node_modules/ml-matrix/matrix.js"(exports) {
       "use strict";
       Object.defineProperty(exports, "__esModule", { value: true });
-      var isAnyArray = require_lib2();
       var rescale = require_lib5();
       function _interopDefaultLegacy(e) {
         return e && typeof e === "object" && "default" in e ? e : { "default": e };
@@ -2161,25 +2209,39 @@ ${indentData}`);
         }
         return vector;
       }
+      function checkIndices(matrix, rowIndices, columnIndices) {
+        return {
+          row: checkRowIndices(matrix, rowIndices),
+          column: checkColumnIndices(matrix, columnIndices)
+        };
+      }
       function checkRowIndices(matrix, rowIndices) {
-        if (!isAnyArray.isAnyArray(rowIndices)) {
-          throw new TypeError("row indices must be an array");
+        if (typeof rowIndices !== "object") {
+          throw new TypeError("unexpected type for row indices");
         }
-        for (let i = 0; i < rowIndices.length; i++) {
-          if (rowIndices[i] < 0 || rowIndices[i] >= matrix.rows) {
-            throw new RangeError("row indices are out of range");
-          }
+        let rowOut = rowIndices.some((r) => {
+          return r < 0 || r >= matrix.rows;
+        });
+        if (rowOut) {
+          throw new RangeError("row indices are out of range");
         }
+        if (!Array.isArray(rowIndices))
+          rowIndices = Array.from(rowIndices);
+        return rowIndices;
       }
       function checkColumnIndices(matrix, columnIndices) {
-        if (!isAnyArray.isAnyArray(columnIndices)) {
-          throw new TypeError("column indices must be an array");
+        if (typeof columnIndices !== "object") {
+          throw new TypeError("unexpected type for column indices");
         }
-        for (let i = 0; i < columnIndices.length; i++) {
-          if (columnIndices[i] < 0 || columnIndices[i] >= matrix.columns) {
-            throw new RangeError("column indices are out of range");
-          }
+        let columnOut = columnIndices.some((c2) => {
+          return c2 < 0 || c2 >= matrix.columns;
+        });
+        if (columnOut) {
+          throw new RangeError("column indices are out of range");
         }
+        if (!Array.isArray(columnIndices))
+          columnIndices = Array.from(columnIndices);
+        return columnIndices;
       }
       function checkRange(matrix, startRow, endRow, startColumn, endColumn) {
         if (arguments.length !== 5) {
@@ -2884,47 +2946,19 @@ ${indentData}`);
           }
           return this;
         }
-        max(by) {
+        max() {
           if (this.isEmpty()) {
             return NaN;
           }
-          switch (by) {
-            case "row": {
-              const max3 = new Array(this.rows).fill(Number.NEGATIVE_INFINITY);
-              for (let row = 0; row < this.rows; row++) {
-                for (let column = 0; column < this.columns; column++) {
-                  if (this.get(row, column) > max3[row]) {
-                    max3[row] = this.get(row, column);
-                  }
-                }
+          let v2 = this.get(0, 0);
+          for (let i = 0; i < this.rows; i++) {
+            for (let j = 0; j < this.columns; j++) {
+              if (this.get(i, j) > v2) {
+                v2 = this.get(i, j);
               }
-              return max3;
             }
-            case "column": {
-              const max3 = new Array(this.columns).fill(Number.NEGATIVE_INFINITY);
-              for (let row = 0; row < this.rows; row++) {
-                for (let column = 0; column < this.columns; column++) {
-                  if (this.get(row, column) > max3[column]) {
-                    max3[column] = this.get(row, column);
-                  }
-                }
-              }
-              return max3;
-            }
-            case void 0: {
-              let max3 = this.get(0, 0);
-              for (let row = 0; row < this.rows; row++) {
-                for (let column = 0; column < this.columns; column++) {
-                  if (this.get(row, column) > max3) {
-                    max3 = this.get(row, column);
-                  }
-                }
-              }
-              return max3;
-            }
-            default:
-              throw new Error(`invalid option: ${by}`);
           }
+          return v2;
         }
         maxIndex() {
           checkNonEmpty(this);
@@ -2941,47 +2975,19 @@ ${indentData}`);
           }
           return idx;
         }
-        min(by) {
+        min() {
           if (this.isEmpty()) {
             return NaN;
           }
-          switch (by) {
-            case "row": {
-              const min3 = new Array(this.rows).fill(Number.POSITIVE_INFINITY);
-              for (let row = 0; row < this.rows; row++) {
-                for (let column = 0; column < this.columns; column++) {
-                  if (this.get(row, column) < min3[row]) {
-                    min3[row] = this.get(row, column);
-                  }
-                }
+          let v2 = this.get(0, 0);
+          for (let i = 0; i < this.rows; i++) {
+            for (let j = 0; j < this.columns; j++) {
+              if (this.get(i, j) < v2) {
+                v2 = this.get(i, j);
               }
-              return min3;
             }
-            case "column": {
-              const min3 = new Array(this.columns).fill(Number.POSITIVE_INFINITY);
-              for (let row = 0; row < this.rows; row++) {
-                for (let column = 0; column < this.columns; column++) {
-                  if (this.get(row, column) < min3[column]) {
-                    min3[column] = this.get(row, column);
-                  }
-                }
-              }
-              return min3;
-            }
-            case void 0: {
-              let min3 = this.get(0, 0);
-              for (let row = 0; row < this.rows; row++) {
-                for (let column = 0; column < this.columns; column++) {
-                  if (this.get(row, column) < min3) {
-                    min3 = this.get(row, column);
-                  }
-                }
-              }
-              return min3;
-            }
-            default:
-              throw new Error(`invalid option: ${by}`);
           }
+          return v2;
         }
         minIndex() {
           checkNonEmpty(this);
@@ -3518,13 +3524,12 @@ ${indentData}`);
           return this;
         }
         selection(rowIndices, columnIndices) {
-          checkRowIndices(this, rowIndices);
-          checkColumnIndices(this, columnIndices);
+          let indices = checkIndices(this, rowIndices, columnIndices);
           let newMatrix = new Matrix(rowIndices.length, columnIndices.length);
-          for (let i = 0; i < rowIndices.length; i++) {
-            let rowIndex = rowIndices[i];
-            for (let j = 0; j < columnIndices.length; j++) {
-              let columnIndex = columnIndices[j];
+          for (let i = 0; i < indices.row.length; i++) {
+            let rowIndex = indices.row[i];
+            for (let j = 0; j < indices.column.length; j++) {
+              let columnIndex = indices.column[j];
               newMatrix.set(i, j, this.get(rowIndex, columnIndex));
             }
           }
@@ -3606,13 +3611,13 @@ ${indentData}`);
           }
           switch (by) {
             case "row": {
-              if (!isAnyArray.isAnyArray(mean)) {
+              if (!Array.isArray(mean)) {
                 throw new TypeError("mean must be an array");
               }
               return varianceByRow(this, unbiased, mean);
             }
             case "column": {
-              if (!isAnyArray.isAnyArray(mean)) {
+              if (!Array.isArray(mean)) {
                 throw new TypeError("mean must be an array");
               }
               return varianceByColumn(this, unbiased, mean);
@@ -3653,14 +3658,14 @@ ${indentData}`);
           const { center = this.mean(by) } = options;
           switch (by) {
             case "row": {
-              if (!isAnyArray.isAnyArray(center)) {
+              if (!Array.isArray(center)) {
                 throw new TypeError("center must be an array");
               }
               centerByRow(this, center);
               return this;
             }
             case "column": {
-              if (!isAnyArray.isAnyArray(center)) {
+              if (!Array.isArray(center)) {
                 throw new TypeError("center must be an array");
               }
               centerByColumn(this, center);
@@ -3690,7 +3695,7 @@ ${indentData}`);
             case "row": {
               if (scale2 === void 0) {
                 scale2 = getScaleByRow(this);
-              } else if (!isAnyArray.isAnyArray(scale2)) {
+              } else if (!Array.isArray(scale2)) {
                 throw new TypeError("scale must be an array");
               }
               scaleByRow(this, scale2);
@@ -3699,7 +3704,7 @@ ${indentData}`);
             case "column": {
               if (scale2 === void 0) {
                 scale2 = getScaleByColumn(this);
-              } else if (!isAnyArray.isAnyArray(scale2)) {
+              } else if (!Array.isArray(scale2)) {
                 throw new TypeError("scale must be an array");
               }
               scaleByColumn(this, scale2);
@@ -3750,7 +3755,7 @@ ${indentData}`);
             } else {
               throw new TypeError("nColumns must be a positive integer");
             }
-          } else if (isAnyArray.isAnyArray(nRows)) {
+          } else if (Array.isArray(nRows)) {
             const arrayData = nRows;
             nRows = arrayData.length;
             nColumns = nRows ? arrayData[0].length : 0;
@@ -3857,7 +3862,7 @@ ${indentData}`);
       };
       var MatrixColumnSelectionView = class extends BaseView2 {
         constructor(matrix, columnIndices) {
-          checkColumnIndices(matrix, columnIndices);
+          columnIndices = checkColumnIndices(matrix, columnIndices);
           super(matrix, matrix.rows, columnIndices.length);
           this.columnIndices = columnIndices;
         }
@@ -3909,7 +3914,7 @@ ${indentData}`);
       };
       var MatrixRowSelectionView = class extends BaseView2 {
         constructor(matrix, rowIndices) {
-          checkRowIndices(matrix, rowIndices);
+          rowIndices = checkRowIndices(matrix, rowIndices);
           super(matrix, rowIndices.length, matrix.columns);
           this.rowIndices = rowIndices;
         }
@@ -3923,11 +3928,10 @@ ${indentData}`);
       };
       var MatrixSelectionView = class extends BaseView2 {
         constructor(matrix, rowIndices, columnIndices) {
-          checkRowIndices(matrix, rowIndices);
-          checkColumnIndices(matrix, columnIndices);
-          super(matrix, rowIndices.length, columnIndices.length);
-          this.rowIndices = rowIndices;
-          this.columnIndices = columnIndices;
+          let indices = checkIndices(matrix, rowIndices, columnIndices);
+          super(matrix, indices.row.length, indices.column.length);
+          this.rowIndices = indices.row;
+          this.columnIndices = indices.column;
         }
         set(rowIndex, columnIndex, value) {
           this.matrix.set(this.rowIndices[rowIndex], this.columnIndices[columnIndex], value);
@@ -4004,8 +4008,8 @@ ${indentData}`);
         }
       };
       function wrap(array2, options) {
-        if (isAnyArray.isAnyArray(array2)) {
-          if (array2[0] && isAnyArray.isAnyArray(array2[0])) {
+        if (Array.isArray(array2)) {
+          if (array2[0] && Array.isArray(array2[0])) {
             return new WrapperMatrix2D(array2);
           } else {
             return new WrapperMatrix1D(array2, options);
@@ -4873,7 +4877,7 @@ ${indentData}`);
       function covariance(xMatrix, yMatrix = xMatrix, options = {}) {
         xMatrix = new Matrix(xMatrix);
         let yIsSame = false;
-        if (typeof yMatrix === "object" && !Matrix.isMatrix(yMatrix) && !isAnyArray.isAnyArray(yMatrix)) {
+        if (typeof yMatrix === "object" && !Matrix.isMatrix(yMatrix) && !Array.isArray(yMatrix)) {
           options = yMatrix;
           yMatrix = xMatrix;
           yIsSame = true;
@@ -4901,7 +4905,7 @@ ${indentData}`);
       function correlation(xMatrix, yMatrix = xMatrix, options = {}) {
         xMatrix = new Matrix(xMatrix);
         let yIsSame = false;
-        if (typeof yMatrix === "object" && !Matrix.isMatrix(yMatrix) && !isAnyArray.isAnyArray(yMatrix)) {
+        if (typeof yMatrix === "object" && !Matrix.isMatrix(yMatrix) && !Array.isArray(yMatrix)) {
           options = yMatrix;
           yMatrix = xMatrix;
           yIsSame = true;
@@ -5681,7 +5685,7 @@ ${indentData}`);
           } = options;
           let u4;
           if (Y2) {
-            if (isAnyArray.isAnyArray(Y2) && typeof Y2[0] === "number") {
+            if (Array.isArray(Y2) && typeof Y2[0] === "number") {
               Y2 = Matrix.columnVector(Y2);
             } else {
               Y2 = WrapperMatrix2D.checkMatrix(Y2);
@@ -6750,27 +6754,81 @@ ${indentData}`);
     }
   });
 
+  // federjs/Types.js
+  var SOURCE_TYPE = {
+    hnswlib: "hnswlib",
+    faiss: "faiss"
+  };
+  var INDEX_TYPE = {
+    hnsw: "hnsw",
+    ivf_flat: "ivf_flat",
+    flat: "flat"
+  };
+  var PROJECT_METHOD = {
+    umap: "umap",
+    tsne: "tsne"
+  };
+  var MetricType = {
+    METRIC_INNER_PRODUCT: 0,
+    METRIC_L2: 1,
+    METRIC_L1: 2,
+    METRIC_Linf: 3,
+    METRIC_Lp: 4,
+    METRIC_Canberra: 20,
+    METRIC_BrayCurtis: 21,
+    METRIC_JensenShannon: 22
+  };
+  var DirectMapType = {
+    NoMap: 0,
+    Array: 1,
+    Hashtable: 2
+  };
+  var IndexHeader = {
+    IVFFlat: "IwFl",
+    FlatL2: "IxF2",
+    FlatIR: "IxFI"
+  };
+  var HNSW_NODE_TYPE = {
+    Coarse: 1,
+    Candidate: 2,
+    Fine: 3,
+    Target: 4
+  };
+  var HNSW_LINK_TYPE = {
+    None: 0,
+    Visited: 1,
+    Extended: 2,
+    Searched: 3,
+    Fine: 4
+  };
+  var VIEW_TYPE = {
+    overview: "overview",
+    search: "search"
+  };
+  var SEARCH_VIEW_TYPE = {
+    voronoi: "voronoi",
+    polar: "polar",
+    project: "project"
+  };
+  var ANIMATION_TYPE = {
+    exit: "exit",
+    enter: "enter"
+  };
+
   // node_modules/d3-array/src/ascending.js
   function ascending(a2, b) {
     return a2 == null || b == null ? NaN : a2 < b ? -1 : a2 > b ? 1 : a2 >= b ? 0 : NaN;
   }
 
-  // node_modules/d3-array/src/descending.js
-  function descending(a2, b) {
-    return a2 == null || b == null ? NaN : b < a2 ? -1 : b > a2 ? 1 : b >= a2 ? 0 : NaN;
-  }
-
   // node_modules/d3-array/src/bisector.js
   function bisector(f) {
-    let compare1, compare2, delta;
+    let delta = f;
+    let compare1 = f;
+    let compare2 = f;
     if (f.length !== 2) {
+      delta = (d, x3) => f(d) - x3;
       compare1 = ascending;
       compare2 = (d, x3) => ascending(f(d), x3);
-      delta = (d, x3) => f(d) - x3;
-    } else {
-      compare1 = f === ascending || f === descending ? f : zero;
-      compare2 = f;
-      delta = f;
     }
     function left(a2, x3, lo = 0, hi = a2.length) {
       if (lo < hi) {
@@ -6805,9 +6863,6 @@ ${indentData}`);
       return i > lo && delta(a2[i - 1], x3) > -delta(a2[i], x3) ? i - 1 : i;
     }
     return { left, center, right };
-  }
-  function zero() {
-    return 0;
   }
 
   // node_modules/d3-array/src/number.js
@@ -8167,15 +8222,15 @@ ${indentData}`);
   var darker = 0.7;
   var brighter = 1 / darker;
   var reI = "\\s*([+-]?\\d+)\\s*";
-  var reN = "\\s*([+-]?(?:\\d*\\.)?\\d+(?:[eE][+-]?\\d+)?)\\s*";
-  var reP = "\\s*([+-]?(?:\\d*\\.)?\\d+(?:[eE][+-]?\\d+)?)%\\s*";
+  var reN = "\\s*([+-]?\\d*\\.?\\d+(?:[eE][+-]?\\d+)?)\\s*";
+  var reP = "\\s*([+-]?\\d*\\.?\\d+(?:[eE][+-]?\\d+)?)%\\s*";
   var reHex = /^#([0-9a-f]{3,8})$/;
-  var reRgbInteger = new RegExp(`^rgb\\(${reI},${reI},${reI}\\)$`);
-  var reRgbPercent = new RegExp(`^rgb\\(${reP},${reP},${reP}\\)$`);
-  var reRgbaInteger = new RegExp(`^rgba\\(${reI},${reI},${reI},${reN}\\)$`);
-  var reRgbaPercent = new RegExp(`^rgba\\(${reP},${reP},${reP},${reN}\\)$`);
-  var reHslPercent = new RegExp(`^hsl\\(${reN},${reP},${reP}\\)$`);
-  var reHslaPercent = new RegExp(`^hsla\\(${reN},${reP},${reP},${reN}\\)$`);
+  var reRgbInteger = new RegExp("^rgb\\(" + [reI, reI, reI] + "\\)$");
+  var reRgbPercent = new RegExp("^rgb\\(" + [reP, reP, reP] + "\\)$");
+  var reRgbaInteger = new RegExp("^rgba\\(" + [reI, reI, reI, reN] + "\\)$");
+  var reRgbaPercent = new RegExp("^rgba\\(" + [reP, reP, reP, reN] + "\\)$");
+  var reHslPercent = new RegExp("^hsl\\(" + [reN, reP, reP] + "\\)$");
+  var reHslaPercent = new RegExp("^hsla\\(" + [reN, reP, reP, reN] + "\\)$");
   var named = {
     aliceblue: 15792383,
     antiquewhite: 16444375,
@@ -8327,24 +8382,20 @@ ${indentData}`);
     yellowgreen: 10145074
   };
   define_default(Color, color, {
-    copy(channels) {
+    copy: function(channels) {
       return Object.assign(new this.constructor(), this, channels);
     },
-    displayable() {
+    displayable: function() {
       return this.rgb().displayable();
     },
     hex: color_formatHex,
     formatHex: color_formatHex,
-    formatHex8: color_formatHex8,
     formatHsl: color_formatHsl,
     formatRgb: color_formatRgb,
     toString: color_formatRgb
   });
   function color_formatHex() {
     return this.rgb().formatHex();
-  }
-  function color_formatHex8() {
-    return this.rgb().formatHex8();
   }
   function color_formatHsl() {
     return hslConvert(this).formatHsl();
@@ -8383,47 +8434,35 @@ ${indentData}`);
     this.opacity = +opacity;
   }
   define_default(Rgb, rgb, extend(Color, {
-    brighter(k) {
+    brighter: function(k) {
       k = k == null ? brighter : Math.pow(brighter, k);
       return new Rgb(this.r * k, this.g * k, this.b * k, this.opacity);
     },
-    darker(k) {
+    darker: function(k) {
       k = k == null ? darker : Math.pow(darker, k);
       return new Rgb(this.r * k, this.g * k, this.b * k, this.opacity);
     },
-    rgb() {
+    rgb: function() {
       return this;
     },
-    clamp() {
-      return new Rgb(clampi(this.r), clampi(this.g), clampi(this.b), clampa(this.opacity));
-    },
-    displayable() {
+    displayable: function() {
       return -0.5 <= this.r && this.r < 255.5 && (-0.5 <= this.g && this.g < 255.5) && (-0.5 <= this.b && this.b < 255.5) && (0 <= this.opacity && this.opacity <= 1);
     },
     hex: rgb_formatHex,
     formatHex: rgb_formatHex,
-    formatHex8: rgb_formatHex8,
     formatRgb: rgb_formatRgb,
     toString: rgb_formatRgb
   }));
   function rgb_formatHex() {
-    return `#${hex(this.r)}${hex(this.g)}${hex(this.b)}`;
-  }
-  function rgb_formatHex8() {
-    return `#${hex(this.r)}${hex(this.g)}${hex(this.b)}${hex((isNaN(this.opacity) ? 1 : this.opacity) * 255)}`;
+    return "#" + hex(this.r) + hex(this.g) + hex(this.b);
   }
   function rgb_formatRgb() {
-    const a2 = clampa(this.opacity);
-    return `${a2 === 1 ? "rgb(" : "rgba("}${clampi(this.r)}, ${clampi(this.g)}, ${clampi(this.b)}${a2 === 1 ? ")" : `, ${a2})`}`;
-  }
-  function clampa(opacity) {
-    return isNaN(opacity) ? 1 : Math.max(0, Math.min(1, opacity));
-  }
-  function clampi(value) {
-    return Math.max(0, Math.min(255, Math.round(value) || 0));
+    var a2 = this.opacity;
+    a2 = isNaN(a2) ? 1 : Math.max(0, Math.min(1, a2));
+    return (a2 === 1 ? "rgb(" : "rgba(") + Math.max(0, Math.min(255, Math.round(this.r) || 0)) + ", " + Math.max(0, Math.min(255, Math.round(this.g) || 0)) + ", " + Math.max(0, Math.min(255, Math.round(this.b) || 0)) + (a2 === 1 ? ")" : ", " + a2 + ")");
   }
   function hex(value) {
-    value = clampi(value);
+    value = Math.max(0, Math.min(255, Math.round(value) || 0));
     return (value < 16 ? "0" : "") + value.toString(16);
   }
   function hsla(h, s, l, a2) {
@@ -8470,36 +8509,27 @@ ${indentData}`);
     this.opacity = +opacity;
   }
   define_default(Hsl, hsl, extend(Color, {
-    brighter(k) {
+    brighter: function(k) {
       k = k == null ? brighter : Math.pow(brighter, k);
       return new Hsl(this.h, this.s, this.l * k, this.opacity);
     },
-    darker(k) {
+    darker: function(k) {
       k = k == null ? darker : Math.pow(darker, k);
       return new Hsl(this.h, this.s, this.l * k, this.opacity);
     },
-    rgb() {
+    rgb: function() {
       var h = this.h % 360 + (this.h < 0) * 360, s = isNaN(h) || isNaN(this.s) ? 0 : this.s, l = this.l, m2 = l + (l < 0.5 ? l : 1 - l) * s, m1 = 2 * l - m2;
       return new Rgb(hsl2rgb(h >= 240 ? h - 240 : h + 120, m1, m2), hsl2rgb(h, m1, m2), hsl2rgb(h < 120 ? h + 240 : h - 120, m1, m2), this.opacity);
     },
-    clamp() {
-      return new Hsl(clamph(this.h), clampt(this.s), clampt(this.l), clampa(this.opacity));
-    },
-    displayable() {
+    displayable: function() {
       return (0 <= this.s && this.s <= 1 || isNaN(this.s)) && (0 <= this.l && this.l <= 1) && (0 <= this.opacity && this.opacity <= 1);
     },
-    formatHsl() {
-      const a2 = clampa(this.opacity);
-      return `${a2 === 1 ? "hsl(" : "hsla("}${clamph(this.h)}, ${clampt(this.s) * 100}%, ${clampt(this.l) * 100}%${a2 === 1 ? ")" : `, ${a2})`}`;
+    formatHsl: function() {
+      var a2 = this.opacity;
+      a2 = isNaN(a2) ? 1 : Math.max(0, Math.min(1, a2));
+      return (a2 === 1 ? "hsl(" : "hsla(") + (this.h || 0) + ", " + (this.s || 0) * 100 + "%, " + (this.l || 0) * 100 + "%" + (a2 === 1 ? ")" : ", " + a2 + ")");
     }
   }));
-  function clamph(value) {
-    value = (value || 0) % 360;
-    return value < 0 ? value + 360 : value;
-  }
-  function clampt(value) {
-    return Math.max(0, Math.min(1, value || 0));
-  }
   function hsl2rgb(h, m1, m2) {
     return (h < 60 ? m1 + (m2 - m1) * h / 60 : h < 180 ? m2 : h < 240 ? m1 + (m2 - m1) * (240 - h) / 60 : m1) * 255;
   }
@@ -8658,7 +8688,7 @@ ${indentData}`);
   // node_modules/d3-interpolate/src/string.js
   var reA = /[-+]?(?:\d+\.?\d*|\.?\d+)(?:[eE][-+]?\d+)?/g;
   var reB = new RegExp(reA.source, "g");
-  function zero2(b) {
+  function zero(b) {
     return function() {
       return b;
     };
@@ -8697,7 +8727,7 @@ ${indentData}`);
       else
         s[++i] = bs;
     }
-    return s.length < 2 ? q[0] ? one(q[0].x) : zero2(b) : (b = q.length, function(t) {
+    return s.length < 2 ? q[0] ? one(q[0].x) : zero(b) : (b = q.length, function(t) {
       for (var i2 = 0, o; i2 < b; ++i2)
         s[(o = q[i2]).i] = o.x(t);
       return s.join("");
@@ -10164,19 +10194,19 @@ ${indentData}`);
       }
       let i1x = coords[2 * i1];
       let i1y = coords[2 * i1 + 1];
-      let minRadius2 = Infinity;
+      let minRadius = Infinity;
       for (let i = 0; i < n; i++) {
         if (i === i0 || i === i1)
           continue;
         const r = circumradius(i0x, i0y, i1x, i1y, coords[2 * i], coords[2 * i + 1]);
-        if (r < minRadius2) {
+        if (r < minRadius) {
           i2 = i;
-          minRadius2 = r;
+          minRadius = r;
         }
       }
       let i2x = coords[2 * i2];
       let i2y = coords[2 * i2 + 1];
-      if (minRadius2 === Infinity) {
+      if (minRadius === Infinity) {
         for (let i = 0; i < n; i++) {
           this._dists[i] = coords[2 * i] - coords[0] || coords[2 * i + 1] - coords[1];
         }
@@ -11109,6 +11139,185 @@ ${indentData}`);
       ++i;
     }
   }
+
+  // node_modules/d3-dsv/src/dsv.js
+  var EOL = {};
+  var EOF = {};
+  var QUOTE = 34;
+  var NEWLINE = 10;
+  var RETURN = 13;
+  function objectConverter(columns) {
+    return new Function("d", "return {" + columns.map(function(name, i) {
+      return JSON.stringify(name) + ": d[" + i + '] || ""';
+    }).join(",") + "}");
+  }
+  function customConverter(columns, f) {
+    var object = objectConverter(columns);
+    return function(row, i) {
+      return f(object(row), i, columns);
+    };
+  }
+  function inferColumns(rows) {
+    var columnSet = /* @__PURE__ */ Object.create(null), columns = [];
+    rows.forEach(function(row) {
+      for (var column in row) {
+        if (!(column in columnSet)) {
+          columns.push(columnSet[column] = column);
+        }
+      }
+    });
+    return columns;
+  }
+  function pad(value, width) {
+    var s = value + "", length = s.length;
+    return length < width ? new Array(width - length + 1).join(0) + s : s;
+  }
+  function formatYear(year) {
+    return year < 0 ? "-" + pad(-year, 6) : year > 9999 ? "+" + pad(year, 6) : pad(year, 4);
+  }
+  function formatDate(date) {
+    var hours = date.getUTCHours(), minutes = date.getUTCMinutes(), seconds = date.getUTCSeconds(), milliseconds = date.getUTCMilliseconds();
+    return isNaN(date) ? "Invalid Date" : formatYear(date.getUTCFullYear(), 4) + "-" + pad(date.getUTCMonth() + 1, 2) + "-" + pad(date.getUTCDate(), 2) + (milliseconds ? "T" + pad(hours, 2) + ":" + pad(minutes, 2) + ":" + pad(seconds, 2) + "." + pad(milliseconds, 3) + "Z" : seconds ? "T" + pad(hours, 2) + ":" + pad(minutes, 2) + ":" + pad(seconds, 2) + "Z" : minutes || hours ? "T" + pad(hours, 2) + ":" + pad(minutes, 2) + "Z" : "");
+  }
+  function dsv_default(delimiter) {
+    var reFormat = new RegExp('["' + delimiter + "\n\r]"), DELIMITER = delimiter.charCodeAt(0);
+    function parse(text, f) {
+      var convert, columns, rows = parseRows(text, function(row, i) {
+        if (convert)
+          return convert(row, i - 1);
+        columns = row, convert = f ? customConverter(row, f) : objectConverter(row);
+      });
+      rows.columns = columns || [];
+      return rows;
+    }
+    function parseRows(text, f) {
+      var rows = [], N = text.length, I = 0, n = 0, t, eof = N <= 0, eol = false;
+      if (text.charCodeAt(N - 1) === NEWLINE)
+        --N;
+      if (text.charCodeAt(N - 1) === RETURN)
+        --N;
+      function token() {
+        if (eof)
+          return EOF;
+        if (eol)
+          return eol = false, EOL;
+        var i, j = I, c2;
+        if (text.charCodeAt(j) === QUOTE) {
+          while (I++ < N && text.charCodeAt(I) !== QUOTE || text.charCodeAt(++I) === QUOTE)
+            ;
+          if ((i = I) >= N)
+            eof = true;
+          else if ((c2 = text.charCodeAt(I++)) === NEWLINE)
+            eol = true;
+          else if (c2 === RETURN) {
+            eol = true;
+            if (text.charCodeAt(I) === NEWLINE)
+              ++I;
+          }
+          return text.slice(j + 1, i - 1).replace(/""/g, '"');
+        }
+        while (I < N) {
+          if ((c2 = text.charCodeAt(i = I++)) === NEWLINE)
+            eol = true;
+          else if (c2 === RETURN) {
+            eol = true;
+            if (text.charCodeAt(I) === NEWLINE)
+              ++I;
+          } else if (c2 !== DELIMITER)
+            continue;
+          return text.slice(j, i);
+        }
+        return eof = true, text.slice(j, N);
+      }
+      while ((t = token()) !== EOF) {
+        var row = [];
+        while (t !== EOL && t !== EOF)
+          row.push(t), t = token();
+        if (f && (row = f(row, n++)) == null)
+          continue;
+        rows.push(row);
+      }
+      return rows;
+    }
+    function preformatBody(rows, columns) {
+      return rows.map(function(row) {
+        return columns.map(function(column) {
+          return formatValue(row[column]);
+        }).join(delimiter);
+      });
+    }
+    function format2(rows, columns) {
+      if (columns == null)
+        columns = inferColumns(rows);
+      return [columns.map(formatValue).join(delimiter)].concat(preformatBody(rows, columns)).join("\n");
+    }
+    function formatBody(rows, columns) {
+      if (columns == null)
+        columns = inferColumns(rows);
+      return preformatBody(rows, columns).join("\n");
+    }
+    function formatRows(rows) {
+      return rows.map(formatRow).join("\n");
+    }
+    function formatRow(row) {
+      return row.map(formatValue).join(delimiter);
+    }
+    function formatValue(value) {
+      return value == null ? "" : value instanceof Date ? formatDate(value) : reFormat.test(value += "") ? '"' + value.replace(/"/g, '""') + '"' : value;
+    }
+    return {
+      parse,
+      parseRows,
+      format: format2,
+      formatBody,
+      formatRows,
+      formatRow,
+      formatValue
+    };
+  }
+
+  // node_modules/d3-dsv/src/csv.js
+  var csv = dsv_default(",");
+  var csvParse = csv.parse;
+  var csvParseRows = csv.parseRows;
+  var csvFormat = csv.format;
+  var csvFormatBody = csv.formatBody;
+  var csvFormatRows = csv.formatRows;
+  var csvFormatRow = csv.formatRow;
+  var csvFormatValue = csv.formatValue;
+
+  // node_modules/d3-dsv/src/tsv.js
+  var tsv = dsv_default("	");
+  var tsvParse = tsv.parse;
+  var tsvParseRows = tsv.parseRows;
+  var tsvFormat = tsv.format;
+  var tsvFormatBody = tsv.formatBody;
+  var tsvFormatRows = tsv.formatRows;
+  var tsvFormatRow = tsv.formatRow;
+  var tsvFormatValue = tsv.formatValue;
+
+  // node_modules/d3-fetch/src/text.js
+  function responseText(response) {
+    if (!response.ok)
+      throw new Error(response.status + " " + response.statusText);
+    return response.text();
+  }
+  function text_default3(input, init2) {
+    return fetch(input, init2).then(responseText);
+  }
+
+  // node_modules/d3-fetch/src/dsv.js
+  function dsvParse(parse) {
+    return function(input, init2, row) {
+      if (arguments.length === 2 && typeof init2 === "function")
+        row = init2, init2 = void 0;
+      return text_default3(input, init2).then(function(response) {
+        return parse(response, row);
+      });
+    };
+  }
+  var csv2 = dsvParse(csvParse);
+  var tsv2 = dsvParse(tsvParse);
 
   // node_modules/d3-force/src/center.js
   function center_default(x3, y4) {
@@ -12086,13 +12295,13 @@ ${indentData}`);
     var group = locale2.grouping === void 0 || locale2.thousands === void 0 ? identity_default : formatGroup_default(map.call(locale2.grouping, Number), locale2.thousands + ""), currencyPrefix = locale2.currency === void 0 ? "" : locale2.currency[0] + "", currencySuffix = locale2.currency === void 0 ? "" : locale2.currency[1] + "", decimal = locale2.decimal === void 0 ? "." : locale2.decimal + "", numerals = locale2.numerals === void 0 ? identity_default : formatNumerals_default(map.call(locale2.numerals, String)), percent = locale2.percent === void 0 ? "%" : locale2.percent + "", minus = locale2.minus === void 0 ? "\u2212" : locale2.minus + "", nan = locale2.nan === void 0 ? "NaN" : locale2.nan + "";
     function newFormat(specifier) {
       specifier = formatSpecifier(specifier);
-      var fill = specifier.fill, align = specifier.align, sign = specifier.sign, symbol = specifier.symbol, zero3 = specifier.zero, width = specifier.width, comma = specifier.comma, precision = specifier.precision, trim = specifier.trim, type2 = specifier.type;
+      var fill = specifier.fill, align = specifier.align, sign = specifier.sign, symbol = specifier.symbol, zero2 = specifier.zero, width = specifier.width, comma = specifier.comma, precision = specifier.precision, trim = specifier.trim, type2 = specifier.type;
       if (type2 === "n")
         comma = true, type2 = "g";
       else if (!formatTypes_default[type2])
         precision === void 0 && (precision = 12), trim = true, type2 = "g";
-      if (zero3 || fill === "0" && align === "=")
-        zero3 = true, fill = "0", align = "=";
+      if (zero2 || fill === "0" && align === "=")
+        zero2 = true, fill = "0", align = "=";
       var prefix = symbol === "$" ? currencyPrefix : symbol === "#" && /[boxX]/.test(type2) ? "0" + type2.toLowerCase() : "", suffix = symbol === "$" ? currencySuffix : /[%p]/.test(type2) ? percent : "";
       var formatType = formatTypes_default[type2], maybeSuffix = /[defgprs%]/.test(type2);
       precision = precision === void 0 ? 6 : /[gprs]/.test(type2) ? Math.max(1, Math.min(21, precision)) : Math.max(0, Math.min(20, precision));
@@ -12122,10 +12331,10 @@ ${indentData}`);
             }
           }
         }
-        if (comma && !zero3)
+        if (comma && !zero2)
           value = group(value, Infinity);
         var length = valuePrefix.length + value.length + valueSuffix.length, padding = length < width ? new Array(width - length + 1).join(fill) : "";
-        if (comma && zero3)
+        if (comma && zero2)
           value = group(padding + value, padding.length ? width - valueSuffix.length : Infinity), padding = "";
         switch (align) {
           case "<":
@@ -12481,7 +12690,23 @@ ${indentData}`);
     return node.__zoom;
   }
 
-  // esm/Utils/index.js
+  // federjs/Utils/index.js
+  var getDisL2 = (vec1, vec2) => {
+    return Math.sqrt(vec1.map((num, i) => num - vec2[i]).map((num) => num * num).reduce((a2, c2) => a2 + c2, 0));
+  };
+  var getDisIR = (vec1, vec2) => {
+    return vec1.map((num, i) => num * vec2[i]).reduce((acc, cur) => acc + cur, 0);
+  };
+  var getDisFunc = (metricType) => {
+    if (metricType === MetricType.METRIC_L2) {
+      return getDisL2;
+    } else if (metricType === MetricType.METRIC_INNER_PRODUCT) {
+      return getDisIR;
+    }
+    console.warn("[getDisFunc] wrong metric_type, use L2 (default).", metricType);
+    return getDisL2;
+  };
+  var getIvfListId = (listId) => `list-${listId}`;
   var uint8toChars = (data) => {
     return String.fromCharCode(...data);
   };
@@ -12521,7 +12746,6 @@ ${indentData}`);
   };
   var dist2 = (vec1, vec2) => vec1.map((num, i) => num - vec2[i]).reduce((acc, cur) => acc + cur * cur, 0);
   var dist3 = (vec1, vec2) => Math.sqrt(dist2(vec1, vec2));
-  var inCircle2 = (x3, y4, x0, y0, r, bias = 0) => dist2([x3, y4], [x0, y0]) < Math.pow(r + bias, 2);
   var deDupLink = (links, source = "source", target = "target") => {
     const linkStringSet = /* @__PURE__ */ new Set();
     return links.filter((link) => {
@@ -12535,7 +12759,6 @@ ${indentData}`);
       }
     });
   };
-  var colorScheme = Tableau10_default;
   var connection = "---";
   var getLinkId = (sourceId, targetId) => `${sourceId}${connection}${targetId}`;
   var parseLinkId = (linkId) => linkId.split(connection).map((d) => +d);
@@ -12555,11 +12778,23 @@ ${indentData}`);
     const y4 = point_0[1] * (1 - t) + point_1[1] * t;
     return [x3, y4];
   };
-  var showVectors = (vec2, precision = 6, maxLength = 30) => {
+  var showVectors = (vec2, precision = 6, maxLength = 20) => {
     return vec2.slice(0, maxLength).map((num) => num.toFixed(precision)).join(", ") + ", ...";
   };
+  var randomSelect = (arr, k) => {
+    const res = /* @__PURE__ */ new Set();
+    k = Math.min(arr.length, k);
+    while (k > 0) {
+      const itemIndex = Math.round(Math.random() * arr.length);
+      if (!res.has(itemIndex)) {
+        res.add(itemIndex);
+        k -= 1;
+      }
+    }
+    return Array.from(res).map((i) => arr[i]);
+  };
 
-  // esm/FederCore/FileReader.js
+  // federjs/FederCore/parser/FileReader.js
   var FileReader = class {
     constructor(arrayBuffer) {
       this.data = arrayBuffer;
@@ -12629,208 +12864,7 @@ ${indentData}`);
     }
   };
 
-  // esm/FederCore/FaissFileReader.js
-  var FaissFileReader = class extends FileReader {
-    constructor(arrayBuffer) {
-      super(arrayBuffer);
-    }
-    readH() {
-      const uint8Array = generateArray(4).map((_) => this.readUint8());
-      const h = uint8toChars(uint8Array);
-      return h;
-    }
-    readDummy() {
-      const dummy = this.readUint64();
-      return dummy;
-    }
-  };
-
-  // esm/FederCore/readInvertedLists.js
-  var checkInvH = (h) => {
-    if (h !== "ilar") {
-      console.warn("[invlists h] not ilar.", h);
-    }
-  };
-  var checkInvListType = (listType) => {
-    if (listType !== "full") {
-      console.warn("[inverted_lists list_type] only support full.", listType);
-    }
-  };
-  var readArrayInvLists = (reader, invlists) => {
-    invlists.listType = reader.readH();
-    checkInvListType(invlists.listType);
-    invlists.listSizesSize = reader.readUint64();
-    invlists.listSizes = generateArray(invlists.listSizesSize).map((_) => reader.readUint64());
-    const data = [];
-    generateArray(invlists.listSizesSize).forEach((_, i) => {
-      const vectors = generateArray(invlists.listSizes[i]).map((_2) => reader.readFloat32Array(invlists.codeSize / 4));
-      const ids = reader.readUint64Array(invlists.listSizes[i]);
-      data.push({ ids, vectors });
-    });
-    invlists.data = data;
-  };
-  var readInvertedLists = (reader, index2) => {
-    const invlists = {};
-    invlists.h = reader.readH();
-    checkInvH(invlists.h);
-    invlists.nlist = reader.readUint64();
-    invlists.codeSize = reader.readUint64();
-    readArrayInvLists(reader, invlists);
-    index2.invlists = invlists;
-  };
-  var readInvertedLists_default = readInvertedLists;
-
-  // esm/FederCore/faissConfig.js
-  var MetricType = {
-    METRIC_INNER_PRODUCT: 0,
-    METRIC_L2: 1,
-    METRIC_L1: 2,
-    METRIC_Linf: 3,
-    METRIC_Lp: 4,
-    METRIC_Canberra: 20,
-    METRIC_BrayCurtis: 21,
-    METRIC_JensenShannon: 22
-  };
-  var DirectMapType = {
-    NoMap: 0,
-    Array: 1,
-    Hashtable: 2
-  };
-  var IndexHeader = {
-    IVFFlat: "IwFl",
-    FlatL2: "IxF2",
-    FlatIR: "IxFI"
-  };
-
-  // esm/FederCore/readDirectMap.js
-  var checkDmType = (dmType) => {
-    if (dmType !== DirectMapType.NoMap) {
-      console.warn("[directmap_type] only support NoMap.");
-    }
-  };
-  var checkDmSize = (dmSize) => {
-    if (dmSize !== 0) {
-      console.warn("[directmap_size] should be 0.");
-    }
-  };
-  var readDirectMap = (reader, index2) => {
-    const directMap = {};
-    directMap.dmType = reader.readUint8();
-    checkDmType(directMap.dmType);
-    directMap.size = reader.readUint64();
-    checkDmSize(directMap.size);
-    index2.directMap = directMap;
-  };
-  var readDirectMap_default = readDirectMap;
-
-  // esm/FederCore/readIndexHeader.js
-  var checkMetricType = (metricType) => {
-    if (metricType !== MetricType.METRIC_L2 && metricType !== MetricType.METRIC_INNER_PRODUCT) {
-      console.warn("[metric_type] only support l2 and inner_product.");
-    }
-  };
-  var checkDummy = (dummy_1, dummy_2) => {
-    if (dummy_1 !== dummy_2) {
-      console.warn("[dummy] not equal.", dummy_1, dummy_2);
-    }
-  };
-  var checkIsTrained = (isTrained) => {
-    if (!isTrained) {
-      console.warn("[is_trained] should be trained.", isTrained);
-    }
-  };
-  var readIndexHeader = (reader, index2) => {
-    index2.d = reader.readUint32();
-    index2.ntotal = reader.readUint64();
-    const dummy_1 = reader.readDummy();
-    const dummy_2 = reader.readDummy();
-    checkDummy(dummy_1, dummy_2);
-    index2.isTrained = reader.readBool();
-    checkIsTrained(index2.isTrained);
-    index2.metricType = reader.readUint32();
-    checkMetricType(index2.metricType);
-  };
-  var readIndexHeader_default = readIndexHeader;
-
-  // esm/Utils/config.js
-  var INDEX_TYPE = {
-    IVFFlat: "IVFFlat",
-    FlatL2: "FlatL2",
-    FlatIR: "FlatIR",
-    Flat: "Flat",
-    HNSW: "HNSW"
-  };
-  var VIEW_TYPE = {
-    Overview: "Overview",
-    Search: "Search"
-  };
-  var STEP = {
-    FineSearch: "FineSearch",
-    CoarseSearch: "CoarseSearch"
-  };
-  var STEP_TYPE = {
-    Init: "Init",
-    Polar: "Polar",
-    Project: "Project"
-  };
-  var ANiMATION_TYPE = {
-    Enter: "Enter",
-    Exit: "Exit"
-  };
-  var SOURCE_TYPE = {
-    Faiss: "faiss",
-    HNSWlib: "hnswlib"
-  };
-  var HNSW_NODE_TYPE = {
-    Coarse: 1,
-    Candidate: 2,
-    Fine: 3,
-    Target: 4
-  };
-  var HNSW_LINK_TYPE = {
-    None: 0,
-    Visited: 1,
-    Extended: 2,
-    Searched: 3,
-    Fine: 4
-  };
-
-  // esm/FederCore/faissIndexParser.js
-  var readIvfHeader = (reader, index2) => {
-    readIndexHeader_default(reader, index2);
-    index2.nlist = reader.readUint64();
-    index2.nprobe = reader.readUint64();
-    index2.childIndex = readIndex(reader);
-    readDirectMap_default(reader, index2);
-  };
-  var readXbVectors = (reader, index2) => {
-    index2.codeSize = reader.readUint64();
-    index2.vectors = generateArray(index2.ntotal).map((_) => reader.readFloat32Array(index2.d));
-  };
-  var readIndex = (reader) => {
-    const index2 = {};
-    index2.h = reader.readH();
-    if (index2.h === IndexHeader.IVFFlat) {
-      index2.indexType = INDEX_TYPE.IVFFlat;
-      readIvfHeader(reader, index2);
-      readInvertedLists_default(reader, index2);
-    } else if (index2.h === IndexHeader.FlatIR || index2.h === IndexHeader.FlatL2) {
-      index2.indexType = INDEX_TYPE.Flat;
-      readIndexHeader_default(reader, index2);
-      readXbVectors(reader, index2);
-    } else {
-      console.warn("[index type] not supported -", index2.h);
-    }
-    return index2;
-  };
-  var faissIndexParser = (arraybuffer) => {
-    const faissFileReader = new FaissFileReader(arraybuffer);
-    const index2 = readIndex(faissFileReader);
-    return index2;
-  };
-  var faissIndexParser_default = faissIndexParser;
-
-  // esm/FederCore/HNSWlibFileReader.js
+  // federjs/FederCore/parser/hnswlibIndexParser/HNSWlibFileReader.js
   var HNSWlibFileReader = class extends FileReader {
     constructor(arrayBuffer) {
       super(arrayBuffer);
@@ -12846,7 +12880,7 @@ ${indentData}`);
     }
   };
 
-  // esm/FederCore/hnswlibIndexParser.js
+  // federjs/FederCore/parser/hnswlibIndexParser/index.js
   var hnswlibIndexParser = (arrayBuffer) => {
     const reader = new HNSWlibFileReader(arrayBuffer);
     const index2 = {};
@@ -12885,7 +12919,7 @@ ${indentData}`);
     index2.linkLists_ = linkLists_;
     console.assert(reader.isEmpty, "HNSWlib Parser Failed. Not empty when the parser completes.");
     return {
-      indexType: INDEX_TYPE.HNSW,
+      indexType: INDEX_TYPE.hnsw,
       ntotal: index2.cur_element_count,
       vectors: index2.vectors,
       maxLevel: index2.maxlevel_,
@@ -12923,87 +12957,250 @@ ${indentData}`);
   };
   var hnswlibIndexParser_default = hnswlibIndexParser;
 
-  // esm/FederCore/distance.js
-  var getDisL2 = (vec1, vec2) => {
-    return Math.sqrt(vec1.map((num, i) => num - vec2[i]).map((num) => num * num).reduce((a2, c2) => a2 + c2, 0));
-  };
-  var getDisIR = (vec1, vec2) => {
-    return vec1.map((num, i) => num * vec2[i]).reduce((acc, cur) => acc + cur, 0);
-  };
-  var getDisFunc = (metricType) => {
-    if (metricType === MetricType.METRIC_L2) {
-      return getDisL2;
-    } else if (metricType === MetricType.METRIC_INNER_PRODUCT) {
-      return getDisIR;
+  // federjs/FederCore/parser/faissIndexParser/FaissFileReader.js
+  var FaissFileReader = class extends FileReader {
+    constructor(arrayBuffer) {
+      super(arrayBuffer);
     }
-    console.warn("[getDisFunc] wrong metric_type, use L2 (default).", metricType);
-    return getDisL2;
+    readH() {
+      const uint8Array = generateArray(4).map((_) => this.readUint8());
+      const h = uint8toChars(uint8Array);
+      return h;
+    }
+    readDummy() {
+      const dummy = this.readUint64();
+      return dummy;
+    }
   };
 
-  // esm/FederCore/faissFlatSearch.js
-  var faissFlatSearch = ({ index: index2, target }) => {
-    const disFunc = getDisFunc(index2.metricType);
-    const distances = index2.vectors.map((vec2, id2) => ({
-      id: id2,
-      dis: disFunc(vec2, target)
-    }));
-    distances.sort((a2, b) => a2.dis - b.dis);
-    return distances;
+  // federjs/FederCore/parser/faissIndexParser/readInvertedLists.js
+  var checkInvH = (h) => {
+    if (h !== "ilar") {
+      console.warn("[invlists h] not ilar.", h);
+    }
   };
-  var faissFlatSearch_default = faissFlatSearch;
-
-  // esm/FederCore/faissIVFSearch.js
-  var faissIVFSearch = ({ index: index2, csListIds, target }) => {
-    const disFunc = getDisFunc(index2.metricType);
-    const distances = index2.invlists.data.reduce((acc, cur, listId) => acc.concat(csListIds.includes(listId) ? cur.ids.map((id2, ofs) => ({
-      id: id2,
-      listId,
-      dis: disFunc(cur.vectors[ofs], target),
-      vec: cur.vectors[ofs]
-    })) : []), []);
-    distances.sort((a2, b) => a2.dis - b.dis);
-    return distances;
+  var checkInvListType = (listType) => {
+    if (listType !== "full") {
+      console.warn("[inverted_lists list_type] only support full.", listType);
+    }
   };
-  var faissIVFSearch_default = faissIVFSearch;
-
-  // esm/FederCore/faissIVFFlatSearch.js
-  var faissIVFFlatSearch = ({
-    index: index2,
-    target,
-    params = {},
-    project,
-    fineWithProjection = false
-  }) => {
-    const { nprobe = 8, k = 10 } = params;
-    const csAllListIdsAndDistances = faissFlatSearch_default({
-      index: index2.childIndex,
-      target
+  var readArrayInvLists = (reader, invlists) => {
+    invlists.listType = reader.readH();
+    checkInvListType(invlists.listType);
+    invlists.listSizesSize = reader.readUint64();
+    invlists.listSizes = generateArray(invlists.listSizesSize).map((_) => reader.readUint64());
+    const data = [];
+    generateArray(invlists.listSizesSize).forEach((_, i) => {
+      const vectors = generateArray(invlists.listSizes[i]).map((_2) => reader.readFloat32Array(invlists.codeSize / 4));
+      const ids = reader.readUint64Array(invlists.listSizes[i]);
+      data.push({ ids, vectors });
     });
-    const csRes = csAllListIdsAndDistances.slice(0, Math.min(index2.nlist, nprobe));
-    const csListIds = csRes.map((res2) => res2.id);
-    const fsAllIdsAndDistances = faissIVFSearch_default({
+    invlists.data = data;
+  };
+  var readInvertedLists = (reader, index2) => {
+    const invlists = {};
+    invlists.h = reader.readH();
+    checkInvH(invlists.h);
+    invlists.nlist = reader.readUint64();
+    invlists.codeSize = reader.readUint64();
+    readArrayInvLists(reader, invlists);
+    index2.invlists = invlists;
+  };
+  var readInvertedLists_default = readInvertedLists;
+
+  // federjs/FederCore/parser/faissIndexParser/readDirectMap.js
+  var checkDmType = (dmType) => {
+    if (dmType !== DirectMapType.NoMap) {
+      console.warn("[directmap_type] only support NoMap.");
+    }
+  };
+  var checkDmSize = (dmSize) => {
+    if (dmSize !== 0) {
+      console.warn("[directmap_size] should be 0.");
+    }
+  };
+  var readDirectMap = (reader, index2) => {
+    const directMap = {};
+    directMap.dmType = reader.readUint8();
+    checkDmType(directMap.dmType);
+    directMap.size = reader.readUint64();
+    checkDmSize(directMap.size);
+    index2.directMap = directMap;
+  };
+  var readDirectMap_default = readDirectMap;
+
+  // federjs/FederCore/parser/faissIndexParser/readIndexHeader.js
+  var checkMetricType = (metricType) => {
+    if (metricType !== MetricType.METRIC_L2 && metricType !== MetricType.METRIC_INNER_PRODUCT) {
+      console.warn("[metric_type] only support l2 and inner_product.");
+    }
+  };
+  var checkDummy = (dummy_1, dummy_2) => {
+    if (dummy_1 !== dummy_2) {
+      console.warn("[dummy] not equal.", dummy_1, dummy_2);
+    }
+  };
+  var checkIsTrained = (isTrained) => {
+    if (!isTrained) {
+      console.warn("[is_trained] should be trained.", isTrained);
+    }
+  };
+  var readIndexHeader = (reader, index2) => {
+    index2.d = reader.readUint32();
+    index2.ntotal = reader.readUint64();
+    const dummy_1 = reader.readDummy();
+    const dummy_2 = reader.readDummy();
+    checkDummy(dummy_1, dummy_2);
+    index2.isTrained = reader.readBool();
+    checkIsTrained(index2.isTrained);
+    index2.metricType = reader.readUint32();
+    checkMetricType(index2.metricType);
+  };
+  var readIndexHeader_default = readIndexHeader;
+
+  // federjs/FederCore/parser/faissIndexParser/index.js
+  var readIvfHeader = (reader, index2) => {
+    readIndexHeader_default(reader, index2);
+    index2.nlist = reader.readUint64();
+    index2.nprobe = reader.readUint64();
+    index2.childIndex = readIndex(reader);
+    readDirectMap_default(reader, index2);
+  };
+  var readXbVectors = (reader, index2) => {
+    index2.codeSize = reader.readUint64();
+    index2.vectors = generateArray(index2.ntotal).map((_) => reader.readFloat32Array(index2.d));
+  };
+  var readIndex = (reader) => {
+    const index2 = {};
+    index2.h = reader.readH();
+    if (index2.h === IndexHeader.IVFFlat) {
+      index2.indexType = INDEX_TYPE.ivf_flat;
+      readIvfHeader(reader, index2);
+      readInvertedLists_default(reader, index2);
+    } else if (index2.h === IndexHeader.FlatIR || index2.h === IndexHeader.FlatL2) {
+      index2.indexType = INDEX_TYPE.flat;
+      readIndexHeader_default(reader, index2);
+      readXbVectors(reader, index2);
+    } else {
+      console.warn("[index type] not supported -", index2.h);
+    }
+    return index2;
+  };
+  var faissIndexParser = (arraybuffer) => {
+    const faissFileReader = new FaissFileReader(arraybuffer);
+    const index2 = readIndex(faissFileReader);
+    return index2;
+  };
+  var faissIndexParser_default = faissIndexParser;
+
+  // federjs/FederCore/parser/index.js
+  var indexParserMap = {
+    [SOURCE_TYPE.hnswlib]: hnswlibIndexParser_default,
+    [SOURCE_TYPE.faiss]: faissIndexParser_default
+  };
+  var getIndexParser = (sourceType) => {
+    if (sourceType in indexParserMap) {
+      return indexParserMap[sourceType];
+    } else
+      throw `No index parser for [${sourceType}]`;
+  };
+  var parser_default = getIndexParser;
+
+  // federjs/FederCore/metaHandler/hnswMeta/hnswOverviewData.js
+  var getHnswlibHNSWOverviewData = ({ index: index2, overviewLevelCount = 3 }) => {
+    const { maxLevel, linkLists_levels, labels, enterPoint } = index2;
+    const highlevel = Math.min(maxLevel, overviewLevelCount);
+    const lowlevel = maxLevel - highlevel;
+    const highLevelNodes = linkLists_levels.map((linkLists_levels_item, internalId) => linkLists_levels_item.length > lowlevel ? {
+      internalId,
+      id: labels[internalId],
+      linksLevels: linkLists_levels_item.slice(lowlevel, linkLists_levels_item.length),
+      path: []
+    } : null).filter((d) => d);
+    const internalId2node = {};
+    highLevelNodes.forEach((node) => {
+      internalId2node[node.internalId] = node;
+    });
+    let queue = [enterPoint];
+    let start2 = 0;
+    internalId2node[enterPoint].path = [];
+    for (let level = highlevel - 1; level >= 0; level--) {
+      while (start2 < queue.length) {
+        const curNodeId = queue[start2];
+        const curNode = internalId2node[curNodeId];
+        const candidateNodes = curNode.linksLevels[level];
+        candidateNodes.forEach((candidateNodeId) => {
+          const candidateNode = internalId2node[candidateNodeId];
+          if (candidateNode.path.length === 0 && candidateNodeId !== enterPoint) {
+            candidateNode.path = [...curNode.path, curNodeId];
+            queue.push(candidateNodeId);
+          }
+        });
+        start2 += 1;
+      }
+      queue = highLevelNodes.filter((node) => node.linksLevels.length > level).map((node) => node.internalId);
+      start2 = 0;
+    }
+    return highLevelNodes;
+  };
+  var hnswOverviewData_default = getHnswlibHNSWOverviewData;
+
+  // federjs/FederCore/metaHandler/hnswMeta/index.js
+  var getHnswMeta = (index2, overviewLevelCount = 3) => {
+    const { labels, vectors } = index2;
+    const id2vector = {};
+    labels.forEach((id2, i) => {
+      id2vector[id2] = vectors[i];
+    });
+    const overviewNodes = hnswOverviewData_default({
       index: index2,
-      csListIds,
-      target
+      overviewLevelCount
     });
-    const fsRes = fsAllIdsAndDistances.slice(0, Math.min(index2.ntotal, k));
-    const coarse = csAllListIdsAndDistances;
-    const fine = fsAllIdsAndDistances;
-    if (fineWithProjection) {
-      const fsResProjections = project(fsAllIdsAndDistances.map((d) => d.vec));
-      fine.map((d, i) => d.projection = fsResProjections[i]);
-    }
-    const res = {
-      coarse,
-      fine,
-      csResIds: csListIds,
-      fsResIds: fsRes.map((d) => d.id)
+    const indexMeta = {
+      ntotal: index2.ntotal,
+      M: index2.M,
+      ef_construction: index2.ef_construction,
+      overviewLevelCount,
+      levelCount: index2.maxLevel + 1,
+      overviewNodes
     };
-    return res;
+    return { id2vector, indexMeta };
   };
-  var faissIVFFlatSearch_default = faissIVFFlatSearch;
+  var hnswMeta_default = getHnswMeta;
 
-  // esm/Utils/PriorityQueue.js
+  // federjs/FederCore/metaHandler/ivfflatMeta/index.js
+  var getIvfflatMeta = (index2) => {
+    const id2vector = {};
+    const inv = index2.invlists;
+    for (let list_no = 0; list_no < inv.nlist; list_no++) {
+      inv.data[list_no].ids.forEach((id2, ofs) => {
+        id2vector[id2] = inv.data[list_no].vectors[ofs];
+      });
+    }
+    index2.childIndex.vectors.forEach((vector, i) => id2vector[getIvfListId(i)] = vector);
+    const indexMeta = {};
+    indexMeta.ntotal = index2.ntotal;
+    indexMeta.nlist = index2.nlist;
+    indexMeta.listIds = index2.invlists.data.map((d) => d.ids);
+    indexMeta.listSizes = index2.invlists.data.map((d) => d.ids.length);
+    return { id2vector, indexMeta };
+  };
+  var ivfflatMeta_default = getIvfflatMeta;
+
+  // federjs/FederCore/metaHandler/index.js
+  var metaHandlerMap = {
+    [INDEX_TYPE.hnsw]: hnswMeta_default,
+    [INDEX_TYPE.ivf_flat]: ivfflatMeta_default
+  };
+  var getMetaHandler = (indexType) => {
+    if (indexType in metaHandlerMap) {
+      return metaHandlerMap[indexType];
+    } else
+      throw `No meta handler for [${indexType}]`;
+  };
+  var metaHandler_default = getMetaHandler;
+
+  // federjs/Utils/PriorityQueue.js
   var PriorityQueue = class {
     constructor(arr = [], key = null) {
       if (typeof key == "string") {
@@ -13084,69 +13281,7 @@ ${indentData}`);
   };
   var PriorityQueue_default = PriorityQueue;
 
-  // esm/FederCore/hnswlibHNSWSearch.js
-  var hnswlibHNSWSearch = ({ index: index2, target, params = {} }) => {
-    const { ef = 10, k = 8, metricType = MetricType.METRIC_L2 } = params;
-    const disfunc = getDisFunc(metricType);
-    let topkResults = [];
-    const vis_records_all = [];
-    const {
-      enterPoint,
-      vectors,
-      maxLevel,
-      linkLists_levels,
-      linkLists_level_0,
-      numDeleted,
-      labels
-    } = index2;
-    let curNodeId = enterPoint;
-    let curDist = disfunc(vectors[curNodeId], target);
-    for (let level = maxLevel; level > 0; level--) {
-      const vis_records = [];
-      vis_records.push([labels[curNodeId], labels[curNodeId], curDist]);
-      let changed = true;
-      while (changed) {
-        changed = false;
-        const curlinks = linkLists_levels[curNodeId][level - 1];
-        curlinks.forEach((candidateId) => {
-          const dist4 = disfunc(vectors[candidateId], target);
-          vis_records.push([labels[curNodeId], labels[candidateId], dist4]);
-          if (dist4 < curDist) {
-            curDist = dist4;
-            curNodeId = candidateId;
-            changed = true;
-          }
-        });
-      }
-      vis_records_all.push(vis_records);
-    }
-    const hasDeleted = numDeleted > 0;
-    const { top_candidates, vis_records_level_0 } = searchLevelO({
-      ep_id: curNodeId,
-      target,
-      vectors,
-      ef: Math.max(ef, k),
-      hasDeleted,
-      linkLists_level_0,
-      disfunc,
-      labels
-    });
-    vis_records_all.push(vis_records_level_0);
-    while (top_candidates.size > k) {
-      top_candidates.pop();
-    }
-    while (top_candidates.size > 0) {
-      const res = top_candidates.pop();
-      topkResults.push({
-        id: labels[res[1]],
-        internalId: res[1],
-        dis: -res[0]
-      });
-    }
-    topkResults = topkResults.reverse();
-    return { vis_records: vis_records_all, topkResults, searchParams: { k, ef } };
-  };
-  var hnswlibHNSWSearch_default = hnswlibHNSWSearch;
+  // federjs/FederCore/searchHandler/hnswSearch/searchLevel0.js
   var searchLevelO = ({
     ep_id,
     target,
@@ -13210,60 +13345,141 @@ ${indentData}`);
     }
     return { top_candidates, vis_records_level_0 };
   };
+  var searchLevel0_default = searchLevelO;
 
-  // esm/FederCore/getHnswlibHNSWOverviewData.js
-  var getHnswlibHNSWOverviewData = ({ index: index2, overviewLevel = 2 }) => {
-    const { maxLevel, linkLists_levels, labels, enterPoint } = index2;
-    const highlevel = Math.min(maxLevel, overviewLevel);
-    const lowlevel = maxLevel - highlevel;
-    const highLevelNodes = linkLists_levels.map((linkLists_levels_item, internalId) => linkLists_levels_item.length > lowlevel ? {
-      internalId,
-      id: labels[internalId],
-      linksLevels: linkLists_levels_item.slice(lowlevel, linkLists_levels_item.length),
-      path: []
-    } : null).filter((d) => d);
-    const internalId2node = {};
-    highLevelNodes.forEach((node) => {
-      internalId2node[node.internalId] = node;
-    });
-    let queue = [enterPoint];
-    let start2 = 0;
-    internalId2node[enterPoint].path = [];
-    for (let level = highlevel - 1; level >= 0; level--) {
-      while (start2 < queue.length) {
-        const curNodeId = queue[start2];
-        const curNode = internalId2node[curNodeId];
-        const candidateNodes = curNode.linksLevels[level];
-        candidateNodes.forEach((candidateNodeId) => {
-          const candidateNode = internalId2node[candidateNodeId];
-          if (candidateNode.path.length === 0 && candidateNodeId !== enterPoint) {
-            candidateNode.path = [...curNode.path, curNodeId];
-            queue.push(candidateNodeId);
+  // federjs/FederCore/searchHandler/hnswSearch/index.js
+  var hnswlibHNSWSearch = ({ index: index2, target, params = {} }) => {
+    const { ef = 10, k = 8, metricType = MetricType.METRIC_L2 } = params;
+    const disfunc = getDisFunc(metricType);
+    let topkResults = [];
+    const vis_records_all = [];
+    const {
+      enterPoint,
+      vectors,
+      maxLevel,
+      linkLists_levels,
+      linkLists_level_0,
+      numDeleted,
+      labels
+    } = index2;
+    let curNodeId = enterPoint;
+    let curDist = disfunc(vectors[curNodeId], target);
+    for (let level = maxLevel; level > 0; level--) {
+      const vis_records = [];
+      vis_records.push([labels[curNodeId], labels[curNodeId], curDist]);
+      let changed = true;
+      while (changed) {
+        changed = false;
+        const curlinks = linkLists_levels[curNodeId][level - 1];
+        curlinks.forEach((candidateId) => {
+          const dist4 = disfunc(vectors[candidateId], target);
+          vis_records.push([labels[curNodeId], labels[candidateId], dist4]);
+          if (dist4 < curDist) {
+            curDist = dist4;
+            curNodeId = candidateId;
+            changed = true;
           }
         });
-        start2 += 1;
       }
-      queue = highLevelNodes.filter((node) => node.linksLevels.length > level).map((node) => node.internalId);
-      start2 = 0;
+      vis_records_all.push(vis_records);
     }
-    return highLevelNodes;
+    const hasDeleted = numDeleted > 0;
+    const { top_candidates, vis_records_level_0 } = searchLevel0_default({
+      ep_id: curNodeId,
+      target,
+      vectors,
+      ef: Math.max(ef, k),
+      hasDeleted,
+      linkLists_level_0,
+      disfunc,
+      labels
+    });
+    vis_records_all.push(vis_records_level_0);
+    while (top_candidates.size > k) {
+      top_candidates.pop();
+    }
+    while (top_candidates.size > 0) {
+      const res = top_candidates.pop();
+      topkResults.push({
+        id: labels[res[1]],
+        internalId: res[1],
+        dis: -res[0]
+      });
+    }
+    topkResults = topkResults.reverse();
+    return { vis_records: vis_records_all, topkResults, searchParams: { k, ef } };
   };
-  var getHnswlibHNSWOverviewData_default = getHnswlibHNSWOverviewData;
+  var hnswSearch_default = hnswlibHNSWSearch;
 
-  // esm/Utils/projector/umap.js
+  // federjs/FederCore/searchHandler/ivfflatSearch/faissFlatSearch.js
+  var faissFlatSearch = ({ index: index2, target }) => {
+    const disFunc = getDisFunc(index2.metricType);
+    const distances = index2.vectors.map((vec2, id2) => ({
+      id: id2,
+      dis: disFunc(vec2, target)
+    }));
+    distances.sort((a2, b) => a2.dis - b.dis);
+    return distances;
+  };
+  var faissFlatSearch_default = faissFlatSearch;
+
+  // federjs/FederCore/searchHandler/ivfflatSearch/faissIVFSearch.js
+  var faissIVFSearch = ({ index: index2, csListIds, target }) => {
+    const disFunc = getDisFunc(index2.metricType);
+    const distances = index2.invlists.data.reduce((acc, cur, listId) => acc.concat(csListIds.includes(listId) ? cur.ids.map((id2, ofs) => ({
+      id: id2,
+      listId,
+      dis: disFunc(cur.vectors[ofs], target)
+    })) : []), []);
+    distances.sort((a2, b) => a2.dis - b.dis);
+    return distances;
+  };
+  var faissIVFSearch_default = faissIVFSearch;
+
+  // federjs/FederCore/searchHandler/ivfflatSearch/index.js
+  var faissIVFFlatSearch = ({ index: index2, target, params = {} }) => {
+    const { nprobe = 8, k = 10 } = params;
+    const csAllListIdsAndDistances = faissFlatSearch_default({
+      index: index2.childIndex,
+      target
+    });
+    const csRes = csAllListIdsAndDistances.slice(0, Math.min(index2.nlist, nprobe));
+    const csListIds = csRes.map((res2) => res2.id);
+    const fsAllIdsAndDistances = faissIVFSearch_default({
+      index: index2,
+      csListIds,
+      target
+    });
+    const fsRes = fsAllIdsAndDistances.slice(0, Math.min(index2.ntotal, k));
+    const coarse = csAllListIdsAndDistances;
+    const fine = fsAllIdsAndDistances;
+    const res = {
+      coarse,
+      fine,
+      csResIds: csListIds,
+      fsResIds: fsRes.map((d) => d.id)
+    };
+    return res;
+  };
+  var ivfflatSearch_default = faissIVFFlatSearch;
+
+  // federjs/FederCore/searchHandler/index.js
+  var indexSearchHandlerMap = {
+    [INDEX_TYPE.hnsw]: hnswSearch_default,
+    [INDEX_TYPE.ivf_flat]: ivfflatSearch_default
+  };
+  var getIndexSearchHandler = (indexType) => {
+    if (indexType in indexSearchHandlerMap) {
+      return indexSearchHandlerMap[indexType];
+    } else
+      throw `No search handler for [${indexType}]`;
+  };
+  var searchHandler_default = getIndexSearchHandler;
+
+  // federjs/FederCore/projector/umap.js
   var import_umap_js = __toESM(require_dist(), 1);
   var fixedParams = {
     nComponents: 2
-  };
-  var UMAP_PROJECT_PARAMETERS = {
-    nComponents: "The number of components (dimensions) to project the data to. (default 2)",
-    nEpochs: "The number of epochs to optimize embeddings via SGD. (computed automatically)",
-    nNeighbors: "The number of nearest neighbors to construct the fuzzy manifold. (default 15)",
-    minDist: "The effective minimum distance between embedded points, used with spread to control the clumped/dispersed nature of the embedding. (default 0.1)",
-    spread: "The effective scale of embedded points, used with minDist to control the clumped/dispersed nature of the embedding. (default 1.0)",
-    random: "A pseudo-random-number generator for controlling stochastic processes. (default Math.random())",
-    distanceFn: "A custom distance function to use. (default L2)",
-    url: "https://github.com/PAIR-code/umap-js"
   };
   var umapProject = (projectParams = {}) => {
     const params = Object.assign({}, projectParams, fixedParams);
@@ -13272,185 +13488,361 @@ ${indentData}`);
       return umap.fit(vectors);
     };
   };
+  var umap_default = umapProject;
 
-  // esm/Utils/projector/index.js
-  var ProjectMethod = {
-    TSNE: "tsne",
-    UMAP: "umap",
-    MDS: "mds",
-    PCA: "pca"
+  // federjs/FederCore/projector/index.js
+  var projectorMap = {
+    [PROJECT_METHOD.umap]: umap_default
   };
-  var projectFuncMap = {
-    [ProjectMethod.UMAP]: umapProject
-  };
-  var projectParamsDescMap = {
-    [ProjectMethod.UMAP]: UMAP_PROJECT_PARAMETERS
-  };
-  var getProjectFunc = (projectMethod, projectParams = {}) => {
-    if (projectMethod in projectFuncMap) {
-      return projectFuncMap[projectMethod](projectParams);
+  var getProjector = ({ method, params = {} }) => {
+    if (method in projectorMap) {
+      return projectorMap[method](params);
+    } else {
+      console.error(`No projector for [${method}]`);
     }
-    console.warn("Unknown project method, use default UMAP");
-    return projectFuncMap[ProjectMethod.UMAP](projectParams);
   };
-  var getProjectParamsGuide = (projectMethod) => {
-    if (projectMethod in projectParamsDescMap) {
-      return projectParamsDescMap[projectMethod];
-    }
-    console.warn("Unknown project method. current support tsne and umap");
-    return {};
-  };
+  var projector_default = getProjector;
 
-  // esm/FederCore/index.js
-  var indexSearchHandlerMap = {
-    faissIVFFlat: faissIVFFlatSearch_default,
-    faissHNSW: null,
-    hnswlibHNSW: hnswlibHNSWSearch_default
-  };
-  var indexParserMap = {
-    [SOURCE_TYPE.Faiss]: faissIndexParser_default,
-    [SOURCE_TYPE.HNSWlib]: hnswlibIndexParser_default
-  };
+  // federjs/FederCore/index.js
   var FederCore = class {
     constructor({
       data,
-      source = SOURCE_TYPE.Faiss,
-      projectMethod = ProjectMethod.UMAP,
-      projectParams = {}
+      source
     }) {
-      this.index = null;
-      this.searchParams = {};
-      this.meta = null;
-      this.indexParser = null;
-      this.indexSearchHandler = null;
-      this.project = null;
-      this.data = data;
-      this.setIndexSource(source);
-      this.parseIndex();
-      if (this.index) {
-        this.setIndexSearchHandler();
-        this[`_updateId2Vec_${this.index.indexType}`]();
-      }
-      this.setProjectParams(projectMethod, projectParams);
-    }
-    get indexType() {
-      return this.index.indexType || "";
-    }
-    setIndexSource(source) {
-      this.indexParser = null;
-      this.indexSource = source.toLowerCase();
-      this.indexParser = indexParserMap[source];
-    }
-    parseIndex() {
-      if (this.indexParser) {
-        this.index = this.indexParser(this.data);
-      } else {
-        console.error("No parser found");
+      try {
+        const index2 = this.parserIndex(data, source);
+        this.index = index2;
+        this.indexType = index2.indexType;
+        const { indexMeta, id2vector } = this.extractMeta(index2);
+        this.indexMeta = indexMeta;
+        this.id2vector = id2vector;
+        this.indexSearchHandler = searchHandler_default(index2.indexType);
+      } catch (e) {
+        console.log(e);
       }
     }
-    setIndexSearchHandler() {
-      this.indexSearchHandler = indexSearchHandlerMap[this.indexSource + this.index.indexType];
-      if (!this.indexSearchHandler) {
-        console.error("indexSearchHandler not found");
-      }
+    parserIndex(data, source) {
+      const indexParser = parser_default(source);
+      const index2 = indexParser(data);
+      return index2;
     }
-    _updateId2Vec_IVFFlat() {
-      const id2vector = {};
-      const inv = this.index.invlists;
-      for (let list_no = 0; list_no < inv.nlist; list_no++) {
-        inv.data[list_no].ids.forEach((id2, ofs) => {
-          id2vector[id2] = inv.data[list_no].vectors[ofs];
-        });
-      }
-      this.id2vector = id2vector;
-    }
-    _updateId2Vec_HNSW() {
-      const { labels, vectors } = this.index;
-      const id2vector = {};
-      const internalId2Label = {};
-      labels.forEach((id2, i) => {
-        id2vector[id2] = vectors[i];
-        internalId2Label[i] = id2;
-      });
-      this.id2vector = id2vector;
-      this.internalId2Label = internalId2Label;
-    }
-    _updateIndexMeta_IVFFlat() {
-      const indexMeta = {};
-      indexMeta.ntotal = this.index.ntotal;
-      indexMeta.nlist = this.index.nlist;
-      const { coarseWithProjection = false } = this.projectParams;
-      if (coarseWithProjection) {
-        indexMeta.listCentroidProjections = this.project(this.index.childIndex.vectors);
-      }
-      indexMeta.listSizes = this.index.invlists.data.map((d) => d.ids.length);
-      this.indexMeta = indexMeta;
-    }
-    _updateIndexMeta_HNSW() {
-      const index2 = this.index;
-      const visData = getHnswlibHNSWOverviewData_default({
-        index: index2,
-        overviewLevel: 3
-      });
-      const indexMeta = {
-        visData,
-        ntotal: index2.ntotal,
-        M: index2.M,
-        ef_construction: index2.ef_construction,
-        levelCount: index2.maxLevel + 1
-      };
-      this.indexMeta = indexMeta;
+    extractMeta(index2) {
+      const metaHandler = metaHandler_default(index2.indexType);
+      const meta = metaHandler(index2);
+      return meta;
     }
     getTestIdAndVec() {
-      if (!this.index) {
-        return [null, null];
-      }
       const ids = Object.keys(this.id2vector);
       const r = Math.floor(Math.random() * ids.length);
       const testId = ids[r];
       const testVec = this.id2vector[testId];
       return [testId, testVec];
     }
-    getVectoreById(id2) {
-      return this.id2Vector[id2] || null;
-    }
     setSearchParams(params) {
       const newSearchParams = Object.assign({}, this.searchParams, params);
       this.searchParams = newSearchParams;
     }
     search(target) {
-      const { fineWithProjection = false } = this.projectParams;
-      const res = this.indexSearchHandler({
+      const searchRes = this.indexSearchHandler({
         index: this.index,
-        target,
         params: this.searchParams,
-        project: this.project,
-        fineWithProjection
+        target
       });
-      return res;
+      if (this.index.indexType === INDEX_TYPE.ivf_flat) {
+        const {
+          fineSearchWithProjection = false,
+          projectMethod,
+          projectParams
+        } = this.searchParams;
+        if (fineSearchWithProjection) {
+          const ids = searchRes.fine.map((item) => item.id);
+          this.initProjector({
+            method: projectMethod,
+            params: projectParams
+          });
+          const projections = this.projectByIds(ids);
+          searchRes.fine.map((item, i) => item.projection = projections[i]);
+        }
+      }
+      return searchRes;
     }
-    setProjectParams(projectMethod, projectParams = {}) {
-      this.projectMethod = projectMethod;
-      this.projectParams = projectParams;
-      this.project = getProjectFunc(projectMethod, projectParams);
-      this.PROJECT_PARAMETERS = getProjectParamsGuide(projectMethod);
-      this.index && this[`_updateIndexMeta_${this.index.indexType}`]();
+    initProjector({ method, params = {} }) {
+      this.project = projector_default({ method, params });
+    }
+    projectByIds(ids) {
+      const vectors = ids.map((id2) => this.id2vector[id2]);
+      return this.project(vectors);
     }
   };
 
-  // esm/FederView/config.js
-  var canvasScale = 2;
+  // federjs/FederView/loading.js
+  var loadingSvgId2 = "feder-loading";
+  var loadingWidth2 = 30;
+  var loadingStrokeWidth = 6;
+  var initLoadingStyle = () => {
+    const style = document.createElement("style");
+    style.type = "text/css";
+    style.innerHTML = `
+      @keyframes rotation {
+        from {
+          transform: translate(${loadingWidth2 / 2}px,${loadingWidth2 / 2}px) rotate(0deg);
+        }
+        to {
+          transform: translate(${loadingWidth2 / 2}px,${loadingWidth2 / 2}px) rotate(359deg);
+        }
+      }
+      .rotate {
+        animation: rotation 2s infinite linear;
+      }
+    `;
+    document.getElementsByTagName("head").item(0).appendChild(style);
+  };
+  var renderLoading = (domSelector2) => {
+    const dom = select_default2(domSelector2);
+    const { width, height } = dom.node().getBoundingClientRect();
+    if (!select_default2(`#${loadingSvgId2}`).empty())
+      return;
+    const svg = dom.append("svg").attr("id", loadingSvgId2).attr("width", loadingWidth2).attr("height", loadingWidth2).style("position", "absolute").style("left", width / 2 - loadingWidth2 / 2).style("bottom", height / 2 - loadingWidth2 / 2).style("overflow", "visible");
+    const defsG = svg.append("defs");
+    const linearGradientId = `feder-loading-gradient`;
+    const linearGradient = defsG.append("linearGradient").attr("id", linearGradientId).attr("x1", 0).attr("y1", 0).attr("x2", 0).attr("y2", 1);
+    linearGradient.append("stop").attr("offset", "0%").style("stop-color", "#1E64FF");
+    linearGradient.append("stop").attr("offset", "100%").style("stop-color", "#061982");
+    const loadingCircle = svg.append("circle").attr("cx", loadingWidth2 / 2).attr("cy", loadingWidth2 / 2).attr("fill", "none").attr("r", loadingWidth2 / 2).attr("stroke", "#1E64FF").attr("stroke-width", loadingStrokeWidth);
+    const semiCircle = svg.append("path").attr("d", `M0,${-loadingWidth2 / 2} a ${loadingWidth2 / 2} ${loadingWidth2 / 2} 0 1 1 ${0} ${loadingWidth2}`).attr("fill", "none").attr("stroke", `url(#${linearGradientId})`).attr("stroke-width", loadingStrokeWidth).classed("rotate", true);
+  };
+  var finishLoading = (domSelector2) => {
+    const dom = select_default2(domSelector2);
+    dom.select(`#${loadingSvgId2}`).remove();
+  };
 
-  // esm/FederView/render.js
+  // federjs/FederView/BaseView.js
+  var BaseView = class {
+    constructor({ domSelector: domSelector2, viewParams, getVectorById }) {
+      this.domSelector = domSelector2;
+      this.viewParams = viewParams;
+      const { width, height, canvasScale, mediaType, mediaCallback } = viewParams;
+      this.clientWidth = width;
+      this.width = width * canvasScale;
+      this.clientHeight = height;
+      this.height = height * canvasScale;
+      this.getVectorById = getVectorById;
+      this.canvasScale = canvasScale;
+      this.mediaType = mediaType;
+      this.mediaCallback = mediaCallback;
+    }
+    initCanvas() {
+      renderLoading(this.domSelector);
+      const dom = select_default2(this.domSelector);
+      dom.selectAll("canvas").remove();
+      const canvas = dom.append("canvas").attr("width", this.clientWidth).attr("height", this.clientHeight);
+      const ctx = canvas.node().getContext("2d");
+      ctx.scale(1 / this.canvasScale, 1 / this.canvasScale);
+      this.ctx = ctx;
+      this.canvas = canvas.node();
+    }
+    overviewHandler() {
+    }
+    renderOverview() {
+    }
+    renderSearchView() {
+    }
+    setOverviewListenerHandlers() {
+    }
+    setSearchViewListenerHandlers() {
+    }
+    overview() {
+      return __async(this, null, function* () {
+        this.viewType = VIEW_TYPE.overview;
+        this.initCanvas();
+        this.clickedNode = null;
+        this.hoveredNode = null;
+        this.overviewInitPromise && (yield this.overviewInitPromise);
+        finishLoading(this.domSelector);
+        this.renderOverview();
+        this.addMouseListener();
+        this.setOverviewListenerHandlers();
+      });
+    }
+    search(_0) {
+      return __async(this, arguments, function* ({ searchRes, targetMediaUrl }) {
+        this.viewType = VIEW_TYPE.search;
+        this.targetMediaUrl = targetMediaUrl;
+        this.initCanvas();
+        this.clickedNode = null;
+        this.hoveredNode = null;
+        yield this.searchViewHandler({ searchRes });
+        finishLoading(this.domSelector);
+        this.renderSearchView();
+        this.addMouseListener();
+        this.setSearchViewListenerHandlers();
+      });
+    }
+    addMouseListener() {
+      const canvas = this.canvas;
+      const canvasScale = this.canvasScale;
+      canvas.addEventListener("mousemove", (e) => {
+        const { offsetX, offsetY } = e;
+        const x3 = offsetX * canvasScale;
+        const y4 = offsetY * canvasScale;
+        this.mouseMoveHandler && this.mouseMoveHandler({ x: x3, y: y4 });
+      });
+      canvas.addEventListener("click", (e) => {
+        const { offsetX, offsetY } = e;
+        const x3 = offsetX * canvasScale;
+        const y4 = offsetY * canvasScale;
+        this.mouseClickHandler && this.mouseClickHandler({ x: x3, y: y4 });
+      });
+      canvas.addEventListener("mouseleave", () => {
+        this.mouse = null;
+        this.mouseLeaveHandler && this.mouseLeaveHandler();
+      });
+    }
+  };
+
+  // federjs/FederView/HnswView/layout/transformHandler.js
+  var transformHandler = ({
+    nodes,
+    levelCount,
+    width,
+    height,
+    padding,
+    xBias = 0.65,
+    yBias = 0.4,
+    yOver = 0.1
+  }) => {
+    const layerWidth = width - padding[1] - padding[3];
+    const layerHeight = (height - padding[0] - padding[2]) / (levelCount - (levelCount - 1) * yOver);
+    const xRange = extent(nodes, (node) => node.x);
+    const yRange = extent(nodes, (node) => node.y);
+    const xOffset = padding[3] + layerWidth * xBias;
+    const transformFunc = (x3, y4, level) => {
+      const _x = (x3 - xRange[0]) / (xRange[1] - xRange[0]);
+      const _y = (y4 - yRange[0]) / (yRange[1] - yRange[0]);
+      const newX = xOffset + _x * layerWidth * (1 - xBias) - _y * layerWidth * xBias;
+      const newY = padding[0] + layerHeight * (1 - yOver) * (levelCount - 1 - level) + _x * layerHeight * (1 - yBias) + _y * layerHeight * yBias;
+      return [newX, newY];
+    };
+    const layerPos = [
+      [layerWidth * xBias, 0],
+      [layerWidth, layerHeight * (1 - yBias)],
+      [layerWidth * (1 - xBias), layerHeight],
+      [0, layerHeight * yBias]
+    ];
+    const layerPosLevels = generateArray(levelCount).map((_, level) => layerPos.map((coord) => [
+      coord[0] + padding[3],
+      coord[1] + padding[0] + layerHeight * (1 - yOver) * (levelCount - 1 - level)
+    ]));
+    return { layerPosLevels, transformFunc };
+  };
+  var transformHandler_default = transformHandler;
+
+  // federjs/FederView/HnswView/layout/overviewLayout.js
+  var overviewLayoutHandler = ({
+    overviewNodes,
+    overviewLevelCount,
+    width,
+    height,
+    padding,
+    forceTime,
+    M
+  }) => {
+    return new Promise((resolve) => __async(void 0, null, function* () {
+      const overviewNodesLevels = [];
+      const overviewLinksLevels = [];
+      for (let level = overviewLevelCount - 1; level >= 0; level--) {
+        const nodes = overviewNodes.filter((node) => node.linksLevels.length > level);
+        const links = nodes.reduce((acc, curNode) => acc.concat(curNode.linksLevels[level].map((targetNodeInternalId) => ({
+          source: curNode.internalId,
+          target: targetNodeInternalId
+        }))), []);
+        yield forceLevel({ nodes, links, forceTime });
+        level > 0 && scaleNodes({ nodes, M });
+        level > 0 && fixedCurLevel({ nodes });
+        overviewNodesLevels[level] = nodes;
+        overviewLinksLevels[level] = links;
+      }
+      const { layerPosLevels: overviewLayerPosLevels, transformFunc } = transformHandler_default({
+        nodes: overviewNodes,
+        levelCount: overviewLevelCount,
+        width,
+        height,
+        padding
+      });
+      overviewNodes.forEach((node) => {
+        node.overviewPosLevels = node.linksLevels.map((_, level) => transformFunc(node.x, node.y, level));
+        node.r = node.linksLevels.length * 0.8 + 1;
+      });
+      resolve({
+        overviewLayerPosLevels,
+        overviewNodesLevels,
+        overviewLinksLevels
+      });
+    }));
+  };
+  var overviewLayout_default = overviewLayoutHandler;
+  var forceLevel = ({ nodes, links, forceTime }) => {
+    return new Promise((resolve) => {
+      const simulation = simulation_default(nodes).force("link", link_default(links).id((d) => d.internalId).strength(1)).force("center", center_default(0, 0)).force("charge", manyBody_default().strength(-500));
+      setTimeout(() => {
+        simulation.stop();
+        resolve();
+      }, forceTime);
+    });
+  };
+  var scaleNodes = ({ nodes, M }) => {
+    const xRange = extent(nodes, (node) => node.x);
+    const yRange = extent(nodes, (node) => node.y);
+    const isXLonger = xRange[1] - xRange[0] > yRange[1] - yRange[0];
+    if (!isXLonger) {
+      nodes.forEach((node) => [node.x, node.y] = [node.y, node.x]);
+    }
+    const t = Math.sqrt(M) * 0.85;
+    nodes.forEach((node) => {
+      node.x = node.x * t;
+      node.y = node.y * t;
+    });
+  };
+  var fixedCurLevel = ({ nodes }) => {
+    nodes.forEach((node) => {
+      node.fx = node.x;
+      node.fy = node.y;
+    });
+  };
+
+  // federjs/FederView/HnswView/layout/mouse2node.js
+  function mouse2node({
+    mouse,
+    mouse2nodeBias,
+    canvasScale,
+    layerPosLevels,
+    nodesLevels,
+    posAttr
+  }) {
+    const mouseLevel = layerPosLevels.findIndex((points) => contains_default(points, mouse));
+    let mouseNode;
+    if (mouseLevel >= 0) {
+      const allDis = nodesLevels[mouseLevel].map((node) => dist2(node[posAttr][mouseLevel], mouse));
+      const minDistIndex = minIndex(allDis);
+      const minDist = allDis[minDistIndex];
+      const clearestNode = nodesLevels[mouseLevel][minDistIndex];
+      mouseNode = minDist < Math.pow((clearestNode.r + mouse2nodeBias) * canvasScale, 2) ? clearestNode : null;
+    } else {
+      mouseNode = null;
+    }
+    return { mouseLevel, mouseNode };
+  }
+
+  // federjs/Utils/renderUtils.js
+  var colorScheme = Tableau10_default;
   var ZBlue = "#175FFF";
+  var ZLightBlue = "#91FDFF";
   var ZYellow = "#FFFC85";
   var ZOrange = "#F36E4B";
   var ZLayerBorder = "#D9EAFF";
   var whiteColor = "#ffffff";
   var blackColor = "#000000";
-  var backgroundColor = blackColor;
   var highLightColor = ZYellow;
-  var voronoiHighlightColor = ZYellow;
   var hexWithOpacity = (color2, opacity) => {
     let opacityString = Math.round(opacity * 255).toString(16);
     if (opacityString.length < 2) {
@@ -13458,7 +13850,6 @@ ${indentData}`);
     }
     return color2 + opacityString;
   };
-  var voronoiStrokeWidth = 4;
   var highLightGradientStopColors = [
     [0, hexWithOpacity(whiteColor, 0.2)],
     [1, hexWithOpacity(ZYellow, 1)]
@@ -13469,7 +13860,7 @@ ${indentData}`);
   ];
   var targetLevelGradientStopColors = neighbourGradientStopColors;
   var normalGradientStopColors = [
-    [0, hexWithOpacity("#061982", 0.4)],
+    [0, hexWithOpacity("#061982", 0.3)],
     [1, hexWithOpacity("#1E64FF", 0.4)]
   ];
   var layerGradientStopColors = [
@@ -13510,13 +13901,18 @@ ${indentData}`);
     drawFunc();
     ctx.restore();
   };
-  var drawVoronoi = ({
-    ctx,
-    pointsList,
-    hasFill = false,
-    hasStroke = false,
-    ...styles
-  }) => {
+  var drawVoronoi = (_a) => {
+    var _b = _a, {
+      ctx,
+      pointsList,
+      hasFill = false,
+      hasStroke = false
+    } = _b, styles = __objRest(_b, [
+      "ctx",
+      "pointsList",
+      "hasFill",
+      "hasStroke"
+    ]);
     const drawFunc = () => {
       pointsList.forEach((points) => {
         const path2 = new Path2D(polyPoints2path(points));
@@ -13524,15 +13920,20 @@ ${indentData}`);
         hasStroke && ctx.stroke(path2);
       });
     };
-    draw({ ctx, drawFunc, ...styles });
+    draw(__spreadValues({ ctx, drawFunc }, styles));
   };
-  var drawCircle = ({
-    ctx,
-    circles,
-    hasFill = false,
-    hasStroke = false,
-    ...styles
-  }) => {
+  var drawCircle = (_a) => {
+    var _b = _a, {
+      ctx,
+      circles,
+      hasFill = false,
+      hasStroke = false
+    } = _b, styles = __objRest(_b, [
+      "ctx",
+      "circles",
+      "hasFill",
+      "hasStroke"
+    ]);
     const drawFunc = () => {
       circles.forEach(([x3, y4, r]) => {
         ctx.beginPath();
@@ -13541,15 +13942,20 @@ ${indentData}`);
         hasStroke && ctx.stroke();
       });
     };
-    draw({ ctx, drawFunc, ...styles });
+    draw(__spreadValues({ ctx, drawFunc }, styles));
   };
-  var drawEllipse = ({
-    ctx,
-    circles,
-    hasFill = false,
-    hasStroke = false,
-    ...styles
-  }) => {
+  var drawEllipse = (_a) => {
+    var _b = _a, {
+      ctx,
+      circles,
+      hasFill = false,
+      hasStroke = false
+    } = _b, styles = __objRest(_b, [
+      "ctx",
+      "circles",
+      "hasFill",
+      "hasStroke"
+    ]);
     const drawFunc = () => {
       circles.forEach(([x3, y4, rx, ry]) => {
         ctx.beginPath();
@@ -13558,47 +13964,67 @@ ${indentData}`);
         hasStroke && ctx.stroke();
       });
     };
-    draw({ ctx, drawFunc, ...styles });
+    draw(__spreadValues({ ctx, drawFunc }, styles));
   };
-  var drawRect = ({
-    ctx,
-    x: x3 = 0,
-    y: y4 = 0,
-    width,
-    height,
-    hasFill = false,
-    hasStroke = false,
-    ...styles
-  }) => {
+  var drawRect = (_a) => {
+    var _b = _a, {
+      ctx,
+      x: x3 = 0,
+      y: y4 = 0,
+      width,
+      height,
+      hasFill = false,
+      hasStroke = false
+    } = _b, styles = __objRest(_b, [
+      "ctx",
+      "x",
+      "y",
+      "width",
+      "height",
+      "hasFill",
+      "hasStroke"
+    ]);
     const drawFunc = () => {
       hasFill && ctx.fillRect(0, 0, width, height);
       hasStroke && ctx.strokeRect(0, 0, width, height);
     };
-    draw({ ctx, drawFunc, ...styles });
+    draw(__spreadValues({ ctx, drawFunc }, styles));
   };
-  var drawPath = ({
-    ctx,
-    points,
-    hasFill = false,
-    hasStroke = false,
-    withZ = true,
-    ...styles
-  }) => {
+  var drawPath = (_a) => {
+    var _b = _a, {
+      ctx,
+      points,
+      hasFill = false,
+      hasStroke = false,
+      withZ = true
+    } = _b, styles = __objRest(_b, [
+      "ctx",
+      "points",
+      "hasFill",
+      "hasStroke",
+      "withZ"
+    ]);
     const drawFunc = () => {
       const path2 = new Path2D(polyPoints2path(points, withZ));
       hasFill && ctx.fill(path2);
       hasStroke && ctx.stroke(path2);
     };
-    draw({ ctx, drawFunc, ...styles });
+    draw(__spreadValues({ ctx, drawFunc }, styles));
   };
-  var drawLinesWithLinearGradient = ({
-    ctx,
-    pointsList,
-    hasFill = false,
-    hasStroke = false,
-    isStrokeLinearGradient = true,
-    ...styles
-  }) => {
+  var drawLinesWithLinearGradient = (_a) => {
+    var _b = _a, {
+      ctx,
+      pointsList,
+      hasFill = false,
+      hasStroke = false,
+      isStrokeLinearGradient = true
+    } = _b, styles = __objRest(_b, [
+      "ctx",
+      "pointsList",
+      "hasFill",
+      "hasStroke",
+      "isStrokeLinearGradient"
+    ]);
     pointsList.forEach((points) => {
       const path2 = new Path2D(`M${points[0]}L${points[1]}`);
       const gradientPos = [...points[0], ...points[1]];
@@ -13606,1061 +14032,270 @@ ${indentData}`);
         hasFill && ctx.fill(path2);
         hasStroke && ctx.stroke(path2);
       };
-      draw({ ctx, drawFunc, isStrokeLinearGradient, gradientPos, ...styles });
+      draw(__spreadValues({ ctx, drawFunc, isStrokeLinearGradient, gradientPos }, styles));
     });
   };
 
-  // esm/FederView/BaseView.js
-  var overviewPanelId = "feder-info-overview-panel";
-  var selectedPanelId = "feder-info-selected-panel";
-  var hoveredPanelId = "feder-info-hovered-panel";
-  var panelBackgroundColor = hexWithOpacity(blackColor, 0.6);
-  var BaseView = class {
-    constructor({
-      width = 1e3,
-      height = 600,
-      padding = [80, 200, 60, 220],
-      getVectorById
-    } = {}) {
-      this.width = width * canvasScale;
-      this.height = height * canvasScale;
-      this.padding = padding.map((num) => num * canvasScale);
-      this.getVectorById = getVectorById;
-    }
-    setDom(dom) {
-      if (dom !== this.dom) {
-        this.dom = dom;
-        this.initCanvas();
-      }
-    }
-    initCanvas() {
-      const dom = this.dom;
-      dom.innerHTML = "";
-      const width = this.width / canvasScale;
-      const height = this.height / canvasScale;
-      const domStyle = {
-        position: "relative",
-        width: `${width}px`
-      };
-      Object.assign(dom.style, domStyle);
-      const canvas = document.createElement("canvas");
-      canvas.setAttribute("id", "feder-canvas");
-      canvas.width = width;
-      canvas.height = height;
-      dom.appendChild(canvas);
-      const ctx = canvas.getContext("2d");
-      ctx.scale(1 / canvasScale, 1 / canvasScale);
-      this.canvas = canvas;
-      const overviewPanel = document.createElement("div");
-      overviewPanel.setAttribute("id", overviewPanelId);
-      overviewPanel.className = overviewPanel.className + " panel-border panel hide";
-      const overviewPanelStyle = {
-        position: "absolute",
-        left: "16px",
-        top: "10px",
-        width: "280px",
-        "max-height": `${height - 20}px`,
-        overflow: "auto",
-        borderColor: whiteColor,
-        backgroundColor: panelBackgroundColor
-      };
-      Object.assign(overviewPanel.style, overviewPanelStyle);
-      dom.appendChild(overviewPanel);
-      const selectedPanel = document.createElement("div");
-      selectedPanel.setAttribute("id", selectedPanelId);
-      selectedPanel.className = selectedPanel.className + " panel-border panel hide";
-      const selectedPanelStyle = {
-        position: "absolute",
-        right: "16px",
-        top: "10px",
-        "max-width": "180px",
-        "max-height": `${height - 20}px`,
-        overflow: "auto",
-        borderColor: ZYellow,
-        backgroundColor: panelBackgroundColor
-      };
-      Object.assign(selectedPanel.style, selectedPanelStyle);
-      dom.appendChild(selectedPanel);
-      const hoveredPanel = document.createElement("div");
-      hoveredPanel.setAttribute("id", hoveredPanelId);
-      hoveredPanel.className = hoveredPanel.className + " hide";
-      const hoveredPanelStyle = {
-        position: "absolute",
-        left: 0,
-        top: 0,
-        width: "240px",
-        display: "flex",
-        pointerEvents: "none"
-      };
-      Object.assign(hoveredPanel.style, hoveredPanelStyle);
-      dom.appendChild(hoveredPanel);
-      this.initStyle();
-    }
-    initStyle() {
-      const style = document.createElement("style");
-      style.type = "text/css";
-      style.innerHTML = `
-      .panel-border {
-        border-style: dashed;
-        border-width: 1px;
-      }
-      .panel {
-        padding: 6px 8px;
-        font-size: 12px;
-      }
-      .hide {
-        opacity: 0;
-      }
-      .panel-item {
-        margin-bottom: 6px;
-      }
-      .panel-img {
-        width: 150px;
-        height: 100px;
-        background-size: cover;
-        margin-bottom: 12px;
-        border-radius: 4px;
-        border: 1px solid ${ZYellow};
-      }
-      .panel-item-display-flex {
-        display: flex;
-      }
-      .panel-item-title {
-        font-weight: 600;
-        margin-bottom: 3px;
-      }
-      .panel-item-text {
-        font-weight: 400;
-        font-size: 10px;
-        word-break: break-all;
-      }
-      .panel-item-text-flex {
-        margin-left: 8px;
-      }
-      .panel-item-text-margin {
-        margin: 0 6px;
-      }
-      .text-no-wrap {
-        white-space: nowrap;
-      }
-    `;
-      document.getElementsByTagName("head").item(0).appendChild(style);
-    }
-    _mouseListener() {
-      const canvas = this.canvas;
-      canvas.addEventListener("mousemove", (e) => {
-        const { offsetX, offsetY } = e;
-        const x3 = offsetX * canvasScale;
-        const y4 = offsetY * canvasScale;
-        this.mouseMoveHandler && this.mouseMoveHandler({ x: x3, y: y4 });
-      });
-      canvas.addEventListener("click", (e) => {
-        const { offsetX, offsetY } = e;
-        const x3 = offsetX * canvasScale;
-        const y4 = offsetY * canvasScale;
-        this.mouseClickHandler && this.mouseClickHandler({ x: x3, y: y4 });
-      });
-      canvas.addEventListener("mouseleave", () => {
-        this.mouse = null;
-        this.mouseLeaveHandler && this.mouseLeaveHandler();
-      });
-    }
-    _renderSelectedPanel(itemList = [], color2 = "#000") {
-      const panel = select_default2(`#${this.dom.id}`).select(`#${selectedPanelId}`);
-      panel.style("color", color2);
-      if (itemList.length === 0)
-        panel.classed("hide", true);
-      else {
-        this._renderPanel(panel, itemList);
-      }
-    }
-    _renderHoveredPanel(itemList = [], color2 = "#000", x3 = 0, y4 = 0, isLeft = false) {
-      const panel = select_default2(`#${this.dom.id}`).select(`#${hoveredPanelId}`);
-      if (itemList.length === 0)
-        panel.classed("hide", true);
-      else {
-        panel.style("color", color2);
-        if (isLeft) {
-          panel.style("left", null);
-          panel.style("right", (this.width - x3) / canvasScale + "px");
-          panel.style("flex-direction", "row-reverse");
-        } else {
-          panel.style("left", x3 / canvasScale + "px");
-          panel.style("flex-direction", "row");
-        }
-        panel.style("transform", `translateY(-6px)`);
-        panel.style("top", y4 / canvasScale + "px");
-        this._renderPanel(panel, itemList);
-      }
-    }
-    _renderOverviewPanel(itemList = [], color2) {
-      const panel = select_default2(`#${this.dom.id}`).select(`#${overviewPanelId}`);
-      panel.style("color", color2);
-      if (itemList.length === 0)
-        panel.classed("hide", true);
-      else {
-        this._renderPanel(panel, itemList);
-      }
-    }
-    _renderPanel(panel, itemList) {
-      panel.classed("hide", false);
-      panel.selectAll("*").remove();
-      itemList.forEach((item) => {
-        const div = panel.append("div");
-        div.classed("panel-item", true);
-        item.isFlex && div.classed("panel-item-display-flex", true);
-        if (item.isImg && item.imgUrl) {
-          div.classed("panel-img", true);
-          div.style("background-image", `url(${item.imgUrl})`);
-        }
-        if (item.title) {
-          const title = div.append("div");
-          title.classed("panel-item-title", true);
-          title.text(item.title);
-        }
-        if (item.text) {
-          const title = div.append("div");
-          title.classed("panel-item-text", true);
-          item.isFlex && title.classed("panel-item-text-flex", true);
-          item.textWithMargin && title.classed("panel-item-text-margin", true);
-          item.noWrap && title.classed("text-no-wrap", true);
-          title.text(item.text);
-        }
-      });
-    }
-  };
-
-  // esm/FederView/IVFFlatView.js
-  var minRadius = 6;
-  var nonTopKNodeR = 4;
-  var topKNodeR = 8;
-  var hoverNodeR = 10;
-  var hoverNodeStrokeWidth = 2;
-  var nonTopKNodeOpacity = 0.3;
-  var topKNodeOpacity = 0.95;
-  var topKNodeStrokeWidth = 1;
-  var inCircleBias = 2;
-  var polarAxisStrokeWidth = 1;
-  var polarAxisOpacity = 0.4;
-  var targetNodeStrokeWidth = 6;
-  var targetNodeR = 12;
-  var stepExitTime = 1600;
-  var stepEnterTime = 1600;
-  var stepAllTime = stepExitTime + stepEnterTime;
-  var nodeTransTime = 1800;
-  var IVFFlatView = class extends BaseView {
-    constructor({
+  // federjs/FederView/HnswView/render/renderBackground.js
+  function renderBackground({ ctx, width, height }) {
+    drawRect({
+      ctx,
       width,
       height,
-      forceTime = 3e3,
-      projectPadding = [10, 5]
-    } = {}) {
-      super({ width, height });
-      this.supportSwitchStep = true;
-      this.overviewForceFinished = false;
-      this.overviewForcePromise = null;
-      this.searchComputeFinished = false;
-      this.searchComputePromise = null;
-      this.forceTime = forceTime;
-      this.projectPadding = projectPadding;
-      this.ease = cubicInOut;
-      this.searchLayoutFinished = false;
-      this.searchLayoutPromise = null;
-      this.voronoiClickHandler = function() {
-        console.log(arguments[0]);
-      };
-      this.nodeClickHandler = function() {
-        console.log(arguments[0]);
-      };
-    }
-    computeIndexOverview({ indexMeta }) {
-      const width = this.width;
-      const height = this.height;
-      const allArea = width * height;
-      const { ntotal, listCentroidProjections = null, listSizes } = indexMeta;
-      const clusters = listSizes.map((listSize, i) => ({
-        clusterId: i,
-        oriProjection: listCentroidProjections ? listCentroidProjections[i] : [Math.random(), Math.random()],
-        count: listSize,
-        countP: listSize / ntotal,
-        countArea: allArea * (listSize / ntotal)
-      }));
-      const x3 = linear2().domain(extent(clusters, (cluster) => cluster.oriProjection[0])).range([0, width]);
-      const y4 = linear2().domain(extent(clusters, (cluster) => cluster.oriProjection[1])).range([0, height]);
-      clusters.forEach((cluster) => {
-        cluster.x = x3(cluster.oriProjection[0]);
-        cluster.y = y4(cluster.oriProjection[1]);
-        cluster.r = Math.max(minRadius, Math.sqrt(cluster.countArea / Math.PI));
-      });
-      const simulation = simulation_default(clusters).force("collision", collide_default().radius((cluster) => cluster.r)).force("center", center_default(width / 2, height / 2)).on("tick", () => {
-        clusters.forEach((cluster) => {
-          cluster.x = Math.max(cluster.r, Math.min(width - cluster.r, cluster.x));
-          cluster.y = Math.max(cluster.r, Math.min(height - cluster.r, cluster.y));
-        });
-      });
-      this.overviewForceFinished = false;
-      this.overviewForcePromise = new Promise((resolve, reject) => {
-        setTimeout(() => {
-          simulation.stop();
-          clusters.forEach((cluster) => {
-            cluster.forceProjection = [cluster.x, cluster.y];
-          });
-          this.computeOverViewVoronoi(clusters, "OVPolyCentroid", "OVPolyPoints", "OVVoronoi");
-          this.clusters = clusters;
-          this.overviewForceFinished = true;
-          resolve();
-        }, this.forceTime);
-      });
-    }
-    computeOverViewVoronoi(clusters, polyCentroid_Key, polyPoints_Key, voronoi_Key) {
-      const delaunay = Delaunay.from(clusters.map((cluster) => [cluster.x, cluster.y]));
-      const voronoi = delaunay.voronoi([0, 0, this.width, this.height]);
-      this[voronoi_Key] = voronoi;
-      clusters.forEach((cluster, i) => {
-        const points = voronoi.cellPolygon(i);
-        points.pop();
-        cluster[polyPoints_Key] = points;
-        cluster[polyCentroid_Key] = centroid_default(points);
-      });
-    }
-    async computeISCoarseVoronoi() {
-      const width = this.width;
-      const height = this.height;
-      const searchClusters = this.clusters;
-      const targetClusterId = this.searchRes.coarse[0].id;
-      const otherFineClustersId = this.searchRes.csResIds.filter((clusterId) => clusterId !== targetClusterId);
-      const links = otherFineClustersId.map((clusterId) => ({
-        source: clusterId,
-        target: targetClusterId
-      }));
-      searchClusters.forEach((cluster) => {
-        cluster.x = cluster.forceProjection[0];
-        cluster.y = cluster.forceProjection[1];
-      });
-      const simulation = simulation_default(searchClusters).force("links", link_default(links).id((cluster) => cluster.clusterId)).force("collision", collide_default().radius((cluster) => cluster.r)).force("center", center_default(width / 2, height / 2)).on("tick", () => {
-        searchClusters.forEach((cluster) => {
-          cluster.x = Math.max(cluster.r, Math.min(width - cluster.r, cluster.x));
-          cluster.y = Math.max(cluster.r, Math.min(height - cluster.r, cluster.y));
-        });
-      });
-      return new Promise((resolve, reject) => {
-        setTimeout(() => {
-          simulation.stop();
-          searchClusters.forEach((cluster) => {
-            cluster.SVPos = [cluster.x, cluster.y];
-          });
-          this.computeOverViewVoronoi(searchClusters, "SVPolyCentroid", "SVPolyPoints", "SVVronoi");
-          this.clusters = searchClusters;
-          const targetCluster = searchClusters.find((cluster) => cluster.clusterId === targetClusterId);
-          const centoid_fineClusters_x = this.nprobeClusters.reduce((acc, cluster) => acc + cluster.SVPolyCentroid[0], 0) / this.nprobeClusters.length;
-          const centroid_fineClusters_y = this.nprobeClusters.reduce((acc, cluster) => acc + cluster.SVPolyCentroid[1], 0) / this.nprobeClusters.length;
-          const _x = centoid_fineClusters_x - targetCluster.SVPos[0];
-          const _y = centroid_fineClusters_y - targetCluster.SVPos[1];
-          const biasR = Math.sqrt(_x * _x + _y * _y);
-          const targetNode = {
-            SVPos: [
-              targetCluster.SVPos[0] + targetCluster.r * 0.5 * (_x / biasR),
-              targetCluster.SVPos[1] + targetCluster.r * 0.5 * (_y / biasR)
-            ]
-          };
-          targetNode.isLeft_coarseLevel = targetNode.SVPos[0] < this.width / 2;
-          this.targetNode = targetNode;
-          const polarOrigin = [width / 2, height / 2];
-          this.polarOrigin = polarOrigin;
-          targetNode.polarPos = polarOrigin;
-          const polarMaxR = Math.min(width, height) * 0.5 - 5;
-          this.polarMaxR = polarMaxR;
-          const fineClusterOrder = vecSort(this.nprobeClusters, "SVPolyCentroid", "clusterId");
-          const angleStep = Math.PI * 2 / fineClusterOrder.length;
-          this.nprobeClusters.forEach((cluster) => {
-            const order = fineClusterOrder.indexOf(cluster.clusterId);
-            cluster.polarOrder = order;
-            cluster.SVNextLevelPos = [
-              polarOrigin[0] + polarMaxR / 2 * Math.sin(angleStep * order),
-              polarOrigin[1] + polarMaxR / 2 * Math.cos(angleStep * order)
-            ];
-            cluster.SVNextLevelTran = [
-              cluster.SVNextLevelPos[0] - cluster.SVPolyCentroid[0],
-              cluster.SVNextLevelPos[1] - cluster.SVPolyCentroid[1]
-            ];
-          });
-          const clusterId2cluster = {};
-          this.nprobeClusters.forEach((cluster) => {
-            clusterId2cluster[cluster.clusterId] = cluster;
-          });
-          this.clusterId2cluster = clusterId2cluster;
-          resolve();
-        }, this.forceTime);
-      });
-    }
-    async computeISFinePolar() {
-      const nodes = this.searchRes.fine;
-      const polarMaxR = this.polarMaxR;
-      const polarOrigin = this.polarOrigin;
-      const r = linear2().domain([
-        min(nodes.filter((node) => node.dis > 0), (node) => node.dis),
-        max(nodes, (node) => node.dis) * 0.95
-      ]).range([polarMaxR * 0.2, polarMaxR]).clamp(true);
-      nodes.forEach((node) => {
-        const cluster = this.clusterId2cluster[node.listId];
-        const { polarOrder, SVNextLevelPos } = cluster;
-        node.polarOrder = polarOrder;
-        let randAngle = Math.random() * Math.PI * 2;
-        let randBias = [Math.sin, Math.cos].map((f) => cluster.r * Math.random() * 0.7 * f(randAngle));
-        node.voronoiPos = SVNextLevelPos.map((d, i) => d + randBias[i]);
-        node.x = node.voronoiPos[0];
-        node.y = node.voronoiPos[1];
-        node.r = r(node.dis);
-      });
-      const simulation = simulation_default(nodes).force("collide", collide_default().radius((_) => nonTopKNodeR).strength(0.4)).force("r", radial_default((node) => node.r, ...polarOrigin).strength(1));
-      await new Promise((resolve, reject) => {
-        setTimeout(() => {
-          simulation.stop();
-          nodes.forEach((node) => {
-            node.polarPos = [node.x, node.y];
-          });
-          resolve();
-        }, this.forceTime);
-      });
-      this.nodes = nodes;
-    }
-    computeISFineProject() {
-      const nodes = this.nodes;
-      if (!nodes[0].projection) {
-        console.log('No Projection Data. Should use "fineWithProjection".');
-        nodes.forEach((node) => {
-          node.projection = [Math.random(), Math.random()];
-        });
-      }
-      const x3 = linear2().domain(extent(nodes, (node) => node.projection[0])).range([this.projectPadding[0], this.width - this.projectPadding[0]]);
-      const y4 = linear2().domain(extent(nodes, (node) => node.projection[1])).range([this.projectPadding[1], this.height - this.projectPadding[1]]);
-      nodes.forEach((node) => {
-        node.projectPos = [x3(node.projection[0]), y4(node.projection[1])];
-      });
-    }
-    get nprobeClusters() {
-      return this.clusters.filter((cluster) => this.searchRes.csResIds.find((id2) => id2 == cluster.clusterId));
-    }
-    get nonNprobeClusters() {
-      return this.viewType === VIEW_TYPE.Overview ? this.clusters : this.clusters.filter((cluster) => !this.searchRes.csResIds.find((id2) => id2 == cluster.clusterId));
-    }
-    get topKNodes() {
-      return this.nodes.filter((node) => this.searchRes.fsResIds.find((id2) => id2 == node.id));
-    }
-    get nonTopKNodes() {
-      return this.nodes.filter((node) => !this.searchRes.fsResIds.find((id2) => id2 == node.id));
-    }
-    async overview({ dom = this.dom }) {
-      this.setDom(dom);
-      this.initCanvas();
-      this.viewType = VIEW_TYPE.Overview;
-      this._renderVoronoiView();
-      this._mouseListener();
-    }
-    async search({ searchRes = null, dom = this.dom }) {
-      this.setDom(dom);
-      this.searchComputeFinished = false;
-      this.searchComputePromise = new Promise(async (resolve, reject) => {
-        this.overviewForceFinished || await this.overviewForcePromise;
-        if (searchRes) {
-          this.searchRes = searchRes;
-          await this.computeISCoarseVoronoi();
-          this.coarseSearch();
-          this.computeISFinePolarPromise = this.computeISFinePolar();
-          await this.computeISFinePolarPromise;
-          this.computeISFineProject();
-        } else {
-          if (!this.searchRes) {
-            console.error("please input the target-vector.");
-            return;
-          } else {
-            console.log("no target-vector found, use the last query.");
-          }
-        }
-        this.searchComputeFinished = true;
-        resolve();
-      });
-    }
-    coarseSearch() {
-      this.viewType = VIEW_TYPE.Search;
-      this.step = STEP.CoarseSearch;
-      this.initCanvas();
-      this._renderVoronoiView();
-      this._mouseListener();
-    }
-    fineSearch() {
-      this.viewType = VIEW_TYPE.Search;
-      this.step = STEP.FineSearch;
-      this.initCanvas();
-      this._renderNodeView();
-      this._mouseListener();
-    }
-    async _renderVoronoiView() {
-      this.overviewForceFinished || await this.overviewForcePromise;
-      const ctx = this.canvas.getContext("2d");
-      const viewType = this.viewType;
-      this._renderBackground({ ctx });
-      this._renderVoronoiClusters({ ctx });
-      viewType === VIEW_TYPE.Search && this._renderVoronoiNprobeClusters({ ctx });
-      this.mouse && this._renderVoronoiHover({ ctx, viewType });
-      viewType === VIEW_TYPE.Search && this._renderTarget({ ctx });
-    }
-    _renderBackground({ ctx }) {
-      drawRect({
-        ctx,
-        width: this.width,
-        height: this.height,
-        hasFill: true,
-        fillStyle: backgroundColor
-      });
-    }
-    _renderVoronoiClusters({ ctx }) {
-      const pointsList = this.viewType === VIEW_TYPE.Overview ? this.clusters.map((cluster) => cluster.OVPolyPoints) : this.nonNprobeClusters.map((cluster) => cluster.SVPolyPoints);
-      drawVoronoi({
-        ctx,
-        pointsList,
-        hasStroke: true,
-        strokeStyle: blackColor,
-        lineWidth: voronoiStrokeWidth,
-        hasFill: true,
-        fillStyle: hexWithOpacity(ZBlue, 1)
-      });
-    }
-    _renderVoronoiNprobeClusters({ ctx }) {
-      const pointsList = this.nprobeClusters.map((cluster) => cluster.SVPolyPoints);
-      drawVoronoi({
-        ctx,
-        pointsList,
-        hasStroke: true,
-        strokeStyle: blackColor,
-        lineWidth: voronoiStrokeWidth,
-        hasFill: true,
-        fillStyle: hexWithOpacity(ZYellow, 1)
-      });
-    }
-    _renderVoronoiHover({ ctx }) {
-      const hoverClusterId = this.hoverClusterId;
-      const pointsList = this.clusters.filter((cluster) => cluster.clusterId == hoverClusterId).map((cluster) => this.viewType === VIEW_TYPE.Overview ? cluster.OVPolyPoints : cluster.SVPolyPoints);
-      drawVoronoi({
-        ctx,
-        pointsList,
-        hasStroke: true,
-        strokeStyle: blackColor,
-        lineWidth: voronoiStrokeWidth,
-        hasFill: true,
-        fillStyle: whiteColor
-      });
-    }
-    _renderTarget({ ctx }) {
-      const circle = this.step === STEP.CoarseSearch ? [...this.targetNode.SVPos, targetNodeR] : [...this.targetNode.polarPos, targetNodeR];
-      drawCircle({
-        ctx,
-        circles: [circle],
-        hasStroke: true,
-        strokeStyle: whiteColor,
-        lineWidth: targetNodeStrokeWidth
-      });
-    }
-    _renderNodeView() {
-      const ctx = this.canvas.getContext("2d");
-      const stepType = this.stepType;
-      this._renderBackground({ ctx });
-      stepType === STEP_TYPE.Polar && this._renderPolarAxis({ ctx });
-      this._renderNodes({ ctx });
-      this.hoverNode && this._renderNodeHover({ ctx });
-      stepType === STEP_TYPE.Polar && this._renderTarget({ ctx });
-    }
-    _renderNodeHover({ ctx }) {
-      const hoverNode = this.hoverNode;
-      const stepType = this.stepType;
-      const posAttr = stepType === STEP_TYPE.Polar ? "polarPos" : "projectPos";
-      drawCircle({
-        ctx,
-        circles: [[...hoverNode[posAttr], hoverNodeR]],
-        hasFill: true,
-        fillStyle: hexWithOpacity(colorScheme[hoverNode.polarOrder], 1),
-        hasStroke: true,
-        strokeStyle: hexWithOpacity(whiteColor, 1),
-        lineWidth: hoverNodeStrokeWidth
-      });
-    }
-    _renderPolarAxis({ ctx }) {
-      const circles = range(5).map((i) => [...this.polarOrigin, (0.2 * i + 0.15) * this.polarMaxR]);
-      drawCircle({
-        ctx,
-        circles,
-        hasStroke: true,
-        lineWidth: polarAxisStrokeWidth,
-        strokeStyle: hexWithOpacity(voronoiHighlightColor, polarAxisOpacity)
-      });
-    }
-    _renderNodes({ ctx }) {
-      const stepType = this.stepType;
-      const nonTopKCircles = stepType === STEP_TYPE.Polar ? this.nonTopKNodes.map((node) => [
-        ...node.polarPos,
-        nonTopKNodeR,
-        node.polarOrder
-      ]) : this.nonTopKNodes.map((node) => [
-        ...node.projectPos,
-        nonTopKNodeR,
-        node.polarOrder
-      ]);
-      const topKCircles = stepType === STEP_TYPE.Polar ? this.topKNodes.map((node) => [
-        ...node.polarPos,
-        topKNodeR,
-        node.polarOrder
-      ]) : this.topKNodes.map((node) => [
-        ...node.projectPos,
-        topKNodeR,
-        node.polarOrder
-      ]);
-      for (let i = 0; i < this.nprobeClusters.length; i++) {
-        let circles = nonTopKCircles.filter((circle) => circle[3] == i);
-        drawCircle({
-          ctx,
-          circles,
-          hasFill: true,
-          fillStyle: hexWithOpacity(colorScheme[i], nonTopKNodeOpacity)
-        });
-      }
-      for (let i = 0; i < this.nprobeClusters.length; i++) {
-        let circles = topKCircles.filter((circle) => circle[3] == i);
-        drawCircle({
-          ctx,
-          circles,
-          hasFill: true,
-          fillStyle: hexWithOpacity(colorScheme[i], topKNodeOpacity),
-          hasStroke: true,
-          strokeStyle: hexWithOpacity(whiteColor, 1),
-          lineWidth: topKNodeStrokeWidth
-        });
-      }
-    }
-    async switchStep(step, stepType = void 0) {
-      if (this.viewType !== VIEW_TYPE.Search) {
-        console.error("Only when searching can switch steps.");
-        return;
-      }
-      const oldStep = this.step;
-      const oldStepType = this.stepType;
-      this.step = step;
-      this.stepType = stepType;
-      if (step === oldStep && stepType === oldStepType)
-        return;
-      this.searchComputeFinished || await this.searchComputePromise;
-      this.initCanvas({ dom: this.dom });
-      const canvas = this.canvas;
-      const ctx = canvas.getContext("2d");
-      if (oldStep === STEP.CoarseSearch && step === STEP.FineSearch) {
-        const timer2 = timer((elapsed) => {
-          this._renderBackground({ ctx });
-          this._animate_nonNprobeCluster({
-            ctx,
-            elapsed,
-            duration: stepExitTime,
-            delay: 0,
-            animationType: ANiMATION_TYPE.Exit
-          });
-          this._animate_nprobeClusterTrans({
-            ctx,
-            elapsed,
-            duration: stepExitTime,
-            delay: 0,
-            animationType: ANiMATION_TYPE.Exit
-          });
-          this._animate_targetNode({
-            ctx,
-            elapsed,
-            duration: stepExitTime,
-            delay: 0,
-            animationType: ANiMATION_TYPE.Enter
-          });
-          this._animate_nprobeClusterOpacity({
-            ctx,
-            elapsed,
-            duration: stepEnterTime,
-            delay: stepExitTime,
-            animationType: ANiMATION_TYPE.Exit
-          });
-          this._animate_nodeOpacityAndTrans({
-            ctx,
-            elapsed,
-            duration: stepEnterTime,
-            delay: stepExitTime,
-            animationType: ANiMATION_TYPE.Enter,
-            stepType
-          });
-          if (elapsed >= stepAllTime) {
-            console.log("Coarse => Fine [OK]");
-            timer2.stop();
-            this.fineSearch();
-          }
-        });
-      }
-      if (oldStep === STEP.FineSearch && step === STEP.CoarseSearch) {
-        const timer2 = timer((elapsed) => {
-          this._renderBackground({ ctx });
-          this._animate_nonNprobeCluster({
-            ctx,
-            elapsed,
-            duration: stepEnterTime,
-            delay: stepExitTime,
-            animationType: ANiMATION_TYPE.Enter
-          });
-          this._animate_nprobeClusterTrans({
-            ctx,
-            elapsed,
-            duration: stepEnterTime,
-            delay: stepExitTime,
-            animationType: ANiMATION_TYPE.Enter
-          });
-          this._animate_targetNode({
-            ctx,
-            elapsed,
-            duration: stepEnterTime,
-            delay: stepExitTime,
-            animationType: ANiMATION_TYPE.Exit
-          });
-          this._animate_nprobeClusterOpacity({
-            ctx,
-            elapsed,
-            duration: stepExitTime,
-            delay: 0,
-            animationType: ANiMATION_TYPE.Enter
-          });
-          this._animate_nodeOpacityAndTrans({
-            ctx,
-            elapsed,
-            duration: stepExitTime,
-            delay: 0,
-            animationType: ANiMATION_TYPE.Exit,
-            stepType: oldStepType
-          });
-          if (elapsed >= stepAllTime) {
-            console.log("Fine => Coarse [OK]");
-            timer2.stop();
-            this.coarseSearch();
-          }
-        });
-      }
-      if (oldStep === STEP.FineSearch && step === STEP.FineSearch) {
-        const timer2 = timer((elapsed) => {
-          this._renderBackground({ ctx });
-          this._animate_nodeTrans({
-            ctx,
-            elapsed,
-            duration: nodeTransTime,
-            delay: 0,
-            stepType
-          });
-          if (elapsed >= nodeTransTime) {
-            console.log(`${oldStepType} To ${stepType} OK!`);
-            timer2.stop();
-            this.fineSearch();
-          }
-        });
-      }
-    }
-    _animate_nonNprobeCluster({ ctx, elapsed, duration, delay, animationType }) {
-      let t = this.ease((elapsed - delay) / duration);
-      if (t > 1 || t < 0)
-        return;
-      t = animationType === ANiMATION_TYPE.Enter ? 1 - t : t;
-      const opacity = 1 - t;
-      const pointsList = this.nonNprobeClusters.map((cluster) => cluster.SVPolyPoints);
-      drawVoronoi({
-        ctx,
-        pointsList,
-        hasStroke: true,
-        strokeStyle: hexWithOpacity(voronoiHighlightColor, opacity),
-        lineWidth: voronoiStrokeWidth
-      });
-    }
-    _animate_nprobeClusterTrans({
-      ctx,
-      elapsed,
-      duration,
-      delay,
-      animationType
-    }) {
-      let t = this.ease((elapsed - delay) / duration);
-      if (t > 1 || t < 0)
-        return;
-      t = animationType === ANiMATION_TYPE.Enter ? 1 - t : t;
-      const pointsList = this.nprobeClusters.map((cluster) => cluster.SVPolyPoints.map((point) => [
-        point[0] + t * cluster.SVNextLevelTran[0],
-        point[1] + t * cluster.SVNextLevelTran[1]
-      ]));
-      drawVoronoi({
-        ctx,
-        pointsList,
-        hasStroke: true,
-        strokeStyle: whiteColor,
-        lineWidth: voronoiStrokeWidth,
-        hasFill: true,
-        fillStyle: voronoiHighlightColor
-      });
-    }
-    _animate_targetNode({ ctx, elapsed, duration, delay, animationType }) {
-      let t = this.ease((elapsed - delay) / duration);
-      const stepType = this.stepType;
-      if (stepType === STEP_TYPE.Project) {
-        if (t < 0 || t > 1)
-          return;
-      }
-      if (t > 1)
-        t = 1;
-      if (t < 0)
-        t = 0;
-      t = animationType === ANiMATION_TYPE.Enter ? 1 - t : t;
-      const x3 = this.targetNode.SVPos[0] * t + this.targetNode.polarPos[0] * (1 - t);
-      const y4 = this.targetNode.SVPos[1] * t + this.targetNode.polarPos[1] * (1 - t);
-      drawCircle({
-        ctx,
-        circles: [[x3, y4, targetNodeR]],
-        hasStroke: true,
-        strokeStyle: whiteColor,
-        lineWidth: targetNodeStrokeWidth
-      });
-    }
-    _animate_nprobeClusterOpacity({
-      ctx,
-      elapsed,
-      duration,
-      delay,
-      animationType
-    }) {
-      let t = this.ease((elapsed - delay) / duration);
-      if (t > 1 || t < 0)
-        return;
-      t = animationType === ANiMATION_TYPE.Enter ? 1 - t : t;
-      const opacity = 1 - t;
-      const pointsList = this.nprobeClusters.map((cluster) => cluster.SVPolyPoints.map((point) => [
-        point[0] + cluster.SVNextLevelTran[0],
-        point[1] + cluster.SVNextLevelTran[1]
-      ]));
-      drawVoronoi({
-        ctx,
-        pointsList,
-        hasStroke: true,
-        strokeStyle: hexWithOpacity(whiteColor, opacity),
-        lineWidth: voronoiStrokeWidth,
-        hasFill: true,
-        fillStyle: hexWithOpacity(voronoiHighlightColor, opacity)
-      });
-    }
-    _animate_nodeOpacityAndTrans({
-      ctx,
-      elapsed,
-      duration,
-      delay,
-      animationType,
-      stepType
-    }) {
-      let t = this.ease((elapsed - delay) / duration);
-      if (t > 1 || t < 0)
-        return;
-      t = animationType === ANiMATION_TYPE.Enter ? 1 - t : t;
-      stepType === STEP_TYPE.Polar && this._renderPolarAxis({ ctx });
-      const nonTopKCircles = stepType === STEP_TYPE.Polar ? this.nonTopKNodes.map((node) => [
-        t * node.voronoiPos[0] + (1 - t) * node.polarPos[0],
-        t * node.voronoiPos[1] + (1 - t) * node.polarPos[1],
-        nonTopKNodeR,
-        node.polarOrder
-      ]) : this.nonTopKNodes.map((node) => [
-        t * node.voronoiPos[0] + (1 - t) * node.projectPos[0],
-        t * node.voronoiPos[1] + (1 - t) * node.projectPos[1],
-        nonTopKNodeR,
-        node.polarOrder
-      ]);
-      const topKCircles = stepType === STEP_TYPE.Polar ? this.topKNodes.map((node) => [
-        t * node.voronoiPos[0] + (1 - t) * node.polarPos[0],
-        t * node.voronoiPos[1] + (1 - t) * node.polarPos[1],
-        topKNodeR,
-        node.polarOrder
-      ]) : this.topKNodes.map((node) => [
-        t * node.voronoiPos[0] + (1 - t) * node.projectPos[0],
-        t * node.voronoiPos[1] + (1 - t) * node.projectPos[1],
-        topKNodeR,
-        node.polarOrder
-      ]);
-      for (let i = 0; i < this.nprobeClusters.length; i++) {
-        let circles = nonTopKCircles.filter((circle) => circle[3] == i);
-        drawCircle({
-          ctx,
-          circles,
-          hasFill: true,
-          fillStyle: hexWithOpacity(colorScheme[i], nonTopKNodeOpacity)
-        });
-      }
-      const opacity = t * 0.5 + (1 - t) * topKNodeOpacity;
-      for (let i = 0; i < this.nprobeClusters.length; i++) {
-        let circles = topKCircles.filter((circle) => circle[3] == i);
-        drawCircle({
-          ctx,
-          circles,
-          hasFill: true,
-          fillStyle: hexWithOpacity(colorScheme[i], opacity),
-          hasStroke: true,
-          strokeStyle: hexWithOpacity(whiteColor, opacity),
-          lineWidth: topKNodeStrokeWidth
-        });
-      }
-    }
-    _animate_nodeTrans({ ctx, elapsed, duration, delay, stepType }) {
-      let t = this.ease((elapsed - delay) / duration);
-      if (t > 1 || t < 0)
-        return;
-      t = stepType === STEP_TYPE.Polar ? 1 - t : t;
-      const nonTopKCircles = this.nonTopKNodes.map((node) => [
-        t * node.projectPos[0] + (1 - t) * node.polarPos[0],
-        t * node.projectPos[1] + (1 - t) * node.polarPos[1],
-        nonTopKNodeR,
-        node.polarOrder
-      ]);
-      const topKCircles = this.topKNodes.map((node) => [
-        t * node.projectPos[0] + (1 - t) * node.polarPos[0],
-        t * node.projectPos[1] + (1 - t) * node.polarPos[1],
-        topKNodeR,
-        node.polarOrder
-      ]);
-      for (let i = 0; i < this.nprobeClusters.length; i++) {
-        let circles = nonTopKCircles.filter((circle) => circle[3] == i);
-        drawCircle({
-          ctx,
-          circles,
-          hasFill: true,
-          fillStyle: hexWithOpacity(colorScheme[i], nonTopKNodeOpacity)
-        });
-      }
-      for (let i = 0; i < this.nprobeClusters.length; i++) {
-        let circles = topKCircles.filter((circle) => circle[3] == i);
-        drawCircle({
-          ctx,
-          circles,
-          hasFill: true,
-          fillStyle: hexWithOpacity(colorScheme[i], topKNodeOpacity),
-          hasStroke: true,
-          strokeStyle: hexWithOpacity(whiteColor, topKNodeOpacity),
-          lineWidth: topKNodeStrokeWidth
-        });
-      }
-    }
-    _voronoiMouseHandler() {
-      const voronoi = this.viewType === VIEW_TYPE.Overview ? this.OVVoronoi : this.SVVronoi;
-      const hoverClusterId = voronoi.delaunay.find(this.mouse.x, this.mouse.y);
-      if (hoverClusterId !== this.hoverClusterId) {
-        this.hoverClusterId = hoverClusterId;
-        this._renderVoronoiView();
-      }
-    }
-    _nodeMouseHandler() {
-      const { x: x3, y: y4 } = this.mouse;
-      const stepType = this.stepType;
-      const posAttr = stepType === STEP_TYPE.Polar ? "polarPos" : "projectPos";
-      const hoverNode = this.topKNodes.find((node) => inCircle2(x3, y4, ...node[posAttr], topKNodeR, inCircleBias)) || this.nonTopKNodes.find((node) => inCircle2(x3, y4, ...node[posAttr], nonTopKNodeR, inCircleBias)) || null;
-      if (hoverNode !== this.hoverNode) {
-        this.hoverNode = hoverNode;
-        this._renderNodeView();
-      }
-    }
-    _voronoiClickHandler() {
-      const { x: x3, y: y4 } = this.mouse;
-      const voronoi = this.viewType === VIEW_TYPE.Overview ? this.OVVoronoi : this.SVVronoi;
-      const clickedClusterId = voronoi.delaunay.find(x3, y4);
-      const clickedCluster = this.clusters.find((cluster) => cluster.clusterId == clickedClusterId);
-      this.voronoiClickHandler({ x: x3, y: y4, clickedClusterId, clickedCluster });
-    }
-    _nodeClickHandler() {
-      const { x: x3, y: y4 } = this.mouse;
-      const stepType = this.stepType;
-      const posAttr = stepType === STEP_TYPE.Polar ? "polarPos" : "projectPos";
-      const clickedNode = this.topKNodes.find((node) => inCircle2(x3, y4, ...node[posAttr], topKNodeR, inCircleBias)) || this.nonTopKNodes.find((node) => inCircle2(x3, y4, ...node[posAttr], nonTopKNodeR, inCircleBias)) || null;
-      const clickedNodeId = clickedNode ? clickedNode.id : null;
-      clickedNodeId && this.nodeClickHandler({ x: x3, y: y4, clickedNodeId, clickedNode });
-    }
-    _mouseListener() {
-      const canvas = this.canvas;
-      canvas.addEventListener("mousemove", (e) => {
-        const { offsetX: x3, offsetY: y4 } = e;
-        this.mouse = { x: x3 * 2, y: y4 * 2 };
-        if (this.step === STEP.FineSearch) {
-          this._nodeMouseHandler();
-        } else {
-          this._voronoiMouseHandler();
-        }
-      });
-      canvas.addEventListener("click", (e) => {
-        const { offsetX: x3, offsetY: y4 } = e;
-        this.mouseClick = { x: x3 * 2, y: y4 * 2 };
-        if (this.step === STEP.FineSearch) {
-          this._nodeClickHandler();
-        } else {
-          this._voronoiClickHandler();
-        }
-      });
-      this.step === STEP.FineSearch || canvas.addEventListener("mouseleave", () => {
-        this.mouse = null;
-        this._renderVoronoiView();
-      });
-    }
-  };
-
-  // esm/FederView/transformNodes.js
-  var transformNodes = ({
-    nodesLevels,
-    width,
-    height,
-    padding,
-    xBias = 0.65,
-    yBias = 0.4,
-    yOver = 0.1
-  }) => {
-    const levelNums = nodesLevels.length;
-    const layerWidth = width - padding[1] - padding[3];
-    const layerHeight = (height - padding[0] - padding[2]) / (levelNums - (levelNums - 1) * yOver);
-    const allNodes = nodesLevels.reduce((acc, cur) => acc.concat(cur), []);
-    const xRange = extent(allNodes, (node) => node.x);
-    const yRange = extent(allNodes, (node) => node.y);
-    const xOffset = padding[3] + layerWidth * xBias;
-    const transformFunc = (x3, y4, level) => {
-      const _x = (x3 - xRange[0]) / (xRange[1] - xRange[0]);
-      const _y = (y4 - yRange[0]) / (yRange[1] - yRange[0]);
-      const newX = xOffset + _x * layerWidth * (1 - xBias) - _y * layerWidth * xBias;
-      const newY = padding[0] + layerHeight * (1 - yOver) * (levelNums - 1 - level) + _x * layerHeight * (1 - yBias) + _y * layerHeight * yBias;
-      return [newX, newY];
-    };
-    const layerPos = [
-      [layerWidth * xBias, 0],
-      [layerWidth, layerHeight * (1 - yBias)],
-      [layerWidth * (1 - xBias), layerHeight],
-      [0, layerHeight * yBias]
-    ];
-    const layerPosLevels = nodesLevels.map((_, level) => layerPos.map((coord) => [
-      coord[0] + padding[3],
-      coord[1] + padding[0] + layerHeight * (1 - yOver) * (levelNums - 1 - level)
-    ]));
-    return { layerPosLevels, transformFunc };
-  };
-  var transformNodes_default = transformNodes;
-
-  // esm/FederView/scaleNodes.js
-  var scaleNodes = ({ nodes, M }) => {
-    const xRange = extent(nodes, (node) => node.x);
-    const yRange = extent(nodes, (node) => node.y);
-    const isXLonger = xRange[1] - xRange[0] > yRange[1] - yRange[0];
-    if (!isXLonger) {
-      nodes.forEach((node) => [node.x, node.y] = [node.y, node.x]);
-    }
-    const t = Math.sqrt(M) * 0.85;
-    nodes.forEach((node) => {
-      node.x = node.x * t;
-      node.y = node.y * t;
+      hasFill: true,
+      fillStyle: blackColor
     });
-  };
-  var scaleNodes_default = scaleNodes;
+  }
 
-  // esm/FederView/parseVisRecords.js
+  // federjs/FederView/HnswView/render/renderlevelLayer.js
+  function renderlevelLayer({
+    ctx,
+    canvasScale,
+    layerDotNum,
+    points
+  }) {
+    drawPath({
+      ctx,
+      points,
+      hasStroke: true,
+      isStrokeLinearGradient: false,
+      strokeStyle: hexWithOpacity(ZLayerBorder, 0.6),
+      lineWidth: 0.5 * canvasScale,
+      hasFill: true,
+      isFillLinearGradient: true,
+      gradientStopColors: layerGradientStopColors,
+      gradientPos: [points[1][0], points[0][1], points[3][0], points[2][1]]
+    });
+    const rightTopLength = dist3(points[0], points[1]);
+    const leftTopLength = dist3(points[0], points[3]);
+    const rightTopDotNum = layerDotNum;
+    const leftTopDotNum = layerDotNum;
+    const rightTopVec = [
+      points[1][0] - points[0][0],
+      points[1][1] - points[0][1]
+    ];
+    const leftTopVec = [points[3][0] - points[0][0], points[3][1] - points[0][1]];
+    const dots = [];
+    for (let i = 0; i < layerDotNum; i++) {
+      const rightTopT = i / layerDotNum + 1 / (2 * layerDotNum);
+      for (let j = 0; j < layerDotNum; j++) {
+        const leftTopT = j / layerDotNum + 1 / (2 * layerDotNum);
+        dots.push([
+          points[0][0] + rightTopVec[0] * rightTopT + leftTopVec[0] * leftTopT,
+          points[0][1] + rightTopVec[1] * rightTopT + leftTopVec[1] * leftTopT,
+          0.8 * canvasScale
+        ]);
+      }
+    }
+    drawCircle({
+      ctx,
+      circles: dots,
+      hasFill: true,
+      fillStyle: hexWithOpacity(whiteColor, 0.4)
+    });
+  }
+
+  // federjs/FederView/HnswView/render/renderLinks.js
+  function renderLinks({
+    ctx,
+    shortenLineD,
+    overviewLinkLineWidth,
+    canvasScale,
+    links,
+    level
+  }) {
+    const pointsList = links.map((link) => shortenLine(link.source.overviewPosLevels[level], link.target.overviewPosLevels[level], shortenLineD * canvasScale));
+    drawLinesWithLinearGradient({
+      ctx,
+      pointsList,
+      hasStroke: true,
+      isStrokeLinearGradient: true,
+      gradientStopColors: normalGradientStopColors,
+      lineWidth: overviewLinkLineWidth * canvasScale,
+      lineCap: "round"
+    });
+  }
+
+  // federjs/FederView/HnswView/render/renderNodes.js
+  function renderNodes({
+    ctx,
+    canvasScale,
+    ellipseRation,
+    shadowBlur,
+    nodes,
+    level
+  }) {
+    drawEllipse({
+      ctx,
+      circles: nodes.map((node) => [
+        ...node.overviewPosLevels[level],
+        node.r * ellipseRation * canvasScale,
+        node.r * canvasScale
+      ]),
+      hasFill: true,
+      fillStyle: hexWithOpacity(ZBlue, 0.75),
+      shadowColor: ZBlue,
+      shadowBlur: shadowBlur * canvasScale
+    });
+  }
+
+  // federjs/FederView/HnswView/render/renderReachable.js
+  function renderReachableData({
+    reachableLevel,
+    reachableNodes,
+    reachableLinks,
+    ctx,
+    shortenLineD,
+    canvasScale,
+    reachableLineWidth,
+    ellipseRation,
+    shadowBlur,
+    highlightRadiusExt,
+    posAttr,
+    level
+  }) {
+    if (level != reachableLevel)
+      return;
+    const pointsList = reachableLinks.map((link) => [link.source[posAttr][level], link.target[posAttr][level]]).map((points) => shortenLine(...points, shortenLineD * canvasScale));
+    drawLinesWithLinearGradient({
+      ctx,
+      pointsList,
+      hasStroke: true,
+      isStrokeLinearGradient: true,
+      gradientStopColors: neighbourGradientStopColors,
+      lineWidth: reachableLineWidth * canvasScale,
+      lineCap: "round"
+    });
+    drawEllipse({
+      ctx,
+      circles: reachableNodes.map((node) => [
+        ...node[posAttr][level],
+        (node.r + highlightRadiusExt) * ellipseRation * canvasScale,
+        (node.r + highlightRadiusExt) * canvasScale
+      ]),
+      hasFill: true,
+      fillStyle: hexWithOpacity(whiteColor, 1),
+      shadowColor: whiteColor,
+      shadowBlur: shadowBlur * canvasScale
+    });
+  }
+
+  // federjs/FederView/HnswView/render/renderShortestPath.js
+  function renderShortestPath({
+    SPLinksLevels,
+    SPNodesLevels,
+    ctx,
+    shortenLineD,
+    canvasScale,
+    shortestPathLineWidth,
+    highlightRadiusExt,
+    shadowBlur,
+    ellipseRation,
+    level,
+    posAttr
+  }) {
+    const pointsList = (SPLinksLevels ? SPLinksLevels[level] : []).map((link) => link.source === link.target ? !!link.source[posAttr][level + 1] ? [link.source[posAttr][level + 1], link.target[posAttr][level]] : null : [link.source[posAttr][level], link.target[posAttr][level]]).filter((a2) => a2).map((points) => shortenLine(...points, shortenLineD * canvasScale));
+    drawLinesWithLinearGradient({
+      ctx,
+      pointsList,
+      hasStroke: true,
+      isStrokeLinearGradient: true,
+      gradientStopColors: highLightGradientStopColors,
+      lineWidth: shortestPathLineWidth * canvasScale,
+      lineCap: "round"
+    });
+    drawEllipse({
+      ctx,
+      circles: (SPNodesLevels ? SPNodesLevels[level] : []).filter((node) => !!node[posAttr][level]).map((node) => [
+        ...node[posAttr][level],
+        (node.r + highlightRadiusExt) * ellipseRation * canvasScale,
+        (node.r + highlightRadiusExt) * canvasScale
+      ]),
+      hasFill: true,
+      fillStyle: hexWithOpacity(highLightColor, 1),
+      shadowColor: highLightColor,
+      shadowBlur: shadowBlur * canvasScale
+    });
+  }
+
+  // federjs/FederView/HnswView/render/renderOverview.js
+  function renderOverview() {
+    renderBackground(this);
+    for (let level = 0; level < this.overviewLevelCount; level++) {
+      renderlevelLayer(__spreadProps(__spreadValues({}, this), {
+        points: this.overviewLayerPosLevels[level]
+      }));
+      const nodes = this.overviewNodesLevels[level];
+      const links = this.overviewLinksLevels[level];
+      level > 0 && renderLinks(__spreadProps(__spreadValues({}, this), { links, level }));
+      renderNodes(__spreadProps(__spreadValues({}, this), { nodes, level }));
+      const isActive = this.clickedNode || this.hoveredNode;
+      isActive && renderReachableData(__spreadProps(__spreadValues({}, this), { level, posAttr: "overviewPosLevels" }));
+      isActive && renderShortestPath(__spreadProps(__spreadValues({}, this), { level, posAttr: "overviewPosLevels" }));
+    }
+  }
+
+  // federjs/FederView/HnswView/layout/overviewShortestPath.js
+  function getOverviewShortestPathData({
+    keyNode,
+    keyLevel,
+    overviewNodesLevels,
+    internalId2overviewNode,
+    overviewLevelCount
+  }) {
+    let SPLinksLevels = overviewNodesLevels.map((_) => []);
+    let SPNodesLevels = overviewNodesLevels.map((_) => []);
+    let reachableNodes = [];
+    let reachableLinks = [];
+    let reachableLevel = null;
+    if (keyNode) {
+      const path2 = [...keyNode.path, keyNode.internalId];
+      if (path2.length === 0) {
+        SPNodesLevels = [keyNode.overviewPosLevels[keyLevel]];
+      } else {
+        let preNodeId = path2[0];
+        let preNode = internalId2overviewNode[preNodeId];
+        let preLevel = overviewLevelCount - 1;
+        SPNodesLevels[preLevel].push(preNode);
+        for (let i = 1; i < path2.length; i++) {
+          let curNodeId = path2[i];
+          let curNode = internalId2overviewNode[curNodeId];
+          while (curNode.overviewPosLevels.length <= preLevel) {
+            preLevel -= 1;
+            SPLinksLevels[preLevel].push({
+              source: preNode,
+              target: preNode
+            });
+            SPNodesLevels[preLevel].push(preNode);
+          }
+          SPNodesLevels[preLevel].push(curNode);
+          SPLinksLevels[preLevel].push({
+            source: preNode,
+            target: curNode
+          });
+          preNode = curNode;
+        }
+        while (preLevel > keyLevel) {
+          preLevel -= 1;
+          SPLinksLevels[preLevel].push({
+            source: preNode,
+            target: preNode
+          });
+          SPNodesLevels[preLevel].push(preNode);
+        }
+      }
+      preNodeInternalId = keyNode.path.length > 0 ? keyNode.path[keyNode.path.length - 1] : null;
+      reachableLevel = keyLevel;
+      reachableNodes = keyNode.linksLevels[keyLevel].filter((internalId) => internalId != preNodeInternalId).map((internalId) => internalId2overviewNode[internalId]);
+      reachableLinks = reachableNodes.map((target) => ({
+        source: keyNode,
+        target
+      }));
+    }
+    return { SPLinksLevels, SPNodesLevels, reachableLevel, reachableNodes, reachableLinks };
+  }
+
+  // federjs/FederView/HnswView/layout/parseVisRecords.js
   var parseVisRecords = ({ topkResults, vis_records }) => {
     const visData = [];
     const numLevels = vis_records.length;
@@ -14748,7 +14383,7 @@ ${indentData}`);
   };
   var parseVisRecords_default = parseVisRecords;
 
-  // esm/FederView/forceSearchView.js
+  // federjs/FederView/HnswView/layout/forceSearchView.js
   var forceSearchView = (visData, targetOrigin = [0, 0], forceTime = 5e3) => {
     const nodeId2dist = {};
     visData.forEach((levelData) => levelData.nodes.forEach((node) => nodeId2dist[node.id] = node.dist || 0));
@@ -14785,7 +14420,7 @@ ${indentData}`);
   };
   var forceSearchView_default = forceSearchView;
 
-  // esm/FederView/computeSearchViewTransition.js
+  // federjs/FederView/HnswView/layout/computeSearchViewTransition.js
   var computeSearchViewTransition = ({
     linksLevels,
     entryNodesLevels,
@@ -14848,7 +14483,150 @@ ${indentData}`);
   };
   var computeSearchViewTransition_default = computeSearchViewTransition;
 
-  // esm/FederView/TimerController.js
+  // federjs/FederView/HnswView/layout/searchViewLayout.js
+  function searchViewLayoutHandler(_0) {
+    return __async(this, arguments, function* ({ searchRes }) {
+      let visData = [];
+      let id2forcePos = {};
+      if (searchRes !== this.searchRes) {
+        this.searchRes = searchRes;
+        visData = parseVisRecords_default(searchRes);
+        this.visData = visData;
+        id2forcePos = yield forceSearchView_default(this.visData, this.targetOrigin, this.forceTime * 2);
+        this.id2forcePos = id2forcePos;
+      } else {
+        visData = this.visData;
+        id2forcePos = this.id2forcePos;
+      }
+      const searchNodesLevels = visData.map((levelData) => levelData.nodes);
+      searchNodesLevels.forEach((levelData) => levelData.forEach((node) => {
+        node.forcePos = id2forcePos[node.id];
+        node.x = node.forcePos[0];
+        node.y = node.forcePos[1];
+      }));
+      const { layerPosLevels, transformFunc } = transformHandler_default({
+        nodes: searchNodesLevels.reduce((acc, node) => acc.concat(node), []),
+        levelCount: this.levelCount,
+        width: this.width,
+        height: this.height,
+        padding: this.padding
+      });
+      this.targetOrigin = [0, 0];
+      this.searchTarget = {
+        id: "target",
+        r: this.targetR * this.canvasScale,
+        searchViewPosLevels: range(visData.length).map((i) => transformFunc(...this.targetOrigin, i))
+      };
+      this.searchLayerPosLevels = layerPosLevels;
+      searchNodesLevels.forEach((nodes, level) => {
+        nodes.forEach((node) => {
+          node.searchViewPosLevels = range(level + 1).map((i) => transformFunc(...node.forcePos, i));
+          node.r = (this.searchViewNodeBasicR + node.type * 0.5) * this.canvasScale;
+        });
+      });
+      this.searchNodesLevels = searchNodesLevels;
+      const id2searchNode = {};
+      searchNodesLevels.forEach((levelData) => levelData.forEach((node) => id2searchNode[node.id] = node));
+      const searchLinksLevels = parseVisRecords_default(searchRes).map((levelData) => levelData.links.filter((link) => link.type !== HNSW_LINK_TYPE.None));
+      searchLinksLevels.forEach((levelData, level) => levelData.forEach((link) => {
+        const sourceId = link.source;
+        const targetId = link.target;
+        const sourceNode = id2searchNode[sourceId];
+        const targetNode = id2searchNode[targetId];
+        link.source = sourceNode;
+        link.target = targetNode;
+      }));
+      this.searchLinksLevels = searchLinksLevels;
+      this.entryNodesLevels = visData.map((levelData) => levelData.entryIds.map((id2) => id2searchNode[id2]));
+      const { targetShowTime, nodeShowTime, linkShowTime, duration } = computeSearchViewTransition_default({
+        linksLevels: this.searchLinksLevels,
+        entryNodesLevels: this.entryNodesLevels,
+        interLevelGap: this.searchInterLevelTime,
+        intraLevelGap: this.searchIntraLevelTime
+      });
+      this.searchTargetShowTime = targetShowTime;
+      this.searchNodeShowTime = nodeShowTime;
+      this.searchLinkShowTime = linkShowTime;
+      this.searchTransitionDuration = duration;
+    });
+  }
+
+  // federjs/FederView/HnswView/render/TimeControllerView.js
+  var iconGap = 10;
+  var rectW = 36;
+  var sliderBackGroundWidth = 200;
+  var sliderWidth = sliderBackGroundWidth * 0.8;
+  var sliderHeight = rectW * 0.15;
+  var sliderBarWidth = 10;
+  var sliderBarHeight = rectW * 0.6;
+  var resetW = 16;
+  var resetIconD = `M12.3579 13.0447C11.1482 14.0929 9.60059 14.6689 7.99992 14.6667C4.31792 14.6667 1.33325 11.682 1.33325 8.00004C1.33325 4.31804 4.31792 1.33337 7.99992 1.33337C11.6819 1.33337 14.6666 4.31804 14.6666 8.00004C14.6666 9.42404 14.2199 10.744 13.4599 11.8267L11.3333 8.00004H13.3333C13.3332 6.77085 12.9085 5.57942 12.131 4.6273C11.3536 3.67519 10.2712 3.02084 9.06681 2.77495C7.86246 2.52906 6.61014 2.70672 5.5217 3.27788C4.43327 3.84905 3.57553 4.77865 3.0936 5.90943C2.61167 7.04021 2.53512 8.30275 2.87691 9.48347C3.2187 10.6642 3.95785 11.6906 4.96931 12.3891C5.98077 13.0876 7.20245 13.4152 8.42768 13.3166C9.65292 13.218 10.8065 12.6993 11.6933 11.848L12.3579 13.0447Z`;
+  var pauseIconHeight = rectW * 0.4;
+  var pauseIconWidth = rectW * 0.08;
+  var pauseIconGap = rectW * 0.15;
+  var pauseIconX = (rectW - pauseIconWidth * 2 - pauseIconGap) / 2;
+  var TimeControllerView = class {
+    constructor(domSelector2) {
+      this.render(domSelector2);
+      this.moveSilderBar = () => {
+      };
+    }
+    play() {
+      this.renderPauseIcon();
+    }
+    pause() {
+      this.renderPlayIcon();
+    }
+    renderPlayIcon() {
+      const playPauseIconG = this.playPauseIconG;
+      playPauseIconG.selectAll("*").remove();
+      playPauseIconG.append("path").attr("d", `M${rectW * 0.36},${rectW * 0.3}L${rectW * 0.64},${rectW * 0.5}L${rectW * 0.36},${rectW * 0.7}Z`).attr("fill", "#000");
+    }
+    renderPauseIcon() {
+      const playPauseIconG = this.playPauseIconG;
+      playPauseIconG.selectAll("*").remove();
+      playPauseIconG.selectAll("rect").data([, ,]).join("rect").attr("x", (_, i) => pauseIconX + i * (pauseIconGap + pauseIconWidth)).attr("y", (rectW - pauseIconHeight) / 2).attr("rx", pauseIconWidth / 2).attr("ry", pauseIconWidth / 2).attr("width", pauseIconWidth).attr("height", pauseIconHeight).attr("fill", "#000");
+    }
+    render(domSelector2) {
+      const _dom = select_default2(domSelector2);
+      _dom.selectAll("svg#feder-timer").remove();
+      const svg = _dom.append("svg").attr("id", "feder-timer").attr("width", 300).attr("height", rectW).style("position", "absolute").style("left", "20px").style("bottom", "32px");
+      const playPauseG = svg.append("g");
+      playPauseG.append("rect").attr("x", 0).attr("y", 0).attr("width", rectW).attr("height", rectW).attr("fill", "#fff");
+      const playPauseIconG = playPauseG.append("g");
+      this.playPauseIconG = playPauseIconG;
+      this.renderPlayIcon();
+      const sliderG = svg.append("g").attr("transform", `translate(${rectW + iconGap}, 0)`);
+      sliderG.append("rect").attr("x", 0).attr("y", 0).attr("width", sliderBackGroundWidth).attr("height", rectW).attr("fill", "#1D2939");
+      sliderG.append("rect").attr("x", sliderBackGroundWidth / 2 - sliderWidth / 2).attr("y", rectW / 2 - sliderHeight / 2).attr("width", sliderWidth).attr("height", sliderHeight).attr("fill", "#fff");
+      const sliderBar = sliderG.append("g").append("rect").datum({ x: 0, y: 0 }).attr("transform", `translate(${sliderBackGroundWidth / 2 - sliderWidth / 2 - sliderBarWidth / 2},0)`).attr("x", 0).attr("y", rectW / 2 - sliderBarHeight / 2).attr("width", sliderBarWidth).attr("height", sliderBarHeight).attr("fill", "#fff");
+      const resetG = svg.append("g").attr("transform", `translate(${rectW + iconGap + sliderBackGroundWidth + iconGap}, 0)`);
+      resetG.append("rect").attr("x", 0).attr("y", 0).attr("width", rectW).attr("height", rectW).attr("fill", "#fff");
+      resetG.append("path").attr("d", resetIconD).attr("fill", "#000").attr("transform", `translate(${rectW / 2 - resetW / 2},${rectW / 2 - resetW / 2})`);
+      this.playPauseG = playPauseG;
+      this.sliderBar = sliderBar;
+      this.resetG = resetG;
+    }
+    setTimer(timer2) {
+      this.playPauseG.on("click", () => timer2.playPause());
+      this.resetG.on("click", () => timer2.restart());
+      const drag = drag_default().on("start", () => timer2.stop()).on("drag", (e, d) => {
+        const x3 = Math.max(0, Math.min(e.x, sliderWidth));
+        sliderBar.attr("x", d.x = x3);
+        timer2.setTimeP(x3 / sliderWidth);
+      });
+      const sliderBar = this.sliderBar;
+      sliderBar.call(drag);
+      this.moveSilderBar = (p) => {
+        const x3 = p * sliderWidth;
+        sliderBar.datum().x = x3;
+        sliderBar.attr("x", x3);
+      };
+    }
+  };
+  var TimeControllerView_default = TimeControllerView;
+
+  // federjs/FederView/HnswView/render/TimerController.js
   var TimerController = class {
     constructor({ duration, speed = 1, callback, playCallback, pauseCallback }) {
       this.callback = callback;
@@ -14928,605 +14706,620 @@ ${indentData}`);
     }
   };
 
-  // esm/FederView/TimeControllerView.js
-  var iconGap = 10;
-  var rectW = 36;
-  var sliderBackGroundWidth = 200;
-  var sliderWidth = sliderBackGroundWidth * 0.8;
-  var sliderHeight = rectW * 0.15;
-  var sliderBarWidth = 10;
-  var sliderBarHeight = rectW * 0.6;
-  var resetW = 16;
-  var resetIconD = `M12.3579 13.0447C11.1482 14.0929 9.60059 14.6689 7.99992 14.6667C4.31792 14.6667 1.33325 11.682 1.33325 8.00004C1.33325 4.31804 4.31792 1.33337 7.99992 1.33337C11.6819 1.33337 14.6666 4.31804 14.6666 8.00004C14.6666 9.42404 14.2199 10.744 13.4599 11.8267L11.3333 8.00004H13.3333C13.3332 6.77085 12.9085 5.57942 12.131 4.6273C11.3536 3.67519 10.2712 3.02084 9.06681 2.77495C7.86246 2.52906 6.61014 2.70672 5.5217 3.27788C4.43327 3.84905 3.57553 4.77865 3.0936 5.90943C2.61167 7.04021 2.53512 8.30275 2.87691 9.48347C3.2187 10.6642 3.95785 11.6906 4.96931 12.3891C5.98077 13.0876 7.20245 13.4152 8.42768 13.3166C9.65292 13.218 10.8065 12.6993 11.6933 11.848L12.3579 13.0447Z`;
-  var pauseIconHeight = rectW * 0.4;
-  var pauseIconWidth = rectW * 0.08;
-  var pauseIconGap = rectW * 0.15;
-  var pauseIconX = (rectW - pauseIconWidth * 2 - pauseIconGap) / 2;
-  var TimeControllerView = class {
-    constructor(dom) {
-      this.render(dom);
-      this.moveSilderBar = () => {
-      };
-    }
-    play() {
-      this.renderPauseIcon();
-    }
-    pause() {
-      this.renderPlayIcon();
-    }
-    renderPlayIcon() {
-      const playPauseIconG = this.playPauseIconG;
-      playPauseIconG.selectAll("*").remove();
-      playPauseIconG.append("path").attr("d", `M${rectW * 0.36},${rectW * 0.3}L${rectW * 0.64},${rectW * 0.5}L${rectW * 0.36},${rectW * 0.7}Z`).attr("fill", "#000");
-    }
-    renderPauseIcon() {
-      const playPauseIconG = this.playPauseIconG;
-      playPauseIconG.selectAll("*").remove();
-      playPauseIconG.selectAll("rect").data([, ,]).join("rect").attr("x", (_, i) => pauseIconX + i * (pauseIconGap + pauseIconWidth)).attr("y", (rectW - pauseIconHeight) / 2).attr("rx", pauseIconWidth / 2).attr("ry", pauseIconWidth / 2).attr("width", pauseIconWidth).attr("height", pauseIconHeight).attr("fill", "#000");
-    }
-    render(dom) {
-      const _dom = select_default2(`#${dom.id}`);
-      _dom.selectAll("svg#feder-timer").remove();
-      const svg = _dom.append("svg").attr("id", "feder-timer").attr("width", 300).attr("height", rectW).style("position", "absolute").style("left", "20px").style("bottom", "32px");
-      const playPauseG = svg.append("g");
-      playPauseG.append("rect").attr("x", 0).attr("y", 0).attr("width", rectW).attr("height", rectW).attr("fill", "#fff");
-      const playPauseIconG = playPauseG.append("g");
-      this.playPauseIconG = playPauseIconG;
-      this.renderPlayIcon();
-      const sliderG = svg.append("g").attr("transform", `translate(${rectW + iconGap}, 0)`);
-      sliderG.append("rect").attr("x", 0).attr("y", 0).attr("width", sliderBackGroundWidth).attr("height", rectW).attr("fill", "#1D2939");
-      sliderG.append("rect").attr("x", sliderBackGroundWidth / 2 - sliderWidth / 2).attr("y", rectW / 2 - sliderHeight / 2).attr("width", sliderWidth).attr("height", sliderHeight).attr("fill", "#fff");
-      const sliderBar = sliderG.append("g").append("rect").datum({ x: 0, y: 0 }).attr("transform", `translate(${sliderBackGroundWidth / 2 - sliderWidth / 2 - sliderBarWidth / 2},0)`).attr("x", 0).attr("y", rectW / 2 - sliderBarHeight / 2).attr("width", sliderBarWidth).attr("height", sliderBarHeight).attr("fill", "#fff");
-      const resetG = svg.append("g").attr("transform", `translate(${rectW + iconGap + sliderBackGroundWidth + iconGap}, 0)`);
-      resetG.append("rect").attr("x", 0).attr("y", 0).attr("width", rectW).attr("height", rectW).attr("fill", "#fff");
-      resetG.append("path").attr("d", resetIconD).attr("fill", "#000").attr("transform", `translate(${rectW / 2 - resetW / 2},${rectW / 2 - resetW / 2})`);
-      this.playPauseG = playPauseG;
-      this.sliderBar = sliderBar;
-      this.resetG = resetG;
-    }
-    setTimer(timer2) {
-      this.playPauseG.on("click", () => timer2.playPause());
-      this.resetG.on("click", () => timer2.restart());
-      const drag = drag_default().on("start", () => timer2.stop()).on("drag", (e, d) => {
-        const x3 = Math.max(0, Math.min(e.x, sliderWidth));
-        sliderBar.attr("x", d.x = x3);
-        timer2.setTimeP(x3 / sliderWidth);
-      });
-      const sliderBar = this.sliderBar;
-      sliderBar.call(drag);
-      this.moveSilderBar = (p) => {
-        const x3 = p * sliderWidth;
-        sliderBar.datum().x = x3;
-        sliderBar.attr("x", x3);
-      };
-    }
-  };
-  var TimeControllerView_default = TimeControllerView;
+  // federjs/FederView/HnswView/render/renderSearchViewLinks.js
+  function renderSearchViewLinks({
+    ctx,
+    shortenLineD,
+    canvasScale,
+    links,
+    inProcessLinks,
+    level
+  }) {
+    let pointsList = [];
+    let inprocessPointsList = [];
+    pointsList = links.filter((link) => link.type === HNSW_LINK_TYPE.Visited).map((link) => shortenLine(link.source.searchViewPosLevels[level], link.target.searchViewPosLevels[level], shortenLineD * canvasScale));
+    drawLinesWithLinearGradient({
+      ctx,
+      pointsList,
+      hasStroke: true,
+      isStrokeLinearGradient: true,
+      gradientStopColors: normalGradientStopColors,
+      lineWidth: 4,
+      lineCap: "round"
+    });
+    inprocessPointsList = inProcessLinks.filter(({ link }) => link.type === HNSW_LINK_TYPE.Visited).map(({ t, link }) => shortenLine(link.source.searchViewPosLevels[level], getInprocessPos(link.source.searchViewPosLevels[level], link.target.searchViewPosLevels[level], t), shortenLineD));
+    drawLinesWithLinearGradient({
+      ctx,
+      pointsList: inprocessPointsList,
+      hasStroke: true,
+      isStrokeLinearGradient: true,
+      gradientStopColors: normalGradientStopColors,
+      lineWidth: 4,
+      lineCap: "round"
+    });
+    pointsList = links.filter((link) => link.type === HNSW_LINK_TYPE.Extended).map((link) => shortenLine(link.source.searchViewPosLevels[level], link.target.searchViewPosLevels[level], shortenLineD));
+    drawLinesWithLinearGradient({
+      ctx,
+      pointsList,
+      hasStroke: true,
+      isStrokeLinearGradient: true,
+      gradientStopColors: normalGradientStopColors,
+      lineWidth: 4,
+      lineCap: "round"
+    });
+    inprocessPointsList = inProcessLinks.filter(({ link }) => link.type === HNSW_LINK_TYPE.Extended).map(({ t, link }) => shortenLine(link.source.searchViewPosLevels[level], getInprocessPos(link.source.searchViewPosLevels[level], link.target.searchViewPosLevels[level], t), shortenLineD));
+    drawLinesWithLinearGradient({
+      ctx,
+      pointsList: inprocessPointsList,
+      hasStroke: true,
+      isStrokeLinearGradient: true,
+      gradientStopColors: normalGradientStopColors,
+      lineWidth: 4,
+      lineCap: "round"
+    });
+    pointsList = links.filter((link) => link.type === HNSW_LINK_TYPE.Searched).map((link) => shortenLine(link.source.searchViewPosLevels[level], link.target.searchViewPosLevels[level], shortenLineD));
+    drawLinesWithLinearGradient({
+      ctx,
+      pointsList,
+      hasStroke: true,
+      isStrokeLinearGradient: true,
+      gradientStopColors: highLightGradientStopColors,
+      lineWidth: 6,
+      lineCap: "round"
+    });
+    inprocessPointsList = inProcessLinks.filter(({ link }) => link.type === HNSW_LINK_TYPE.Searched).map(({ t, link }) => shortenLine(link.source.searchViewPosLevels[level], getInprocessPos(link.source.searchViewPosLevels[level], link.target.searchViewPosLevels[level], t), shortenLineD));
+    drawLinesWithLinearGradient({
+      ctx,
+      pointsList: inprocessPointsList,
+      hasStroke: true,
+      isStrokeLinearGradient: true,
+      gradientStopColors: highLightGradientStopColors,
+      lineWidth: 6,
+      lineCap: "round"
+    });
+    pointsList = links.filter((link) => link.type === HNSW_LINK_TYPE.Fine).map((link) => shortenLine(link.source.searchViewPosLevels[level], link.target.searchViewPosLevels[level], shortenLineD));
+    drawLinesWithLinearGradient({
+      ctx,
+      pointsList,
+      hasStroke: true,
+      isStrokeLinearGradient: true,
+      gradientStopColors: highLightGradientStopColors,
+      lineWidth: 6,
+      lineCap: "round"
+    });
+    inprocessPointsList = inProcessLinks.filter(({ link }) => link.type === HNSW_LINK_TYPE.Fine).map(({ t, link }) => shortenLine(link.source.searchViewPosLevels[level], getInprocessPos(link.source.searchViewPosLevels[level], link.target.searchViewPosLevels[level], t), shortenLineD));
+    drawLinesWithLinearGradient({
+      ctx,
+      pointsList: inprocessPointsList,
+      hasStroke: true,
+      isStrokeLinearGradient: true,
+      gradientStopColors: highLightGradientStopColors,
+      lineWidth: 6,
+      lineCap: "round"
+    });
+  }
 
-  // esm/Utils/loading.js
-  var loadingSvgId2 = "feder-loading";
-  var loadingWidth2 = 30;
-  var loadingStrokeWidth = 6;
-  var renderLoading = (dom) => {
-    const style = document.createElement("style");
-    style.type = "text/css";
-    style.innerHTML = `
-      @keyframes rotation {
-        from {
-          transform: translate(${loadingWidth2 / 2}px,${loadingWidth2 / 2}px) rotate(0deg);
-        }
-        to {
-          transform: translate(${loadingWidth2 / 2}px,${loadingWidth2 / 2}px) rotate(359deg);
-        }
-      }
-      .rotate {
-        animation: rotation 2s infinite linear;
-      }
-    `;
-    document.getElementsByTagName("head").item(0).appendChild(style);
-    const _dom = select_default2(`#${dom.id}`);
-    const { width, height } = _dom.node().getBoundingClientRect();
-    const svg = _dom.append("svg").attr("id", loadingSvgId2).attr("width", loadingWidth2).attr("height", loadingWidth2).style("position", "absolute").style("left", width / 2 - loadingWidth2 / 2).style("bottom", height / 2 - loadingWidth2 / 2).style("overflow", "visible");
-    const defsG = svg.append("defs");
-    const linearGradientId = `feder-loading-gradient`;
-    const linearGradient = defsG.append("linearGradient").attr("id", linearGradientId).attr("x1", 0).attr("y1", 0).attr("x2", 0).attr("y2", 1);
-    linearGradient.append("stop").attr("offset", "0%").style("stop-color", "#1E64FF");
-    linearGradient.append("stop").attr("offset", "100%").style("stop-color", "#061982");
-    const loadingCircle = svg.append("circle").attr("cx", loadingWidth2 / 2).attr("cy", loadingWidth2 / 2).attr("fill", "none").attr("r", loadingWidth2 / 2).attr("stroke", "#1E64FF").attr("stroke-width", loadingStrokeWidth);
-    const semiCircle = svg.append("path").attr("d", `M0,${-loadingWidth2 / 2} a ${loadingWidth2 / 2} ${loadingWidth2 / 2} 0 1 1 ${0} ${loadingWidth2}`).attr("fill", "none").attr("stroke", `url(#${linearGradientId})`).attr("stroke-width", loadingStrokeWidth).classed("rotate", true);
-  };
-  var finishLoading = (dom) => {
-    const _dom = select_default2(`#${dom.id}`);
-    _dom.select(`#${loadingSvgId2}`).remove();
-  };
+  // federjs/FederView/HnswView/render/renderSearchViewInterLevelLinks.js
+  function renderSearchViewInterLevelLinks({
+    ctx,
+    entryNodes,
+    inprocessEntryNodes,
+    shortenLineD,
+    canvasScale,
+    searchTarget,
+    level
+  }) {
+    const pointsList = entryNodes.map((node) => shortenLine(node.searchViewPosLevels[level + 1], node.searchViewPosLevels[level], shortenLineD * canvasScale));
+    drawLinesWithLinearGradient({
+      ctx,
+      pointsList,
+      hasStroke: true,
+      isStrokeLinearGradient: true,
+      gradientStopColors: highLightGradientStopColors,
+      lineWidth: 6,
+      lineCap: "round"
+    });
+    const targetPointsList = pointsList.length === 0 ? [] : [
+      shortenLine(searchTarget.searchViewPosLevels[level + 1], searchTarget.searchViewPosLevels[level], shortenLineD)
+    ];
+    drawLinesWithLinearGradient({
+      ctx,
+      pointsList: targetPointsList,
+      hasStroke: true,
+      isStrokeLinearGradient: true,
+      gradientStopColors: targetLevelGradientStopColors,
+      lineWidth: 6,
+      lineCap: "round"
+    });
+    const inprocessPointsList = inprocessEntryNodes.map(({ node, t }) => shortenLine(node.searchViewPosLevels[level + 1], getInprocessPos(node.searchViewPosLevels[level + 1], node.searchViewPosLevels[level], t), shortenLineD));
+    drawLinesWithLinearGradient({
+      ctx,
+      pointsList: inprocessPointsList,
+      hasStroke: true,
+      isStrokeLinearGradient: true,
+      gradientStopColors: highLightGradientStopColors,
+      lineWidth: 6,
+      lineCap: "round"
+    });
+    const inprocessTargetPointsList = inprocessPointsList.length === 0 ? [] : [
+      shortenLine(searchTarget.searchViewPosLevels[level + 1], getInprocessPos(searchTarget.searchViewPosLevels[level + 1], searchTarget.searchViewPosLevels[level], inprocessEntryNodes[0].t), shortenLineD)
+    ];
+    drawLinesWithLinearGradient({
+      ctx,
+      pointsList: inprocessTargetPointsList,
+      hasStroke: true,
+      isStrokeLinearGradient: true,
+      gradientStopColors: targetLevelGradientStopColors,
+      lineWidth: 6,
+      lineCap: "round"
+    });
+  }
 
-  // esm/FederView/HnswView.js
-  var HoveredPanelLine_1_x = 30;
-  var HoveredPanelLine_1_y = -30;
-  var HoveredPanelLine_2_x = 60;
-  var ellipseRation = 1.4;
-  var shortenLineD = 10;
-  var HnswView = class extends BaseView {
-    constructor(params) {
-      super(params);
-      const {
-        forceTime = 3e3,
-        mediaType = null,
-        mediaCallback = () => null
-      } = params;
-      this.forceTime = forceTime;
-      this.mediaType = mediaType;
-      this.mediaCallback = mediaCallback;
-      this.dom = null;
-      this.searchRes = null;
-      this.indexMeta = null;
-      this.computeOverviewPromise = null;
-      this.searchTransitionTimer = null;
-      this.isSelected = false;
-      this.selectedNode = null;
-      this.selectedLevel = null;
-      this.highlightLinksLevels = [];
-      this.highlightNodesLevels = [];
-      this.targetOrigin = [0, 0];
-      this.searchInterLevelTime = 300;
-      this.searchIntraLevelTime = 100;
+  // federjs/FederView/HnswView/render/renderSearchViewNodes.js
+  function renderSearchViewNodes({
+    ctx,
+    ellipseRation,
+    canvasScale,
+    nodes,
+    level,
+    shadowBlur = 4
+  }) {
+    let _nodes = [];
+    _nodes = nodes.filter((node) => node.type === HNSW_NODE_TYPE.Coarse);
+    drawEllipse({
+      ctx,
+      circles: _nodes.map((node) => [
+        ...node.searchViewPosLevels[level],
+        node.r * ellipseRation,
+        node.r
+      ]),
+      hasFill: true,
+      fillStyle: hexWithOpacity(ZBlue, 0.7),
+      shadowColor: ZBlue,
+      shadowBlur
+    });
+    _nodes = nodes.filter((node) => node.type === HNSW_NODE_TYPE.Candidate);
+    drawEllipse({
+      ctx,
+      circles: _nodes.map((node) => [
+        ...node.searchViewPosLevels[level],
+        node.r * ellipseRation,
+        node.r
+      ]),
+      hasFill: true,
+      fillStyle: hexWithOpacity(ZYellow, 0.8),
+      shadowColor: ZYellow,
+      shadowBlur
+    });
+    _nodes = nodes.filter((node) => node.type === HNSW_NODE_TYPE.Fine);
+    drawEllipse({
+      ctx,
+      circles: _nodes.map((node) => [
+        ...node.searchViewPosLevels[level],
+        node.r * ellipseRation,
+        node.r
+      ]),
+      hasFill: true,
+      fillStyle: hexWithOpacity(colorScheme[2], 1),
+      hasStroke: true,
+      lineWidth: 1,
+      strokeStyle: hexWithOpacity(ZOrange, 0.8),
+      shadowColor: ZOrange,
+      shadowBlur
+    });
+  }
+
+  // federjs/FederView/HnswView/render/renderSearchViewTarget.js
+  function renderSearchViewTarget({
+    ctx,
+    ellipseRation,
+    node,
+    level
+  }) {
+    drawEllipse({
+      ctx,
+      circles: [
+        [...node.searchViewPosLevels[level], node.r * ellipseRation, node.r]
+      ],
+      hasFill: true,
+      fillStyle: hexWithOpacity(whiteColor, 1),
+      shadowColor: whiteColor,
+      shadowBlur: 6
+    });
+  }
+
+  // federjs/FederView/HnswView/render/renderSelectedNode.js
+  function renderSelectedNode({ ctx, ellipseRation, pos, r }) {
+    drawEllipse({
+      ctx,
+      circles: [[...pos, r * ellipseRation, r]],
+      hasStroke: true,
+      strokeStyle: hexWithOpacity(ZYellow, 0.8),
+      lineWidth: 4
+    });
+  }
+
+  // federjs/FederView/HnswView/render/renderHoveredPanelLine.js
+  function renderHoveredPanelLine({
+    ctx,
+    x: x3,
+    y: y4,
+    isLeft,
+    hoveredPanelLineWidth,
+    HoveredPanelLine_1_x,
+    HoveredPanelLine_1_y,
+    HoveredPanelLine_2_x,
+    canvasScale
+  }) {
+    const k = isLeft ? -1 : 1;
+    const points = [
+      [x3, y4],
+      [
+        x3 + HoveredPanelLine_1_x * canvasScale * k,
+        y4 + HoveredPanelLine_1_y * canvasScale * k
+      ],
+      [
+        x3 + HoveredPanelLine_1_x * canvasScale * k + HoveredPanelLine_2_x * canvasScale * k,
+        y4 + HoveredPanelLine_1_y * canvasScale * k
+      ]
+    ];
+    drawPath({
+      ctx,
+      points,
+      withZ: false,
+      hasStroke: true,
+      strokeStyle: hexWithOpacity(ZYellow, 1),
+      lineWidth: hoveredPanelLineWidth * canvasScale
+    });
+  }
+
+  // federjs/FederView/HnswView/render/renderSearchViewTransition.js
+  function renderSearchViewTransition({ t, p }) {
+    renderBackground(this);
+    for (let level = 0; level < this.searchNodesLevels.length; level++) {
+      renderlevelLayer(__spreadProps(__spreadValues({}, this), {
+        points: this.searchLayerPosLevels[level]
+      }));
+      const nodes = this.searchNodesLevels[level].filter((node) => this.searchNodeShowTime[getNodeIdWithLevel(node.id, level)] < t);
+      const links = this.searchLinksLevels[level].filter((link) => this.searchLinkShowTime[getLinkIdWithLevel(link.source.id, link.target.id, level)] + this.searchIntraLevelTime < t);
+      const inProcessLinks = this.searchLinksLevels[level].filter((link) => this.searchLinkShowTime[getLinkIdWithLevel(link.source.id, link.target.id, level)] < t && this.searchLinkShowTime[getLinkIdWithLevel(link.source.id, link.target.id, level)] + this.searchIntraLevelTime >= t).map((link) => ({
+        t: (t - this.searchLinkShowTime[getLinkIdWithLevel(link.source.id, link.target.id, level)]) / this.searchIntraLevelTime,
+        link
+      }));
+      const entryNodes = level === this.entryNodesLevels.length - 1 ? [] : this.entryNodesLevels[level].filter((entryNode) => this.searchLinkShowTime[getEntryLinkIdWithLevel(entryNode.id, level)] + this.searchInterLevelTime < t);
+      const inprocessEntryNodes = level === this.entryNodesLevels.length - 1 ? [] : this.entryNodesLevels[level].filter((entryNode) => this.searchLinkShowTime[getEntryLinkIdWithLevel(entryNode.id, level)] < t && this.searchLinkShowTime[getEntryLinkIdWithLevel(entryNode.id, level)] + this.searchInterLevelTime >= t).map((node) => ({
+        node,
+        t: (t - this.searchLinkShowTime[getEntryLinkIdWithLevel(node.id, level)]) / this.searchInterLevelTime
+      }));
+      const searchTarget = this.searchTarget;
+      renderSearchViewLinks(__spreadProps(__spreadValues({}, this), { links, inProcessLinks, level }));
+      renderSearchViewInterLevelLinks(__spreadProps(__spreadValues({}, this), {
+        entryNodes,
+        inprocessEntryNodes,
+        searchTarget,
+        level
+      }));
+      renderSearchViewNodes(__spreadProps(__spreadValues({}, this), { nodes, level }));
+      this.searchTargetShowTime[level] < t && renderSearchViewTarget(__spreadProps(__spreadValues({}, this), { node: this.searchTarget, level }));
+      if (!!this.hoveredNode) {
+        const [x3, y4] = this.hoveredNode.searchViewPosLevels[this.hoveredLevel];
+        const originX = (this.width - this.padding[1] - this.padding[3]) / 2 + this.padding[3];
+        const isLeft = originX > x3;
+        renderHoveredPanelLine(__spreadProps(__spreadValues({}, this), { x: x3, y: y4, isLeft }));
+      }
+      if (!!this.clickedNode) {
+        renderSelectedNode(__spreadProps(__spreadValues({}, this), {
+          pos: this.clickedNode.searchViewPosLevels[this.clickedLevel],
+          r: this.clickedNode.r + 2 * this.canvasScale
+        }));
+      }
     }
-    computeIndexOverview({ indexMeta }) {
-      this.selectedNode = null;
-      this.hoveredNode = null;
-      this.indexMeta = indexMeta;
-      const padding = this.padding;
-      const allNodes = indexMeta.visData;
-      const internalId2Node = {};
-      allNodes.forEach((node) => internalId2Node[node.internalId] = node);
-      this.internalId2Node = internalId2Node;
-      const numOverviewLevels = max(allNodes, (d) => d.linksLevels.length);
-      this.numOverviewLevels = numOverviewLevels;
-      const M = indexMeta.M;
-      const nodesLevels = [];
-      const linksLevels = [];
-      const width = this.width - padding[1] - padding[3];
-      const height = (this.height - padding[0] - padding[2]) / numOverviewLevels;
-      this.computeOverviewPromise = new Promise(async (resolve) => {
-        for (let level = numOverviewLevels - 1; level >= 0; level--) {
-          const nodes = allNodes.filter((node) => node.linksLevels.length > level);
-          const links = nodes.reduce((acc, curNode) => acc.concat(curNode.linksLevels[level].map((target) => ({
-            source: curNode.internalId,
-            target
-          }))), []);
-          await this.forceLevel({ nodes, links, width, height });
-          level > 0 && scaleNodes_default({ nodes, M });
-          level > 0 && this.fixedCurLevel({ nodes });
-          nodesLevels[level] = nodes;
-          linksLevels[level] = links;
+  }
+
+  // federjs/FederView/HnswView/InfoPanel/index.js
+  var overviewPanelId = "feder-info-overview-panel";
+  var selectedPanelId = "feder-info-selected-panel";
+  var hoveredPanelId = "feder-info-hovered-panel";
+  var panelBackgroundColor = hexWithOpacity(blackColor, 0.6);
+  var InfoPanel = class {
+    constructor({ domSelector: domSelector2, width, height }) {
+      this.domSelector = domSelector2;
+      this.width = width;
+      this.height = height;
+      const dom = document.querySelector(domSelector2);
+      const overviewPanel = document.createElement("div");
+      overviewPanel.setAttribute("id", overviewPanelId);
+      overviewPanel.className = overviewPanel.className + " panel-border panel hide";
+      const overviewPanelStyle = {
+        position: "absolute",
+        left: "16px",
+        top: "10px",
+        width: "280px",
+        "max-height": `${height - 20}px`,
+        overflow: "auto",
+        borderColor: whiteColor,
+        backgroundColor: panelBackgroundColor
+      };
+      Object.assign(overviewPanel.style, overviewPanelStyle);
+      dom.appendChild(overviewPanel);
+      const selectedPanel = document.createElement("div");
+      selectedPanel.setAttribute("id", selectedPanelId);
+      selectedPanel.className = selectedPanel.className + " panel-border panel hide";
+      const selectedPanelStyle = {
+        position: "absolute",
+        right: "16px",
+        top: "10px",
+        "max-width": "180px",
+        "max-height": `${height - 20}px`,
+        overflow: "auto",
+        borderColor: ZYellow,
+        backgroundColor: panelBackgroundColor
+      };
+      Object.assign(selectedPanel.style, selectedPanelStyle);
+      dom.appendChild(selectedPanel);
+      const hoveredPanel = document.createElement("div");
+      hoveredPanel.setAttribute("id", hoveredPanelId);
+      hoveredPanel.className = hoveredPanel.className + " hide";
+      const hoveredPanelStyle = {
+        position: "absolute",
+        left: 0,
+        top: 0,
+        width: "240px",
+        display: "flex",
+        pointerEvents: "none"
+      };
+      Object.assign(hoveredPanel.style, hoveredPanelStyle);
+      dom.appendChild(hoveredPanel);
+      this.initStyle();
+    }
+    initStyle() {
+      const style = document.createElement("style");
+      style.type = "text/css";
+      style.innerHTML = `
+    .panel-border {
+      border-style: dashed;
+      border-width: 1px;
+    }
+    .panel {
+      padding: 6px 8px;
+      font-size: 12px;
+    }
+    .hide {
+      opacity: 0;
+    }
+    .panel-item {
+      margin-bottom: 6px;
+    }
+    .panel-img {
+      width: 150px;
+      height: 100px;
+      background-size: cover;
+      margin-bottom: 12px;
+      border-radius: 4px;
+      border: 1px solid ${ZYellow};
+    }
+    .panel-item-display-flex {
+      display: flex;
+    }
+    .panel-item-title {
+      font-weight: 600;
+      margin-bottom: 3px;
+    }
+    .panel-item-text {
+      font-weight: 400;
+      font-size: 10px;
+      word-break: break-all;
+    }
+    .panel-item-text-flex {
+      margin-left: 8px;
+    }
+    .panel-item-text-margin {
+      margin: 0 6px;
+    }
+    .text-no-wrap {
+      white-space: nowrap;
+    }
+  `;
+      document.getElementsByTagName("head").item(0).appendChild(style);
+    }
+    renderSelectedPanel(itemList = [], color2 = "#000") {
+      const panel = select_default2(this.domSelector).select(`#${selectedPanelId}`);
+      panel.style("color", color2);
+      if (itemList.length === 0)
+        panel.classed("hide", true);
+      else {
+        this.renderPanel(panel, itemList);
+      }
+    }
+    renderHoveredPanel({
+      itemList = [],
+      canvasScale = 1,
+      color: color2 = "#000",
+      x: x3 = 0,
+      y: y4 = 0,
+      isLeft = false
+    } = {}) {
+      const panel = select_default2(this.domSelector).select(`#${hoveredPanelId}`);
+      if (itemList.length === 0)
+        panel.classed("hide", true);
+      else {
+        panel.style("color", color2);
+        if (isLeft) {
+          panel.style("left", null);
+          panel.style("right", (this.width - x3) / canvasScale + "px");
+          panel.style("flex-direction", "row-reverse");
+        } else {
+          panel.style("left", x3 / canvasScale + "px");
+          panel.style("flex-direction", "row");
         }
-        const { layerPosLevels, transformFunc } = transformNodes_default({
-          nodesLevels,
-          width: this.width,
-          height: this.height,
-          padding
-        });
-        this.layerPosLevels = layerPosLevels;
-        nodesLevels.forEach((nodes, level) => {
-          nodes.forEach((node) => {
-            node.overviewPosLevels = range(level + 1).map((i) => transformFunc(node.x, node.y, i));
-            node.r = 2 + 1 * node.overviewPosLevels.length;
-          });
-        });
-        this.nodes = allNodes;
-        this.nodesLevels = nodesLevels;
-        this.linksLevels = linksLevels;
-        resolve();
+        panel.style("transform", `translateY(-6px)`);
+        panel.style("top", y4 / canvasScale + "px");
+        this.renderPanel(panel, itemList);
+      }
+    }
+    renderOverviewPanel(itemList = [], color2) {
+      const panel = select_default2(this.domSelector).select(`#${overviewPanelId}`);
+      panel.style("color", color2);
+      if (itemList.length === 0)
+        panel.classed("hide", true);
+      else {
+        this.renderPanel(panel, itemList);
+      }
+    }
+    renderPanel(panel, itemList) {
+      panel.classed("hide", false);
+      panel.selectAll("*").remove();
+      itemList.forEach((item) => {
+        const div = panel.append("div");
+        div.classed("panel-item", true);
+        item.isFlex && div.classed("panel-item-display-flex", true);
+        if (item.isImg && item.imgUrl) {
+          div.classed("panel-img", true);
+          div.style("background-image", `url(${item.imgUrl})`);
+        }
+        if (item.title) {
+          const title = div.append("div");
+          title.classed("panel-item-title", true);
+          title.text(item.title);
+        }
+        if (item.text) {
+          const title = div.append("div");
+          title.classed("panel-item-text", true);
+          item.isFlex && title.classed("panel-item-text-flex", true);
+          item.textWithMargin && title.classed("panel-item-text-margin", true);
+          item.noWrap && title.classed("text-no-wrap", true);
+          title.text(item.text);
+        }
       });
     }
-    async forceLevel({ nodes, links }) {
-      return new Promise((resolve) => {
-        const simulation = simulation_default(nodes).force("link", link_default(links).id((d) => d.internalId).strength(1)).force("center", center_default(0, 0)).force("charge", manyBody_default().strength(-500));
-        setTimeout(() => {
-          simulation.stop();
-          resolve();
-        }, this.forceTime);
-      });
-    }
-    fixedCurLevel({ nodes }) {
-      nodes.forEach((node) => {
-        node.fx = node.x;
-        node.fy = node.y;
-      });
-    }
-    async overview({ dom = this.dom }) {
-      this.setDom(dom);
-      renderLoading(dom);
-      this.selectedNode = null;
-      this.hoveredNode = null;
-      this._renderSelectedPanel();
-      this._renderHoveredPanel();
-      this._renderOverviewPanel();
-      this.searchTransitionTimer && this.searchTransitionTimer.stop();
-      this.computeOverviewPromise && await this.computeOverviewPromise;
-      finishLoading(dom);
-      const ctx = this.canvas.getContext("2d");
-      this.renderOverview({ ctx });
+    updateOverviewOverviewInfo({ indexMeta, nodesCount, linksCount }) {
       const overviewInfo = [
         {
           title: "HNSW"
         },
         {
-          title: `M = ${this.indexMeta.M}, ef_construction = ${this.indexMeta.ef_construction}`
+          title: `M = ${indexMeta.M}, ef_construction = ${indexMeta.ef_construction}`
         },
         {
-          title: `${this.indexMeta.ntotal} vectors, including ${this.indexMeta.levelCount} levels (only show the top 3 levels).`
+          title: `${indexMeta.ntotal} vectors, including ${indexMeta.levelCount} levels (only show the top 3 levels).`
         }
       ];
-      for (let level = this.numOverviewLevels - 1; level >= 0; level--) {
-        const nodes = this.nodesLevels[level];
-        const links = this.linksLevels[level];
+      for (let level = indexMeta.overviewLevelCount - 1; level >= 0; level--) {
         overviewInfo.push({
           isFlex: true,
-          title: `Level ${level + this.indexMeta.levelCount - this.numOverviewLevels}`,
-          text: `${nodes.length} vectors, ${links.length} links`
+          title: `Level ${level + indexMeta.levelCount - indexMeta.overviewLevelCount}`,
+          text: `${nodesCount[level]} vectors, ${linksCount[level]} links`
         });
       }
-      this._renderOverviewPanel(overviewInfo, whiteColor);
-      this._mouseListener();
-      this.mouseClickHandler = ({ x: x3, y: y4 }) => {
-        const mouse = [x3, y4];
-        const { selectedLevel, selectedNode } = this.getSelectedNode({
-          mouse,
-          layerPosLevels: this.layerPosLevels,
-          nodesLevels: this.nodesLevels,
-          posAttr: "overviewPosLevels"
-        });
-        this.selectedNodeChanged = this.selectedLevel !== selectedLevel || this.selectedNode !== selectedNode;
-        this.selectedLevel = selectedLevel;
-        this.selectedNode = selectedNode;
-        if (this.selectedNodeChanged) {
-          this.setHighlightNodesAndLinks(selectedLevel, selectedNode);
-          this.renderOverview({ ctx });
-          const itemList = [];
-          if (!!this.selectedNode) {
-            itemList.push({
-              title: `Level ${selectedLevel + this.indexMeta.levelCount - this.numOverviewLevels}`
-            });
-            itemList.push({
-              title: `Row No. ${selectedNode.id}`
-            });
-            this.mediaType === "img" && itemList.push({
-              isImg: true,
-              imgUrl: this.mediaCallback(selectedNode.id)
-            });
-            itemList.push({
-              title: `Shortest path from the entry:`,
-              text: `${[...selectedNode.path, selectedNode.id].join(" => ")}`
-            });
-            itemList.push({
-              title: `Linked vectors:`,
-              text: `${selectedNode.linksLevels[selectedLevel].join(", ")}`
-            });
-            itemList.push({
-              title: `Vectors:`,
-              text: `${showVectors(this.getVectorById(selectedNode.id))}`
-            });
-          }
-          this._renderSelectedPanel(itemList, ZYellow);
-        }
-      };
-      this.mouseMoveHandler = ({ x: x3, y: y4 }) => {
-        const mouse = [x3, y4];
-        const { selectedLevel, selectedNode } = this.getSelectedNode({
-          mouse,
-          layerPosLevels: this.layerPosLevels,
-          nodesLevels: this.nodesLevels,
-          posAttr: "overviewPosLevels"
-        });
-        this.hoveredNodeChanged = this.hoveredLevel !== selectedLevel || this.hoveredNode !== selectedNode;
-        this.hoveredNode = selectedNode;
-        this.hoveredLevel = selectedLevel;
-        if (this.hoveredNodeChanged && !this.selectedNode) {
-          this.setHighlightNodesAndLinks(selectedLevel, selectedNode);
-        }
-        this.renderOverview({ ctx });
-      };
+      this.renderOverviewPanel(overviewInfo, whiteColor);
     }
-    getSelectedNode({ mouse, layerPosLevels, nodesLevels, posAttr }) {
-      const selectedLevel = layerPosLevels.findIndex((points) => contains_default(points, mouse));
-      let selectedNode;
-      if (selectedLevel >= 0) {
-        const allDis = nodesLevels[selectedLevel].map((node) => dist2(node[posAttr][selectedLevel], mouse));
-        const minDistIndex = minIndex(allDis);
-        const minDist = allDis[minDistIndex];
-        const clearestNode = nodesLevels[selectedLevel][minDistIndex];
-        selectedNode = minDist < Math.pow(Math.max(clearestNode.r + 5, 20), 2) ? clearestNode : null;
-      } else {
-        selectedNode = null;
-      }
-      return { selectedLevel, selectedNode };
-    }
-    setHighlightNodesAndLinks(keyLevel, keyNode) {
-      let highlightLinksLevels = this.nodesLevels.map((_) => []);
-      let highlightNodesLevels = this.nodesLevels.map((_) => []);
-      if (keyNode) {
-        const path2 = [...keyNode.path, keyNode.internalId];
-        if (path2.length === 0) {
-          highlightNodesLevels = [keyNode.overviewPosLevels[keyLevel]];
-        } else {
-          let preNodeId = path2[0];
-          let preNode = this.internalId2Node[preNodeId];
-          let preLevel = this.numOverviewLevels - 1;
-          highlightNodesLevels[preLevel].push(preNode);
-          for (let i = 1; i < path2.length; i++) {
-            let curNodeId = path2[i];
-            let curNode = this.internalId2Node[curNodeId];
-            while (curNode.overviewPosLevels.length <= preLevel) {
-              preLevel -= 1;
-              highlightLinksLevels[preLevel].push({
-                source: preNode,
-                target: preNode
-              });
-              highlightNodesLevels[preLevel].push(preNode);
-            }
-            highlightNodesLevels[preLevel].push(curNode);
-            highlightLinksLevels[preLevel].push({
-              source: preNode,
-              target: curNode
-            });
-            preNode = curNode;
-          }
-          while (preLevel > keyLevel) {
-            preLevel -= 1;
-            highlightLinksLevels[preLevel].push({
-              source: preNode,
-              target: preNode
-            });
-            highlightNodesLevels[preLevel].push(preNode);
-          }
-        }
-      }
-      this.highlightLinksLevels = highlightLinksLevels;
-      this.highlightNodesLevels = highlightNodesLevels;
-    }
-    renderOverview({ ctx }) {
-      this.renderBackground({ ctx });
-      for (let level = 0; level < this.numOverviewLevels; level++) {
-        this.renderOverviewLevelLayer({ ctx, level });
-        const nodes = this.nodesLevels[level];
-        const links = this.linksLevels[level];
-        level > 0 && this.renderLinks({ ctx, links, level });
-        this.renderNodes({ ctx, nodes, level });
-        const isSelected = !!this.selectedNode;
-        const curNode = isSelected ? this.selectedNode : this.hoveredNode;
-        const isActive = !!curNode;
-        const curLevel = isSelected ? this.selectedLevel : this.hoveredLevel;
-        const preActiveNodeId = isActive && curNode.path.length > 0 ? curNode.path[curNode.path.length - 1] : "";
-        const neighboursNodes = curLevel === level && isActive ? curNode.linksLevels[curLevel].filter((nodeId) => nodeId != preActiveNodeId).map((nodeId) => this.internalId2Node[nodeId]) : [];
-        const neighboursLinks = curLevel === level && isActive ? links.filter((link) => link.source.internalId == curNode.internalId && link.target.internalId != preActiveNodeId) : [];
-        isActive && this.renderNeighbours({
-          ctx,
-          nodes: neighboursNodes,
-          links: neighboursLinks,
-          level
-        });
-        const highlightLinks = this.highlightLinksLevels[level] || [];
-        const highlightNodes = this.highlightNodesLevels[level] || [];
-        this.renderhighlightLinks({ ctx, highlightLinks, level });
-        this.renderhighlightNodes({ ctx, highlightNodes, level });
-      }
-      if (!!this.hoveredNode) {
-        const [x3, y4] = this.hoveredNode.overviewPosLevels[this.hoveredLevel];
-        const originX = (this.width - this.padding[1] - this.padding[3]) / 2 + this.padding[3];
-        const isLeft = !this.selectedNode ? originX > x3 : this.selectedNode.overviewPosLevels[this.selectedLevel][0] > x3;
-        this.renderHoveredPanelLine({ ctx, x: x3, y: y4, isLeft });
-      } else {
-        this._renderHoveredPanel([], ZYellow);
-      }
-      if (!!this.selectedNode) {
-        this.renderSelectedNode({
-          ctx,
-          pos: this.selectedNode.overviewPosLevels[this.selectedLevel],
-          r: this.selectedNode.r + 5
-        });
-      }
-    }
-    renderHoveredPanelLine({ ctx, x: x3, y: y4, isLeft }) {
-      const k = isLeft ? -1 : 1;
-      const endX = x3 + HoveredPanelLine_1_x * k + HoveredPanelLine_2_x * k;
-      const endY = y4 + HoveredPanelLine_1_y * k;
-      const points = [
-        [x3, y4],
-        [x3 + HoveredPanelLine_1_x * k, y4 + HoveredPanelLine_1_y * k],
-        [
-          x3 + HoveredPanelLine_1_x * k + HoveredPanelLine_2_x * k,
-          y4 + HoveredPanelLine_1_y * k
-        ]
-      ];
-      drawPath({
-        ctx,
-        points,
-        withZ: false,
-        hasStroke: true,
-        strokeStyle: hexWithOpacity(ZYellow, 1),
-        lineWidth: 2
-      });
+    updateOverviewClickedInfo({
+      node,
+      level,
+      indexMeta,
+      mediaType,
+      mediaCallback,
+      getVectorById
+    }) {
       const itemList = [];
-      if (!!this.hoveredNode) {
+      if (node) {
         itemList.push({
-          text: `No. ${this.hoveredNode.id}`,
+          title: `Level ${level + indexMeta.levelCount - indexMeta.overviewLevelCount}`
+        });
+        itemList.push({
+          title: `Row No. ${node.id}`
+        });
+        mediaType === "img" && itemList.push({
+          isImg: true,
+          imgUrl: mediaCallback(node.id)
+        });
+        itemList.push({
+          title: `Shortest path from the entry:`,
+          text: `${[...node.path, node.id].join(" => ")}`
+        });
+        itemList.push({
+          title: `Linked vectors:`,
+          text: `${node.linksLevels[level].join(", ")}`
+        });
+        itemList.push({
+          title: `Vectors:`,
+          text: `${showVectors(getVectorById(node.id))}`
+        });
+      }
+      this.renderSelectedPanel(itemList, ZYellow);
+    }
+    updateOverviewHoveredInfo({
+      ctx,
+      hoveredNode,
+      hoveredLevel,
+      clickedNode,
+      clickedLevel,
+      width,
+      padding,
+      mediaType,
+      mediaCallback,
+      hoveredPanelLineWidth,
+      HoveredPanelLine_1_x,
+      HoveredPanelLine_1_y,
+      HoveredPanelLine_2_x,
+      canvasScale
+    }) {
+      if (!!hoveredNode) {
+        const [x3, y4] = hoveredNode.overviewPosLevels[hoveredLevel];
+        const originX = (width - padding[1] - padding[3]) / 2 + padding[3];
+        const isLeft = !clickedNode ? originX > x3 : clickedNode.overviewPosLevels[clickedLevel][0] > x3;
+        const k = isLeft ? -1 : 1;
+        const endX = x3 + HoveredPanelLine_1_x * canvasScale * k + HoveredPanelLine_2_x * canvasScale * k;
+        const endY = y4 + HoveredPanelLine_1_y * canvasScale * k;
+        const points = [
+          [x3, y4],
+          [
+            x3 + HoveredPanelLine_1_x * canvasScale * k,
+            y4 + HoveredPanelLine_1_y * canvasScale * k
+          ],
+          [
+            x3 + HoveredPanelLine_1_x * canvasScale * k + HoveredPanelLine_2_x * canvasScale * k,
+            y4 + HoveredPanelLine_1_y * canvasScale * k
+          ]
+        ];
+        drawPath({
+          ctx,
+          points,
+          withZ: false,
+          hasStroke: true,
+          strokeStyle: hexWithOpacity(ZYellow, 1),
+          lineWidth: hoveredPanelLineWidth * canvasScale
+        });
+        const itemList = [];
+        itemList.push({
+          text: `No. ${hoveredNode.id}`,
           textWithMargin: true,
           noWrap: true
         });
-        this.mediaType === "img" && itemList.push({
+        mediaType === "img" && itemList.push({
           isImg: true,
-          imgUrl: this.mediaCallback(this.hoveredNode.id)
+          imgUrl: mediaCallback(hoveredNode.id)
         });
-        this._renderHoveredPanel(itemList, ZYellow, endX, endY, isLeft);
+        this.renderHoveredPanel({
+          itemList,
+          color: ZYellow,
+          x: endX,
+          y: endY,
+          isLeft,
+          canvasScale
+        });
       } else {
-        this._renderHoveredPanel(itemList, ZYellow);
+        this.renderHoveredPanel();
       }
     }
-    renderBackground({ ctx }) {
-      drawRect({
-        ctx,
-        width: this.width,
-        height: this.height,
-        hasFill: true,
-        fillStyle: "#000"
-      });
-    }
-    renderOverviewLevelLayer({ ctx, level }) {
-      const points = this.layerPosLevels[level];
-      this.renderLevelLayer({ ctx, points });
-    }
-    renderSearchViewLevelLayer({ ctx, level }) {
-      const points = this.searchLayerPosLevels[level];
-      this.renderLevelLayer({ ctx, points });
-    }
-    renderLevelLayer({ ctx, points, layerDot = 26 }) {
-      drawPath({
-        ctx,
-        points,
-        hasStroke: true,
-        isStrokeLinearGradient: false,
-        strokeStyle: hexWithOpacity(ZLayerBorder, 0.6),
-        lineWidth: 1,
-        hasFill: true,
-        isFillLinearGradient: true,
-        gradientStopColors: layerGradientStopColors,
-        gradientPos: [points[1][0], points[0][1], points[3][0], points[2][1]]
-      });
-      const rightTopLength = dist3(points[0], points[1]);
-      const leftTopLength = dist3(points[0], points[3]);
-      const rightTopDotNum = layerDot;
-      const leftTopDotNum = layerDot;
-      const rightTopVec = [
-        points[1][0] - points[0][0],
-        points[1][1] - points[0][1]
-      ];
-      const leftTopVec = [
-        points[3][0] - points[0][0],
-        points[3][1] - points[0][1]
-      ];
-      const dots = [];
-      range(0.02, 0.98, 1 / rightTopDotNum).forEach((rightTopT) => range(0.02, 0.98, 1 / leftTopDotNum).forEach((leftTopT) => {
-        dots.push([
-          points[0][0] + rightTopVec[0] * rightTopT + leftTopVec[0] * leftTopT,
-          points[0][1] + rightTopVec[1] * rightTopT + leftTopVec[1] * leftTopT,
-          1.5
-        ]);
-      }));
-      drawCircle({
-        ctx,
-        circles: dots,
-        hasFill: true,
-        fillStyle: hexWithOpacity(whiteColor, 0.4)
-      });
-    }
-    renderNodes({ ctx, nodes, level }) {
-      drawEllipse({
-        ctx,
-        circles: nodes.map((node) => [
-          ...node.overviewPosLevels[level],
-          node.r * ellipseRation,
-          node.r
-        ]),
-        hasFill: true,
-        fillStyle: hexWithOpacity(ZBlue, 0.6),
-        shadowColor: ZBlue,
-        shadowBlur: 6
-      });
-    }
-    renderhighlightNodes({
-      ctx,
-      highlightNodes,
-      level,
-      posAttr = "overviewPosLevels",
-      color: color2 = highLightColor,
-      _r = 1,
-      shadowColor = highLightColor,
-      shadowBlur = 6
+    updateSearchViewOverviewInfo({
+      targetMediaUrl,
+      indexMeta,
+      searchRes,
+      id2forcePos,
+      searchNodesLevels,
+      searchLinksLevels
     }) {
-      drawEllipse({
-        ctx,
-        circles: highlightNodes.filter((node) => !!node[posAttr][level]).map((node) => [
-          ...node[posAttr][level],
-          (node.r + _r) * ellipseRation,
-          node.r + _r
-        ]),
-        hasFill: true,
-        fillStyle: hexWithOpacity(color2, 1),
-        shadowColor,
-        shadowBlur
-      });
-    }
-    renderLinks({ ctx, links, level }) {
-      const pointsList = links.map((link) => shortenLine(link.source.overviewPosLevels[level], link.target.overviewPosLevels[level], shortenLineD));
-      drawLinesWithLinearGradient({
-        ctx,
-        pointsList,
-        hasStroke: true,
-        isStrokeLinearGradient: true,
-        gradientStopColors: normalGradientStopColors,
-        lineWidth: 4,
-        lineCap: "round"
-      });
-    }
-    renderhighlightLinks({ ctx, highlightLinks, level }) {
-      const pointsList = highlightLinks.map((link) => link.source === link.target ? !!link.source.overviewPosLevels[level + 1] ? [
-        link.source.overviewPosLevels[level + 1],
-        link.target.overviewPosLevels[level]
-      ] : null : [
-        link.source.overviewPosLevels[level],
-        link.target.overviewPosLevels[level]
-      ]).filter((a2) => a2).map((points) => shortenLine(...points, shortenLineD));
-      drawLinesWithLinearGradient({
-        ctx,
-        pointsList,
-        hasStroke: true,
-        isStrokeLinearGradient: true,
-        gradientStopColors: highLightGradientStopColors,
-        lineWidth: 9,
-        lineCap: "round"
-      });
-    }
-    renderNeighbours({ ctx, nodes, links, level }) {
-      const pointsList = links.map((link) => [
-        link.source.overviewPosLevels[level],
-        link.target.overviewPosLevels[level]
-      ]).map((points) => shortenLine(...points, shortenLineD));
-      drawLinesWithLinearGradient({
-        ctx,
-        pointsList,
-        hasStroke: true,
-        isStrokeLinearGradient: true,
-        gradientStopColors: neighbourGradientStopColors,
-        lineWidth: 6,
-        lineCap: "round"
-      });
-      drawEllipse({
-        ctx,
-        circles: nodes.map((node) => [
-          ...node.overviewPosLevels[level],
-          (node.r + 1) * ellipseRation,
-          node.r + 1
-        ]),
-        hasFill: true,
-        fillStyle: hexWithOpacity(whiteColor, 1),
-        shadowColor: whiteColor,
-        shadowBlur: 5
-      });
-    }
-    async search({ searchRes = null, targetMediaUrl = this.targetMediaUrl, dom = this.dom } = {}) {
-      this.setDom(dom);
-      renderLoading(dom);
-      this.targetMediaUrl = targetMediaUrl;
-      const ctx = this.canvas.getContext("2d");
-      this.renderBackground({ ctx });
-      this.selectedNode = null;
-      this.hoveredNode = null;
-      this._renderSelectedPanel();
-      this._renderHoveredPanel();
-      this._renderOverviewPanel();
-      await this.computeSearchView({ searchRes });
-      finishLoading(dom);
       const overviewInfo = [
         {
           title: "HNSW - Search"
@@ -15536,32 +15329,189 @@ ${indentData}`);
           imgUrl: targetMediaUrl
         },
         {
-          title: `M = ${this.indexMeta.M}, ef_construction = ${this.indexMeta.ef_construction}.`
+          title: `M = ${indexMeta.M}, ef_construction = ${indexMeta.ef_construction}.`
         },
         {
-          title: `k = ${this.searchRes.searchParams.k}, ef_search = ${this.searchRes.searchParams.ef}.`
+          title: `k = ${searchRes.searchParams.k}, ef_search = ${searchRes.searchParams.ef}.`
         },
         {
-          title: `${this.indexMeta.ntotal} vectors, including ${this.indexMeta.levelCount} levels.`
+          title: `${indexMeta.ntotal} vectors, including ${indexMeta.levelCount} levels.`
         },
         {
-          title: `During the search, a total of ${Object.keys(this.id2forcePos).length - 1} of these vectors were visited.`
+          title: `During the search, a total of ${Object.keys(id2forcePos).length - 1} of these vectors were visited.`
         }
       ];
-      for (let level = this.indexMeta.levelCount - 1; level >= 0; level--) {
-        const nodes = this.searchNodesLevels[level];
-        const links = this.searchLinksLevels[level];
-        const minDist = level > 0 ? nodes.find((node) => node.type === HNSW_NODE_TYPE.Fine).dist.toFixed(3) : min(nodes.filter((node) => node.type === HNSW_NODE_TYPE.Fine), (node) => node.dist);
+      for (let level = indexMeta.levelCount - 1; level >= 0; level--) {
+        const nodes = searchNodesLevels[level];
+        const links = searchLinksLevels[level];
+        const minDist = level > 0 ? nodes.find((node) => node.type === HNSW_NODE_TYPE.Fine).dist.toFixed(3) : min(nodes.filter((node) => node.type === HNSW_NODE_TYPE.Fine), (node) => node.dist.toFixed(3));
         overviewInfo.push({
           isFlex: true,
           title: `Level ${level}`,
           text: `${nodes.length} vectors, ${links.length} links, min-dist: ${minDist}`
         });
       }
-      this._renderOverviewPanel(overviewInfo, whiteColor);
-      const timeControllerView = new TimeControllerView_default(dom);
+      this.renderOverviewPanel(overviewInfo, whiteColor);
+    }
+    updateSearchViewHoveredInfo({
+      ctx,
+      hoveredNode,
+      hoveredLevel,
+      mediaType,
+      mediaCallback,
+      width,
+      padding,
+      hoveredPanelLineWidth,
+      HoveredPanelLine_1_x,
+      HoveredPanelLine_1_y,
+      HoveredPanelLine_2_x,
+      canvasScale
+    }) {
+      if (!hoveredNode) {
+        this.renderHoveredPanel();
+      } else {
+        const [x3, y4] = hoveredNode.searchViewPosLevels[hoveredLevel];
+        const originX = (width - padding[1] - padding[3]) / 2 + padding[3];
+        const isLeft = originX > x3;
+        const k = isLeft ? -1 : 1;
+        const endX = x3 + HoveredPanelLine_1_x * canvasScale * k + HoveredPanelLine_2_x * canvasScale * k;
+        const endY = y4 + HoveredPanelLine_1_y * canvasScale * k;
+        const itemList = [];
+        itemList.push({
+          text: `No. ${hoveredNode.id}`,
+          textWithMargin: true,
+          noWrap: true
+        });
+        mediaType === "img" && itemList.push({
+          isImg: true,
+          imgUrl: mediaCallback(hoveredNode.id)
+        });
+        this.renderHoveredPanel({
+          itemList,
+          color: ZYellow,
+          x: endX,
+          y: endY,
+          isLeft,
+          canvasScale
+        });
+      }
+    }
+    updateSearchViewClickedInfo({
+      clickedNode,
+      clickedLevel,
+      mediaType,
+      mediaCallback,
+      getVectorById
+    }) {
+      const itemList = [];
+      if (!clickedNode) {
+        this.renderSelectedPanel([], ZYellow);
+      } else {
+        itemList.push({
+          title: `Level ${clickedLevel}`
+        });
+        itemList.push({
+          title: `Row No. ${clickedNode.id}`
+        });
+        itemList.push({
+          title: `Distance to the target: ${clickedNode.dist.toFixed(3)}`
+        });
+        mediaType === "img" && itemList.push({
+          isImg: true,
+          imgUrl: mediaCallback(clickedNode.id)
+        });
+        itemList.push({
+          title: `Vector:`,
+          text: `${showVectors(getVectorById(clickedNode.id))}`
+        });
+      }
+      this.renderSelectedPanel(itemList, ZYellow);
+    }
+  };
+
+  // federjs/FederView/HnswView/index.js
+  var defaultHnswViewParams = {
+    padding: [80, 200, 60, 220],
+    forceTime: 3e3,
+    layerDotNum: 20,
+    shortenLineD: 8,
+    overviewLinkLineWidth: 2,
+    reachableLineWidth: 3,
+    shortestPathLineWidth: 4,
+    ellipseRation: 1.4,
+    shadowBlur: 4,
+    mouse2nodeBias: 3,
+    highlightRadiusExt: 0.5,
+    targetR: 3,
+    searchViewNodeBasicR: 1.5,
+    searchInterLevelTime: 300,
+    searchIntraLevelTime: 100,
+    HoveredPanelLine_1_x: 15,
+    HoveredPanelLine_1_y: -25,
+    HoveredPanelLine_2_x: 30,
+    hoveredPanelLineWidth: 2
+  };
+  var HnswView = class extends BaseView {
+    constructor({ indexMeta, domSelector: domSelector2, viewParams, getVectorById }) {
+      super({
+        indexMeta,
+        domSelector: domSelector2,
+        viewParams,
+        getVectorById
+      });
+      for (let key in defaultHnswViewParams) {
+        this[key] = key in viewParams ? viewParams[key] : defaultHnswViewParams[key];
+      }
+      this.padding = this.padding.map((num) => num * this.canvasScale);
+      const infoPanel = new InfoPanel({
+        domSelector: domSelector2,
+        width: this.width,
+        height: this.height
+      });
+      this.infoPanel = infoPanel;
+      this.updateOverviewOverviewInfo = (info) => infoPanel.updateOverviewOverviewInfo(info);
+      this.updateOverviewHoveredInfo = (info) => infoPanel.updateOverviewHoveredInfo(__spreadValues(__spreadValues({}, this), info));
+      this.updateOverviewClickedInfo = (info) => infoPanel.updateOverviewClickedInfo(__spreadValues(__spreadValues({}, this), info));
+      this.updateSearchViewOverviewInfo = (info) => infoPanel.updateSearchViewOverviewInfo(__spreadValues(__spreadValues({}, this), info));
+      this.updateSearchViewHoveredInfo = (info) => infoPanel.updateSearchViewHoveredInfo(__spreadValues(__spreadValues({}, this), info));
+      this.updateSearchViewClickedInfo = (info) => infoPanel.updateSearchViewClickedInfo(__spreadValues(__spreadValues({}, this), info));
+      this.overviewHandler({ indexMeta });
+    }
+    overviewHandler({ indexMeta }) {
+      this.indexMeta = indexMeta;
+      Object.assign(this, indexMeta);
+      const internalId2overviewNode = {};
+      this.overviewNodes.forEach((node) => internalId2overviewNode[node.internalId] = node);
+      this.internalId2overviewNode = internalId2overviewNode;
+      this.overviewInitPromise = overviewLayout_default(this).then(({
+        overviewLayerPosLevels,
+        overviewNodesLevels,
+        overviewLinksLevels
+      }) => {
+        this.overviewLayerPosLevels = overviewLayerPosLevels;
+        this.overviewNodesLevels = overviewNodesLevels;
+        this.overviewLinksLevels = overviewLinksLevels;
+      });
+    }
+    renderOverview() {
+      const indexMeta = this.indexMeta;
+      const nodesCount = this.overviewNodesLevels.map((nodesLevel) => nodesLevel.length);
+      const linksCount = this.overviewLinksLevels.map((linksLevel) => linksLevel.length);
+      const overviewInfo = { indexMeta, nodesCount, linksCount };
+      this.updateOverviewOverviewInfo(overviewInfo);
+      this.searchTransitionTimer && this.searchTransitionTimer.stop();
+      renderOverview.call(this);
+    }
+    searchViewHandler(_0) {
+      return __async(this, arguments, function* ({ searchRes }) {
+        yield searchViewLayoutHandler.call(this, { searchRes });
+        this.updateSearchViewOverviewInfo({});
+      });
+    }
+    renderSearchView() {
+      const timeControllerView = new TimeControllerView_default(this.domSelector);
       const callback = ({ t, p }) => {
-        this.renderSearchViewTransition({ ctx, t });
+        renderSearchViewTransition.call(this, { t, p });
         timeControllerView.moveSilderBar(p);
       };
       const timer2 = new TimerController({
@@ -15573,465 +15523,1629 @@ ${indentData}`);
       timeControllerView.setTimer(timer2);
       timer2.start();
       this.searchTransitionTimer = timer2;
-      this.selectedNode = null;
-      this.selectedLevel = null;
-      this._mouseListener();
-      this.mouseClickHandler = ({ x: x3, y: y4 }) => {
-        const mouse = [x3, y4];
-        const { selectedLevel, selectedNode } = this.getSelectedNode({
-          mouse,
-          layerPosLevels: this.searchLayerPosLevels,
-          nodesLevels: this.searchNodesLevels,
-          posAttr: "searchViewPosLevels"
-        });
-        this.selectedNodeChanged = this.selectedLevel !== selectedLevel || this.selectedNode !== selectedNode;
-        this.selectedLevel = selectedLevel;
-        this.selectedNode = selectedNode;
-        if (this.selectedNodeChanged) {
-          if (this.selectedNodeChanged) {
-            const itemList = [];
-            if (!!this.selectedNode) {
-              itemList.push({
-                title: `Level ${selectedLevel}`
-              });
-              itemList.push({
-                title: `Row No. ${selectedNode.id}`
-              });
-              itemList.push({
-                title: `Distance to the target: ${selectedNode.dist.toFixed(3)}`
-              });
-              this.mediaType === "img" && itemList.push({
-                isImg: true,
-                imgUrl: this.mediaCallback(selectedNode.id)
-              });
-              itemList.push({
-                title: `Vector:`,
-                text: `${showVectors(this.getVectorById(selectedNode.id))}`
-              });
-            }
-            this._renderSelectedPanel(itemList, ZYellow);
-          }
-          this.renderSearchViewTransition({
-            ctx,
-            t: this.searchTransitionTimer.currentT
-          });
-        }
-      };
+    }
+    setOverviewListenerHandlers() {
+      this.mouseLeaveHandler = null;
       this.mouseMoveHandler = ({ x: x3, y: y4 }) => {
         const mouse = [x3, y4];
-        const { selectedLevel, selectedNode } = this.getSelectedNode({
+        const { mouseLevel, mouseNode } = mouse2node(__spreadProps(__spreadValues({}, this), {
+          mouse,
+          layerPosLevels: this.overviewLayerPosLevels,
+          nodesLevels: this.overviewNodesLevels,
+          posAttr: "overviewPosLevels"
+        }));
+        this.hoveredNodeChanged = this.hoveredLevel !== mouseLevel || this.hoveredNode !== mouseNode;
+        this.hoveredNode = mouseNode;
+        this.hoveredLevel = mouseLevel;
+        if (this.hoveredNodeChanged && !this.clickedNode) {
+          Object.assign(this, getOverviewShortestPathData(__spreadProps(__spreadValues({}, this), {
+            keyNode: mouseNode,
+            keyLevel: mouseLevel
+          })));
+          this.renderOverview();
+          this.updateOverviewClickedInfo({
+            x: x3,
+            y: y4,
+            node: mouseNode,
+            level: mouseLevel
+          });
+        }
+        if (this.hoveredNodeChanged) {
+          this.renderOverview();
+          this.updateOverviewHoveredInfo({
+            x: x3,
+            y: y4,
+            node: mouseNode,
+            level: mouseLevel
+          });
+        }
+      };
+      this.mouseClickHandler = ({ x: x3, y: y4 }) => {
+        const mouse = [x3, y4];
+        const { mouseLevel, mouseNode } = mouse2node(__spreadProps(__spreadValues({}, this), {
+          mouse,
+          layerPosLevels: this.overviewLayerPosLevels,
+          nodesLevels: this.overviewNodesLevels,
+          posAttr: "overviewPosLevels"
+        }));
+        this.clickedNodeChanged = this.clickedLevel !== mouseLevel || this.clickedNode !== mouseNode;
+        this.clickedNode = mouseNode;
+        this.clickedLevel = mouseLevel;
+        if (this.clickedNodeChanged) {
+          Object.assign(this, getOverviewShortestPathData(__spreadProps(__spreadValues({}, this), {
+            keyNode: mouseNode,
+            keyLevel: mouseLevel
+          })));
+          this.updateOverviewClickedInfo({
+            x: x3,
+            y: y4,
+            node: mouseNode,
+            level: mouseLevel
+          });
+          this.renderOverview();
+        }
+      };
+    }
+    setSearchViewListenerHandlers() {
+      this.mouseLeaveHandler = null;
+      this.mouseMoveHandler = ({ x: x3, y: y4 }) => {
+        const mouse = [x3, y4];
+        const { mouseLevel, mouseNode } = mouse2node(__spreadProps(__spreadValues({}, this), {
           mouse,
           layerPosLevels: this.searchLayerPosLevels,
           nodesLevels: this.searchNodesLevels,
           posAttr: "searchViewPosLevels"
-        });
-        this.hoveredNodeChanged = this.hoveredLevel !== selectedLevel || this.hoveredNode !== selectedNode;
-        this.hoveredNode = selectedNode;
-        this.hoveredLevel = selectedLevel;
-        this.renderSearchViewTransition({
-          ctx,
-          t: this.searchTransitionTimer.currentT
-        });
-      };
-    }
-    searchTransitionSetSpeed(speed) {
-      this.searchTransitionTimer.setSpeed(speed);
-    }
-    searchTransitionRestart() {
-      this.searchTransitionTimer.restart();
-    }
-    searchTransitionPlayPause() {
-      this.searchTransitionTimer.playPause();
-    }
-    searchTransitionSetTime(p) {
-      this.searchTransitionTimer.setTimeP(p);
-    }
-    async computeSearchView({ searchRes }) {
-      const targetOrigin = this.targetOrigin;
-      let visData = [], id2forcePos = {};
-      if (searchRes !== this.searchRes) {
-        this.searchRes = searchRes;
-        visData = parseVisRecords_default(searchRes);
-        this.visData = visData;
-        id2forcePos = await forceSearchView_default(this.visData, this.targetOrigin, this.forceTime * 2);
-        this.id2forcePos = id2forcePos;
-      } else {
-        visData = this.visData;
-        id2forcePos = this.id2forcePos;
-      }
-      const searchNodesLevels = visData.map((levelData) => levelData.nodes);
-      searchNodesLevels.forEach((levelData) => levelData.forEach((node) => {
-        node.forcePos = id2forcePos[node.id];
-        node.x = node.forcePos[0];
-        node.y = node.forcePos[1];
-      }));
-      const { layerPosLevels, transformFunc } = transformNodes_default({
-        nodesLevels: searchNodesLevels,
-        width: this.width,
-        height: this.height,
-        padding: this.padding
-      });
-      this.searchTarget = {
-        id: "target",
-        r: 6,
-        searchViewPosLevels: range(visData.length).map((i) => transformFunc(...targetOrigin, i))
-      };
-      this.searchLayerPosLevels = layerPosLevels;
-      searchNodesLevels.forEach((nodes, level) => {
-        nodes.forEach((node) => {
-          node.searchViewPosLevels = range(level + 1).map((i) => transformFunc(...node.forcePos, i));
-          node.r = 3 + node.type * 0.5;
-        });
-      });
-      this.searchNodesLevels = searchNodesLevels;
-      const id2searchNode = {};
-      searchNodesLevels.forEach((levelData) => levelData.forEach((node) => id2searchNode[node.id] = node));
-      const searchLinksLevels = parseVisRecords_default(searchRes).map((levelData) => levelData.links.filter((link) => link.type !== HNSW_LINK_TYPE.None));
-      searchLinksLevels.forEach((levelData, level) => levelData.forEach((link) => {
-        const sourceId = link.source;
-        const targetId = link.target;
-        const sourceNode = id2searchNode[sourceId];
-        const targetNode = id2searchNode[targetId];
-        link.source = sourceNode;
-        link.target = targetNode;
-      }));
-      this.searchLinksLevels = searchLinksLevels;
-      this.entryNodesLevels = visData.map((levelData) => levelData.entryIds.map((id2) => id2searchNode[id2]));
-      const { targetShowTime, nodeShowTime, linkShowTime, duration } = computeSearchViewTransition_default({
-        linksLevels: this.searchLinksLevels,
-        entryNodesLevels: this.entryNodesLevels,
-        interLevelGap: this.searchInterLevelTime,
-        intraLevelGap: this.searchIntraLevelTime
-      });
-      this.searchTargetShowTime = targetShowTime;
-      this.searchNodeShowTime = nodeShowTime;
-      this.searchLinkShowTime = linkShowTime;
-      this.searchTransitionDuration = duration;
-    }
-    renderSearchView({ ctx }) {
-      this.renderBackground({ ctx });
-      for (let level = 0; level < this.searchNodesLevels.length; level++) {
-        this.renderSearchViewLevelLayer({ ctx, level });
-        const nodes = this.searchNodesLevels[level];
-        const links = this.searchLinksLevels[level];
-        const entryNodes = level === this.entryNodesLevels.length - 1 ? [] : this.entryNodesLevels[level];
-        this.renderSearchViewLinks({ ctx, links, level });
-        this.renderSearchViewInterLevelLinks({ ctx, entryNodes, level });
-        this.renderSearchViewNodes({ ctx, nodes, level });
-        level === this.selectedLevel && this.selectedNode && this.renderhighlightNodes({
-          ctx,
-          highlightNodes: [this.selectedNode],
-          level,
-          posAttr: "searchViewPosLevels",
-          color: colorScheme[6],
-          _r: 2
-        });
-        this._renderSearchViewTarget({ ctx, node: this.searchTarget, level });
-      }
-    }
-    renderSearchViewTransition({ ctx, t = 999999999 }) {
-      this.renderBackground({ ctx });
-      for (let level = 0; level < this.searchNodesLevels.length; level++) {
-        this.renderSearchViewLevelLayer({ ctx, level });
-        const nodes = this.searchNodesLevels[level].filter((node) => this.searchNodeShowTime[getNodeIdWithLevel(node.id, level)] < t);
-        const links = this.searchLinksLevels[level].filter((link) => this.searchLinkShowTime[getLinkIdWithLevel(link.source.id, link.target.id, level)] + this.searchIntraLevelTime < t);
-        const inProcessLinks = this.searchLinksLevels[level].filter((link) => this.searchLinkShowTime[getLinkIdWithLevel(link.source.id, link.target.id, level)] < t && this.searchLinkShowTime[getLinkIdWithLevel(link.source.id, link.target.id, level)] + this.searchIntraLevelTime >= t).map((link) => ({
-          t: (t - this.searchLinkShowTime[getLinkIdWithLevel(link.source.id, link.target.id, level)]) / this.searchIntraLevelTime,
-          link
         }));
-        const entryNodes = level === this.entryNodesLevels.length - 1 ? [] : this.entryNodesLevels[level].filter((entryNode) => this.searchLinkShowTime[getEntryLinkIdWithLevel(entryNode.id, level)] + this.searchInterLevelTime < t);
-        const inprocessEntryNodes = level === this.entryNodesLevels.length - 1 ? [] : this.entryNodesLevels[level].filter((entryNode) => this.searchLinkShowTime[getEntryLinkIdWithLevel(entryNode.id, level)] < t && this.searchLinkShowTime[getEntryLinkIdWithLevel(entryNode.id, level)] + this.searchInterLevelTime >= t).map((node) => ({
-          node,
-          t: (t - this.searchLinkShowTime[getEntryLinkIdWithLevel(node.id, level)]) / this.searchInterLevelTime
-        }));
-        const searchTarget = this.searchTarget;
-        this.renderSearchViewLinks({ ctx, links, inProcessLinks, level });
-        this.renderSearchViewInterLevelLinks({
-          ctx,
-          entryNodes,
-          inprocessEntryNodes,
-          searchTarget,
-          level
-        });
-        this.renderSearchViewNodes({ ctx, nodes, level });
-        this.searchTargetShowTime[level] < t && this._renderSearchViewTarget({ ctx, node: this.searchTarget, level });
-        if (!!this.hoveredNode) {
-          const [x3, y4] = this.hoveredNode.searchViewPosLevels[this.hoveredLevel];
-          const originX = (this.width - this.padding[1] - this.padding[3]) / 2 + this.padding[3];
-          const isLeft = originX > x3;
-          this.renderHoveredPanelLine({ ctx, x: x3, y: y4, isLeft });
-        } else {
-          this._renderHoveredPanel([], ZYellow);
+        this.hoveredNodeChanged = this.hoveredLevel !== mouseLevel || this.hoveredNode !== mouseNode;
+        this.hoveredNode = mouseNode;
+        this.hoveredLevel = mouseLevel;
+        if (this.hoveredNodeChanged) {
+          this.updateSearchViewHoveredInfo({});
         }
-        if (!!this.selectedNode) {
-          this.renderSelectedNode({
-            ctx,
-            pos: this.selectedNode.searchViewPosLevels[this.selectedLevel],
-            r: this.selectedNode.r + 4.5
+      };
+      this.mouseClickHandler = ({ x: x3, y: y4 }) => {
+        const mouse = [x3, y4];
+        const { mouseLevel, mouseNode } = mouse2node(__spreadProps(__spreadValues({}, this), {
+          mouse,
+          layerPosLevels: this.searchLayerPosLevels,
+          nodesLevels: this.searchNodesLevels,
+          posAttr: "searchViewPosLevels"
+        }));
+        this.clickedNodeChanged = this.clickedLevel !== mouseLevel || this.clickedNode !== mouseNode;
+        this.clickedNode = mouseNode;
+        this.clickedLevel = mouseLevel;
+        if (this.clickedNodeChanged) {
+          renderSearchViewTransition.call(this, {
+            t: this.searchTransitionTimer.currentT
+          });
+          this.updateSearchViewClickedInfo({});
+        }
+      };
+    }
+  };
+
+  // federjs/FederView/IvfflatView/layout/getVoronoi.js
+  function getVoronoi(clusters, width, height) {
+    const delaunay = Delaunay.from(clusters.map((cluster) => [cluster.x, cluster.y]));
+    const voronoi = delaunay.voronoi([0, 0, width, height]);
+    return voronoi;
+  }
+
+  // federjs/FederView/IvfflatView/layout/overviewLayout.js
+  function overviewLayoutHandler2({ indexMeta }) {
+    const width = this.width;
+    const height = this.height;
+    const allArea = width * height;
+    const { ntotal, listCentroidProjections = null, listSizes } = indexMeta;
+    const clusters = listSizes.map((listSize, i) => ({
+      clusterId: i,
+      oriProjection: listCentroidProjections ? listCentroidProjections[i] : [Math.random(), Math.random()],
+      count: listSize,
+      countP: listSize / ntotal,
+      countArea: allArea * (listSize / ntotal)
+    }));
+    const x3 = linear2().domain(extent(clusters, (cluster) => cluster.oriProjection[0])).range([0, width]);
+    const y4 = linear2().domain(extent(clusters, (cluster) => cluster.oriProjection[1])).range([0, height]);
+    clusters.forEach((cluster) => {
+      cluster.x = x3(cluster.oriProjection[0]);
+      cluster.y = y4(cluster.oriProjection[1]);
+      cluster.r = Math.max(this.minVoronoiRadius * this.canvasScale, Math.sqrt(cluster.countArea / Math.PI));
+    });
+    const simulation = simulation_default(clusters).force("collision", collide_default().radius((cluster) => cluster.r)).force("center", center_default(width / 2, height / 2)).on("tick", () => {
+      clusters.forEach((cluster) => {
+        cluster.x = Math.max(cluster.r, Math.min(width - cluster.r, cluster.x));
+        cluster.y = Math.max(cluster.r, Math.min(height - cluster.r, cluster.y));
+      });
+    });
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        simulation.stop();
+        clusters.forEach((cluster) => {
+          cluster.forceProjection = [cluster.x, cluster.y];
+        });
+        const voronoi = getVoronoi(clusters, width, height);
+        clusters.forEach((cluster, i) => {
+          const points = voronoi.cellPolygon(i);
+          points.pop();
+          cluster.OVPolyPoints = points;
+          cluster.OVPolyCentroid = centroid_default(points);
+        });
+        resolve({ clusters, voronoi });
+      }, this.voronoiForceTime);
+    });
+  }
+
+  // federjs/FederView/IvfflatView/render/renderBackground.js
+  function renderBackground2({
+    ctx,
+    width,
+    height
+  }) {
+    drawRect({
+      ctx,
+      width,
+      height,
+      hasFill: true,
+      fillStyle: blackColor
+    });
+  }
+
+  // federjs/FederView/IvfflatView/render/renderNormalVoronoi.js
+  function renderNormalVoronoi({
+    ctx,
+    clusters,
+    nonNprobeClusters,
+    viewType,
+    voronoiStrokeWidth,
+    canvasScale
+  }) {
+    const pointsList = viewType === VIEW_TYPE.overview ? clusters.map((cluster) => cluster.OVPolyPoints) : nonNprobeClusters.map((cluster) => cluster.SVPolyPoints);
+    drawVoronoi({
+      ctx,
+      pointsList,
+      hasStroke: true,
+      strokeStyle: blackColor,
+      lineWidth: voronoiStrokeWidth * canvasScale,
+      hasFill: true,
+      fillStyle: hexWithOpacity(ZBlue, 1)
+    });
+  }
+
+  // federjs/FederView/IvfflatView/render/renderHighlightVoronoi.js
+  function renderHighlightVoronoi({
+    ctx,
+    nprobeClusters,
+    voronoiStrokeWidth,
+    canvasScale
+  }) {
+    const pointsList = nprobeClusters.map((cluster) => cluster.SVPolyPoints);
+    drawVoronoi({
+      ctx,
+      pointsList,
+      hasStroke: true,
+      strokeStyle: blackColor,
+      lineWidth: voronoiStrokeWidth * canvasScale,
+      hasFill: true,
+      fillStyle: hexWithOpacity(ZLightBlue, 1)
+    });
+  }
+
+  // federjs/FederView/IvfflatView/render/renderSelectedVoronoi.js
+  function renderNormalVoronoi2({
+    ctx,
+    hoveredCluster,
+    viewType,
+    voronoiStrokeWidth,
+    canvasScale
+  }) {
+    const pointsList = viewType === VIEW_TYPE.overview ? [hoveredCluster.OVPolyPoints] : [hoveredCluster.SVPolyPoints];
+    drawVoronoi({
+      ctx,
+      pointsList,
+      hasStroke: true,
+      strokeStyle: blackColor,
+      lineWidth: voronoiStrokeWidth * canvasScale,
+      hasFill: true,
+      fillStyle: hexWithOpacity(ZYellow, 0.8)
+    });
+  }
+
+  // federjs/FederView/IvfflatView/render/renderTarget.js
+  function renderTarget({
+    ctx,
+    targetNode,
+    targetNodeR,
+    canvasScale,
+    targetNodeStrokeWidth,
+    searchViewType
+  }) {
+    if (searchViewType === SEARCH_VIEW_TYPE.project)
+      return;
+    const circle = searchViewType === SEARCH_VIEW_TYPE.voronoi ? [...targetNode.SVPos, targetNodeR * canvasScale] : [...targetNode.polarPos, targetNodeR * canvasScale];
+    drawCircle({
+      ctx,
+      circles: [circle],
+      hasStroke: true,
+      strokeStyle: whiteColor,
+      lineWidth: targetNodeStrokeWidth * canvasScale
+    });
+  }
+
+  // federjs/FederView/IvfflatView/render/renderVoronoiView.js
+  function renderVoronoiView() {
+    renderBackground2(this);
+    renderNormalVoronoi(this);
+    this.viewType === VIEW_TYPE.search && renderHighlightVoronoi(this);
+    !!this.hoveredCluster && renderNormalVoronoi2(this);
+    this.viewType === VIEW_TYPE.search && renderTarget(this);
+  }
+
+  // federjs/FederView/IvfflatView/render/renderPolarAxis.js
+  function renderPolarAxis({
+    ctx,
+    axisTickCount,
+    polarOrigin,
+    polarMaxR,
+    polarAxisStrokeWidth,
+    canvasScale
+  }) {
+    const circles = range(axisTickCount).map((i) => [...polarOrigin, (i + 0.7) / axisTickCount * polarMaxR]);
+    drawCircle({
+      ctx,
+      circles,
+      hasStroke: true,
+      lineWidth: polarAxisStrokeWidth * canvasScale,
+      strokeStyle: hexWithOpacity(ZBlue, 0.3)
+    });
+  }
+
+  // federjs/FederView/IvfflatView/render/renderNormalNodes.js
+  function renderNormalNodes({
+    ctx,
+    colorScheme: colorScheme2,
+    nonTopKNodes,
+    searchViewType,
+    nonTopKNodeR,
+    canvasScale,
+    nprobe,
+    nonTopKNodeOpacity
+  }) {
+    const allCircles = searchViewType === SEARCH_VIEW_TYPE.polar ? nonTopKNodes.map((node) => [
+      ...node.polarPos,
+      nonTopKNodeR * canvasScale,
+      node.polarOrder
+    ]) : nonTopKNodes.map((node) => [
+      ...node.projectPos,
+      nonTopKNodeR * canvasScale,
+      node.polarOrder
+    ]);
+    for (let i = 0; i < nprobe; i++) {
+      let circles = allCircles.filter((circle) => circle[3] == i);
+      drawCircle({
+        ctx,
+        circles,
+        hasFill: true,
+        fillStyle: hexWithOpacity(colorScheme2[i], nonTopKNodeOpacity)
+      });
+    }
+  }
+
+  // federjs/FederView/IvfflatView/render/renderHighLightNodes.js
+  function renderHighLightNodes({
+    ctx,
+    colorScheme: colorScheme2,
+    topKNodes,
+    searchViewType,
+    topKNodeR,
+    canvasScale,
+    nprobe,
+    topKNodeOpacity,
+    topKNodeStrokeWidth
+  }) {
+    const allCircles = searchViewType === SEARCH_VIEW_TYPE.polar ? topKNodes.map((node) => [
+      ...node.polarPos,
+      topKNodeR * canvasScale,
+      node.polarOrder
+    ]) : topKNodes.map((node) => [
+      ...node.projectPos,
+      topKNodeR * canvasScale,
+      node.polarOrder
+    ]);
+    for (let i = 0; i < nprobe; i++) {
+      let circles = allCircles.filter((circle) => circle[3] == i);
+      drawCircle({
+        ctx,
+        circles,
+        hasFill: true,
+        fillStyle: hexWithOpacity(colorScheme2[i], topKNodeOpacity),
+        hasStroke: true,
+        strokeStyle: hexWithOpacity(whiteColor, topKNodeOpacity),
+        lineWidth: topKNodeStrokeWidth * canvasScale
+      });
+    }
+  }
+
+  // federjs/FederView/IvfflatView/render/renderSelectedNode.js
+  function renderSelectedNode2({
+    ctx,
+    colorScheme: colorScheme2,
+    hoveredNode,
+    searchViewType,
+    hoveredNodeR,
+    canvasScale,
+    hoveredNodeOpacity,
+    hoveredNodeStrokeWidth
+  }) {
+    const circle = searchViewType === SEARCH_VIEW_TYPE.polar ? [
+      ...hoveredNode.polarPos,
+      hoveredNodeR * canvasScale,
+      hoveredNode.polarOrder
+    ] : [
+      ...hoveredNode.projectPos,
+      hoveredNodeR * canvasScale,
+      hoveredNode.polarOrder
+    ];
+    drawCircle({
+      ctx,
+      circles: [circle],
+      hasFill: true,
+      fillStyle: hexWithOpacity(colorScheme2[circle[3]], hoveredNodeOpacity),
+      hasStroke: true,
+      lineWidth: hoveredNodeStrokeWidth * canvasScale,
+      strokeStyle: hexWithOpacity(whiteColor, 1)
+    });
+  }
+
+  // federjs/FederView/IvfflatView/render/renderNodeView.js
+  function renderNodeView() {
+    renderBackground2(this);
+    this.searchViewType === SEARCH_VIEW_TYPE.polar && renderPolarAxis(this);
+    renderNormalNodes(this);
+    renderHighLightNodes(this);
+    !!this.hoveredNode && renderSelectedNode2(this);
+    renderTarget(this);
+  }
+
+  // federjs/FederView/IvfflatView/layout/mouse2voronoi.js
+  function mouse2node2({ voronoi, x: x3, y: y4 }) {
+    return voronoi.delaunay.find(x3, y4);
+  }
+
+  // federjs/FederView/IvfflatView/layout/mouse2node.js
+  function mouse2node3({ nodesPos, x: x3, y: y4, bias }) {
+    const minIndex2 = minIndex(nodesPos, (nodePos) => dist2(nodePos, [x3, y4]));
+    return dist2(nodesPos[minIndex2], [x3, y4]) > Math.pow(bias, 2) ? -1 : minIndex2;
+  }
+
+  // federjs/FederView/IvfflatView/layout/SVCoarseVoronoiHandler.js
+  function SVCoarseVoronoiHandler() {
+    const width = this.width;
+    const height = this.height;
+    const clusters = this.clusters;
+    const targetClusterId = this.searchRes.coarse[0].id;
+    const otherFineClustersId = this.searchRes.csResIds.filter((clusterId) => clusterId !== targetClusterId);
+    const links = otherFineClustersId.map((clusterId) => ({
+      source: clusterId,
+      target: targetClusterId
+    }));
+    clusters.forEach((cluster) => {
+      cluster.x = cluster.forceProjection[0];
+      cluster.y = cluster.forceProjection[1];
+    });
+    const simulation = simulation_default(clusters).force("links", link_default(links).id((cluster) => cluster.clusterId)).force("collision", collide_default().radius((cluster) => cluster.r)).force("center", center_default(width / 2, height / 2)).on("tick", () => {
+      clusters.forEach((cluster) => {
+        cluster.x = Math.max(cluster.r, Math.min(width - cluster.r, cluster.x));
+        cluster.y = Math.max(cluster.r, Math.min(height - cluster.r, cluster.y));
+      });
+    });
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        simulation.stop();
+        clusters.forEach((cluster) => {
+          cluster.SVPos = [cluster.x, cluster.y];
+        });
+        const voronoi = getVoronoi(clusters, width, height);
+        clusters.forEach((cluster, i) => {
+          const points = voronoi.cellPolygon(i);
+          points.pop();
+          cluster.SVPolyPoints = points;
+          cluster.SVPolyCentroid = centroid_default(points);
+        });
+        this.SVVoronoi = voronoi;
+        const targetCluster = clusters.find((cluster) => cluster.clusterId === targetClusterId);
+        const centoid_fineClusters_x = this.nprobeClusters.reduce((acc, cluster) => acc + cluster.SVPolyCentroid[0], 0) / this.nprobeClusters.length;
+        const centroid_fineClusters_y = this.nprobeClusters.reduce((acc, cluster) => acc + cluster.SVPolyCentroid[1], 0) / this.nprobeClusters.length;
+        const _x = centoid_fineClusters_x - targetCluster.SVPos[0];
+        const _y = centroid_fineClusters_y - targetCluster.SVPos[1];
+        const biasR = Math.sqrt(_x * _x + _y * _y);
+        const targetNode = {
+          SVPos: [
+            targetCluster.SVPos[0] + targetCluster.r * 0.5 * (_x / biasR),
+            targetCluster.SVPos[1] + targetCluster.r * 0.5 * (_y / biasR)
+          ]
+        };
+        targetNode.isLeft_coarseLevel = targetNode.SVPos[0] < this.width / 2;
+        this.targetNode = targetNode;
+        const polarOrigin = [
+          width / 2 + (targetNode.isLeft_coarseLevel ? -1 : 1) * this.polarOriginBias * width,
+          height / 2
+        ];
+        this.polarOrigin = polarOrigin;
+        targetNode.polarPos = polarOrigin;
+        const polarMaxR = Math.min(width, height) * 0.5 - 5;
+        this.polarMaxR = polarMaxR;
+        const fineClusterOrder = vecSort(this.nprobeClusters, "SVPolyCentroid", "clusterId");
+        const angleStep = Math.PI * 2 / fineClusterOrder.length;
+        this.nprobeClusters.forEach((cluster) => {
+          const order = fineClusterOrder.indexOf(cluster.clusterId);
+          cluster.polarOrder = order;
+          cluster.SVNextLevelPos = [
+            polarOrigin[0] + polarMaxR / 2 * Math.sin(angleStep * order),
+            polarOrigin[1] + polarMaxR / 2 * Math.cos(angleStep * order)
+          ];
+          cluster.SVNextLevelTran = [
+            cluster.SVNextLevelPos[0] - cluster.SVPolyCentroid[0],
+            cluster.SVNextLevelPos[1] - cluster.SVPolyCentroid[1]
+          ];
+        });
+        const clusterId2cluster = {};
+        this.nprobeClusters.forEach((cluster) => {
+          clusterId2cluster[cluster.clusterId] = cluster;
+        });
+        this.clusterId2cluster = clusterId2cluster;
+        resolve();
+      }, this.voronoiForceTime);
+    });
+  }
+
+  // federjs/FederView/IvfflatView/layout/SVFinePolarHandler.js
+  function SVFinePolarHandler() {
+    const nodes = this.searchRes.fine;
+    const polarMaxR = this.polarMaxR;
+    const polarOrigin = this.polarOrigin;
+    const r = linear2().domain([
+      min(nodes.filter((node) => node.dis > 0), (node) => node.dis),
+      max(nodes, (node) => node.dis) * 0.95
+    ]).range([polarMaxR * 0.2, polarMaxR]).clamp(true);
+    nodes.forEach((node) => {
+      const cluster = this.clusterId2cluster[node.listId];
+      const { polarOrder, SVNextLevelPos } = cluster;
+      node.polarOrder = polarOrder;
+      let randAngle = Math.random() * Math.PI * 2;
+      let randBias = [Math.sin, Math.cos].map((f) => cluster.r * Math.random() * 0.7 * f(randAngle));
+      node.voronoiPos = SVNextLevelPos.map((d, i) => d + randBias[i]);
+      node.x = node.voronoiPos[0];
+      node.y = node.voronoiPos[1];
+      node.r = r(node.dis);
+    });
+    const simulation = simulation_default(nodes).force("collide", collide_default().radius((_) => this.nonTopKNodeR * this.canvasScale).strength(0.4)).force("r", radial_default((node) => node.r, ...polarOrigin).strength(1));
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        simulation.stop();
+        nodes.forEach((node) => {
+          node.polarPos = [node.x, node.y];
+        });
+        this.nodes = nodes;
+        this.topKNodes = this.nodes.filter((node) => this.searchRes.fsResIds.find((id2) => id2 == node.id));
+        this.nonTopKNodes = this.nodes.filter((node) => !this.searchRes.fsResIds.find((id2) => id2 == node.id));
+        resolve();
+      }, this.nodeCollisionForceTime);
+    });
+  }
+
+  // federjs/FederView/IvfflatView/layout/SVFineProjectHandler.js
+  function SVFineProjectHandler() {
+    const nodes = this.nodes;
+    if (!nodes[0].projection) {
+      console.log('No Projection Data. Should use "fineWithProjection".');
+      nodes.forEach((node) => {
+        node.projection = [Math.random(), Math.random()];
+      });
+    }
+    const xRange = this.targetNode.isLeft_coarseLevel ? [this.projectPadding[1], this.width - this.projectPadding[3]] : [this.projectPadding[3], this.width - this.projectPadding[1]];
+    const x3 = linear2().domain(extent(nodes, (node) => node.projection[0])).range(xRange);
+    const y4 = linear2().domain(extent(nodes, (node) => node.projection[1])).range([this.projectPadding[0], this.height - this.projectPadding[2]]);
+    nodes.forEach((node) => {
+      node.projectPos = [x3(node.projection[0]), y4(node.projection[1])];
+    });
+  }
+
+  // federjs/FederView/IvfflatView/layout/searchViewLayout.js
+  function searchViewLayoutHandler2({ searchRes }) {
+    const SVCoarsePromise = new Promise((resolve) => __async(this, null, function* () {
+      this.overviewInitPromise && (yield this.overviewInitPromise);
+      this.searchRes = searchRes;
+      searchRes.coarse.forEach(({ id: id2, dis }) => this.clusters[id2].dis = dis);
+      this.nprobeClusters = this.clusters.filter((cluster) => this.searchRes.csResIds.find((id2) => id2 == cluster.clusterId));
+      this.nonNprobeClusters = this.clusters.filter((cluster) => !this.searchRes.csResIds.find((id2) => id2 == cluster.clusterId));
+      yield SVCoarseVoronoiHandler.call(this);
+      resolve();
+    }));
+    SVCoarsePromise.then(() => __async(this, null, function* () {
+      this.SVFinePromise = new Promise((resolve) => __async(this, null, function* () {
+        yield SVFinePolarHandler.call(this);
+        SVFineProjectHandler.call(this);
+        resolve();
+      }));
+    }));
+    return SVCoarsePromise;
+  }
+
+  // federjs/FederView/IvfflatView/render/animateNonNprobeClusters.js
+  function animateNonNprobeClusters({
+    ctx,
+    elapsed,
+    duration,
+    delay,
+    ease,
+    nonNprobeClusters,
+    voronoiStrokeWidth,
+    canvasScale,
+    animationType
+  }) {
+    let t = ease((elapsed - delay) / duration);
+    if (t > 1 || t < 0)
+      return;
+    const opacity = animationType === ANIMATION_TYPE.enter ? t : 1 - t;
+    const pointsList = nonNprobeClusters.map((cluster) => cluster.SVPolyPoints);
+    drawVoronoi({
+      ctx,
+      pointsList,
+      hasStroke: true,
+      strokeStyle: blackColor,
+      lineWidth: voronoiStrokeWidth * canvasScale,
+      hasFill: true,
+      fillStyle: hexWithOpacity(ZBlue, opacity)
+    });
+  }
+
+  // federjs/FederView/IvfflatView/render/animateNprobeClustersTrans.js
+  function animateNprobeClustersTrans({
+    ctx,
+    elapsed,
+    duration,
+    delay,
+    ease,
+    nprobeClusters,
+    voronoiStrokeWidth,
+    canvasScale,
+    animationType
+  }) {
+    let t = ease((elapsed - delay) / duration);
+    if (t > 1 || t < 0)
+      return;
+    t = animationType === ANIMATION_TYPE.enter ? 1 - t : t;
+    const pointsList = nprobeClusters.map((cluster) => cluster.SVPolyPoints.map((point) => [
+      point[0] + t * cluster.SVNextLevelTran[0],
+      point[1] + t * cluster.SVNextLevelTran[1]
+    ]));
+    drawVoronoi({
+      ctx,
+      pointsList,
+      hasStroke: true,
+      strokeStyle: blackColor,
+      lineWidth: voronoiStrokeWidth * canvasScale,
+      hasFill: true,
+      fillStyle: hexWithOpacity(ZLightBlue, 1)
+    });
+  }
+
+  // federjs/FederView/IvfflatView/render/animateTargetNode.js
+  function animateTargetNode({
+    ctx,
+    elapsed,
+    duration,
+    delay,
+    ease,
+    targetNode,
+    targetNodeR,
+    canvasScale,
+    targetNodeStrokeWidth,
+    animationType,
+    newSearchViewType
+  }) {
+    let t = ease((elapsed - delay) / duration);
+    if (newSearchViewType === SEARCH_VIEW_TYPE.project) {
+      if (t < 0 || t > 1)
+        return;
+    }
+    if (t > 1)
+      t = 1;
+    if (t < 0)
+      t = 0;
+    t = animationType === ANIMATION_TYPE.enter ? t : 1 - t;
+    const x3 = targetNode.SVPos[0] * t + targetNode.polarPos[0] * (1 - t);
+    const y4 = targetNode.SVPos[1] * t + targetNode.polarPos[1] * (1 - t);
+    drawCircle({
+      ctx,
+      circles: [[x3, y4, targetNodeR * canvasScale]],
+      hasStroke: true,
+      strokeStyle: whiteColor,
+      lineWidth: targetNodeStrokeWidth * canvasScale
+    });
+  }
+
+  // federjs/FederView/IvfflatView/render/animateNprobeClustersOpacity.js
+  function animateNonNprobeClusters2({
+    ctx,
+    elapsed,
+    duration,
+    delay,
+    ease,
+    nprobeClusters,
+    voronoiStrokeWidth,
+    canvasScale,
+    animationType
+  }) {
+    let t = ease((elapsed - delay) / duration);
+    if (t > 1 || t < 0)
+      return;
+    t = animationType === ANIMATION_TYPE.enter ? t : 1 - t;
+    const opacity = t;
+    const pointsList = nprobeClusters.map((cluster) => cluster.SVPolyPoints.map((point) => [
+      point[0] + cluster.SVNextLevelTran[0],
+      point[1] + cluster.SVNextLevelTran[1]
+    ]));
+    drawVoronoi({
+      ctx,
+      pointsList,
+      hasStroke: true,
+      strokeStyle: blackColor,
+      lineWidth: voronoiStrokeWidth * canvasScale,
+      hasFill: true,
+      fillStyle: hexWithOpacity(ZLightBlue, opacity)
+    });
+  }
+
+  // federjs/FederView/IvfflatView/render/animateNodesOpacityAndTrans.js
+  function animateNodesOpacityAndTrans({
+    ctx,
+    colorScheme: colorScheme2,
+    elapsed,
+    duration,
+    delay,
+    nprobe,
+    ease,
+    topKNodes,
+    topKNodeR,
+    topKNodeOpacity,
+    topKNodeStrokeWidth,
+    nonTopKNodes,
+    nonTopKNodeR,
+    nonTopKNodeOpacity,
+    canvasScale,
+    animationType,
+    newSearchViewType,
+    oldSearchViewType
+  }) {
+    let t = ease((elapsed - delay) / duration);
+    if (t > 1 || t < 0)
+      return;
+    t = animationType === ANIMATION_TYPE.enter ? 1 - t : t;
+    const nonTopKCircles = newSearchViewType === SEARCH_VIEW_TYPE.polar && animationType === ANIMATION_TYPE.enter || oldSearchViewType === SEARCH_VIEW_TYPE.polar && animationType === ANIMATION_TYPE.exit ? nonTopKNodes.map((node) => [
+      t * node.voronoiPos[0] + (1 - t) * node.polarPos[0],
+      t * node.voronoiPos[1] + (1 - t) * node.polarPos[1],
+      nonTopKNodeR * canvasScale,
+      node.polarOrder
+    ]) : nonTopKNodes.map((node) => [
+      t * node.voronoiPos[0] + (1 - t) * node.projectPos[0],
+      t * node.voronoiPos[1] + (1 - t) * node.projectPos[1],
+      nonTopKNodeR * canvasScale,
+      node.polarOrder
+    ]);
+    const topKCircles = newSearchViewType === SEARCH_VIEW_TYPE.polar && animationType === ANIMATION_TYPE.enter || oldSearchViewType === SEARCH_VIEW_TYPE.polar && animationType === ANIMATION_TYPE.exit ? topKNodes.map((node) => [
+      t * node.voronoiPos[0] + (1 - t) * node.polarPos[0],
+      t * node.voronoiPos[1] + (1 - t) * node.polarPos[1],
+      topKNodeR * canvasScale,
+      node.polarOrder
+    ]) : topKNodes.map((node) => [
+      t * node.voronoiPos[0] + (1 - t) * node.projectPos[0],
+      t * node.voronoiPos[1] + (1 - t) * node.projectPos[1],
+      topKNodeR * canvasScale,
+      node.polarOrder
+    ]);
+    for (let i = 0; i < nprobe; i++) {
+      let circles = nonTopKCircles.filter((circle) => circle[3] == i);
+      drawCircle({
+        ctx,
+        circles,
+        hasFill: true,
+        fillStyle: hexWithOpacity(colorScheme2[i], nonTopKNodeOpacity)
+      });
+    }
+    const opacity = t * 0.5 + (1 - t) * topKNodeOpacity;
+    for (let i = 0; i < nprobe; i++) {
+      let circles = topKCircles.filter((circle) => circle[3] == i);
+      drawCircle({
+        ctx,
+        circles,
+        hasFill: true,
+        fillStyle: hexWithOpacity(colorScheme2[i], opacity),
+        hasStroke: true,
+        strokeStyle: hexWithOpacity(whiteColor, opacity),
+        lineWidth: topKNodeStrokeWidth * canvasScale
+      });
+    }
+  }
+
+  // federjs/FederView/IvfflatView/render/animateCoarse2Fine.js
+  function animateCoarse2Fine({
+    oldSearchViewType,
+    newSearchViewType
+  }) {
+    const stepAllTime = this.animateExitTime + this.animateEnterTime;
+    const timer2 = timer((elapsed) => {
+      renderBackground2(this);
+      animateNonNprobeClusters(__spreadProps(__spreadValues({}, this), {
+        elapsed,
+        delay: 0,
+        duration: this.animateExitTime,
+        animationType: ANIMATION_TYPE.exit
+      }));
+      animateNprobeClustersTrans(__spreadProps(__spreadValues({}, this), {
+        elapsed,
+        delay: 0,
+        duration: this.animateExitTime,
+        animationType: ANIMATION_TYPE.exit
+      }));
+      animateTargetNode(__spreadProps(__spreadValues({}, this), {
+        elapsed,
+        delay: 0,
+        duration: this.animateExitTime,
+        animationType: ANIMATION_TYPE.exit,
+        newSearchViewType
+      }));
+      animateNonNprobeClusters2(__spreadProps(__spreadValues({}, this), {
+        elapsed,
+        delay: this.animateExitTime,
+        duration: this.animateEnterTime,
+        animationType: ANIMATION_TYPE.exit
+      }));
+      animateNodesOpacityAndTrans(__spreadProps(__spreadValues({}, this), {
+        elapsed,
+        delay: this.animateExitTime,
+        duration: this.animateEnterTime,
+        animationType: ANIMATION_TYPE.enter,
+        oldSearchViewType,
+        newSearchViewType
+      }));
+      if (elapsed >= stepAllTime) {
+        console.log("Coarse => Fine [OK]");
+        timer2.stop();
+        this.searchViewType = newSearchViewType;
+        this.renderFineSearch(newSearchViewType);
+      }
+    });
+  }
+
+  // federjs/FederView/IvfflatView/render/animateFine2Coarse.js
+  function animateFine2Coarse({
+    oldSearchViewType,
+    newSearchViewType
+  }) {
+    const stepAllTime = this.animateExitTime + this.animateEnterTime;
+    const timer2 = timer((elapsed) => {
+      renderBackground2(this);
+      animateNodesOpacityAndTrans(__spreadProps(__spreadValues({}, this), {
+        elapsed,
+        delay: 0,
+        duration: this.animateExitTime,
+        animationType: ANIMATION_TYPE.exit,
+        oldSearchViewType,
+        newSearchViewType
+      }));
+      animateNonNprobeClusters2(__spreadProps(__spreadValues({}, this), {
+        elapsed,
+        delay: 0,
+        duration: this.animateExitTime,
+        animationType: ANIMATION_TYPE.enter
+      }));
+      animateNonNprobeClusters(__spreadProps(__spreadValues({}, this), {
+        elapsed,
+        delay: this.animateExitTime,
+        duration: this.animateEnterTime,
+        animationType: ANIMATION_TYPE.enter
+      }));
+      animateNprobeClustersTrans(__spreadProps(__spreadValues({}, this), {
+        elapsed,
+        delay: this.animateExitTime,
+        duration: this.animateEnterTime,
+        animationType: ANIMATION_TYPE.enter
+      }));
+      animateTargetNode(__spreadProps(__spreadValues({}, this), {
+        elapsed,
+        delay: this.animateExitTime,
+        duration: this.animateEnterTime,
+        animationType: ANIMATION_TYPE.enter,
+        newSearchViewType
+      }));
+      if (elapsed >= stepAllTime) {
+        console.log("Fine => Coarse [OK]");
+        timer2.stop();
+        this.searchViewType = newSearchViewType;
+        this.renderCoarseSearch();
+      }
+    });
+  }
+
+  // federjs/FederView/IvfflatView/render/animateNodesTrans.js
+  function animateNodesTrans({
+    ctx,
+    colorScheme: colorScheme2,
+    ease,
+    elapsed,
+    duration,
+    delay,
+    newSearchViewType,
+    nonTopKNodes,
+    nonTopKNodeR,
+    canvasScale,
+    topKNodes,
+    topKNodeR,
+    topKNodeStrokeWidth,
+    nprobe,
+    nonTopKNodeOpacity,
+    topKNodeOpacity
+  }) {
+    let t = ease((elapsed - delay) / duration);
+    if (t > 1 || t < 0)
+      return;
+    t = newSearchViewType === SEARCH_VIEW_TYPE.polar ? 1 - t : t;
+    const nonTopKCircles = nonTopKNodes.map((node) => [
+      t * node.projectPos[0] + (1 - t) * node.polarPos[0],
+      t * node.projectPos[1] + (1 - t) * node.polarPos[1],
+      nonTopKNodeR * canvasScale,
+      node.polarOrder
+    ]);
+    const topKCircles = topKNodes.map((node) => [
+      t * node.projectPos[0] + (1 - t) * node.polarPos[0],
+      t * node.projectPos[1] + (1 - t) * node.polarPos[1],
+      topKNodeR * canvasScale,
+      node.polarOrder
+    ]);
+    for (let i = 0; i < nprobe; i++) {
+      let circles = nonTopKCircles.filter((circle) => circle[3] == i);
+      drawCircle({
+        ctx,
+        circles,
+        hasFill: true,
+        fillStyle: hexWithOpacity(colorScheme2[i], nonTopKNodeOpacity)
+      });
+    }
+    for (let i = 0; i < nprobe; i++) {
+      let circles = topKCircles.filter((circle) => circle[3] == i);
+      drawCircle({
+        ctx,
+        circles,
+        hasFill: true,
+        fillStyle: hexWithOpacity(colorScheme2[i], topKNodeOpacity),
+        hasStroke: true,
+        strokeStyle: hexWithOpacity(whiteColor, topKNodeOpacity),
+        lineWidth: topKNodeStrokeWidth * canvasScale
+      });
+    }
+  }
+
+  // federjs/FederView/IvfflatView/render/animateFine2Fine.js
+  function animateFine2Fine({
+    oldSearchViewType,
+    newSearchViewType
+  }) {
+    const timer2 = timer((elapsed) => {
+      renderBackground2(this);
+      animateNodesTrans(__spreadProps(__spreadValues({}, this), {
+        elapsed,
+        duration: this.fineSearchNodeTransTime,
+        delay: 0,
+        newSearchViewType
+      }));
+      if (elapsed >= this.fineSearchNodeTransTime) {
+        console.log(`${oldSearchViewType} To ${newSearchViewType} OK!`);
+        timer2.stop();
+        this.renderFineSearch(newSearchViewType);
+      }
+    });
+  }
+
+  // federjs/FederView/IvfflatView/infoPanel/index.js
+  var overviewPanelId2 = "feder-info-overview-panel";
+  var hoveredPanelId2 = "feder-info-hovered-panel";
+  var panelBackgroundColor2 = hexWithOpacity(blackColor, 0.6);
+  var InfoPanel2 = class {
+    constructor({ domSelector: domSelector2, width, height }) {
+      this.domSelector = domSelector2;
+      this.width = width;
+      this.height = height;
+      this.initOverviewPanel();
+      this.initHoveredPanel();
+      this.initStyle();
+    }
+    initOverviewPanel() {
+      const dom = document.querySelector(this.domSelector);
+      const overviewPanel = document.createElement("div");
+      overviewPanel.setAttribute("id", overviewPanelId2);
+      overviewPanel.className = overviewPanel.className + " panel-border panel hide";
+      const overviewPanelStyle = {
+        position: "absolute",
+        left: "16px",
+        top: "10px",
+        width: "240px",
+        "max-height": `${this.height - 40}px`,
+        overflow: "auto",
+        borderColor: whiteColor,
+        backgroundColor: panelBackgroundColor2
+      };
+      Object.assign(overviewPanel.style, overviewPanelStyle);
+      dom.appendChild(overviewPanel);
+      this.overviewPanel = overviewPanel;
+    }
+    setOverviewPanelPos(isPanelLeft) {
+      const overviewPanel = this.overviewPanel;
+      const overviewPanelStyle = isPanelLeft ? {
+        left: "16px"
+      } : {
+        left: null,
+        right: "16px"
+      };
+      Object.assign(overviewPanel.style, overviewPanelStyle);
+    }
+    updateOverviewOverviewInfo({ ntotal, nlist, listSizes }) {
+      const items = [
+        {
+          title: "IVF_Flat"
+        },
+        {
+          text: `${ntotal} vectors, divided into ${nlist} clusters.`
+        },
+        {
+          text: `The largest cluster has ${max(listSizes)} vectors and the smallest cluster has only ${min(listSizes)} vectors.`
+        }
+      ];
+      this.renderOverviewPanel(items, whiteColor);
+    }
+    updateSearchViewCoarseOverviewInfo(federView) {
+      const {
+        ntotal,
+        nlist,
+        nprobe,
+        searchRes,
+        clusters,
+        targetMediaUrl,
+        listSizes
+      } = federView;
+      console.log("!!!!");
+      const items = [
+        {
+          title: "IVF_Flat - Search"
+        },
+        {
+          isImg: true,
+          imgUrl: targetMediaUrl
+        },
+        {
+          isOption: true,
+          isActive: true,
+          label: "Coarse Search",
+          callback: () => federView.switchSearchView("voronoi")
+        },
+        {
+          isOption: true,
+          isActive: false,
+          label: "Fine Search (Distance)",
+          callback: () => federView.switchSearchView("polar")
+        },
+        {
+          isOption: true,
+          isActive: false,
+          label: "Fine Search (Project)",
+          callback: () => federView.switchSearchView("project")
+        },
+        {
+          text: `${ntotal} vectors, divided into ${nlist} clusters.`
+        },
+        {
+          title: `Find the ${nprobe} (nprobe=${nprobe}) closest clusters.`
+        },
+        ...searchRes.csResIds.map((clusterId) => ({
+          text: `cluster-${clusterId} (${listSizes[clusterId]} vectors) dist: ${clusters[clusterId].dis.toFixed(3)}.`
+        }))
+      ];
+      this.renderOverviewPanel(items, whiteColor);
+    }
+    updateSearchViewFinePolarOverviewInfo(federView) {
+      const { k, nprobe, searchRes, targetMediaUrl, mediaCallback } = federView;
+      const fineAllVectorsCount = searchRes.fine.length;
+      const showImages = searchRes.fsResIds.map((id2) => mediaCallback(id2)).filter((a2) => a2);
+      const items = [
+        {
+          title: "IVF_Flat - Search"
+        },
+        {
+          isImg: true,
+          imgUrl: targetMediaUrl
+        },
+        {
+          isOption: true,
+          isActive: false,
+          label: "Coarse Search",
+          callback: () => federView.switchSearchView("voronoi")
+        },
+        {
+          isOption: true,
+          isActive: true,
+          label: "Fine Search (Distance)",
+          callback: () => federView.switchSearchView("polar")
+        },
+        {
+          isOption: true,
+          isActive: false,
+          label: "Fine Search (Project)",
+          callback: () => federView.switchSearchView("project")
+        },
+        {
+          text: `Find the ${k} (k=${k}) vectors closest to the target from these ${nprobe} (nprobe=${nprobe}) clusters, ${fineAllVectorsCount} vectors in total.`
+        },
+        {
+          images: showImages
+        }
+      ];
+      this.renderOverviewPanel(items, whiteColor);
+    }
+    updateSearchViewFineProjectOverviewInfo(federView) {
+      const { k, nprobe, searchRes, targetMediaUrl, mediaCallback } = federView;
+      const fineAllVectorsCount = searchRes.fine.length;
+      const showImages = searchRes.fsResIds.map((id2) => mediaCallback(id2)).filter((a2) => a2);
+      const items = [
+        {
+          title: "IVF_Flat - Search"
+        },
+        {
+          isImg: true,
+          imgUrl: targetMediaUrl
+        },
+        {
+          isOption: true,
+          isActive: false,
+          label: "Coarse Search",
+          callback: () => federView.switchSearchView("voronoi")
+        },
+        {
+          isOption: true,
+          isActive: false,
+          label: "Fine Search (Distance)",
+          callback: () => federView.switchSearchView("polar")
+        },
+        {
+          isOption: true,
+          isActive: true,
+          label: "Fine Search (Project)",
+          callback: () => federView.switchSearchView("project")
+        },
+        {
+          text: `Projection of all ${fineAllVectorsCount} vectors in the ${nprobe} (nprobe=${nprobe}) clusters using UMAP.`
+        },
+        {
+          images: showImages
+        }
+      ];
+      this.renderOverviewPanel(items, whiteColor);
+    }
+    initHoveredPanel() {
+      const dom = document.querySelector(this.domSelector);
+      const hoveredPanel = document.createElement("div");
+      hoveredPanel.setAttribute("id", hoveredPanelId2);
+      hoveredPanel.className = hoveredPanel.className + "panel-border panel hide";
+      const hoveredPanelStyle = {
+        position: "absolute",
+        left: 0,
+        top: 0,
+        width: "200px",
+        pointerEvents: "none",
+        backgroundColor: panelBackgroundColor2
+      };
+      Object.assign(hoveredPanel.style, hoveredPanelStyle);
+      dom.appendChild(hoveredPanel);
+    }
+    updateOverviewHoveredInfo({
+      hoveredCluster = null,
+      listIds = [],
+      images = [],
+      x: x3 = 0,
+      y: y4 = 0
+    } = {}) {
+      const showImages = randomSelect(images, 9).filter((a2) => a2);
+      const items = hoveredCluster ? [
+        {
+          title: `cluster-${hoveredCluster.clusterId}`
+        },
+        {
+          text: `including ${listIds.length} vectors`
+        },
+        {
+          images: showImages
+        }
+      ] : [];
+      this.renderHoveredPanel(items, ZYellow, x3, y4);
+    }
+    updateSearchViewHoveredInfo({
+      hoveredCluster = null,
+      listIds = [],
+      images = [],
+      x: x3 = 0,
+      y: y4 = 0
+    } = {}) {
+      if (!hoveredCluster) {
+        this.renderHoveredPanel();
+      } else {
+        const showImages = randomSelect(images.filter((a2) => a2), 9);
+        const items = hoveredCluster ? [
+          {
+            title: `cluster-${hoveredCluster.clusterId}`
+          },
+          {
+            text: `including ${listIds.length} vectors`
+          },
+          {
+            text: `distance from center: ${hoveredCluster.dis.toFixed(3)}`
+          },
+          {
+            images: showImages
+          }
+        ] : [];
+        this.renderHoveredPanel(items, ZYellow, x3, y4);
+      }
+    }
+    updateSearchViewHoveredNodeInfo({
+      hoveredNode = null,
+      img = "",
+      x: x3 = 0,
+      y: y4 = 0
+    } = {}) {
+      if (!hoveredNode) {
+        this.renderHoveredPanel();
+      } else {
+        const items = hoveredNode ? [
+          {
+            title: `Row No. ${hoveredNode.id}`
+          },
+          {
+            text: `belong to cluster-${hoveredNode.listId}`
+          },
+          {
+            text: `distance the target: ${hoveredNode.dis.toFixed(3)}`
+          },
+          {
+            isImg: true,
+            imgUrl: img
+          }
+        ] : [];
+        this.renderHoveredPanel(items, ZYellow, x3, y4);
+      }
+    }
+    initStyle() {
+      const style = document.createElement("style");
+      style.type = "text/css";
+      style.innerHTML = `
+    .panel-border {
+      border-style: dashed;
+      border-width: 1px;
+    }
+    .panel {
+      padding: 6px 8px;
+      font-size: 12px;
+    }
+    .hide {
+      opacity: 0;
+    }
+    .panel-item {
+      margin-bottom: 6px;
+    }
+    .panel-img {
+      width: 150px;
+      height: 100px;
+      background-size: cover;
+      margin-bottom: 12px;
+      border-radius: 4px;
+      border: 1px solid ${ZYellow};
+    }
+    .panel-item-display-flex {
+      display: flex;
+    }
+    .panel-item-title {
+      font-weight: 600;
+      margin-bottom: 3px;
+    }
+    .panel-item-text {
+      font-weight: 400;
+      font-size: 10px;
+      word-break: break-all;
+    }
+    .panel-item-text-flex {
+      margin-left: 8px;
+    }
+    .panel-item-text-margin {
+      margin: 0 6px;
+    }
+    .text-no-wrap {
+      white-space: nowrap;
+    }
+    .panel-img-gallery {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      grid-row-gap: 8px;
+      grid-column-gap: 8px;
+      // flex-wrap: wrap;
+    }
+    .panel-img-gallery-item {
+      width: 100%;
+      height: 44px;
+      background-size: cover;
+      border-radius: 2px;
+      // border: 1px solid ${ZYellow};
+    }
+    .panel-item-option {
+      display: flex;
+      align-items: center;
+      cursor: pointer;
+    }
+    .panel-item-option-icon {
+      width: 6px;
+      height: 6px;
+      border-radius: 7px;
+      border: 2px solid ${ZYellow};
+      margin-left: 2px;
+    }
+    .panel-item-option-icon-active {
+      background-color: ${ZYellow};
+    }
+    .panel-item-option-label {
+      margin-left: 6px;
+    }
+  `;
+      document.getElementsByTagName("head").item(0).appendChild(style);
+    }
+    renderHoveredPanel(itemList = [], color2 = "#000", x3 = 0, y4 = 0) {
+      const panel = select_default2(this.domSelector).select(`#${hoveredPanelId2}`);
+      if (itemList.length === 0)
+        panel.classed("hide", true);
+      else {
+        panel.style("color", color2);
+        const isLeft = x3 > this.width * 0.7;
+        if (isLeft) {
+          panel.style("left", null);
+          panel.style("right", this.width - x3 - 10 + "px");
+        } else {
+          panel.style("left", x3 + 10 + "px");
+          panel.style("right", null);
+        }
+        const isTop = y4 > this.height * 0.7;
+        if (isTop) {
+          panel.style("top", null);
+          panel.style("bottom", this.height - y4 - 6 + "px");
+        } else {
+          panel.style("top", y4 + 6 + "px");
+          panel.style("bottom", null);
+        }
+        this.renderPanel(panel, itemList);
+      }
+    }
+    renderOverviewPanel(itemList = [], color2) {
+      const panel = select_default2(this.domSelector).select(`#${overviewPanelId2}`);
+      panel.style("color", color2);
+      if (itemList.length === 0)
+        panel.classed("hide", true);
+      else {
+        this.renderPanel(panel, itemList);
+      }
+    }
+    renderPanel(panel, itemList) {
+      panel.classed("hide", false);
+      panel.selectAll("*").remove();
+      itemList.forEach((item) => {
+        const div = panel.append("div");
+        div.classed("panel-item", true);
+        item.isFlex && div.classed("panel-item-display-flex", true);
+        if (item.isImg && item.imgUrl) {
+          div.classed("panel-img", true);
+          div.style("background-image", `url(${item.imgUrl})`);
+        }
+        if (item.title) {
+          const title = div.append("div");
+          title.classed("panel-item-title", true);
+          title.text(item.title);
+        }
+        if (item.text) {
+          const title = div.append("div");
+          title.classed("panel-item-text", true);
+          item.isFlex && title.classed("panel-item-text-flex", true);
+          item.textWithMargin && title.classed("panel-item-text-margin", true);
+          item.noWrap && title.classed("text-no-wrap", true);
+          title.text(item.text);
+        }
+        if (item.images) {
+          const imagesDiv = div.append("div");
+          imagesDiv.classed("panel-img-gallery", true);
+          item.images.forEach((url) => {
+            const imgItem = imagesDiv.append("div");
+            imgItem.classed("panel-img-gallery-item", true);
+            imgItem.style("background-image", `url(${url})`);
           });
         }
-      }
-    }
-    renderSelectedNode({ ctx, pos, r }) {
-      drawEllipse({
-        ctx,
-        circles: [[...pos, r * ellipseRation, r]],
-        hasStroke: true,
-        strokeStyle: hexWithOpacity(ZYellow, 0.8),
-        lineWidth: 4
-      });
-    }
-    renderSearchViewNodes({ ctx, nodes, level, shadowBlur = 4 }) {
-      let _nodes = [];
-      _nodes = nodes.filter((node) => node.type === HNSW_NODE_TYPE.Coarse);
-      drawEllipse({
-        ctx,
-        circles: _nodes.map((node) => [
-          ...node.searchViewPosLevels[level],
-          node.r * ellipseRation,
-          node.r
-        ]),
-        hasFill: true,
-        fillStyle: hexWithOpacity(ZBlue, 0.7),
-        shadowColor: ZBlue,
-        shadowBlur
-      });
-      _nodes = nodes.filter((node) => node.type === HNSW_NODE_TYPE.Candidate);
-      drawEllipse({
-        ctx,
-        circles: _nodes.map((node) => [
-          ...node.searchViewPosLevels[level],
-          node.r * ellipseRation,
-          node.r
-        ]),
-        hasFill: true,
-        fillStyle: hexWithOpacity(ZYellow, 0.8),
-        shadowColor: ZYellow,
-        shadowBlur
-      });
-      _nodes = nodes.filter((node) => node.type === HNSW_NODE_TYPE.Fine);
-      drawEllipse({
-        ctx,
-        circles: _nodes.map((node) => [
-          ...node.searchViewPosLevels[level],
-          node.r * ellipseRation,
-          node.r
-        ]),
-        hasFill: true,
-        fillStyle: hexWithOpacity(colorScheme[2], 1),
-        hasStroke: true,
-        lineWidth: 1,
-        strokeStyle: hexWithOpacity(ZOrange, 0.8),
-        shadowColor: ZOrange,
-        shadowBlur
-      });
-    }
-    renderSearchViewInterLevelLinks({
-      ctx,
-      entryNodes,
-      inprocessEntryNodes,
-      searchTarget,
-      level
-    }) {
-      const pointsList = entryNodes.map((node) => shortenLine(node.searchViewPosLevels[level + 1], node.searchViewPosLevels[level], shortenLineD));
-      drawLinesWithLinearGradient({
-        ctx,
-        pointsList,
-        hasStroke: true,
-        isStrokeLinearGradient: true,
-        gradientStopColors: highLightGradientStopColors,
-        lineWidth: 6,
-        lineCap: "round"
-      });
-      const targetPointsList = pointsList.length === 0 ? [] : [
-        shortenLine(searchTarget.searchViewPosLevels[level + 1], searchTarget.searchViewPosLevels[level], shortenLineD)
-      ];
-      drawLinesWithLinearGradient({
-        ctx,
-        pointsList: targetPointsList,
-        hasStroke: true,
-        isStrokeLinearGradient: true,
-        gradientStopColors: targetLevelGradientStopColors,
-        lineWidth: 6,
-        lineCap: "round"
-      });
-      const inprocessPointsList = inprocessEntryNodes.map(({ node, t }) => shortenLine(node.searchViewPosLevels[level + 1], getInprocessPos(node.searchViewPosLevels[level + 1], node.searchViewPosLevels[level], t), shortenLineD));
-      drawLinesWithLinearGradient({
-        ctx,
-        pointsList: inprocessPointsList,
-        hasStroke: true,
-        isStrokeLinearGradient: true,
-        gradientStopColors: highLightGradientStopColors,
-        lineWidth: 6,
-        lineCap: "round"
-      });
-      const inprocessTargetPointsList = inprocessPointsList.length === 0 ? [] : [
-        shortenLine(searchTarget.searchViewPosLevels[level + 1], getInprocessPos(searchTarget.searchViewPosLevels[level + 1], searchTarget.searchViewPosLevels[level], inprocessEntryNodes[0].t), shortenLineD)
-      ];
-      drawLinesWithLinearGradient({
-        ctx,
-        pointsList: inprocessTargetPointsList,
-        hasStroke: true,
-        isStrokeLinearGradient: true,
-        gradientStopColors: targetLevelGradientStopColors,
-        lineWidth: 6,
-        lineCap: "round"
-      });
-    }
-    renderSearchViewLinks({ ctx, links, inProcessLinks, level }) {
-      let pointsList = [];
-      let inprocessPointsList = [];
-      pointsList = links.filter((link) => link.type === HNSW_LINK_TYPE.Visited).map((link) => shortenLine(link.source.searchViewPosLevels[level], link.target.searchViewPosLevels[level], shortenLineD));
-      drawLinesWithLinearGradient({
-        ctx,
-        pointsList,
-        hasStroke: true,
-        isStrokeLinearGradient: true,
-        gradientStopColors: normalGradientStopColors,
-        lineWidth: 4,
-        lineCap: "round"
-      });
-      inprocessPointsList = inProcessLinks.filter(({ link }) => link.type === HNSW_LINK_TYPE.Visited).map(({ t, link }) => shortenLine(link.source.searchViewPosLevels[level], getInprocessPos(link.source.searchViewPosLevels[level], link.target.searchViewPosLevels[level], t), shortenLineD));
-      drawLinesWithLinearGradient({
-        ctx,
-        pointsList: inprocessPointsList,
-        hasStroke: true,
-        isStrokeLinearGradient: true,
-        gradientStopColors: normalGradientStopColors,
-        lineWidth: 4,
-        lineCap: "round"
-      });
-      pointsList = links.filter((link) => link.type === HNSW_LINK_TYPE.Extended).map((link) => shortenLine(link.source.searchViewPosLevels[level], link.target.searchViewPosLevels[level], shortenLineD));
-      drawLinesWithLinearGradient({
-        ctx,
-        pointsList,
-        hasStroke: true,
-        isStrokeLinearGradient: true,
-        gradientStopColors: normalGradientStopColors,
-        lineWidth: 4,
-        lineCap: "round"
-      });
-      inprocessPointsList = inProcessLinks.filter(({ link }) => link.type === HNSW_LINK_TYPE.Extended).map(({ t, link }) => shortenLine(link.source.searchViewPosLevels[level], getInprocessPos(link.source.searchViewPosLevels[level], link.target.searchViewPosLevels[level], t), shortenLineD));
-      drawLinesWithLinearGradient({
-        ctx,
-        pointsList: inprocessPointsList,
-        hasStroke: true,
-        isStrokeLinearGradient: true,
-        gradientStopColors: normalGradientStopColors,
-        lineWidth: 4,
-        lineCap: "round"
-      });
-      pointsList = links.filter((link) => link.type === HNSW_LINK_TYPE.Searched).map((link) => shortenLine(link.source.searchViewPosLevels[level], link.target.searchViewPosLevels[level], shortenLineD));
-      drawLinesWithLinearGradient({
-        ctx,
-        pointsList,
-        hasStroke: true,
-        isStrokeLinearGradient: true,
-        gradientStopColors: highLightGradientStopColors,
-        lineWidth: 6,
-        lineCap: "round"
-      });
-      inprocessPointsList = inProcessLinks.filter(({ link }) => link.type === HNSW_LINK_TYPE.Searched).map(({ t, link }) => shortenLine(link.source.searchViewPosLevels[level], getInprocessPos(link.source.searchViewPosLevels[level], link.target.searchViewPosLevels[level], t), shortenLineD));
-      drawLinesWithLinearGradient({
-        ctx,
-        pointsList: inprocessPointsList,
-        hasStroke: true,
-        isStrokeLinearGradient: true,
-        gradientStopColors: highLightGradientStopColors,
-        lineWidth: 6,
-        lineCap: "round"
-      });
-      pointsList = links.filter((link) => link.type === HNSW_LINK_TYPE.Fine).map((link) => shortenLine(link.source.searchViewPosLevels[level], link.target.searchViewPosLevels[level], shortenLineD));
-      drawLinesWithLinearGradient({
-        ctx,
-        pointsList,
-        hasStroke: true,
-        isStrokeLinearGradient: true,
-        gradientStopColors: highLightGradientStopColors,
-        lineWidth: 6,
-        lineCap: "round"
-      });
-      inprocessPointsList = inProcessLinks.filter(({ link }) => link.type === HNSW_LINK_TYPE.Fine).map(({ t, link }) => shortenLine(link.source.searchViewPosLevels[level], getInprocessPos(link.source.searchViewPosLevels[level], link.target.searchViewPosLevels[level], t), shortenLineD));
-      drawLinesWithLinearGradient({
-        ctx,
-        pointsList: inprocessPointsList,
-        hasStroke: true,
-        isStrokeLinearGradient: true,
-        gradientStopColors: highLightGradientStopColors,
-        lineWidth: 6,
-        lineCap: "round"
-      });
-    }
-    _renderSearchViewTarget({ ctx, node, level }) {
-      drawEllipse({
-        ctx,
-        circles: [
-          [...node.searchViewPosLevels[level], node.r * ellipseRation, node.r]
-        ],
-        hasFill: true,
-        fillStyle: hexWithOpacity(whiteColor, 1),
-        shadowColor: whiteColor,
-        shadowBlur: 6
+        if (item.isOption) {
+          const optionDiv = div.append("div");
+          optionDiv.classed("panel-item-option", true);
+          const optionIcon = optionDiv.append("div");
+          optionIcon.classed("panel-item-option-icon", true);
+          if (item.isActive)
+            optionIcon.classed("panel-item-option-icon-active", true);
+          else
+            optionIcon.classed("panel-item-option-icon-active", false);
+          const optionLabel = optionDiv.append("div");
+          optionLabel.classed("panel-item-option-label", true);
+          optionLabel.text(item.label);
+          item.callback && optionDiv.on("click", item.callback);
+        }
       });
     }
   };
 
-  // esm/FederView/index.js
-  var viewMap = {
-    [INDEX_TYPE.IVFFlat]: IVFFlatView,
-    [INDEX_TYPE.HNSW]: HnswView
+  // federjs/FederView/IvfflatView/index.js
+  var defaultIvfflatViewParams = {
+    minVoronoiRadius: 4,
+    voronoiForceTime: 3e3,
+    nodeCollisionForceTime: 1e3,
+    backgroundColor: "red",
+    voronoiStrokeWidth: 2,
+    targetNodeStrokeWidth: 5,
+    targetNodeR: 7,
+    topKNodeR: 5,
+    hoveredNodeR: 6,
+    hoveredNodeStrokeWidth: 1,
+    hoveredNodeOpacity: 1,
+    topKNodeOpacity: 0.7,
+    topKNodeStrokeWidth: 1,
+    nonTopKNodeR: 3,
+    nonTopKNodeOpacity: 0.4,
+    projectPadding: [20, 20, 20, 260],
+    axisTickCount: 5,
+    polarAxisStrokeWidth: 1,
+    polarOriginBias: 0.15,
+    ease: cubicInOut,
+    animateExitTime: 1500,
+    animateEnterTime: 1e3,
+    fineSearchNodeTransTime: 1200
+  };
+  var IvfflatView = class extends BaseView {
+    constructor({ indexMeta, domSelector: domSelector2, viewParams }) {
+      super({
+        indexMeta,
+        domSelector: domSelector2,
+        viewParams
+      });
+      for (let key in defaultIvfflatViewParams) {
+        this[key] = key in viewParams ? viewParams[key] : defaultIvfflatViewParams[key];
+      }
+      this.projectPadding = this.projectPadding.map((num) => num * this.canvasScale);
+      this.overviewHandler({ indexMeta });
+      this.infoPanel = new InfoPanel2({
+        domSelector: domSelector2,
+        width: viewParams.width,
+        height: viewParams.height
+      });
+    }
+    overviewHandler({ indexMeta }) {
+      Object.assign(this, indexMeta);
+      this.overviewInitPromise = overviewLayoutHandler2.call(this, { indexMeta }).then(({ clusters, voronoi }) => {
+        this.clusters = clusters;
+        this.OVVoronoi = voronoi;
+      });
+    }
+    renderOverview() {
+      return __async(this, null, function* () {
+        this.viewType === VIEW_TYPE.overview && this.overviewInitPromise && (yield this.overviewInitPromise);
+        this.viewType === VIEW_TYPE.search && this.searchViewInitPromise && (yield this.searchViewInitPromise);
+        this.viewType === VIEW_TYPE.overview && this.infoPanel.updateOverviewOverviewInfo(this);
+        this.viewType === VIEW_TYPE.search && this.infoPanel.updateSearchViewCoarseOverviewInfo(this);
+        renderVoronoiView.call(this);
+      });
+    }
+    searchViewHandler(_0) {
+      return __async(this, arguments, function* ({ searchRes }) {
+        this.nprobe = searchRes.csResIds.length;
+        this.k = searchRes.fsResIds.length;
+        this.colorScheme = range(this.nprobe).map((i) => hsl(360 * i / this.nprobe, 1, 0.5).hex());
+        this.searchViewInitPromise = searchViewLayoutHandler2.call(this, {
+          searchRes
+        }).then(() => {
+        });
+        yield this.searchViewInitPromise;
+        console.log("searchViewHandler finished");
+      });
+    }
+    renderSearchView() {
+      this.renderCoarseSearch();
+    }
+    renderCoarseSearch() {
+      this.infoPanel.setOverviewPanelPos(!this.targetNode.isLeft_coarseLevel);
+      this.infoPanel.updateSearchViewCoarseOverviewInfo(this);
+      this.searchViewType = SEARCH_VIEW_TYPE.voronoi;
+      renderVoronoiView.call(this);
+    }
+    renderFineSearch() {
+      return __async(this, arguments, function* (searchViewType = SEARCH_VIEW_TYPE.polar) {
+        this.SVFinePromise && (yield this.SVFinePromise);
+        this.searchViewType = searchViewType;
+        searchViewType === SEARCH_VIEW_TYPE.polar && this.infoPanel.updateSearchViewFinePolarOverviewInfo(this);
+        searchViewType === SEARCH_VIEW_TYPE.project && this.infoPanel.updateSearchViewFineProjectOverviewInfo(this);
+        renderNodeView.call(this);
+      });
+    }
+    switchSearchView(searchViewType) {
+      return __async(this, null, function* () {
+        if (this.viewType !== VIEW_TYPE.search) {
+          console.error("Only when searching can switch steps.");
+          return;
+        }
+        if (searchViewType == this.searchViewType)
+          return;
+        this.SVFinePromise && (yield this.SVFinePromise);
+        const oldSearchViewType = this.searchViewType;
+        const newSearchViewType = searchViewType;
+        if (oldSearchViewType === SEARCH_VIEW_TYPE.voronoi) {
+          console.log("coarse => fine [start]");
+          animateCoarse2Fine.call(this, { oldSearchViewType, newSearchViewType });
+        }
+        if (newSearchViewType === SEARCH_VIEW_TYPE.voronoi) {
+          console.log("fine => coarse [start]");
+          animateFine2Coarse.call(this, { oldSearchViewType, newSearchViewType });
+        }
+        if (newSearchViewType !== SEARCH_VIEW_TYPE.voronoi && oldSearchViewType !== SEARCH_VIEW_TYPE.voronoi) {
+          console.log("fine - intra [start]");
+          animateFine2Fine.call(this, { oldSearchViewType, newSearchViewType });
+        }
+      });
+    }
+    setOverviewListenerHandlers() {
+      this.mouseLeaveHandler = () => {
+        this.hoveredCluster = null;
+        renderVoronoiView.call(this);
+        this.infoPanel.updateOverviewHoveredInfo();
+      };
+      this.mouseMoveHandler = ({ x: x3, y: y4 }) => {
+        const hoveredClusterId = mouse2node2({
+          voronoi: this.OVVoronoi,
+          x: x3,
+          y: y4
+        });
+        if (hoveredClusterId !== this.hoveredClusterId) {
+          this.hoveredClusterId = hoveredClusterId;
+          this.hoveredCluster = this.clusters.find((cluster) => cluster.clusterId == hoveredClusterId);
+          renderVoronoiView.call(this);
+          if (!!this.hoveredCluster) {
+            this.infoPanel.updateOverviewHoveredInfo({
+              hoveredCluster: this.hoveredCluster,
+              listIds: this.listIds[hoveredClusterId],
+              images: this.listIds[hoveredClusterId].map((listId) => this.mediaCallback(listId)),
+              x: x3 / this.canvasScale,
+              y: y4 / this.canvasScale
+            });
+          }
+        }
+      };
+    }
+    setSearchViewListenerHandlers() {
+      this.mouseLeaveHandler = () => {
+        this.hoveredCluster = null;
+        this.searchViewType === SEARCH_VIEW_TYPE.voronoi && renderVoronoiView.call(this);
+        this.hoveredNode = null;
+        this.searchViewType === SEARCH_VIEW_TYPE.voronoi && this.infoPanel.updateSearchViewHoveredInfo();
+        this.searchViewType !== SEARCH_VIEW_TYPE.voronoi && this.infoPanel.updateSearchViewHoveredNodeInfo();
+      };
+      this.mouseMoveHandler = ({ x: x3, y: y4 }) => {
+        if (this.searchViewType === SEARCH_VIEW_TYPE.voronoi) {
+          const hoveredClusterId = mouse2node2({
+            voronoi: this.SVVoronoi,
+            x: x3,
+            y: y4
+          });
+          if (hoveredClusterId !== this.hoveredClusterId) {
+            this.hoveredClusterId = hoveredClusterId;
+            this.hoveredCluster = this.clusters.find((cluster) => cluster.clusterId == hoveredClusterId);
+            renderVoronoiView.call(this);
+            if (!!this.hoveredCluster) {
+              this.infoPanel.updateSearchViewHoveredInfo({
+                hoveredCluster: this.hoveredCluster,
+                listIds: this.listIds[hoveredClusterId],
+                images: this.listIds[hoveredClusterId].map((listId) => this.mediaCallback(listId)),
+                x: x3 / this.canvasScale,
+                y: y4 / this.canvasScale
+              });
+            }
+          }
+        } else {
+          if (!this.nodes)
+            return;
+          const nodesPos = this.searchViewType === SEARCH_VIEW_TYPE.polar ? this.nodes.map((node) => node.polarPos) : this.nodes.map((node) => node.projectPos);
+          const hoveredNodeIndex = mouse2node3({
+            nodesPos,
+            x: x3,
+            y: y4,
+            bias: (this.hoveredNodeR + 2) * this.canvasScale
+          });
+          const hoveredNode = hoveredNodeIndex >= 0 ? this.nodes[hoveredNodeIndex] : null;
+          if (hoveredNode !== this.hoveredNode) {
+            this.hoveredNode = hoveredNode;
+            this.renderFineSearch(this.searchViewType);
+          }
+          const img = hoveredNode ? this.mediaCallback(hoveredNode.id) : "";
+          this.infoPanel.updateSearchViewHoveredNodeInfo({
+            hoveredNode,
+            img,
+            x: x3 / this.canvasScale,
+            y: y4 / this.canvasScale
+          });
+        }
+      };
+    }
+  };
+
+  // federjs/FederView/index.js
+  var viewHandlerMap = {
+    [INDEX_TYPE.hnsw]: HnswView,
+    [INDEX_TYPE.ivf_flat]: IvfflatView
+  };
+  var defaultViewParams = {
+    width: 1e3,
+    height: 600,
+    canvasScale: 3
   };
   var FederView = class {
-    constructor({ indexType, indexMeta, dom, ...viewParams }) {
-      this.indexType = null;
-      this.view = null;
-      this.dom = dom;
-      this.indexMeta = indexMeta;
-      this.initView(indexType, viewParams);
-      this.computeIndexOverview({ indexMeta });
+    constructor({ domSelector: domSelector2, viewParams }) {
+      this.domSelector = domSelector2;
+      this.viewParams = Object.assign({}, defaultViewParams, viewParams);
+      this.viewHandler = null;
+      this.initDom();
     }
-    initView(indexType, viewParams) {
-      if (!viewMap[indexType]) {
-        console.error("Illegal INDEX_TYPE -", indexType);
-        return;
-      }
-      if (indexType !== this.indexType) {
-        this.view = new viewMap[indexType](viewParams);
-        this.setViewType(VIEW_TYPE.Overview);
-      }
+    initDom() {
+      const dom = document.querySelector(this.domSelector);
+      dom.innerHTML = "";
+      const { width, height } = this.viewParams;
+      const domStyle = {
+        position: "relative",
+        width: `${width}px`,
+        height: `${height}px`
+      };
+      Object.assign(dom.style, domStyle);
+      initLoadingStyle();
+      renderLoading(this.domSelector);
     }
-    setViewType(viewType) {
-      if (!this.view) {
-        console.error("View Not Found.");
-        return;
-      }
-      if (viewType !== this.viewType) {
-        this.viewType = viewType;
-      }
-    }
-    computeIndexOverview({ indexMeta }) {
-      this.view.computeIndexOverview({ indexMeta });
-    }
-    search({ searchRes, targetMediaUrl }) {
-      this.view.search({ searchRes, targetMediaUrl, dom: this.dom });
+    initView({ indexType, indexMeta, getVectorById }) {
+      if (indexType in viewHandlerMap) {
+        this.view = new viewHandlerMap[indexType]({
+          indexMeta,
+          domSelector: this.domSelector,
+          viewParams: this.viewParams,
+          getVectorById
+        });
+      } else
+        throw `No view handler for ${indexType}`;
     }
     overview() {
-      this.view.overview({ dom: this.dom });
+      this.view.overview();
     }
-    resetOverview() {
-      this.computeIndexOverview({ indexMeta: this.indexMeta });
-      this.overview();
+    search({ searchRes, targetMediaUrl }) {
+      this.view.search({ searchRes, targetMediaUrl });
     }
-    switchStep(...params) {
-      if (this.view.supportSwitchStep) {
-        this.view.switchStep(...params);
-      } else {
-        console.error(`No Steps - ${this.indexType}`);
+    switchSearchView(searchViewType) {
+      try {
+        this.view.switchSearchView(searchViewType);
+      } catch (e) {
+        console.log("Not Support", e);
       }
     }
   };
 
-  // esm/Feder.js
+  // federjs/Feder.js
   var Feder = class {
     constructor({
       core = null,
@@ -16040,107 +17154,103 @@ ${indentData}`);
       projectParams = {},
       domSelector: domSelector2,
       viewParams = {}
-    } = {}) {
+    }) {
+      this.federView = new FederView({ domSelector: domSelector2, viewParams });
+      this.viewParams = viewParams;
       if (!core) {
-        console.log("no core found, create a new one");
         this.initCorePromise = fetch(filePath).then((res) => res.arrayBuffer()).then((data) => {
           core = new FederCore({ data, source, projectParams });
           this.core = core;
-          this.dom = document.querySelector(domSelector2);
-          this.viewParams = viewParams;
-          this.initFederView();
+          const indexType = core.indexType;
+          const indexMeta = core.indexMeta;
+          const getVectorById = (id2) => id2 in core.id2vector ? core.id2vector[id2] : null;
+          this.federView.initView({
+            indexType,
+            indexMeta,
+            getVectorById
+          });
         });
       } else {
-        this.dom = document.querySelector(domSelector2);
-        this.viewParams = viewParams;
-        this.initFederView();
       }
     }
-    async getTestIdAndVec() {
-      this.initCorePromise && await this.initCorePromise;
-      return this.core.getTestIdAndVec();
-    }
-    async setSearchParams(params) {
-      this.initCorePromise && await this.initCorePromise;
-      this.core.setSearchParams(params);
-    }
-    async setProjectParams(params) {
-      this.initCorePromise && await this.initCorePromise;
-      this.core.setProjectParams(params);
-    }
-    initFederView() {
-      const getVectorById = (id2) => {
-        if (id2 in this.core.id2vector) {
-          return [...this.core.id2vector[id2]];
-        } else
-          return null;
-      };
-      this.federView = new FederView({
-        indexType: this.core.indexType,
-        indexMeta: this.core.indexMeta,
-        dom: this.dom,
-        getVectorById,
-        ...this.viewParams
+    overview() {
+      return __async(this, null, function* () {
+        this.initCorePromise && (yield this.initCorePromise);
+        this.federView.overview();
       });
     }
-    async overview() {
-      this.initCorePromise && await this.initCorePromise;
-      this.federView.overview();
-    }
-    resetOverview() {
-      this.federView.resetOverview();
-    }
-    async search(target = null, targetMediaUrl = null) {
-      this.initCorePromise && await this.initCorePromise;
-      if (target) {
-        const searchRes = this.core.search(target);
-        this.searchRes = searchRes;
-        this.federView.search({ searchRes, targetMediaUrl });
-      } else {
-        if (!this.searchRes) {
-          console.error("No target");
-          return;
+    search(target = null, targetMediaUrl = null) {
+      return __async(this, null, function* () {
+        this.initCorePromise && (yield this.initCorePromise);
+        if (target) {
+          const searchRes = this.core.search(target);
+          console.log(searchRes);
+          this.searchRes = searchRes;
+          this.federView.search({ searchRes, targetMediaUrl });
+        } else {
+          if (!this.searchRes) {
+            console.error("No target");
+            return;
+          }
+          const searchRes = this.searchRes;
+          const targetMediaUrl2 = this.targetMediaUrl;
+          this.federView.search({ searchRes, targetMediaUrl: targetMediaUrl2 });
         }
-        const searchRes = this.searchRes;
-        const targetMediaUrl2 = this.targetMediaUrl;
-        this.federView.search({ searchRes, targetMediaUrl: targetMediaUrl2 });
-      }
+      });
     }
-    async searchRandTestVec() {
-      this.initCorePromise && await this.initCorePromise;
-      const [testId, testVec] = await this.core.getTestIdAndVec();
-      console.log("random test vector:", testId, testVec);
-      const targetMediaUrl = this.viewParams && this.viewParams.mediaCallback ? this.viewParams.mediaCallback(testId) : null;
-      this.search(testVec, targetMediaUrl);
+    searchRandTestVec() {
+      return __async(this, null, function* () {
+        this.initCorePromise && (yield this.initCorePromise);
+        const [testId, testVec] = yield this.core.getTestIdAndVec();
+        console.log("random test vector:", testId, testVec);
+        const targetMediaUrl = this.viewParams && this.viewParams.mediaCallback ? this.viewParams.mediaCallback(testId) : null;
+        this.search(testVec, targetMediaUrl);
+      });
     }
-    switchStep(step, stepType = null) {
-      this.federView.switchStep(step, stepType);
-    }
-    coarseSearch() {
-      this.federView.switchStep(STEP.CoarseSearch);
-    }
-    fineSearch(stepType) {
-      if (!STEP_TYPE[stepType] || STEP_TYPE[stepType] === STEP_TYPE.Init) {
-        stepType = STEP_TYPE.Polar;
-        console.log("Illegal Step_Type, default Polar");
-      }
-      this.federView.switchStep(STEP.FineSearch, stepType);
+    setSearchParams(params) {
+      return __async(this, null, function* () {
+        this.initCorePromise && (yield this.initCorePromise);
+        if (!this.core) {
+          console.error("No feder-core");
+        } else {
+          this.core.setSearchParams(params);
+        }
+      });
     }
   };
 
   // test/test.js
   var domSelector = "#container";
-  var testHNSW = async (filePath) => {
+  var getId2name = () => __async(void 0, null, function* () {
+    const data = yield csv2("https://assets.zilliz.com/voc_names_4cee9440b1.csv");
+    const rowId2name = {};
+    data.forEach((d, i) => rowId2name[i] = d.name);
+    return rowId2name;
+  });
+  var testIVFFlatWithImages = (filePath) => __async(void 0, null, function* () {
+    const rowId2name = yield getId2name();
+    const mediaCallback = (rowId) => rowId in rowId2name ? `https://assets.zilliz.com/voc2012/JPEGImages/${rowId2name[rowId]}` : null;
     const feder = new Feder({
       filePath,
-      source: "hnswlib",
-      domSelector
+      source: "faiss",
+      domSelector,
+      projectParams: {},
+      viewParams: {
+        mediaType: "img",
+        mediaCallback
+      }
     });
     return feder;
-  };
-  window.addEventListener("DOMContentLoaded", async () => {
-    const feder = await testHNSW("https://assets.zilliz.com/hnswlib_hnsw_voc_17k_1f1dfd63a9.index");
-    console.log(feder);
-    feder.overview();
   });
+  window.addEventListener("DOMContentLoaded", () => __async(void 0, null, function* () {
+    const feder = yield testIVFFlatWithImages("https://assets.zilliz.com/faiss_ivf_flat_voc_17k_ab112eec72.index");
+    console.log(feder);
+    feder.setSearchParams({
+      k: 15,
+      nprobe: 12,
+      fineSearchWithProjection: true,
+      projectMethod: "umap"
+    });
+    feder.searchRandTestVec();
+  }));
 })();
