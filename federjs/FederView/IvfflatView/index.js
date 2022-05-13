@@ -10,8 +10,7 @@ import { SEARCH_VIEW_TYPE, VIEW_TYPE } from 'Types.js';
 import animateCoarse2Fine from './render/animateCoarse2Fine';
 import animateFine2Coarse from './render/animateFine2Coarse';
 import animateFine2Fine from './render/animateFine2Fine';
-
-import InfoPanel from './infoPanel';
+import InfoPanel from './InfoPanel';
 
 const defaultIvfflatViewParams = {
   minVoronoiRadius: 4,
