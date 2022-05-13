@@ -184,8 +184,8 @@ export default class IvfflatView extends BaseView {
             images: this.listIds[hoveredClusterId].map((listId) =>
               this.mediaCallback(listId)
             ),
-            x: x / this.canvasScale,
-            y: y / this.canvasScale,
+            x: this.hoveredCluster.OVPolyCentroid[0] / this.canvasScale,
+            y: this.hoveredCluster.OVPolyCentroid[1] / this.canvasScale,
           });
         }
       }
@@ -225,8 +225,8 @@ export default class IvfflatView extends BaseView {
               images: this.listIds[hoveredClusterId].map((listId) =>
                 this.mediaCallback(listId)
               ),
-              x: x / this.canvasScale,
-              y: y / this.canvasScale,
+              x: this.hoveredCluster.SVPolyCentroid[0] / this.canvasScale,
+              y: this.hoveredCluster.SVPolyCentroid[1] / this.canvasScale,
             });
           }
         }

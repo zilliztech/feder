@@ -87,17 +87,21 @@ const testIVFFlatWithImages = async (filePath) => {
 };
 
 window.addEventListener('DOMContentLoaded', async () => {
-  // const feder = await testIVFFlat('data/faiss_ivf_flat.index');
-  const feder = await testIVFFlatWithImages(
-    'https://assets.zilliz.com/faiss_ivf_flat_voc_17k_ab112eec72.index'
-  );
+  // random data without images
   // const feder = await testHNSW('data/hnswlib_hnsw_random_1M.index');
+
+  // voc data without images
   // const feder = await testHNSW(
   //   'https://assets.zilliz.com/hnswlib_hnsw_voc_17k_1f1dfd63a9.index'
   // );
+
+  // voc data with images
   // const feder = await testHNSWWithImages(
   //   'https://assets.zilliz.com/hnswlib_hnsw_voc_17k_1f1dfd63a9.index'
   // );
+  const feder = await testIVFFlatWithImages(
+    'https://assets.zilliz.com/faiss_ivf_flat_voc_17k_ab112eec72.index'
+  );
   console.log(feder);
   // feder.overview();
   feder.setSearchParams({

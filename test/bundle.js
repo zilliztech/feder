@@ -17026,8 +17026,8 @@ ${indentData}`);
               hoveredCluster: this.hoveredCluster,
               listIds: this.listIds[hoveredClusterId],
               images: this.listIds[hoveredClusterId].map((listId) => this.mediaCallback(listId)),
-              x: x3 / this.canvasScale,
-              y: y4 / this.canvasScale
+              x: this.hoveredCluster.OVPolyCentroid[0] / this.canvasScale,
+              y: this.hoveredCluster.OVPolyCentroid[1] / this.canvasScale
             });
           }
         }
@@ -17057,8 +17057,8 @@ ${indentData}`);
                 hoveredCluster: this.hoveredCluster,
                 listIds: this.listIds[hoveredClusterId],
                 images: this.listIds[hoveredClusterId].map((listId) => this.mediaCallback(listId)),
-                x: x3 / this.canvasScale,
-                y: y4 / this.canvasScale
+                x: this.hoveredCluster.SVPolyCentroid[0] / this.canvasScale,
+                y: this.hoveredCluster.SVPolyCentroid[1] / this.canvasScale
               });
             }
           }
