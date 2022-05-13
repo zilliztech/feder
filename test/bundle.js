@@ -16268,7 +16268,7 @@ ${indentData}`);
     });
   }
 
-  // federjs/FederView/IvfflatView/infoPanel/index.js
+  // federjs/FederView/IvfflatView/InfoPanel/index.js
   var overviewPanelId2 = "feder-info-overview-panel";
   var hoveredPanelId2 = "feder-info-hovered-panel";
   var panelBackgroundColor2 = hexWithOpacity(blackColor, 0.6);
