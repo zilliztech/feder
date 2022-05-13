@@ -4,11 +4,17 @@
 
 Feder is built for visualizing anns index files, so that we can have a better understanding of anns and high dimensional vectors. so far, we are focusing on the index from Faiss (only ivf_flat) and HNSWlib (hnsw), we will cover more index types later.
 
-- HNSW - Overview
-  ![image](./fig/hnsw_overview.png)
-
 - HNSW - Search View
   ![image](./fig/hnsw_search.png)
+
+- IVF_Flat
+  - Coarse Search
+    ![image](./fig/ivfflat_coarse.png)
+
+- IVF_Flat
+  - Fine Search
+    ![image](./fig/ivfflat_fine_polar.png)
+    ![image](./fig/ivfflat_fine_project.png)
 
 ## Quick start
 
@@ -222,19 +228,19 @@ Visualize the overview
 feder.overview();
 ```
 
-or
+or visualize the search process.
 
 ```js
-feder.search(target_vector);
+feder.search(target_vector[, targetMediaUrl]);
 ```
 
-or
+or randomly select an vector as the target to visualize the search process.
 
 ```js
 feder.searchRandTestVec();
 ```
 
-![image](./fig/hnsw_search.png)
+More cases refer to the **test/test.js** 
 
 ## Join us
 
