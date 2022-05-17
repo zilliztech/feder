@@ -5,7 +5,6 @@ export default class Feder {
     core = null,
     filePath = '',
     source = '',
-    projectParams = {},
     domSelector,
     viewParams = {},
   }) {
@@ -15,7 +14,7 @@ export default class Feder {
       this.initCorePromise = fetch(filePath)
         .then((res) => res.arrayBuffer())
         .then((data) => {
-          core = new FederCore({ data, source, projectParams });
+          core = new FederCore({ data, source, params: viewParams });
           this.core = core;
           const indexType = core.indexType;
           const indexMeta = core.indexMeta;
@@ -53,9 +52,25 @@ export default class Feder {
       this.federView.search({ searchRes, targetMediaUrl });
     }
   }
+  async searchById(testId = null) {
+    this.initCorePromise && (await this.initCorePromise);
+    if (!(testId in this.core.id2vector)) {
+      console.log('Invalid Id');
+    } else {
+      const testVec = this.core.id2vector[testId];
+      const targetMediaUrl =
+        this.viewParams && this.viewParams.mediaCallback
+          ? this.viewParams.mediaCallback(testId)
+          : null;
+      this.search(testVec, targetMediaUrl);
+    }
+  }
   async searchRandTestVec() {
     this.initCorePromise && (await this.initCorePromise);
-    const [testId, testVec] = await this.core.getTestIdAndVec();
+    let [testId, testVec] = await this.core.getTestIdAndVec();
+    while (isNaN(testId)) {
+      [testId, testVec] = await this.core.getTestIdAndVec();
+    }
     console.log('random test vector:', testId, testVec);
     const targetMediaUrl =
       this.viewParams && this.viewParams.mediaCallback

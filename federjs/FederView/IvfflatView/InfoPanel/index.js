@@ -90,7 +90,6 @@ export default class InfoPanel {
       targetMediaUrl,
       listSizes,
     } = federView;
-    console.log('!!!!');
     const items = [
       {
         title: 'IVF_Flat - Search',
@@ -177,7 +176,7 @@ export default class InfoPanel {
   }
 
   updateSearchViewFineProjectOverviewInfo(federView) {
-    const { k, nprobe, searchRes, targetMediaUrl, mediaCallback } = federView;
+    const { k, nprobe, searchRes, targetMediaUrl, mediaCallback, viewParams } = federView;
     const fineAllVectorsCount = searchRes.fine.length;
     const showImages = searchRes.fsResIds
       .map((id) => mediaCallback(id))
@@ -209,7 +208,7 @@ export default class InfoPanel {
         callback: () => federView.switchSearchView('project'),
       },
       {
-        text: `Projection of all ${fineAllVectorsCount} vectors in the ${nprobe} (nprobe=${nprobe}) clusters using UMAP.`,
+        text: `Projection of all ${fineAllVectorsCount} vectors in the ${nprobe} (nprobe=${nprobe}) clusters using ${viewParams.projectMethod || 'random'}.`,
       },
       {
         images: showImages,

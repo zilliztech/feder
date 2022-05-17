@@ -1,6 +1,7 @@
 from IPython.display import display, HTML
 import random
 
+
 class FederPy:
     def __init__(self, indexFile, indexSource, width=1000, height=620, mediaType="", mediaUrls=[]):
         self.indexFile = indexFile
@@ -44,6 +45,14 @@ const feder = new Feder({
 
     def overview(self, isDisplay=True):
         self.actionJs = "feder.overview()"
+        if isDisplay:
+            self.showHtml()
+        else:
+            return self.getHtml()
+
+    def searchById(self, targetId, isDisplay=True):
+        self.actionJs = "feder.setSearchParams(%s)\nfeder.searchById(%s)" % (
+            self.searchParams, targetId)
         if isDisplay:
             self.showHtml()
         else:
