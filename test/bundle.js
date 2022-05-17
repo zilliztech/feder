@@ -15683,6 +15683,11 @@ ${indentData}`);
         this.hoveredLevel = mouseLevel;
         if (this.hoveredNodeChanged) {
           this.updateSearchViewHoveredInfo({});
+          if (!this.searchTransitionTimer.isPlaying) {
+            renderSearchViewTransition.call(this, {
+              t: this.searchTransitionTimer.tAlready
+            });
+          }
         }
       };
       this.mouseClickHandler = ({ x: x3, y: y4 }) => {
@@ -17324,24 +17329,22 @@ ${indentData}`);
     data.forEach((d, i) => rowId2name[i] = d.name);
     return rowId2name;
   });
-  var testIVFFlatWithImages = (filePath) => __async(void 0, null, function* () {
+  var testHNSWWithImages = (filePath) => __async(void 0, null, function* () {
     const rowId2name = yield getId2name();
     const mediaCallback = (rowId) => rowId in rowId2name ? `https://assets.zilliz.com/voc2012/JPEGImages/${rowId2name[rowId]}` : null;
     const feder = new Feder({
       filePath,
-      source: "faiss",
+      source: "hnswlib",
       domSelector,
       viewParams: {
         mediaType: "img",
-        mediaCallback,
-        fineSearchWithProjection: true,
-        projectMethod: "umap"
+        mediaCallback
       }
     });
     return feder;
   });
   window.addEventListener("DOMContentLoaded", () => __async(void 0, null, function* () {
-    const feder = yield testIVFFlatWithImages("https://assets.zilliz.com/faiss_ivf_flat_voc_17k_ab112eec72.index");
+    const feder = yield testHNSWWithImages("https://assets.zilliz.com/hnswlib_hnsw_voc_17k_1f1dfd63a9.index");
     console.log(feder);
     feder.overview();
   }));
