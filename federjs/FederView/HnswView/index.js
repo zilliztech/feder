@@ -219,6 +219,11 @@ export default class HnswView extends BaseView {
 
       if (this.hoveredNodeChanged) {
         this.updateSearchViewHoveredInfo({});
+        if (!this.searchTransitionTimer.isPlaying) {
+          renderSearchViewTransition.call(this, {
+            t: this.searchTransitionTimer.tAlready,
+          });
+        }
       }
     };
     this.mouseClickHandler = ({ x, y }) => {
