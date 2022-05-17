@@ -58,12 +58,10 @@ const testIVFFlat = async (filePath) => {
 
 const testIVFFlatWithImages = async (filePath) => {
   const rowId2name = await getId2name();
-  // const mediaCallback = (rowId) =>
-  //   rowId in rowId2name
-  //     ? `https://assets.zilliz.com/voc2012/JPEGImages/${rowId2name[rowId]}`
-  //     : null;
   const mediaCallback = (rowId) =>
-    rowId in rowId2name ? `./data/images/${rowId2name[rowId]}` : null;
+    rowId in rowId2name
+      ? `https://assets.zilliz.com/voc2012/JPEGImages/${rowId2name[rowId]}`
+      : null;
   // const mediaCallback = (rowId) => {
   //   if (rowId in rowId2name)
   //     return `https://assets.zilliz.com/voc2012/JPEGImages/${rowId2name[rowId]}`;
@@ -102,9 +100,6 @@ window.addEventListener('DOMContentLoaded', async () => {
   const feder = await testIVFFlatWithImages(
     'https://assets.zilliz.com/faiss_ivf_flat_voc_17k_ab112eec72.index'
   );
-  // const feder = await testIVFFlatWithImages(
-  //   './data/faiss_ivf_flat_voc_17k.index'
-  // );
 
   console.log(feder);
   feder.overview();
