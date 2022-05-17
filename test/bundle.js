@@ -1406,6 +1406,7 @@
     "node_modules/ml-matrix/matrix.js"(exports) {
       "use strict";
       Object.defineProperty(exports, "__esModule", { value: true });
+      var isAnyArray = require_lib2();
       var rescale = require_lib5();
       function _interopDefaultLegacy(e) {
         return e && typeof e === "object" && "default" in e ? e : { "default": e };
@@ -2209,39 +2210,25 @@ ${indentData}`);
         }
         return vector;
       }
-      function checkIndices(matrix, rowIndices, columnIndices) {
-        return {
-          row: checkRowIndices(matrix, rowIndices),
-          column: checkColumnIndices(matrix, columnIndices)
-        };
-      }
       function checkRowIndices(matrix, rowIndices) {
-        if (typeof rowIndices !== "object") {
-          throw new TypeError("unexpected type for row indices");
+        if (!isAnyArray.isAnyArray(rowIndices)) {
+          throw new TypeError("row indices must be an array");
         }
-        let rowOut = rowIndices.some((r) => {
-          return r < 0 || r >= matrix.rows;
-        });
-        if (rowOut) {
-          throw new RangeError("row indices are out of range");
+        for (let i = 0; i < rowIndices.length; i++) {
+          if (rowIndices[i] < 0 || rowIndices[i] >= matrix.rows) {
+            throw new RangeError("row indices are out of range");
+          }
         }
-        if (!Array.isArray(rowIndices))
-          rowIndices = Array.from(rowIndices);
-        return rowIndices;
       }
       function checkColumnIndices(matrix, columnIndices) {
-        if (typeof columnIndices !== "object") {
-          throw new TypeError("unexpected type for column indices");
+        if (!isAnyArray.isAnyArray(columnIndices)) {
+          throw new TypeError("column indices must be an array");
         }
-        let columnOut = columnIndices.some((c2) => {
-          return c2 < 0 || c2 >= matrix.columns;
-        });
-        if (columnOut) {
-          throw new RangeError("column indices are out of range");
+        for (let i = 0; i < columnIndices.length; i++) {
+          if (columnIndices[i] < 0 || columnIndices[i] >= matrix.columns) {
+            throw new RangeError("column indices are out of range");
+          }
         }
-        if (!Array.isArray(columnIndices))
-          columnIndices = Array.from(columnIndices);
-        return columnIndices;
       }
       function checkRange(matrix, startRow, endRow, startColumn, endColumn) {
         if (arguments.length !== 5) {
@@ -2946,19 +2933,47 @@ ${indentData}`);
           }
           return this;
         }
-        max() {
+        max(by) {
           if (this.isEmpty()) {
             return NaN;
           }
-          let v2 = this.get(0, 0);
-          for (let i = 0; i < this.rows; i++) {
-            for (let j = 0; j < this.columns; j++) {
-              if (this.get(i, j) > v2) {
-                v2 = this.get(i, j);
+          switch (by) {
+            case "row": {
+              const max3 = new Array(this.rows).fill(Number.NEGATIVE_INFINITY);
+              for (let row = 0; row < this.rows; row++) {
+                for (let column = 0; column < this.columns; column++) {
+                  if (this.get(row, column) > max3[row]) {
+                    max3[row] = this.get(row, column);
+                  }
+                }
               }
+              return max3;
             }
+            case "column": {
+              const max3 = new Array(this.columns).fill(Number.NEGATIVE_INFINITY);
+              for (let row = 0; row < this.rows; row++) {
+                for (let column = 0; column < this.columns; column++) {
+                  if (this.get(row, column) > max3[column]) {
+                    max3[column] = this.get(row, column);
+                  }
+                }
+              }
+              return max3;
+            }
+            case void 0: {
+              let max3 = this.get(0, 0);
+              for (let row = 0; row < this.rows; row++) {
+                for (let column = 0; column < this.columns; column++) {
+                  if (this.get(row, column) > max3) {
+                    max3 = this.get(row, column);
+                  }
+                }
+              }
+              return max3;
+            }
+            default:
+              throw new Error(`invalid option: ${by}`);
           }
-          return v2;
         }
         maxIndex() {
           checkNonEmpty(this);
@@ -2975,19 +2990,47 @@ ${indentData}`);
           }
           return idx;
         }
-        min() {
+        min(by) {
           if (this.isEmpty()) {
             return NaN;
           }
-          let v2 = this.get(0, 0);
-          for (let i = 0; i < this.rows; i++) {
-            for (let j = 0; j < this.columns; j++) {
-              if (this.get(i, j) < v2) {
-                v2 = this.get(i, j);
+          switch (by) {
+            case "row": {
+              const min3 = new Array(this.rows).fill(Number.POSITIVE_INFINITY);
+              for (let row = 0; row < this.rows; row++) {
+                for (let column = 0; column < this.columns; column++) {
+                  if (this.get(row, column) < min3[row]) {
+                    min3[row] = this.get(row, column);
+                  }
+                }
               }
+              return min3;
             }
+            case "column": {
+              const min3 = new Array(this.columns).fill(Number.POSITIVE_INFINITY);
+              for (let row = 0; row < this.rows; row++) {
+                for (let column = 0; column < this.columns; column++) {
+                  if (this.get(row, column) < min3[column]) {
+                    min3[column] = this.get(row, column);
+                  }
+                }
+              }
+              return min3;
+            }
+            case void 0: {
+              let min3 = this.get(0, 0);
+              for (let row = 0; row < this.rows; row++) {
+                for (let column = 0; column < this.columns; column++) {
+                  if (this.get(row, column) < min3) {
+                    min3 = this.get(row, column);
+                  }
+                }
+              }
+              return min3;
+            }
+            default:
+              throw new Error(`invalid option: ${by}`);
           }
-          return v2;
         }
         minIndex() {
           checkNonEmpty(this);
@@ -3524,12 +3567,13 @@ ${indentData}`);
           return this;
         }
         selection(rowIndices, columnIndices) {
-          let indices = checkIndices(this, rowIndices, columnIndices);
+          checkRowIndices(this, rowIndices);
+          checkColumnIndices(this, columnIndices);
           let newMatrix = new Matrix(rowIndices.length, columnIndices.length);
-          for (let i = 0; i < indices.row.length; i++) {
-            let rowIndex = indices.row[i];
-            for (let j = 0; j < indices.column.length; j++) {
-              let columnIndex = indices.column[j];
+          for (let i = 0; i < rowIndices.length; i++) {
+            let rowIndex = rowIndices[i];
+            for (let j = 0; j < columnIndices.length; j++) {
+              let columnIndex = columnIndices[j];
               newMatrix.set(i, j, this.get(rowIndex, columnIndex));
             }
           }
@@ -3611,13 +3655,13 @@ ${indentData}`);
           }
           switch (by) {
             case "row": {
-              if (!Array.isArray(mean)) {
+              if (!isAnyArray.isAnyArray(mean)) {
                 throw new TypeError("mean must be an array");
               }
               return varianceByRow(this, unbiased, mean);
             }
             case "column": {
-              if (!Array.isArray(mean)) {
+              if (!isAnyArray.isAnyArray(mean)) {
                 throw new TypeError("mean must be an array");
               }
               return varianceByColumn(this, unbiased, mean);
@@ -3658,14 +3702,14 @@ ${indentData}`);
           const { center = this.mean(by) } = options;
           switch (by) {
             case "row": {
-              if (!Array.isArray(center)) {
+              if (!isAnyArray.isAnyArray(center)) {
                 throw new TypeError("center must be an array");
               }
               centerByRow(this, center);
               return this;
             }
             case "column": {
-              if (!Array.isArray(center)) {
+              if (!isAnyArray.isAnyArray(center)) {
                 throw new TypeError("center must be an array");
               }
               centerByColumn(this, center);
@@ -3695,7 +3739,7 @@ ${indentData}`);
             case "row": {
               if (scale2 === void 0) {
                 scale2 = getScaleByRow(this);
-              } else if (!Array.isArray(scale2)) {
+              } else if (!isAnyArray.isAnyArray(scale2)) {
                 throw new TypeError("scale must be an array");
               }
               scaleByRow(this, scale2);
@@ -3704,7 +3748,7 @@ ${indentData}`);
             case "column": {
               if (scale2 === void 0) {
                 scale2 = getScaleByColumn(this);
-              } else if (!Array.isArray(scale2)) {
+              } else if (!isAnyArray.isAnyArray(scale2)) {
                 throw new TypeError("scale must be an array");
               }
               scaleByColumn(this, scale2);
@@ -3755,7 +3799,7 @@ ${indentData}`);
             } else {
               throw new TypeError("nColumns must be a positive integer");
             }
-          } else if (Array.isArray(nRows)) {
+          } else if (isAnyArray.isAnyArray(nRows)) {
             const arrayData = nRows;
             nRows = arrayData.length;
             nColumns = nRows ? arrayData[0].length : 0;
@@ -3862,7 +3906,7 @@ ${indentData}`);
       };
       var MatrixColumnSelectionView = class extends BaseView2 {
         constructor(matrix, columnIndices) {
-          columnIndices = checkColumnIndices(matrix, columnIndices);
+          checkColumnIndices(matrix, columnIndices);
           super(matrix, matrix.rows, columnIndices.length);
           this.columnIndices = columnIndices;
         }
@@ -3914,7 +3958,7 @@ ${indentData}`);
       };
       var MatrixRowSelectionView = class extends BaseView2 {
         constructor(matrix, rowIndices) {
-          rowIndices = checkRowIndices(matrix, rowIndices);
+          checkRowIndices(matrix, rowIndices);
           super(matrix, rowIndices.length, matrix.columns);
           this.rowIndices = rowIndices;
         }
@@ -3928,10 +3972,11 @@ ${indentData}`);
       };
       var MatrixSelectionView = class extends BaseView2 {
         constructor(matrix, rowIndices, columnIndices) {
-          let indices = checkIndices(matrix, rowIndices, columnIndices);
-          super(matrix, indices.row.length, indices.column.length);
-          this.rowIndices = indices.row;
-          this.columnIndices = indices.column;
+          checkRowIndices(matrix, rowIndices);
+          checkColumnIndices(matrix, columnIndices);
+          super(matrix, rowIndices.length, columnIndices.length);
+          this.rowIndices = rowIndices;
+          this.columnIndices = columnIndices;
         }
         set(rowIndex, columnIndex, value) {
           this.matrix.set(this.rowIndices[rowIndex], this.columnIndices[columnIndex], value);
@@ -4008,8 +4053,8 @@ ${indentData}`);
         }
       };
       function wrap(array2, options) {
-        if (Array.isArray(array2)) {
-          if (array2[0] && Array.isArray(array2[0])) {
+        if (isAnyArray.isAnyArray(array2)) {
+          if (array2[0] && isAnyArray.isAnyArray(array2[0])) {
             return new WrapperMatrix2D(array2);
           } else {
             return new WrapperMatrix1D(array2, options);
@@ -4877,7 +4922,7 @@ ${indentData}`);
       function covariance(xMatrix, yMatrix = xMatrix, options = {}) {
         xMatrix = new Matrix(xMatrix);
         let yIsSame = false;
-        if (typeof yMatrix === "object" && !Matrix.isMatrix(yMatrix) && !Array.isArray(yMatrix)) {
+        if (typeof yMatrix === "object" && !Matrix.isMatrix(yMatrix) && !isAnyArray.isAnyArray(yMatrix)) {
           options = yMatrix;
           yMatrix = xMatrix;
           yIsSame = true;
@@ -4905,7 +4950,7 @@ ${indentData}`);
       function correlation(xMatrix, yMatrix = xMatrix, options = {}) {
         xMatrix = new Matrix(xMatrix);
         let yIsSame = false;
-        if (typeof yMatrix === "object" && !Matrix.isMatrix(yMatrix) && !Array.isArray(yMatrix)) {
+        if (typeof yMatrix === "object" && !Matrix.isMatrix(yMatrix) && !isAnyArray.isAnyArray(yMatrix)) {
           options = yMatrix;
           yMatrix = xMatrix;
           yIsSame = true;
@@ -5685,7 +5730,7 @@ ${indentData}`);
           } = options;
           let u4;
           if (Y2) {
-            if (Array.isArray(Y2) && typeof Y2[0] === "number") {
+            if (isAnyArray.isAnyArray(Y2) && typeof Y2[0] === "number") {
               Y2 = Matrix.columnVector(Y2);
             } else {
               Y2 = WrapperMatrix2D.checkMatrix(Y2);
@@ -6820,15 +6865,22 @@ ${indentData}`);
     return a2 == null || b == null ? NaN : a2 < b ? -1 : a2 > b ? 1 : a2 >= b ? 0 : NaN;
   }
 
+  // node_modules/d3-array/src/descending.js
+  function descending(a2, b) {
+    return a2 == null || b == null ? NaN : b < a2 ? -1 : b > a2 ? 1 : b >= a2 ? 0 : NaN;
+  }
+
   // node_modules/d3-array/src/bisector.js
   function bisector(f) {
-    let delta = f;
-    let compare1 = f;
-    let compare2 = f;
+    let compare1, compare2, delta;
     if (f.length !== 2) {
-      delta = (d, x3) => f(d) - x3;
       compare1 = ascending;
       compare2 = (d, x3) => ascending(f(d), x3);
+      delta = (d, x3) => f(d) - x3;
+    } else {
+      compare1 = f === ascending || f === descending ? f : zero;
+      compare2 = f;
+      delta = f;
     }
     function left(a2, x3, lo = 0, hi = a2.length) {
       if (lo < hi) {
@@ -6863,6 +6915,9 @@ ${indentData}`);
       return i > lo && delta(a2[i - 1], x3) > -delta(a2[i], x3) ? i - 1 : i;
     }
     return { left, center, right };
+  }
+  function zero() {
+    return 0;
   }
 
   // node_modules/d3-array/src/number.js
@@ -8222,15 +8277,15 @@ ${indentData}`);
   var darker = 0.7;
   var brighter = 1 / darker;
   var reI = "\\s*([+-]?\\d+)\\s*";
-  var reN = "\\s*([+-]?\\d*\\.?\\d+(?:[eE][+-]?\\d+)?)\\s*";
-  var reP = "\\s*([+-]?\\d*\\.?\\d+(?:[eE][+-]?\\d+)?)%\\s*";
+  var reN = "\\s*([+-]?(?:\\d*\\.)?\\d+(?:[eE][+-]?\\d+)?)\\s*";
+  var reP = "\\s*([+-]?(?:\\d*\\.)?\\d+(?:[eE][+-]?\\d+)?)%\\s*";
   var reHex = /^#([0-9a-f]{3,8})$/;
-  var reRgbInteger = new RegExp("^rgb\\(" + [reI, reI, reI] + "\\)$");
-  var reRgbPercent = new RegExp("^rgb\\(" + [reP, reP, reP] + "\\)$");
-  var reRgbaInteger = new RegExp("^rgba\\(" + [reI, reI, reI, reN] + "\\)$");
-  var reRgbaPercent = new RegExp("^rgba\\(" + [reP, reP, reP, reN] + "\\)$");
-  var reHslPercent = new RegExp("^hsl\\(" + [reN, reP, reP] + "\\)$");
-  var reHslaPercent = new RegExp("^hsla\\(" + [reN, reP, reP, reN] + "\\)$");
+  var reRgbInteger = new RegExp(`^rgb\\(${reI},${reI},${reI}\\)$`);
+  var reRgbPercent = new RegExp(`^rgb\\(${reP},${reP},${reP}\\)$`);
+  var reRgbaInteger = new RegExp(`^rgba\\(${reI},${reI},${reI},${reN}\\)$`);
+  var reRgbaPercent = new RegExp(`^rgba\\(${reP},${reP},${reP},${reN}\\)$`);
+  var reHslPercent = new RegExp(`^hsl\\(${reN},${reP},${reP}\\)$`);
+  var reHslaPercent = new RegExp(`^hsla\\(${reN},${reP},${reP},${reN}\\)$`);
   var named = {
     aliceblue: 15792383,
     antiquewhite: 16444375,
@@ -8382,20 +8437,24 @@ ${indentData}`);
     yellowgreen: 10145074
   };
   define_default(Color, color, {
-    copy: function(channels) {
+    copy(channels) {
       return Object.assign(new this.constructor(), this, channels);
     },
-    displayable: function() {
+    displayable() {
       return this.rgb().displayable();
     },
     hex: color_formatHex,
     formatHex: color_formatHex,
+    formatHex8: color_formatHex8,
     formatHsl: color_formatHsl,
     formatRgb: color_formatRgb,
     toString: color_formatRgb
   });
   function color_formatHex() {
     return this.rgb().formatHex();
+  }
+  function color_formatHex8() {
+    return this.rgb().formatHex8();
   }
   function color_formatHsl() {
     return hslConvert(this).formatHsl();
@@ -8434,35 +8493,47 @@ ${indentData}`);
     this.opacity = +opacity;
   }
   define_default(Rgb, rgb, extend(Color, {
-    brighter: function(k) {
+    brighter(k) {
       k = k == null ? brighter : Math.pow(brighter, k);
       return new Rgb(this.r * k, this.g * k, this.b * k, this.opacity);
     },
-    darker: function(k) {
+    darker(k) {
       k = k == null ? darker : Math.pow(darker, k);
       return new Rgb(this.r * k, this.g * k, this.b * k, this.opacity);
     },
-    rgb: function() {
+    rgb() {
       return this;
     },
-    displayable: function() {
+    clamp() {
+      return new Rgb(clampi(this.r), clampi(this.g), clampi(this.b), clampa(this.opacity));
+    },
+    displayable() {
       return -0.5 <= this.r && this.r < 255.5 && (-0.5 <= this.g && this.g < 255.5) && (-0.5 <= this.b && this.b < 255.5) && (0 <= this.opacity && this.opacity <= 1);
     },
     hex: rgb_formatHex,
     formatHex: rgb_formatHex,
+    formatHex8: rgb_formatHex8,
     formatRgb: rgb_formatRgb,
     toString: rgb_formatRgb
   }));
   function rgb_formatHex() {
-    return "#" + hex(this.r) + hex(this.g) + hex(this.b);
+    return `#${hex(this.r)}${hex(this.g)}${hex(this.b)}`;
+  }
+  function rgb_formatHex8() {
+    return `#${hex(this.r)}${hex(this.g)}${hex(this.b)}${hex((isNaN(this.opacity) ? 1 : this.opacity) * 255)}`;
   }
   function rgb_formatRgb() {
-    var a2 = this.opacity;
-    a2 = isNaN(a2) ? 1 : Math.max(0, Math.min(1, a2));
-    return (a2 === 1 ? "rgb(" : "rgba(") + Math.max(0, Math.min(255, Math.round(this.r) || 0)) + ", " + Math.max(0, Math.min(255, Math.round(this.g) || 0)) + ", " + Math.max(0, Math.min(255, Math.round(this.b) || 0)) + (a2 === 1 ? ")" : ", " + a2 + ")");
+    const a2 = clampa(this.opacity);
+    return `${a2 === 1 ? "rgb(" : "rgba("}${clampi(this.r)}, ${clampi(this.g)}, ${clampi(this.b)}${a2 === 1 ? ")" : `, ${a2})`}`;
+  }
+  function clampa(opacity) {
+    return isNaN(opacity) ? 1 : Math.max(0, Math.min(1, opacity));
+  }
+  function clampi(value) {
+    return Math.max(0, Math.min(255, Math.round(value) || 0));
   }
   function hex(value) {
-    value = Math.max(0, Math.min(255, Math.round(value) || 0));
+    value = clampi(value);
     return (value < 16 ? "0" : "") + value.toString(16);
   }
   function hsla(h, s, l, a2) {
@@ -8509,27 +8580,36 @@ ${indentData}`);
     this.opacity = +opacity;
   }
   define_default(Hsl, hsl, extend(Color, {
-    brighter: function(k) {
+    brighter(k) {
       k = k == null ? brighter : Math.pow(brighter, k);
       return new Hsl(this.h, this.s, this.l * k, this.opacity);
     },
-    darker: function(k) {
+    darker(k) {
       k = k == null ? darker : Math.pow(darker, k);
       return new Hsl(this.h, this.s, this.l * k, this.opacity);
     },
-    rgb: function() {
+    rgb() {
       var h = this.h % 360 + (this.h < 0) * 360, s = isNaN(h) || isNaN(this.s) ? 0 : this.s, l = this.l, m2 = l + (l < 0.5 ? l : 1 - l) * s, m1 = 2 * l - m2;
       return new Rgb(hsl2rgb(h >= 240 ? h - 240 : h + 120, m1, m2), hsl2rgb(h, m1, m2), hsl2rgb(h < 120 ? h + 240 : h - 120, m1, m2), this.opacity);
     },
-    displayable: function() {
+    clamp() {
+      return new Hsl(clamph(this.h), clampt(this.s), clampt(this.l), clampa(this.opacity));
+    },
+    displayable() {
       return (0 <= this.s && this.s <= 1 || isNaN(this.s)) && (0 <= this.l && this.l <= 1) && (0 <= this.opacity && this.opacity <= 1);
     },
-    formatHsl: function() {
-      var a2 = this.opacity;
-      a2 = isNaN(a2) ? 1 : Math.max(0, Math.min(1, a2));
-      return (a2 === 1 ? "hsl(" : "hsla(") + (this.h || 0) + ", " + (this.s || 0) * 100 + "%, " + (this.l || 0) * 100 + "%" + (a2 === 1 ? ")" : ", " + a2 + ")");
+    formatHsl() {
+      const a2 = clampa(this.opacity);
+      return `${a2 === 1 ? "hsl(" : "hsla("}${clamph(this.h)}, ${clampt(this.s) * 100}%, ${clampt(this.l) * 100}%${a2 === 1 ? ")" : `, ${a2})`}`;
     }
   }));
+  function clamph(value) {
+    value = (value || 0) % 360;
+    return value < 0 ? value + 360 : value;
+  }
+  function clampt(value) {
+    return Math.max(0, Math.min(1, value || 0));
+  }
   function hsl2rgb(h, m1, m2) {
     return (h < 60 ? m1 + (m2 - m1) * h / 60 : h < 180 ? m2 : h < 240 ? m1 + (m2 - m1) * (240 - h) / 60 : m1) * 255;
   }
@@ -8688,7 +8768,7 @@ ${indentData}`);
   // node_modules/d3-interpolate/src/string.js
   var reA = /[-+]?(?:\d+\.?\d*|\.?\d+)(?:[eE][-+]?\d+)?/g;
   var reB = new RegExp(reA.source, "g");
-  function zero(b) {
+  function zero2(b) {
     return function() {
       return b;
     };
@@ -8727,7 +8807,7 @@ ${indentData}`);
       else
         s[++i] = bs;
     }
-    return s.length < 2 ? q[0] ? one(q[0].x) : zero(b) : (b = q.length, function(t) {
+    return s.length < 2 ? q[0] ? one(q[0].x) : zero2(b) : (b = q.length, function(t) {
       for (var i2 = 0, o; i2 < b; ++i2)
         s[(o = q[i2]).i] = o.x(t);
       return s.join("");
@@ -11140,6 +11220,185 @@ ${indentData}`);
     }
   }
 
+  // node_modules/d3-dsv/src/dsv.js
+  var EOL = {};
+  var EOF = {};
+  var QUOTE = 34;
+  var NEWLINE = 10;
+  var RETURN = 13;
+  function objectConverter(columns) {
+    return new Function("d", "return {" + columns.map(function(name, i) {
+      return JSON.stringify(name) + ": d[" + i + '] || ""';
+    }).join(",") + "}");
+  }
+  function customConverter(columns, f) {
+    var object = objectConverter(columns);
+    return function(row, i) {
+      return f(object(row), i, columns);
+    };
+  }
+  function inferColumns(rows) {
+    var columnSet = /* @__PURE__ */ Object.create(null), columns = [];
+    rows.forEach(function(row) {
+      for (var column in row) {
+        if (!(column in columnSet)) {
+          columns.push(columnSet[column] = column);
+        }
+      }
+    });
+    return columns;
+  }
+  function pad(value, width) {
+    var s = value + "", length = s.length;
+    return length < width ? new Array(width - length + 1).join(0) + s : s;
+  }
+  function formatYear(year) {
+    return year < 0 ? "-" + pad(-year, 6) : year > 9999 ? "+" + pad(year, 6) : pad(year, 4);
+  }
+  function formatDate(date) {
+    var hours = date.getUTCHours(), minutes = date.getUTCMinutes(), seconds = date.getUTCSeconds(), milliseconds = date.getUTCMilliseconds();
+    return isNaN(date) ? "Invalid Date" : formatYear(date.getUTCFullYear(), 4) + "-" + pad(date.getUTCMonth() + 1, 2) + "-" + pad(date.getUTCDate(), 2) + (milliseconds ? "T" + pad(hours, 2) + ":" + pad(minutes, 2) + ":" + pad(seconds, 2) + "." + pad(milliseconds, 3) + "Z" : seconds ? "T" + pad(hours, 2) + ":" + pad(minutes, 2) + ":" + pad(seconds, 2) + "Z" : minutes || hours ? "T" + pad(hours, 2) + ":" + pad(minutes, 2) + "Z" : "");
+  }
+  function dsv_default(delimiter) {
+    var reFormat = new RegExp('["' + delimiter + "\n\r]"), DELIMITER = delimiter.charCodeAt(0);
+    function parse(text, f) {
+      var convert, columns, rows = parseRows(text, function(row, i) {
+        if (convert)
+          return convert(row, i - 1);
+        columns = row, convert = f ? customConverter(row, f) : objectConverter(row);
+      });
+      rows.columns = columns || [];
+      return rows;
+    }
+    function parseRows(text, f) {
+      var rows = [], N = text.length, I = 0, n = 0, t, eof = N <= 0, eol = false;
+      if (text.charCodeAt(N - 1) === NEWLINE)
+        --N;
+      if (text.charCodeAt(N - 1) === RETURN)
+        --N;
+      function token() {
+        if (eof)
+          return EOF;
+        if (eol)
+          return eol = false, EOL;
+        var i, j = I, c2;
+        if (text.charCodeAt(j) === QUOTE) {
+          while (I++ < N && text.charCodeAt(I) !== QUOTE || text.charCodeAt(++I) === QUOTE)
+            ;
+          if ((i = I) >= N)
+            eof = true;
+          else if ((c2 = text.charCodeAt(I++)) === NEWLINE)
+            eol = true;
+          else if (c2 === RETURN) {
+            eol = true;
+            if (text.charCodeAt(I) === NEWLINE)
+              ++I;
+          }
+          return text.slice(j + 1, i - 1).replace(/""/g, '"');
+        }
+        while (I < N) {
+          if ((c2 = text.charCodeAt(i = I++)) === NEWLINE)
+            eol = true;
+          else if (c2 === RETURN) {
+            eol = true;
+            if (text.charCodeAt(I) === NEWLINE)
+              ++I;
+          } else if (c2 !== DELIMITER)
+            continue;
+          return text.slice(j, i);
+        }
+        return eof = true, text.slice(j, N);
+      }
+      while ((t = token()) !== EOF) {
+        var row = [];
+        while (t !== EOL && t !== EOF)
+          row.push(t), t = token();
+        if (f && (row = f(row, n++)) == null)
+          continue;
+        rows.push(row);
+      }
+      return rows;
+    }
+    function preformatBody(rows, columns) {
+      return rows.map(function(row) {
+        return columns.map(function(column) {
+          return formatValue(row[column]);
+        }).join(delimiter);
+      });
+    }
+    function format2(rows, columns) {
+      if (columns == null)
+        columns = inferColumns(rows);
+      return [columns.map(formatValue).join(delimiter)].concat(preformatBody(rows, columns)).join("\n");
+    }
+    function formatBody(rows, columns) {
+      if (columns == null)
+        columns = inferColumns(rows);
+      return preformatBody(rows, columns).join("\n");
+    }
+    function formatRows(rows) {
+      return rows.map(formatRow).join("\n");
+    }
+    function formatRow(row) {
+      return row.map(formatValue).join(delimiter);
+    }
+    function formatValue(value) {
+      return value == null ? "" : value instanceof Date ? formatDate(value) : reFormat.test(value += "") ? '"' + value.replace(/"/g, '""') + '"' : value;
+    }
+    return {
+      parse,
+      parseRows,
+      format: format2,
+      formatBody,
+      formatRows,
+      formatRow,
+      formatValue
+    };
+  }
+
+  // node_modules/d3-dsv/src/csv.js
+  var csv = dsv_default(",");
+  var csvParse = csv.parse;
+  var csvParseRows = csv.parseRows;
+  var csvFormat = csv.format;
+  var csvFormatBody = csv.formatBody;
+  var csvFormatRows = csv.formatRows;
+  var csvFormatRow = csv.formatRow;
+  var csvFormatValue = csv.formatValue;
+
+  // node_modules/d3-dsv/src/tsv.js
+  var tsv = dsv_default("	");
+  var tsvParse = tsv.parse;
+  var tsvParseRows = tsv.parseRows;
+  var tsvFormat = tsv.format;
+  var tsvFormatBody = tsv.formatBody;
+  var tsvFormatRows = tsv.formatRows;
+  var tsvFormatRow = tsv.formatRow;
+  var tsvFormatValue = tsv.formatValue;
+
+  // node_modules/d3-fetch/src/text.js
+  function responseText(response) {
+    if (!response.ok)
+      throw new Error(response.status + " " + response.statusText);
+    return response.text();
+  }
+  function text_default3(input, init2) {
+    return fetch(input, init2).then(responseText);
+  }
+
+  // node_modules/d3-fetch/src/dsv.js
+  function dsvParse(parse) {
+    return function(input, init2, row) {
+      if (arguments.length === 2 && typeof init2 === "function")
+        row = init2, init2 = void 0;
+      return text_default3(input, init2).then(function(response) {
+        return parse(response, row);
+      });
+    };
+  }
+  var csv2 = dsvParse(csvParse);
+  var tsv2 = dsvParse(tsvParse);
+
   // node_modules/d3-force/src/center.js
   function center_default(x3, y4) {
     var nodes, strength = 1;
@@ -12116,13 +12375,13 @@ ${indentData}`);
     var group = locale2.grouping === void 0 || locale2.thousands === void 0 ? identity_default : formatGroup_default(map.call(locale2.grouping, Number), locale2.thousands + ""), currencyPrefix = locale2.currency === void 0 ? "" : locale2.currency[0] + "", currencySuffix = locale2.currency === void 0 ? "" : locale2.currency[1] + "", decimal = locale2.decimal === void 0 ? "." : locale2.decimal + "", numerals = locale2.numerals === void 0 ? identity_default : formatNumerals_default(map.call(locale2.numerals, String)), percent = locale2.percent === void 0 ? "%" : locale2.percent + "", minus = locale2.minus === void 0 ? "\u2212" : locale2.minus + "", nan = locale2.nan === void 0 ? "NaN" : locale2.nan + "";
     function newFormat(specifier) {
       specifier = formatSpecifier(specifier);
-      var fill = specifier.fill, align = specifier.align, sign = specifier.sign, symbol = specifier.symbol, zero2 = specifier.zero, width = specifier.width, comma = specifier.comma, precision = specifier.precision, trim = specifier.trim, type2 = specifier.type;
+      var fill = specifier.fill, align = specifier.align, sign = specifier.sign, symbol = specifier.symbol, zero3 = specifier.zero, width = specifier.width, comma = specifier.comma, precision = specifier.precision, trim = specifier.trim, type2 = specifier.type;
       if (type2 === "n")
         comma = true, type2 = "g";
       else if (!formatTypes_default[type2])
         precision === void 0 && (precision = 12), trim = true, type2 = "g";
-      if (zero2 || fill === "0" && align === "=")
-        zero2 = true, fill = "0", align = "=";
+      if (zero3 || fill === "0" && align === "=")
+        zero3 = true, fill = "0", align = "=";
       var prefix = symbol === "$" ? currencyPrefix : symbol === "#" && /[boxX]/.test(type2) ? "0" + type2.toLowerCase() : "", suffix = symbol === "$" ? currencySuffix : /[%p]/.test(type2) ? percent : "";
       var formatType = formatTypes_default[type2], maybeSuffix = /[defgprs%]/.test(type2);
       precision = precision === void 0 ? 6 : /[gprs]/.test(type2) ? Math.max(1, Math.min(21, precision)) : Math.max(0, Math.min(20, precision));
@@ -12152,10 +12411,10 @@ ${indentData}`);
             }
           }
         }
-        if (comma && !zero2)
+        if (comma && !zero3)
           value = group(value, Infinity);
         var length = valuePrefix.length + value.length + valueSuffix.length, padding = length < width ? new Array(width - length + 1).join(fill) : "";
-        if (comma && zero2)
+        if (comma && zero3)
           value = group(padding + value, padding.length ? width - valueSuffix.length : Infinity), padding = "";
         switch (align) {
           case "<":
@@ -13328,9 +13587,11 @@ ${indentData}`);
   var FederCore = class {
     constructor({
       data,
-      source
+      source,
+      params
     }) {
       try {
+        this.params = params;
         const index2 = this.parserIndex(data, source);
         this.index = index2;
         this.indexType = index2.indexType;
@@ -13374,7 +13635,7 @@ ${indentData}`);
           fineSearchWithProjection = false,
           projectMethod,
           projectParams
-        } = this.searchParams;
+        } = this.params;
         if (fineSearchWithProjection) {
           const ids = searchRes.fine.map((item) => item.id);
           this.initProjector({
@@ -14105,7 +14366,7 @@ ${indentData}`);
           SPNodesLevels[preLevel].push(preNode);
         }
       }
-      preNodeInternalId = keyNode.path.length > 0 ? keyNode.path[keyNode.path.length - 1] : null;
+      const preNodeInternalId = keyNode.path.length > 0 ? keyNode.path[keyNode.path.length - 1] : null;
       reachableLevel = keyLevel;
       reachableNodes = keyNode.linksLevels[keyLevel].filter((internalId) => internalId != preNodeInternalId).map((internalId) => internalId2overviewNode[internalId]);
       reachableLinks = reachableNodes.map((target) => ({
@@ -15608,7 +15869,8 @@ ${indentData}`);
     polarOrigin,
     polarMaxR,
     polarAxisStrokeWidth,
-    canvasScale
+    canvasScale,
+    polarAxisOpacity
   }) {
     const circles = range(axisTickCount).map((i) => [...polarOrigin, (i + 0.7) / axisTickCount * polarMaxR]);
     drawCircle({
@@ -15616,7 +15878,7 @@ ${indentData}`);
       circles,
       hasStroke: true,
       lineWidth: polarAxisStrokeWidth * canvasScale,
-      strokeStyle: hexWithOpacity(ZBlue, 0.3)
+      strokeStyle: hexWithOpacity(ZBlue, polarAxisOpacity)
     });
   }
 
@@ -16334,7 +16596,6 @@ ${indentData}`);
         targetMediaUrl,
         listSizes
       } = federView;
-      console.log("!!!!");
       const items = [
         {
           title: "IVF_Flat - Search"
@@ -16413,7 +16674,7 @@ ${indentData}`);
       this.renderOverviewPanel(items, whiteColor);
     }
     updateSearchViewFineProjectOverviewInfo(federView) {
-      const { k, nprobe, searchRes, targetMediaUrl, mediaCallback } = federView;
+      const { k, nprobe, searchRes, targetMediaUrl, mediaCallback, viewParams } = federView;
       const fineAllVectorsCount = searchRes.fine.length;
       const showImages = searchRes.fsResIds.map((id2) => mediaCallback(id2)).filter((a2) => a2);
       const items = [
@@ -16443,7 +16704,7 @@ ${indentData}`);
           callback: () => federView.switchSearchView("project")
         },
         {
-          text: `Projection of all ${fineAllVectorsCount} vectors in the ${nprobe} (nprobe=${nprobe}) clusters using UMAP.`
+          text: `Projection of all ${fineAllVectorsCount} vectors in the ${nprobe} (nprobe=${nprobe}) clusters using ${viewParams.projectMethod || "random"}.`
         },
         {
           images: showImages
@@ -16730,6 +16991,7 @@ ${indentData}`);
     projectPadding: [20, 20, 20, 260],
     axisTickCount: 5,
     polarAxisStrokeWidth: 1,
+    polarAxisOpacity: 0.4,
     polarOriginBias: 0.15,
     ease: cubicInOut,
     animateExitTime: 1500,
@@ -16972,7 +17234,6 @@ ${indentData}`);
       core = null,
       filePath = "",
       source = "",
-      projectParams = {},
       domSelector: domSelector2,
       viewParams = {}
     }) {
@@ -16980,7 +17241,7 @@ ${indentData}`);
       this.viewParams = viewParams;
       if (!core) {
         this.initCorePromise = fetch(filePath).then((res) => res.arrayBuffer()).then((data) => {
-          core = new FederCore({ data, source, projectParams });
+          core = new FederCore({ data, source, params: viewParams });
           this.core = core;
           const indexType = core.indexType;
           const indexMeta = core.indexMeta;
@@ -17019,10 +17280,25 @@ ${indentData}`);
         }
       });
     }
+    searchById(testId = null) {
+      return __async(this, null, function* () {
+        this.initCorePromise && (yield this.initCorePromise);
+        if (!(testId in this.core.id2vector)) {
+          console.log("Invalid Id");
+        } else {
+          const testVec = this.core.id2vector[testId];
+          const targetMediaUrl = this.viewParams && this.viewParams.mediaCallback ? this.viewParams.mediaCallback(testId) : null;
+          this.search(testVec, targetMediaUrl);
+        }
+      });
+    }
     searchRandTestVec() {
       return __async(this, null, function* () {
         this.initCorePromise && (yield this.initCorePromise);
-        const [testId, testVec] = yield this.core.getTestIdAndVec();
+        let [testId, testVec] = yield this.core.getTestIdAndVec();
+        while (isNaN(testId)) {
+          [testId, testVec] = yield this.core.getTestIdAndVec();
+        }
         console.log("random test vector:", testId, testVec);
         const targetMediaUrl = this.viewParams && this.viewParams.mediaCallback ? this.viewParams.mediaCallback(testId) : null;
         this.search(testVec, targetMediaUrl);
@@ -17042,16 +17318,30 @@ ${indentData}`);
 
   // test/test.js
   var domSelector = "#container";
-  var testHNSW = (filePath) => __async(void 0, null, function* () {
+  var getId2name = () => __async(void 0, null, function* () {
+    const data = yield csv2("https://assets.zilliz.com/voc_names_4cee9440b1.csv");
+    const rowId2name = {};
+    data.forEach((d, i) => rowId2name[i] = d.name);
+    return rowId2name;
+  });
+  var testIVFFlatWithImages = (filePath) => __async(void 0, null, function* () {
+    const rowId2name = yield getId2name();
+    const mediaCallback = (rowId) => rowId in rowId2name ? `./data/images/${rowId2name[rowId]}` : null;
     const feder = new Feder({
       filePath,
-      source: "hnswlib",
-      domSelector
+      source: "faiss",
+      domSelector,
+      viewParams: {
+        mediaType: "img",
+        mediaCallback,
+        fineSearchWithProjection: true,
+        projectMethod: "umap"
+      }
     });
     return feder;
   });
   window.addEventListener("DOMContentLoaded", () => __async(void 0, null, function* () {
-    const feder = yield testHNSW("data/hnswlib_hnsw_random_1M.index");
+    const feder = yield testIVFFlatWithImages("https://assets.zilliz.com/faiss_ivf_flat_voc_17k_ab112eec72.index");
     console.log(feder);
     feder.overview();
   }));

@@ -8,6 +8,7 @@ export default function renderPolarAxis({
   polarMaxR,
   polarAxisStrokeWidth,
   canvasScale,
+  polarAxisOpacity,
 }) {
   const circles = d3
     .range(axisTickCount)
@@ -17,6 +18,6 @@ export default function renderPolarAxis({
     circles,
     hasStroke: true,
     lineWidth: polarAxisStrokeWidth * canvasScale,
-    strokeStyle: hexWithOpacity(ZBlue, 0.3),
+    strokeStyle: hexWithOpacity(ZBlue, polarAxisOpacity),
   });
 }
