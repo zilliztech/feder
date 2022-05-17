@@ -31,6 +31,7 @@ const defaultIvfflatViewParams = {
   projectPadding: [20, 20, 20, 260],
   axisTickCount: 5,
   polarAxisStrokeWidth: 1,
+  polarAxisOpacity: 0.4,
   polarOriginBias: 0.15,
   ease: d3.easeCubic,
   animateExitTime: 1500,

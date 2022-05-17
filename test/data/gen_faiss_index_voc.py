@@ -12,7 +12,7 @@ with open("voc_vectors.csv") as f:
     dim = len(vectors[0])
     print(num_elements, dim)
 
-    nlist = 256
+    nlist = 200
     index = faiss.index_factory(dim, 'IVF%s,Flat' % nlist)
     vectors = np.array(vectors)
     index.train(vectors)

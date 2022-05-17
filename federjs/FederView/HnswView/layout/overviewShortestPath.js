@@ -46,7 +46,7 @@ export default function getOverviewShortestPathData({
         SPNodesLevels[preLevel].push(preNode);
       }
     }
-    preNodeInternalId =
+    const preNodeInternalId =
       keyNode.path.length > 0 ? keyNode.path[keyNode.path.length - 1] : null;
     reachableLevel = keyLevel;
     reachableNodes = keyNode.linksLevels[keyLevel]
