@@ -17326,7 +17326,7 @@ ${indentData}`);
   });
   var testIVFFlatWithImages = (filePath) => __async(void 0, null, function* () {
     const rowId2name = yield getId2name();
-    const mediaCallback = (rowId) => rowId in rowId2name ? `./data/images/${rowId2name[rowId]}` : null;
+    const mediaCallback = (rowId) => rowId in rowId2name ? `https://assets.zilliz.com/voc2012/JPEGImages/${rowId2name[rowId]}` : null;
     const feder = new Feder({
       filePath,
       source: "faiss",
