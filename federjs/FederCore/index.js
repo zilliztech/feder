@@ -7,8 +7,10 @@ export default class FederCore {
   constructor({
     data, // arraybuffer
     source,
+    params,
   }) {
     try {
+      this.params = params;
       const index = this.parserIndex(data, source);
       this.index = index;
       this.indexType = index.indexType;
@@ -56,7 +58,7 @@ export default class FederCore {
         fineSearchWithProjection = false,
         projectMethod,
         projectParams,
-      } = this.searchParams;
+      } = this.params;
       if (fineSearchWithProjection) {
         const ids = searchRes.fine.map((item) => item.id);
         this.initProjector({
