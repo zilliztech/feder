@@ -11,3 +11,4 @@ images/
 dist
 *.csv
 *.index
+*.pyc
