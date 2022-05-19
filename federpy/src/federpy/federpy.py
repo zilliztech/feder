@@ -3,7 +3,7 @@ import random
 
 
 class FederPy:
-    def __init__(self, indexFile, indexSource, width=1000, height=620, mediaType="", mediaUrls=[]):
+    def __init__(self, indexFile, indexSource, mediaUrls=[], **viewParams):
         self.indexFile = indexFile
         self.indexSource = indexSource
 
@@ -14,10 +14,8 @@ class FederPy:
 
         self.actionJs = ""
         self.searchParams = {}
-        self.width = width
-        self.height = height
-        self.mediaType = mediaType
         self.mediaUrls = mediaUrls
+        self.viewParams = viewParams
 
     def getDiv(self):
         return '<div id="%s" />' % self.container
@@ -35,13 +33,11 @@ const feder = new Feder({
     source: "%s",
     domSelector: "#%s",
     viewParams: {
-        width: "%s",
-        height: "%s",
-        mediaType: "%s",
+        ...%s,
         mediaCallback,
     }
 })
-        """ % (self.federjs, ",".join(["'%s'" % url for url in self.mediaUrls]), self.indexFile, self.indexSource, self.container, self.width, self.height, self.mediaType)
+        """ % (self.federjs, ",".join(["'%s'" % url for url in self.mediaUrls]), self.indexFile, self.indexSource, self.container, self.viewParams)
 
     def overview(self, isDisplay=True):
         self.actionJs = "feder.overview()"
