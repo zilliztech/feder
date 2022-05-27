@@ -7,12 +7,11 @@ export default function searchViewLayoutHandler({ searchRes }) {
     this.overviewInitPromise && (await this.overviewInitPromise);
     this.searchRes = searchRes;
     searchRes.coarse.forEach(({ id, dis }) => (this.clusters[id].dis = dis));
-    this.nprobeClusters = this.clusters.filter((cluster) =>
-      this.searchRes.csResIds.find((id) => id == cluster.clusterId)
+    this.nprobeClusters = this.clusters.filter(
+      (cluster) => this.searchRes.csResIds.indexOf(cluster.clusterId) >= 0
     );
     this.nonNprobeClusters = this.clusters.filter(
-      (cluster) =>
-        !this.searchRes.csResIds.find((id) => id == cluster.clusterId)
+      (cluster) => this.searchRes.csResIds.indexOf(cluster.clusterId) < 0
     );
     await SVCoarseVoronoiHandler.call(this);
     resolve();
