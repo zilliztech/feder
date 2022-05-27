@@ -16144,8 +16144,8 @@ ${indentData}`);
       this.overviewInitPromise && (yield this.overviewInitPromise);
       this.searchRes = searchRes;
       searchRes.coarse.forEach(({ id: id2, dis }) => this.clusters[id2].dis = dis);
-      this.nprobeClusters = this.clusters.filter((cluster) => this.searchRes.csResIds.find((id2) => id2 == cluster.clusterId));
-      this.nonNprobeClusters = this.clusters.filter((cluster) => !this.searchRes.csResIds.find((id2) => id2 == cluster.clusterId));
+      this.nprobeClusters = this.clusters.filter((cluster) => this.searchRes.csResIds.indexOf(cluster.clusterId) >= 0);
+      this.nonNprobeClusters = this.clusters.filter((cluster) => this.searchRes.csResIds.indexOf(cluster.clusterId) < 0);
       yield SVCoarseVoronoiHandler.call(this);
       resolve();
     }));
@@ -17329,23 +17329,30 @@ ${indentData}`);
     data.forEach((d, i) => rowId2name[i] = d.name);
     return rowId2name;
   });
-  var testHNSWWithImages = (filePath) => __async(void 0, null, function* () {
+  var testIVFFlatWithImages = (filePath) => __async(void 0, null, function* () {
     const rowId2name = yield getId2name();
     const mediaCallback = (rowId) => rowId in rowId2name ? `https://assets.zilliz.com/voc2012/JPEGImages/${rowId2name[rowId]}` : null;
     const feder = new Feder({
       filePath,
-      source: "hnswlib",
+      source: "faiss",
       domSelector,
       viewParams: {
         mediaType: "img",
-        mediaCallback
+        mediaCallback,
+        fineSearchWithProjection: true,
+        projectMethod: "umap"
       }
     });
     return feder;
   });
   window.addEventListener("DOMContentLoaded", () => __async(void 0, null, function* () {
-    const feder = yield testHNSWWithImages("https://assets.zilliz.com/hnswlib_hnsw_voc_17k_1f1dfd63a9.index");
+    const feder = yield testIVFFlatWithImages("https://assets.zilliz.com/faiss_ivf_flat_voc_17k_ab112eec72.index");
     console.log(feder);
-    feder.overview();
+    feder.setSearchParams({
+      k: 12,
+      nprobe: 8,
+      ef: 10
+    });
+    feder.searchById(10583);
   }));
 })();
