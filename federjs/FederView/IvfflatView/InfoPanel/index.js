@@ -176,7 +176,8 @@ export default class InfoPanel {
   }
 
   updateSearchViewFineProjectOverviewInfo(federView) {
-    const { k, nprobe, searchRes, targetMediaUrl, mediaCallback, viewParams } = federView;
+    const { k, nprobe, searchRes, targetMediaUrl, mediaCallback, viewParams } =
+      federView;
     const fineAllVectorsCount = searchRes.fine.length;
     const showImages = searchRes.fsResIds
       .map((id) => mediaCallback(id))
@@ -208,7 +209,9 @@ export default class InfoPanel {
         callback: () => federView.switchSearchView('project'),
       },
       {
-        text: `Projection of all ${fineAllVectorsCount} vectors in the ${nprobe} (nprobe=${nprobe}) clusters using ${viewParams.projectMethod || 'random'}.`,
+        text: `Projection of all ${fineAllVectorsCount} vectors in the ${nprobe} (nprobe=${nprobe}) clusters using ${
+          viewParams.projectMethod || 'random'
+        }.`,
       },
       {
         images: showImages,
@@ -245,7 +248,7 @@ export default class InfoPanel {
     y = 0,
   } = {}) {
     const showImages = randomSelect(images, 9).filter((a) => a);
-    // console.log(showImages);
+    // console.log('showImages', showImages);
     const items = hoveredCluster
       ? [
           {
@@ -277,7 +280,7 @@ export default class InfoPanel {
         images.filter((a) => a),
         9
       );
-      // console.log(showImages);
+      // console.log('showImages', showImages, images);
       const items = hoveredCluster
         ? [
             {

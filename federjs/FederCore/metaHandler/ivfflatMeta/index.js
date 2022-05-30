@@ -1,5 +1,8 @@
 import { getIvfListId } from 'Utils';
-export const getIvfflatMeta = (index) => {
+import getProjectorHandler from 'FederCore/projector';
+import seedrandom from 'seedrandom';
+
+export const getIvfflatMeta = (index, params) => {
   const id2vector = {};
   const inv = index.invlists;
   for (let list_no = 0; list_no < inv.nlist; list_no++) {
@@ -16,6 +19,22 @@ export const getIvfflatMeta = (index) => {
   indexMeta.nlist = index.nlist;
   indexMeta.listIds = index.invlists.data.map((d) => d.ids);
   indexMeta.listSizes = index.invlists.data.map((d) => d.ids.length);
+
+  const {
+    coarseSearchWithProjection = true,
+    projectMethod = 'umap',
+    projectSeed = null,
+    projectParams = {},
+  } = params;
+  if (coarseSearchWithProjection) {
+    const params = Object.assign({}, projectParams);
+    if (!!projectSeed) {
+      params.random = seedrandom(projectSeed);
+    }
+    const project = getProjectorHandler({ method: projectMethod, params });
+    const vectors = index.childIndex.vectors;
+    indexMeta.listCentroidProjections = project(vectors);
+  }
 
   return { id2vector, indexMeta };
 };

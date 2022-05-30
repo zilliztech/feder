@@ -14,7 +14,7 @@ export default class Feder {
       this.initCorePromise = fetch(filePath)
         .then((res) => res.arrayBuffer())
         .then((data) => {
-          core = new FederCore({ data, source, params: viewParams });
+          core = new FederCore({ data, source, viewParams });
           this.core = core;
           const indexType = core.indexType;
           const indexMeta = core.indexMeta;
