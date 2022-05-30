@@ -77,7 +77,9 @@ const testIVFFlatWithImages = async (filePath) => {
     viewParams: {
       mediaType: 'img',
       mediaCallback,
-      fineSearchWithProjection: true,
+      // coarseSearchWithProjection: true,
+      // fineSearchWithProjection: true,
+      projectSeed: 1235,
       projectMethod: 'umap',
     },
   });
@@ -108,6 +110,6 @@ window.addEventListener('DOMContentLoaded', async () => {
     nprobe: 8,
     ef: 10,
   });
-  // feder.searchRandTestVec();
-  feder.searchById(10583);
+  feder.searchRandTestVec();
+  // feder.searchById(8073);
 });
