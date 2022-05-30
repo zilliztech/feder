@@ -1,10 +1,12 @@
 {
   "name": "@zilliz/feder",
   "author": "ued@zilliz.com",
-  "version": "0.1.8",
+  "version": "0.1.9",
   "description": "visualization packages for vector space",
   "main": "dist/index.js",
-  "files": ["dist"],
+  "files": [
+    "dist"
+  ],
   "scripts": {
     "build": "esbuild federjs/index.js --format=esm --bundle --outdir=dist",
     "build_iife_global": "esbuild federjs/index.js --format=iife --global-name=Feder --bundle --outfile=test/feder_iife_global.js",
@@ -19,7 +21,12 @@
     "type": "git",
     "url": "git+https://github.com/zilliztech/feder.git"
   },
-  "keywords": ["vector-index", "visualization", "faiss", "hnsw"],
+  "keywords": [
+    "vector-index",
+    "visualization",
+    "faiss",
+    "hnsw"
+  ],
   "devDependencies": {
     "ascjs": "^5.0.1",
     "c8": "^7.11.2",
@@ -47,6 +54,7 @@
   "dependencies": {
     "d3": "^7.4.4",
     "d3-fetch": "^3.0.1",
+    "seedrandom": "^3.0.5",
     "tsne-js": "^1.0.3",
     "umap-js": "^1.3.3"
   },

@@ -7,6 +7,9 @@ export default function SVCoarseVoronoiHandler() {
   const height = this.height;
   const clusters = this.clusters;
   const targetClusterId = this.searchRes.coarse[0].id;
+  const targetCluster = clusters.find(
+    (cluster) => cluster.clusterId === targetClusterId
+  );
   const otherFineClustersId = this.searchRes.csResIds.filter(
     (clusterId) => clusterId !== targetClusterId
   );
@@ -20,15 +23,35 @@ export default function SVCoarseVoronoiHandler() {
     cluster.x = cluster.forceProjection[0];
     cluster.y = cluster.forceProjection[1];
   });
+  const otherFineCluster = clusters.filter(
+    (cluster) => otherFineClustersId.indexOf(cluster.clusterId) >= 0
+  );
+  otherFineCluster.forEach((cluster, i) => {
+    cluster.x =
+      targetCluster.x +
+      (targetCluster.r / 2) *
+        Math.sin(((2 * Math.PI) / otherFineCluster.length) * i);
+    cluster.y =
+      targetCluster.y -
+      (targetCluster.r / 2) *
+        Math.cos(((2 * Math.PI) / otherFineCluster.length) * i);
+  });
+
   const simulation = d3
     .forceSimulation(clusters)
     .force(
       'links',
-      d3.forceLink(links).id((cluster) => cluster.clusterId)
+      d3
+        .forceLink(links)
+        .id((cluster) => cluster.clusterId)
+        .strength((_) => 0.1)
     )
     .force(
       'collision',
-      d3.forceCollide().radius((cluster) => cluster.r)
+      d3
+        .forceCollide()
+        .radius((cluster) => cluster.r)
+        .strength(0.1)
     )
     .force('center', d3.forceCenter(width / 2, height / 2))
     .on('tick', () => {
@@ -75,8 +98,8 @@ export default function SVCoarseVoronoiHandler() {
       const biasR = Math.sqrt(_x * _x + _y * _y);
       const targetNode = {
         SVPos: [
-          targetCluster.SVPos[0] + targetCluster.r * 0.5 * (_x / biasR),
-          targetCluster.SVPos[1] + targetCluster.r * 0.5 * (_y / biasR),
+          targetCluster.SVPos[0] + targetCluster.r * 0.4 * (_x / biasR),
+          targetCluster.SVPos[1] + targetCluster.r * 0.4 * (_y / biasR),
         ],
       };
       // let randAngle = Math.random() * Math.PI * 2;
@@ -94,7 +117,9 @@ export default function SVCoarseVoronoiHandler() {
 
       const polarOrigin = [
         width / 2 +
-          (targetNode.isLeft_coarseLevel ? -1 : 1) * this.polarOriginBias * width,
+          (targetNode.isLeft_coarseLevel ? -1 : 1) *
+            this.polarOriginBias *
+            width,
         height / 2,
       ];
       // const polarOrigin = [width / 2, height / 2];
@@ -103,12 +128,13 @@ export default function SVCoarseVoronoiHandler() {
       const polarMaxR = Math.min(width, height) * 0.5 - 5;
       this.polarMaxR = polarMaxR;
 
-      const fineClusterOrder = vecSort(
-        this.nprobeClusters,
-        'SVPolyCentroid',
-        'clusterId'
-      );
-      // console.log('fineClusterOrder', fineClusterOrder, this.nprobeClusters)
+      // const fineClusterOrder = vecSort(
+      //   this.nprobeClusters,
+      //   'SVPolyCentroid',
+      //   'clusterId'
+      // );
+      // console.log('fineClusterOrder', fineClusterOrder, )
+      const fineClusterOrder = this.searchRes.csResIds;
       const angleStep = (Math.PI * 2) / fineClusterOrder.length;
       this.nprobeClusters.forEach((cluster) => {
         const order = fineClusterOrder.indexOf(cluster.clusterId);
@@ -129,6 +155,6 @@ export default function SVCoarseVoronoiHandler() {
       this.clusterId2cluster = clusterId2cluster;
 
       resolve();
-    }, this.voronoiForceTime);
+    }, this.voronoiForceTime / 2);
   });
 }
