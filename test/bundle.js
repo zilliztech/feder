@@ -6799,6 +6799,665 @@ ${indentData}`);
     }
   });
 
+  // node_modules/seedrandom/lib/alea.js
+  var require_alea = __commonJS({
+    "node_modules/seedrandom/lib/alea.js"(exports, module) {
+      (function(global, module2, define2) {
+        function Alea(seed) {
+          var me = this, mash = Mash();
+          me.next = function() {
+            var t = 2091639 * me.s0 + me.c * 23283064365386963e-26;
+            me.s0 = me.s1;
+            me.s1 = me.s2;
+            return me.s2 = t - (me.c = t | 0);
+          };
+          me.c = 1;
+          me.s0 = mash(" ");
+          me.s1 = mash(" ");
+          me.s2 = mash(" ");
+          me.s0 -= mash(seed);
+          if (me.s0 < 0) {
+            me.s0 += 1;
+          }
+          me.s1 -= mash(seed);
+          if (me.s1 < 0) {
+            me.s1 += 1;
+          }
+          me.s2 -= mash(seed);
+          if (me.s2 < 0) {
+            me.s2 += 1;
+          }
+          mash = null;
+        }
+        function copy2(f, t) {
+          t.c = f.c;
+          t.s0 = f.s0;
+          t.s1 = f.s1;
+          t.s2 = f.s2;
+          return t;
+        }
+        function impl(seed, opts) {
+          var xg = new Alea(seed), state = opts && opts.state, prng = xg.next;
+          prng.int32 = function() {
+            return xg.next() * 4294967296 | 0;
+          };
+          prng.double = function() {
+            return prng() + (prng() * 2097152 | 0) * 11102230246251565e-32;
+          };
+          prng.quick = prng;
+          if (state) {
+            if (typeof state == "object")
+              copy2(state, xg);
+            prng.state = function() {
+              return copy2(xg, {});
+            };
+          }
+          return prng;
+        }
+        function Mash() {
+          var n = 4022871197;
+          var mash = function(data) {
+            data = String(data);
+            for (var i = 0; i < data.length; i++) {
+              n += data.charCodeAt(i);
+              var h = 0.02519603282416938 * n;
+              n = h >>> 0;
+              h -= n;
+              h *= n;
+              n = h >>> 0;
+              h -= n;
+              n += h * 4294967296;
+            }
+            return (n >>> 0) * 23283064365386963e-26;
+          };
+          return mash;
+        }
+        if (module2 && module2.exports) {
+          module2.exports = impl;
+        } else if (define2 && define2.amd) {
+          define2(function() {
+            return impl;
+          });
+        } else {
+          this.alea = impl;
+        }
+      })(exports, typeof module == "object" && module, typeof define == "function" && define);
+    }
+  });
+
+  // node_modules/seedrandom/lib/xor128.js
+  var require_xor128 = __commonJS({
+    "node_modules/seedrandom/lib/xor128.js"(exports, module) {
+      (function(global, module2, define2) {
+        function XorGen(seed) {
+          var me = this, strseed = "";
+          me.x = 0;
+          me.y = 0;
+          me.z = 0;
+          me.w = 0;
+          me.next = function() {
+            var t = me.x ^ me.x << 11;
+            me.x = me.y;
+            me.y = me.z;
+            me.z = me.w;
+            return me.w ^= me.w >>> 19 ^ t ^ t >>> 8;
+          };
+          if (seed === (seed | 0)) {
+            me.x = seed;
+          } else {
+            strseed += seed;
+          }
+          for (var k = 0; k < strseed.length + 64; k++) {
+            me.x ^= strseed.charCodeAt(k) | 0;
+            me.next();
+          }
+        }
+        function copy2(f, t) {
+          t.x = f.x;
+          t.y = f.y;
+          t.z = f.z;
+          t.w = f.w;
+          return t;
+        }
+        function impl(seed, opts) {
+          var xg = new XorGen(seed), state = opts && opts.state, prng = function() {
+            return (xg.next() >>> 0) / 4294967296;
+          };
+          prng.double = function() {
+            do {
+              var top = xg.next() >>> 11, bot = (xg.next() >>> 0) / 4294967296, result = (top + bot) / (1 << 21);
+            } while (result === 0);
+            return result;
+          };
+          prng.int32 = xg.next;
+          prng.quick = prng;
+          if (state) {
+            if (typeof state == "object")
+              copy2(state, xg);
+            prng.state = function() {
+              return copy2(xg, {});
+            };
+          }
+          return prng;
+        }
+        if (module2 && module2.exports) {
+          module2.exports = impl;
+        } else if (define2 && define2.amd) {
+          define2(function() {
+            return impl;
+          });
+        } else {
+          this.xor128 = impl;
+        }
+      })(exports, typeof module == "object" && module, typeof define == "function" && define);
+    }
+  });
+
+  // node_modules/seedrandom/lib/xorwow.js
+  var require_xorwow = __commonJS({
+    "node_modules/seedrandom/lib/xorwow.js"(exports, module) {
+      (function(global, module2, define2) {
+        function XorGen(seed) {
+          var me = this, strseed = "";
+          me.next = function() {
+            var t = me.x ^ me.x >>> 2;
+            me.x = me.y;
+            me.y = me.z;
+            me.z = me.w;
+            me.w = me.v;
+            return (me.d = me.d + 362437 | 0) + (me.v = me.v ^ me.v << 4 ^ (t ^ t << 1)) | 0;
+          };
+          me.x = 0;
+          me.y = 0;
+          me.z = 0;
+          me.w = 0;
+          me.v = 0;
+          if (seed === (seed | 0)) {
+            me.x = seed;
+          } else {
+            strseed += seed;
+          }
+          for (var k = 0; k < strseed.length + 64; k++) {
+            me.x ^= strseed.charCodeAt(k) | 0;
+            if (k == strseed.length) {
+              me.d = me.x << 10 ^ me.x >>> 4;
+            }
+            me.next();
+          }
+        }
+        function copy2(f, t) {
+          t.x = f.x;
+          t.y = f.y;
+          t.z = f.z;
+          t.w = f.w;
+          t.v = f.v;
+          t.d = f.d;
+          return t;
+        }
+        function impl(seed, opts) {
+          var xg = new XorGen(seed), state = opts && opts.state, prng = function() {
+            return (xg.next() >>> 0) / 4294967296;
+          };
+          prng.double = function() {
+            do {
+              var top = xg.next() >>> 11, bot = (xg.next() >>> 0) / 4294967296, result = (top + bot) / (1 << 21);
+            } while (result === 0);
+            return result;
+          };
+          prng.int32 = xg.next;
+          prng.quick = prng;
+          if (state) {
+            if (typeof state == "object")
+              copy2(state, xg);
+            prng.state = function() {
+              return copy2(xg, {});
+            };
+          }
+          return prng;
+        }
+        if (module2 && module2.exports) {
+          module2.exports = impl;
+        } else if (define2 && define2.amd) {
+          define2(function() {
+            return impl;
+          });
+        } else {
+          this.xorwow = impl;
+        }
+      })(exports, typeof module == "object" && module, typeof define == "function" && define);
+    }
+  });
+
+  // node_modules/seedrandom/lib/xorshift7.js
+  var require_xorshift7 = __commonJS({
+    "node_modules/seedrandom/lib/xorshift7.js"(exports, module) {
+      (function(global, module2, define2) {
+        function XorGen(seed) {
+          var me = this;
+          me.next = function() {
+            var X2 = me.x, i = me.i, t, v2, w;
+            t = X2[i];
+            t ^= t >>> 7;
+            v2 = t ^ t << 24;
+            t = X2[i + 1 & 7];
+            v2 ^= t ^ t >>> 10;
+            t = X2[i + 3 & 7];
+            v2 ^= t ^ t >>> 3;
+            t = X2[i + 4 & 7];
+            v2 ^= t ^ t << 7;
+            t = X2[i + 7 & 7];
+            t = t ^ t << 13;
+            v2 ^= t ^ t << 9;
+            X2[i] = v2;
+            me.i = i + 1 & 7;
+            return v2;
+          };
+          function init2(me2, seed2) {
+            var j, w, X2 = [];
+            if (seed2 === (seed2 | 0)) {
+              w = X2[0] = seed2;
+            } else {
+              seed2 = "" + seed2;
+              for (j = 0; j < seed2.length; ++j) {
+                X2[j & 7] = X2[j & 7] << 15 ^ seed2.charCodeAt(j) + X2[j + 1 & 7] << 13;
+              }
+            }
+            while (X2.length < 8)
+              X2.push(0);
+            for (j = 0; j < 8 && X2[j] === 0; ++j)
+              ;
+            if (j == 8)
+              w = X2[7] = -1;
+            else
+              w = X2[j];
+            me2.x = X2;
+            me2.i = 0;
+            for (j = 256; j > 0; --j) {
+              me2.next();
+            }
+          }
+          init2(me, seed);
+        }
+        function copy2(f, t) {
+          t.x = f.x.slice();
+          t.i = f.i;
+          return t;
+        }
+        function impl(seed, opts) {
+          if (seed == null)
+            seed = +new Date();
+          var xg = new XorGen(seed), state = opts && opts.state, prng = function() {
+            return (xg.next() >>> 0) / 4294967296;
+          };
+          prng.double = function() {
+            do {
+              var top = xg.next() >>> 11, bot = (xg.next() >>> 0) / 4294967296, result = (top + bot) / (1 << 21);
+            } while (result === 0);
+            return result;
+          };
+          prng.int32 = xg.next;
+          prng.quick = prng;
+          if (state) {
+            if (state.x)
+              copy2(state, xg);
+            prng.state = function() {
+              return copy2(xg, {});
+            };
+          }
+          return prng;
+        }
+        if (module2 && module2.exports) {
+          module2.exports = impl;
+        } else if (define2 && define2.amd) {
+          define2(function() {
+            return impl;
+          });
+        } else {
+          this.xorshift7 = impl;
+        }
+      })(exports, typeof module == "object" && module, typeof define == "function" && define);
+    }
+  });
+
+  // node_modules/seedrandom/lib/xor4096.js
+  var require_xor4096 = __commonJS({
+    "node_modules/seedrandom/lib/xor4096.js"(exports, module) {
+      (function(global, module2, define2) {
+        function XorGen(seed) {
+          var me = this;
+          me.next = function() {
+            var w = me.w, X2 = me.X, i = me.i, t, v2;
+            me.w = w = w + 1640531527 | 0;
+            v2 = X2[i + 34 & 127];
+            t = X2[i = i + 1 & 127];
+            v2 ^= v2 << 13;
+            t ^= t << 17;
+            v2 ^= v2 >>> 15;
+            t ^= t >>> 12;
+            v2 = X2[i] = v2 ^ t;
+            me.i = i;
+            return v2 + (w ^ w >>> 16) | 0;
+          };
+          function init2(me2, seed2) {
+            var t, v2, i, j, w, X2 = [], limit = 128;
+            if (seed2 === (seed2 | 0)) {
+              v2 = seed2;
+              seed2 = null;
+            } else {
+              seed2 = seed2 + "\0";
+              v2 = 0;
+              limit = Math.max(limit, seed2.length);
+            }
+            for (i = 0, j = -32; j < limit; ++j) {
+              if (seed2)
+                v2 ^= seed2.charCodeAt((j + 32) % seed2.length);
+              if (j === 0)
+                w = v2;
+              v2 ^= v2 << 10;
+              v2 ^= v2 >>> 15;
+              v2 ^= v2 << 4;
+              v2 ^= v2 >>> 13;
+              if (j >= 0) {
+                w = w + 1640531527 | 0;
+                t = X2[j & 127] ^= v2 + w;
+                i = t == 0 ? i + 1 : 0;
+              }
+            }
+            if (i >= 128) {
+              X2[(seed2 && seed2.length || 0) & 127] = -1;
+            }
+            i = 127;
+            for (j = 4 * 128; j > 0; --j) {
+              v2 = X2[i + 34 & 127];
+              t = X2[i = i + 1 & 127];
+              v2 ^= v2 << 13;
+              t ^= t << 17;
+              v2 ^= v2 >>> 15;
+              t ^= t >>> 12;
+              X2[i] = v2 ^ t;
+            }
+            me2.w = w;
+            me2.X = X2;
+            me2.i = i;
+          }
+          init2(me, seed);
+        }
+        function copy2(f, t) {
+          t.i = f.i;
+          t.w = f.w;
+          t.X = f.X.slice();
+          return t;
+        }
+        ;
+        function impl(seed, opts) {
+          if (seed == null)
+            seed = +new Date();
+          var xg = new XorGen(seed), state = opts && opts.state, prng = function() {
+            return (xg.next() >>> 0) / 4294967296;
+          };
+          prng.double = function() {
+            do {
+              var top = xg.next() >>> 11, bot = (xg.next() >>> 0) / 4294967296, result = (top + bot) / (1 << 21);
+            } while (result === 0);
+            return result;
+          };
+          prng.int32 = xg.next;
+          prng.quick = prng;
+          if (state) {
+            if (state.X)
+              copy2(state, xg);
+            prng.state = function() {
+              return copy2(xg, {});
+            };
+          }
+          return prng;
+        }
+        if (module2 && module2.exports) {
+          module2.exports = impl;
+        } else if (define2 && define2.amd) {
+          define2(function() {
+            return impl;
+          });
+        } else {
+          this.xor4096 = impl;
+        }
+      })(exports, typeof module == "object" && module, typeof define == "function" && define);
+    }
+  });
+
+  // node_modules/seedrandom/lib/tychei.js
+  var require_tychei = __commonJS({
+    "node_modules/seedrandom/lib/tychei.js"(exports, module) {
+      (function(global, module2, define2) {
+        function XorGen(seed) {
+          var me = this, strseed = "";
+          me.next = function() {
+            var b = me.b, c2 = me.c, d = me.d, a2 = me.a;
+            b = b << 25 ^ b >>> 7 ^ c2;
+            c2 = c2 - d | 0;
+            d = d << 24 ^ d >>> 8 ^ a2;
+            a2 = a2 - b | 0;
+            me.b = b = b << 20 ^ b >>> 12 ^ c2;
+            me.c = c2 = c2 - d | 0;
+            me.d = d << 16 ^ c2 >>> 16 ^ a2;
+            return me.a = a2 - b | 0;
+          };
+          me.a = 0;
+          me.b = 0;
+          me.c = 2654435769 | 0;
+          me.d = 1367130551;
+          if (seed === Math.floor(seed)) {
+            me.a = seed / 4294967296 | 0;
+            me.b = seed | 0;
+          } else {
+            strseed += seed;
+          }
+          for (var k = 0; k < strseed.length + 20; k++) {
+            me.b ^= strseed.charCodeAt(k) | 0;
+            me.next();
+          }
+        }
+        function copy2(f, t) {
+          t.a = f.a;
+          t.b = f.b;
+          t.c = f.c;
+          t.d = f.d;
+          return t;
+        }
+        ;
+        function impl(seed, opts) {
+          var xg = new XorGen(seed), state = opts && opts.state, prng = function() {
+            return (xg.next() >>> 0) / 4294967296;
+          };
+          prng.double = function() {
+            do {
+              var top = xg.next() >>> 11, bot = (xg.next() >>> 0) / 4294967296, result = (top + bot) / (1 << 21);
+            } while (result === 0);
+            return result;
+          };
+          prng.int32 = xg.next;
+          prng.quick = prng;
+          if (state) {
+            if (typeof state == "object")
+              copy2(state, xg);
+            prng.state = function() {
+              return copy2(xg, {});
+            };
+          }
+          return prng;
+        }
+        if (module2 && module2.exports) {
+          module2.exports = impl;
+        } else if (define2 && define2.amd) {
+          define2(function() {
+            return impl;
+          });
+        } else {
+          this.tychei = impl;
+        }
+      })(exports, typeof module == "object" && module, typeof define == "function" && define);
+    }
+  });
+
+  // (disabled):crypto
+  var require_crypto = __commonJS({
+    "(disabled):crypto"() {
+    }
+  });
+
+  // node_modules/seedrandom/seedrandom.js
+  var require_seedrandom = __commonJS({
+    "node_modules/seedrandom/seedrandom.js"(exports, module) {
+      (function(global, pool, math) {
+        var width = 256, chunks = 6, digits = 52, rngname = "random", startdenom = math.pow(width, chunks), significance = math.pow(2, digits), overflow = significance * 2, mask = width - 1, nodecrypto;
+        function seedrandom3(seed, options, callback) {
+          var key = [];
+          options = options == true ? { entropy: true } : options || {};
+          var shortseed = mixkey(flatten(options.entropy ? [seed, tostring(pool)] : seed == null ? autoseed() : seed, 3), key);
+          var arc4 = new ARC4(key);
+          var prng = function() {
+            var n = arc4.g(chunks), d = startdenom, x3 = 0;
+            while (n < significance) {
+              n = (n + x3) * width;
+              d *= width;
+              x3 = arc4.g(1);
+            }
+            while (n >= overflow) {
+              n /= 2;
+              d /= 2;
+              x3 >>>= 1;
+            }
+            return (n + x3) / d;
+          };
+          prng.int32 = function() {
+            return arc4.g(4) | 0;
+          };
+          prng.quick = function() {
+            return arc4.g(4) / 4294967296;
+          };
+          prng.double = prng;
+          mixkey(tostring(arc4.S), pool);
+          return (options.pass || callback || function(prng2, seed2, is_math_call, state) {
+            if (state) {
+              if (state.S) {
+                copy2(state, arc4);
+              }
+              prng2.state = function() {
+                return copy2(arc4, {});
+              };
+            }
+            if (is_math_call) {
+              math[rngname] = prng2;
+              return seed2;
+            } else
+              return prng2;
+          })(prng, shortseed, "global" in options ? options.global : this == math, options.state);
+        }
+        function ARC4(key) {
+          var t, keylen = key.length, me = this, i = 0, j = me.i = me.j = 0, s = me.S = [];
+          if (!keylen) {
+            key = [keylen++];
+          }
+          while (i < width) {
+            s[i] = i++;
+          }
+          for (i = 0; i < width; i++) {
+            s[i] = s[j = mask & j + key[i % keylen] + (t = s[i])];
+            s[j] = t;
+          }
+          (me.g = function(count) {
+            var t2, r = 0, i2 = me.i, j2 = me.j, s2 = me.S;
+            while (count--) {
+              t2 = s2[i2 = mask & i2 + 1];
+              r = r * width + s2[mask & (s2[i2] = s2[j2 = mask & j2 + t2]) + (s2[j2] = t2)];
+            }
+            me.i = i2;
+            me.j = j2;
+            return r;
+          })(width);
+        }
+        function copy2(f, t) {
+          t.i = f.i;
+          t.j = f.j;
+          t.S = f.S.slice();
+          return t;
+        }
+        ;
+        function flatten(obj, depth) {
+          var result = [], typ = typeof obj, prop;
+          if (depth && typ == "object") {
+            for (prop in obj) {
+              try {
+                result.push(flatten(obj[prop], depth - 1));
+              } catch (e) {
+              }
+            }
+          }
+          return result.length ? result : typ == "string" ? obj : obj + "\0";
+        }
+        function mixkey(seed, key) {
+          var stringseed = seed + "", smear, j = 0;
+          while (j < stringseed.length) {
+            key[mask & j] = mask & (smear ^= key[mask & j] * 19) + stringseed.charCodeAt(j++);
+          }
+          return tostring(key);
+        }
+        function autoseed() {
+          try {
+            var out;
+            if (nodecrypto && (out = nodecrypto.randomBytes)) {
+              out = out(width);
+            } else {
+              out = new Uint8Array(width);
+              (global.crypto || global.msCrypto).getRandomValues(out);
+            }
+            return tostring(out);
+          } catch (e) {
+            var browser = global.navigator, plugins = browser && browser.plugins;
+            return [+new Date(), global, plugins, global.screen, tostring(pool)];
+          }
+        }
+        function tostring(a2) {
+          return String.fromCharCode.apply(0, a2);
+        }
+        mixkey(math.random(), pool);
+        if (typeof module == "object" && module.exports) {
+          module.exports = seedrandom3;
+          try {
+            nodecrypto = require_crypto();
+          } catch (ex) {
+          }
+        } else if (typeof define == "function" && define.amd) {
+          define(function() {
+            return seedrandom3;
+          });
+        } else {
+          math["seed" + rngname] = seedrandom3;
+        }
+      })(typeof self !== "undefined" ? self : exports, [], Math);
+    }
+  });
+
+  // node_modules/seedrandom/index.js
+  var require_seedrandom2 = __commonJS({
+    "node_modules/seedrandom/index.js"(exports, module) {
+      var alea = require_alea();
+      var xor128 = require_xor128();
+      var xorwow = require_xorwow();
+      var xorshift7 = require_xorshift7();
+      var xor4096 = require_xor4096();
+      var tychei = require_tychei();
+      var sr = require_seedrandom();
+      sr.alea = alea;
+      sr.xor128 = xor128;
+      sr.xorwow = xorwow;
+      sr.xorshift7 = xorshift7;
+      sr.xor4096 = xor4096;
+      sr.tychei = tychei;
+      module.exports = sr;
+    }
+  });
+
   // federjs/Types.js
   var SOURCE_TYPE = {
     hnswlib: "hnswlib",
@@ -9105,23 +9764,23 @@ ${indentData}`);
       throw new Error("transition not found");
     return schedule;
   }
-  function create(node, id2, self) {
+  function create(node, id2, self2) {
     var schedules = node.__transition, tween;
-    schedules[id2] = self;
-    self.timer = timer(schedule, 0, self.time);
+    schedules[id2] = self2;
+    self2.timer = timer(schedule, 0, self2.time);
     function schedule(elapsed) {
-      self.state = SCHEDULED;
-      self.timer.restart(start2, self.delay, self.time);
-      if (self.delay <= elapsed)
-        start2(elapsed - self.delay);
+      self2.state = SCHEDULED;
+      self2.timer.restart(start2, self2.delay, self2.time);
+      if (self2.delay <= elapsed)
+        start2(elapsed - self2.delay);
     }
     function start2(elapsed) {
       var i, j, n, o;
-      if (self.state !== SCHEDULED)
+      if (self2.state !== SCHEDULED)
         return stop();
       for (i in schedules) {
         o = schedules[i];
-        if (o.name !== self.name)
+        if (o.name !== self2.name)
           continue;
         if (o.state === STARTED)
           return timeout_default(start2);
@@ -9138,38 +9797,38 @@ ${indentData}`);
         }
       }
       timeout_default(function() {
-        if (self.state === STARTED) {
-          self.state = RUNNING;
-          self.timer.restart(tick, self.delay, self.time);
+        if (self2.state === STARTED) {
+          self2.state = RUNNING;
+          self2.timer.restart(tick, self2.delay, self2.time);
           tick(elapsed);
         }
       });
-      self.state = STARTING;
-      self.on.call("start", node, node.__data__, self.index, self.group);
-      if (self.state !== STARTING)
+      self2.state = STARTING;
+      self2.on.call("start", node, node.__data__, self2.index, self2.group);
+      if (self2.state !== STARTING)
         return;
-      self.state = STARTED;
-      tween = new Array(n = self.tween.length);
+      self2.state = STARTED;
+      tween = new Array(n = self2.tween.length);
       for (i = 0, j = -1; i < n; ++i) {
-        if (o = self.tween[i].value.call(node, node.__data__, self.index, self.group)) {
+        if (o = self2.tween[i].value.call(node, node.__data__, self2.index, self2.group)) {
           tween[++j] = o;
         }
       }
       tween.length = j + 1;
     }
     function tick(elapsed) {
-      var t = elapsed < self.duration ? self.ease.call(null, elapsed / self.duration) : (self.timer.restart(stop), self.state = ENDING, 1), i = -1, n = tween.length;
+      var t = elapsed < self2.duration ? self2.ease.call(null, elapsed / self2.duration) : (self2.timer.restart(stop), self2.state = ENDING, 1), i = -1, n = tween.length;
       while (++i < n) {
         tween[i].call(node, t);
       }
-      if (self.state === ENDING) {
-        self.on.call("end", node, node.__data__, self.index, self.group);
+      if (self2.state === ENDING) {
+        self2.on.call("end", node, node.__data__, self2.index, self2.group);
         stop();
       }
     }
     function stop() {
-      self.state = ENDED;
-      self.timer.stop();
+      self2.state = ENDED;
+      self2.timer.stop();
       delete schedules[id2];
       for (var i in schedules)
         return;
@@ -12796,34 +13455,6 @@ ${indentData}`);
   var polyPoints2path = (points, withZ = true) => {
     return `M${points.join("L")}${withZ ? "Z" : ""}`;
   };
-  var calAngle = (x3, y4) => {
-    let angle = Math.atan(x3 / y4) / Math.PI * 180;
-    if (angle < 0) {
-      if (x3 < 0) {
-        angle += 360;
-      } else {
-        angle += 180;
-      }
-    } else {
-      if (x3 < 0) {
-        angle += 180;
-      }
-    }
-    return angle;
-  };
-  var vecSort = (vecs, layoutKey, returnKey) => {
-    const center = {
-      x: vecs.reduce((acc, c2) => acc + c2[layoutKey][0], 0) / vecs.length,
-      y: vecs.reduce((acc, c2) => acc + c2[layoutKey][1], 0) / vecs.length
-    };
-    const angles = vecs.map((vec2) => ({
-      _vecSortAngle: calAngle(vec2[layoutKey][0] - center.x, vec2[layoutKey][1] - center.y),
-      _key: vec2[returnKey]
-    }));
-    angles.sort((a2, b) => a2._vecSortAngle - b._vecSortAngle);
-    const res = angles.map((vec2) => vec2._key);
-    return res;
-  };
   var dist2 = (vec1, vec2) => vec1.map((num, i) => num - vec2[i]).reduce((acc, cur) => acc + cur * cur, 0);
   var dist3 = (vec1, vec2) => Math.sqrt(dist2(vec1, vec2));
   var deDupLink = (links, source = "source", target = "target") => {
@@ -12865,7 +13496,7 @@ ${indentData}`);
     const res = /* @__PURE__ */ new Set();
     k = Math.min(arr.length, k);
     while (k > 0) {
-      const itemIndex = Math.round(Math.random() * arr.length);
+      const itemIndex = Math.floor(Math.random() * arr.length);
       if (!res.has(itemIndex)) {
         res.add(itemIndex);
         k -= 1;
@@ -13248,8 +13879,36 @@ ${indentData}`);
   };
   var hnswMeta_default = getHnswMeta;
 
+  // federjs/FederCore/projector/umap.js
+  var import_umap_js = __toESM(require_dist(), 1);
+  var fixedParams = {
+    nComponents: 2
+  };
+  var umapProject = (projectParams = {}) => {
+    const params = Object.assign({}, projectParams, fixedParams);
+    return (vectors) => {
+      const umap = new import_umap_js.UMAP(params);
+      return umap.fit(vectors);
+    };
+  };
+  var umap_default = umapProject;
+
+  // federjs/FederCore/projector/index.js
+  var projectorMap = {
+    [PROJECT_METHOD.umap]: umap_default
+  };
+  var getProjector = ({ method, params = {} }) => {
+    if (method in projectorMap) {
+      return projectorMap[method](params);
+    } else {
+      console.error(`No projector for [${method}]`);
+    }
+  };
+  var projector_default = getProjector;
+
   // federjs/FederCore/metaHandler/ivfflatMeta/index.js
-  var getIvfflatMeta = (index2) => {
+  var import_seedrandom = __toESM(require_seedrandom2(), 1);
+  var getIvfflatMeta = (index2, params) => {
     const id2vector = {};
     const inv = index2.invlists;
     for (let list_no = 0; list_no < inv.nlist; list_no++) {
@@ -13263,6 +13922,21 @@ ${indentData}`);
     indexMeta.nlist = index2.nlist;
     indexMeta.listIds = index2.invlists.data.map((d) => d.ids);
     indexMeta.listSizes = index2.invlists.data.map((d) => d.ids.length);
+    const {
+      coarseSearchWithProjection = true,
+      projectMethod = "umap",
+      projectSeed = null,
+      projectParams = {}
+    } = params;
+    if (coarseSearchWithProjection) {
+      const params2 = Object.assign({}, projectParams);
+      if (!!projectSeed) {
+        params2.random = (0, import_seedrandom.default)(projectSeed);
+      }
+      const project = projector_default({ method: projectMethod, params: params2 });
+      const vectors = index2.childIndex.vectors;
+      indexMeta.listCentroidProjections = project(vectors);
+    }
     return { id2vector, indexMeta };
   };
   var ivfflatMeta_default = getIvfflatMeta;
@@ -13556,46 +14230,20 @@ ${indentData}`);
   };
   var searchHandler_default = getIndexSearchHandler;
 
-  // federjs/FederCore/projector/umap.js
-  var import_umap_js = __toESM(require_dist(), 1);
-  var fixedParams = {
-    nComponents: 2
-  };
-  var umapProject = (projectParams = {}) => {
-    const params = Object.assign({}, projectParams, fixedParams);
-    return (vectors) => {
-      const umap = new import_umap_js.UMAP(params);
-      return umap.fit(vectors);
-    };
-  };
-  var umap_default = umapProject;
-
-  // federjs/FederCore/projector/index.js
-  var projectorMap = {
-    [PROJECT_METHOD.umap]: umap_default
-  };
-  var getProjector = ({ method, params = {} }) => {
-    if (method in projectorMap) {
-      return projectorMap[method](params);
-    } else {
-      console.error(`No projector for [${method}]`);
-    }
-  };
-  var projector_default = getProjector;
-
   // federjs/FederCore/index.js
+  var import_seedrandom2 = __toESM(require_seedrandom2(), 1);
   var FederCore = class {
     constructor({
       data,
       source,
-      params
+      viewParams
     }) {
       try {
-        this.params = params;
+        this.viewParams = viewParams;
         const index2 = this.parserIndex(data, source);
         this.index = index2;
         this.indexType = index2.indexType;
-        const { indexMeta, id2vector } = this.extractMeta(index2);
+        const { indexMeta, id2vector } = this.extractMeta(index2, viewParams);
         this.indexMeta = indexMeta;
         this.id2vector = id2vector;
         this.indexSearchHandler = searchHandler_default(index2.indexType);
@@ -13608,9 +14256,9 @@ ${indentData}`);
       const index2 = indexParser(data);
       return index2;
     }
-    extractMeta(index2) {
+    extractMeta(index2, viewParams = {}) {
       const metaHandler = metaHandler_default(index2.indexType);
-      const meta = metaHandler(index2);
+      const meta = metaHandler(index2, viewParams);
       return meta;
     }
     getTestIdAndVec() {
@@ -13632,15 +14280,20 @@ ${indentData}`);
       });
       if (this.index.indexType === INDEX_TYPE.ivf_flat) {
         const {
-          fineSearchWithProjection = false,
-          projectMethod,
-          projectParams
-        } = this.params;
+          fineSearchWithProjection = true,
+          projectMethod = "umap",
+          projectSeed = null,
+          projectParams = {}
+        } = this.viewParams;
         if (fineSearchWithProjection) {
           const ids = searchRes.fine.map((item) => item.id);
+          const params = projectParams;
+          if (!!projectSeed) {
+            params.random = (0, import_seedrandom2.default)(projectSeed);
+          }
           this.initProjector({
             method: projectMethod,
-            params: projectParams
+            params
           });
           const projections = this.projectByIds(ids);
           searchRes.fine.map((item, i) => item.projection = projections[i]);
@@ -16011,6 +16664,7 @@ ${indentData}`);
     const height = this.height;
     const clusters = this.clusters;
     const targetClusterId = this.searchRes.coarse[0].id;
+    const targetCluster = clusters.find((cluster) => cluster.clusterId === targetClusterId);
     const otherFineClustersId = this.searchRes.csResIds.filter((clusterId) => clusterId !== targetClusterId);
     const links = otherFineClustersId.map((clusterId) => ({
       source: clusterId,
@@ -16020,7 +16674,12 @@ ${indentData}`);
       cluster.x = cluster.forceProjection[0];
       cluster.y = cluster.forceProjection[1];
     });
-    const simulation = simulation_default(clusters).force("links", link_default(links).id((cluster) => cluster.clusterId)).force("collision", collide_default().radius((cluster) => cluster.r)).force("center", center_default(width / 2, height / 2)).on("tick", () => {
+    const otherFineCluster = clusters.filter((cluster) => otherFineClustersId.indexOf(cluster.clusterId) >= 0);
+    otherFineCluster.forEach((cluster, i) => {
+      cluster.x = targetCluster.x + targetCluster.r / 2 * Math.sin(2 * Math.PI / otherFineCluster.length * i);
+      cluster.y = targetCluster.y - targetCluster.r / 2 * Math.cos(2 * Math.PI / otherFineCluster.length * i);
+    });
+    const simulation = simulation_default(clusters).force("links", link_default(links).id((cluster) => cluster.clusterId).strength((_) => 0.1)).force("collision", collide_default().radius((cluster) => cluster.r).strength(0.1)).force("center", center_default(width / 2, height / 2)).on("tick", () => {
       clusters.forEach((cluster) => {
         cluster.x = Math.max(cluster.r, Math.min(width - cluster.r, cluster.x));
         cluster.y = Math.max(cluster.r, Math.min(height - cluster.r, cluster.y));
@@ -16040,16 +16699,16 @@ ${indentData}`);
           cluster.SVPolyCentroid = centroid_default(points);
         });
         this.SVVoronoi = voronoi;
-        const targetCluster = clusters.find((cluster) => cluster.clusterId === targetClusterId);
+        const targetCluster2 = clusters.find((cluster) => cluster.clusterId === targetClusterId);
         const centoid_fineClusters_x = this.nprobeClusters.reduce((acc, cluster) => acc + cluster.SVPolyCentroid[0], 0) / this.nprobeClusters.length;
         const centroid_fineClusters_y = this.nprobeClusters.reduce((acc, cluster) => acc + cluster.SVPolyCentroid[1], 0) / this.nprobeClusters.length;
-        const _x = centoid_fineClusters_x - targetCluster.SVPos[0];
-        const _y = centroid_fineClusters_y - targetCluster.SVPos[1];
+        const _x = centoid_fineClusters_x - targetCluster2.SVPos[0];
+        const _y = centroid_fineClusters_y - targetCluster2.SVPos[1];
         const biasR = Math.sqrt(_x * _x + _y * _y);
         const targetNode = {
           SVPos: [
-            targetCluster.SVPos[0] + targetCluster.r * 0.5 * (_x / biasR),
-            targetCluster.SVPos[1] + targetCluster.r * 0.5 * (_y / biasR)
+            targetCluster2.SVPos[0] + targetCluster2.r * 0.4 * (_x / biasR),
+            targetCluster2.SVPos[1] + targetCluster2.r * 0.4 * (_y / biasR)
           ]
         };
         targetNode.isLeft_coarseLevel = targetNode.SVPos[0] < this.width / 2;
@@ -16062,7 +16721,7 @@ ${indentData}`);
         targetNode.polarPos = polarOrigin;
         const polarMaxR = Math.min(width, height) * 0.5 - 5;
         this.polarMaxR = polarMaxR;
-        const fineClusterOrder = vecSort(this.nprobeClusters, "SVPolyCentroid", "clusterId");
+        const fineClusterOrder = this.searchRes.csResIds;
         const angleStep = Math.PI * 2 / fineClusterOrder.length;
         this.nprobeClusters.forEach((cluster) => {
           const order = fineClusterOrder.indexOf(cluster.clusterId);
@@ -16082,7 +16741,7 @@ ${indentData}`);
         });
         this.clusterId2cluster = clusterId2cluster;
         resolve();
-      }, this.voronoiForceTime);
+      }, this.voronoiForceTime / 2);
     });
   }
 
@@ -17246,7 +17905,7 @@ ${indentData}`);
       this.viewParams = viewParams;
       if (!core) {
         this.initCorePromise = fetch(filePath).then((res) => res.arrayBuffer()).then((data) => {
-          core = new FederCore({ data, source, params: viewParams });
+          core = new FederCore({ data, source, viewParams });
           this.core = core;
           const indexType = core.indexType;
           const indexMeta = core.indexMeta;
@@ -17339,7 +17998,7 @@ ${indentData}`);
       viewParams: {
         mediaType: "img",
         mediaCallback,
-        fineSearchWithProjection: true,
+        projectSeed: 1235,
         projectMethod: "umap"
       }
     });
@@ -17353,6 +18012,6 @@ ${indentData}`);
       nprobe: 8,
       ef: 10
     });
-    feder.searchById(10583);
+    feder.searchRandTestVec();
   }));
 })();

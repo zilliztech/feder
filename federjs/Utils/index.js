@@ -135,7 +135,7 @@ export const randomSelect = (arr, k) => {
   const res = new Set();
   k = Math.min(arr.length, k);
   while (k > 0) {
-    const itemIndex = Math.round(Math.random() * arr.length);
+    const itemIndex = Math.floor(Math.random() * arr.length);
     if (!res.has(itemIndex)) {
       res.add(itemIndex);
       k -= 1;
