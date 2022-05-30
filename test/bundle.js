@@ -13857,7 +13857,7 @@ ${indentData}`);
   var hnswOverviewData_default = getHnswlibHNSWOverviewData;
 
   // federjs/FederCore/metaHandler/hnswMeta/index.js
-  var getHnswMeta = (index2, overviewLevelCount = 3) => {
+  var getHnswMeta = (index2, { overviewLevelCount = 3 }) => {
     const { labels, vectors } = index2;
     const id2vector = {};
     labels.forEach((id2, i) => {

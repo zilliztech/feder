@@ -37,6 +37,7 @@ const testHNSWWithImages = async (filePath) => {
     viewParams: {
       mediaType: 'img',
       mediaCallback,
+      // overviewLevelCount: 2,
     },
   });
   return feder;

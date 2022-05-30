@@ -1,5 +1,5 @@
 import getHnswlibHNSWOverviewData from './hnswOverviewData';
-export const getHnswMeta = (index, overviewLevelCount = 3) => {
+export const getHnswMeta = (index, { overviewLevelCount = 3 }) => {
   const { labels, vectors } = index;
 
   const id2vector = {};
