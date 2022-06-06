@@ -51,13 +51,13 @@ export default function SVCoarseVoronoiHandler() {
 
     const simulation = d3
       .forceSimulation(clusters)
-      .alphaDecay(1 - Math.pow(0.001, 1 / 50))
+      .alphaDecay(1 - Math.pow(0.001, 1 / this.forceIterations / 2))
       .force(
         'links',
         d3
           .forceLink(links)
           .id((cluster) => cluster.clusterId)
-          .strength((_) => 0.15)
+          .strength((_) => 0.25)
       )
       .force(
         'collision',

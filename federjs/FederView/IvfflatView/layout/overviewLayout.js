@@ -37,7 +37,7 @@ export default function overviewLayoutHandler({ indexMeta }) {
 
     const simulation = d3
       .forceSimulation(clusters)
-      .alphaDecay(1 - Math.pow(0.001, 1 / 100))
+      .alphaDecay(1 - Math.pow(0.001, 1 / this.forceIterations))
       .force(
         'collision',
         d3.forceCollide().radius((cluster) => cluster.r)

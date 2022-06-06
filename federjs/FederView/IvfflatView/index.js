@@ -37,6 +37,7 @@ const defaultIvfflatViewParams = {
   animateExitTime: 1500,
   animateEnterTime: 1000,
   fineSearchNodeTransTime: 1200,
+  forceIterations: 100,
 };
 
 export default class IvfflatView extends BaseView {
