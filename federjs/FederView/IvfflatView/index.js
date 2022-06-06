@@ -14,8 +14,8 @@ import InfoPanel from './InfoPanel';
 
 const defaultIvfflatViewParams = {
   minVoronoiRadius: 4,
-  voronoiForceTime: 3000,
-  nodeCollisionForceTime: 1000,
+  // voronoiForceTime: 3000,
+  // nodeCollisionForceTime: 1000,
   backgroundColor: 'red',
   voronoiStrokeWidth: 2,
   targetNodeStrokeWidth: 5,

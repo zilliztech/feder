@@ -17665,8 +17665,6 @@ ${indentData}`);
   // federjs/FederView/IvfflatView/index.js
   var defaultIvfflatViewParams = {
     minVoronoiRadius: 4,
-    voronoiForceTime: 3e3,
-    nodeCollisionForceTime: 1e3,
     backgroundColor: "red",
     voronoiStrokeWidth: 2,
     targetNodeStrokeWidth: 5,
