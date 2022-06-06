@@ -87,6 +87,7 @@ export default class IvfflatView extends BaseView {
     renderVoronoiView.call(this);
   }
   async searchViewHandler({ searchRes }) {
+    this.overviewInitPromise && (await this.overviewInitPromise);
     this.nprobe = searchRes.csResIds.length;
     this.k = searchRes.fsResIds.length;
     this.colorScheme = d3
@@ -98,7 +99,7 @@ export default class IvfflatView extends BaseView {
       })
       .then(() => {});
     await this.searchViewInitPromise;
-    console.log('searchViewHandler finished');
+    console.log('searchView Layout finished');
   }
   renderSearchView() {
     this.renderCoarseSearch();

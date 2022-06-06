@@ -13455,6 +13455,34 @@ ${indentData}`);
   var polyPoints2path = (points, withZ = true) => {
     return `M${points.join("L")}${withZ ? "Z" : ""}`;
   };
+  var calAngle = (x3, y4) => {
+    let angle = Math.atan(x3 / y4) / Math.PI * 180;
+    if (angle < 0) {
+      if (x3 < 0) {
+        angle += 360;
+      } else {
+        angle += 180;
+      }
+    } else {
+      if (x3 < 0) {
+        angle += 180;
+      }
+    }
+    return angle;
+  };
+  var vecSort = (vecs, layoutKey, returnKey) => {
+    const center = {
+      x: vecs.reduce((acc, c2) => acc + c2[layoutKey][0], 0) / vecs.length,
+      y: vecs.reduce((acc, c2) => acc + c2[layoutKey][1], 0) / vecs.length
+    };
+    const angles = vecs.map((vec2) => ({
+      _vecSortAngle: calAngle(vec2[layoutKey][0] - center.x, vec2[layoutKey][1] - center.y),
+      _key: vec2[returnKey]
+    }));
+    angles.sort((a2, b) => a2._vecSortAngle - b._vecSortAngle);
+    const res = angles.map((vec2) => vec2._key);
+    return res;
+  };
   var dist2 = (vec1, vec2) => vec1.map((num, i) => num - vec2[i]).reduce((acc, cur) => acc + cur * cur, 0);
   var dist3 = (vec1, vec2) => Math.sqrt(dist2(vec1, vec2));
   var deDupLink = (links, source = "source", target = "target") => {
@@ -16373,33 +16401,31 @@ ${indentData}`);
 
   // federjs/FederView/IvfflatView/layout/overviewLayout.js
   function overviewLayoutHandler2({ indexMeta }) {
-    const width = this.width;
-    const height = this.height;
-    const allArea = width * height;
-    const { ntotal, listCentroidProjections = null, listSizes } = indexMeta;
-    const clusters = listSizes.map((listSize, i) => ({
-      clusterId: i,
-      oriProjection: listCentroidProjections ? listCentroidProjections[i] : [Math.random(), Math.random()],
-      count: listSize,
-      countP: listSize / ntotal,
-      countArea: allArea * (listSize / ntotal)
-    }));
-    const x3 = linear2().domain(extent(clusters, (cluster) => cluster.oriProjection[0])).range([0, width]);
-    const y4 = linear2().domain(extent(clusters, (cluster) => cluster.oriProjection[1])).range([0, height]);
-    clusters.forEach((cluster) => {
-      cluster.x = x3(cluster.oriProjection[0]);
-      cluster.y = y4(cluster.oriProjection[1]);
-      cluster.r = Math.max(this.minVoronoiRadius * this.canvasScale, Math.sqrt(cluster.countArea / Math.PI));
-    });
-    const simulation = simulation_default(clusters).force("collision", collide_default().radius((cluster) => cluster.r)).force("center", center_default(width / 2, height / 2)).on("tick", () => {
-      clusters.forEach((cluster) => {
-        cluster.x = Math.max(cluster.r, Math.min(width - cluster.r, cluster.x));
-        cluster.y = Math.max(cluster.r, Math.min(height - cluster.r, cluster.y));
-      });
-    });
     return new Promise((resolve) => {
-      setTimeout(() => {
-        simulation.stop();
+      const width = this.width;
+      const height = this.height;
+      const allArea = width * height;
+      const { ntotal, listCentroidProjections = null, listSizes } = indexMeta;
+      const clusters = listSizes.map((listSize, i) => ({
+        clusterId: i,
+        oriProjection: listCentroidProjections ? listCentroidProjections[i] : [Math.random(), Math.random()],
+        count: listSize,
+        countP: listSize / ntotal,
+        countArea: allArea * (listSize / ntotal)
+      }));
+      const x3 = linear2().domain(extent(clusters, (cluster) => cluster.oriProjection[0])).range([0, width]);
+      const y4 = linear2().domain(extent(clusters, (cluster) => cluster.oriProjection[1])).range([0, height]);
+      clusters.forEach((cluster) => {
+        cluster.x = x3(cluster.oriProjection[0]);
+        cluster.y = y4(cluster.oriProjection[1]);
+        cluster.r = Math.max(this.minVoronoiRadius * this.canvasScale, Math.sqrt(cluster.countArea / Math.PI));
+      });
+      const simulation = simulation_default(clusters).alphaDecay(1 - Math.pow(1e-3, 1 / 100)).force("collision", collide_default().radius((cluster) => cluster.r)).force("center", center_default(width / 2, height / 2)).on("tick", () => {
+        clusters.forEach((cluster) => {
+          cluster.x = Math.max(cluster.r, Math.min(width - cluster.r, cluster.x));
+          cluster.y = Math.max(cluster.r, Math.min(height - cluster.r, cluster.y));
+        });
+      }).on("end", () => {
         clusters.forEach((cluster) => {
           cluster.forceProjection = [cluster.x, cluster.y];
         });
@@ -16411,7 +16437,7 @@ ${indentData}`);
           cluster.OVPolyCentroid = centroid_default(points);
         });
         resolve({ clusters, voronoi });
-      }, this.voronoiForceTime);
+      });
     });
   }
 
@@ -16660,34 +16686,39 @@ ${indentData}`);
 
   // federjs/FederView/IvfflatView/layout/SVCoarseVoronoiHandler.js
   function SVCoarseVoronoiHandler() {
-    const width = this.width;
-    const height = this.height;
-    const clusters = this.clusters;
-    const targetClusterId = this.searchRes.coarse[0].id;
-    const targetCluster = clusters.find((cluster) => cluster.clusterId === targetClusterId);
-    const otherFineClustersId = this.searchRes.csResIds.filter((clusterId) => clusterId !== targetClusterId);
-    const links = otherFineClustersId.map((clusterId) => ({
-      source: clusterId,
-      target: targetClusterId
-    }));
-    clusters.forEach((cluster) => {
-      cluster.x = cluster.forceProjection[0];
-      cluster.y = cluster.forceProjection[1];
-    });
-    const otherFineCluster = clusters.filter((cluster) => otherFineClustersId.indexOf(cluster.clusterId) >= 0);
-    otherFineCluster.forEach((cluster, i) => {
-      cluster.x = targetCluster.x + targetCluster.r / 2 * Math.sin(2 * Math.PI / otherFineCluster.length * i);
-      cluster.y = targetCluster.y - targetCluster.r / 2 * Math.cos(2 * Math.PI / otherFineCluster.length * i);
-    });
-    const simulation = simulation_default(clusters).force("links", link_default(links).id((cluster) => cluster.clusterId).strength((_) => 0.1)).force("collision", collide_default().radius((cluster) => cluster.r).strength(0.1)).force("center", center_default(width / 2, height / 2)).on("tick", () => {
-      clusters.forEach((cluster) => {
-        cluster.x = Math.max(cluster.r, Math.min(width - cluster.r, cluster.x));
-        cluster.y = Math.max(cluster.r, Math.min(height - cluster.r, cluster.y));
-      });
-    });
     return new Promise((resolve) => {
-      setTimeout(() => {
-        simulation.stop();
+      const width = this.width;
+      const height = this.height;
+      const clusters = this.clusters;
+      const fineClusterOrder = vecSort(this.nprobeClusters, "OVPolyCentroid", "clusterId");
+      const targetClusterId = this.searchRes.coarse[0].id;
+      const targetCluster = clusters.find((cluster) => cluster.clusterId === targetClusterId);
+      const otherFineClustersId = fineClusterOrder.filter((clusterId) => clusterId !== targetClusterId);
+      const links = otherFineClustersId.map((clusterId) => ({
+        source: clusterId,
+        target: targetClusterId
+      }));
+      clusters.forEach((cluster) => {
+        cluster.x = cluster.forceProjection[0];
+        cluster.y = cluster.forceProjection[1];
+      });
+      const targetClusterX = this.nprobeClusters.reduce((acc, cluster) => acc + cluster.x, 0) / this.nprobe;
+      const targetClusterY = this.nprobeClusters.reduce((acc, cluster) => acc + cluster.y, 0) / this.nprobe;
+      targetCluster.x = targetClusterX;
+      targetCluster.y = targetClusterY;
+      const otherFineCluster = otherFineClustersId.map((clusterId) => this.nprobeClusters.find((cluster) => cluster.clusterId === clusterId));
+      const angleStep = 2 * Math.PI / (this.nprobe - 1);
+      const biasR = targetCluster.r * 0.5;
+      otherFineCluster.forEach((cluster, i) => {
+        cluster.x = targetClusterX + biasR * Math.sin(angleStep * i);
+        cluster.y = targetClusterY + biasR * Math.cos(angleStep * i);
+      });
+      const simulation = simulation_default(clusters).alphaDecay(1 - Math.pow(1e-3, 1 / 50)).force("links", link_default(links).id((cluster) => cluster.clusterId).strength((_) => 0.15)).force("collision", collide_default().radius((cluster) => cluster.r).strength(0.1)).force("center", center_default(width / 2, height / 2)).on("tick", () => {
+        clusters.forEach((cluster) => {
+          cluster.x = Math.max(cluster.r, Math.min(width - cluster.r, cluster.x));
+          cluster.y = Math.max(cluster.r, Math.min(height - cluster.r, cluster.y));
+        });
+      }).on("end", () => {
         clusters.forEach((cluster) => {
           cluster.SVPos = [cluster.x, cluster.y];
         });
@@ -16704,11 +16735,11 @@ ${indentData}`);
         const centroid_fineClusters_y = this.nprobeClusters.reduce((acc, cluster) => acc + cluster.SVPolyCentroid[1], 0) / this.nprobeClusters.length;
         const _x = centoid_fineClusters_x - targetCluster2.SVPos[0];
         const _y = centroid_fineClusters_y - targetCluster2.SVPos[1];
-        const biasR = Math.sqrt(_x * _x + _y * _y);
+        const biasR2 = Math.sqrt(_x * _x + _y * _y);
         const targetNode = {
           SVPos: [
-            targetCluster2.SVPos[0] + targetCluster2.r * 0.4 * (_x / biasR),
-            targetCluster2.SVPos[1] + targetCluster2.r * 0.4 * (_y / biasR)
+            targetCluster2.SVPos[0] + targetCluster2.r * 0.4 * (_x / biasR2),
+            targetCluster2.SVPos[1] + targetCluster2.r * 0.4 * (_y / biasR2)
           ]
         };
         targetNode.isLeft_coarseLevel = targetNode.SVPos[0] < this.width / 2;
@@ -16721,14 +16752,13 @@ ${indentData}`);
         targetNode.polarPos = polarOrigin;
         const polarMaxR = Math.min(width, height) * 0.5 - 5;
         this.polarMaxR = polarMaxR;
-        const fineClusterOrder = this.searchRes.csResIds;
-        const angleStep = Math.PI * 2 / fineClusterOrder.length;
+        const angleStep2 = Math.PI * 2 / fineClusterOrder.length;
         this.nprobeClusters.forEach((cluster) => {
           const order = fineClusterOrder.indexOf(cluster.clusterId);
           cluster.polarOrder = order;
           cluster.SVNextLevelPos = [
-            polarOrigin[0] + polarMaxR / 2 * Math.sin(angleStep * order),
-            polarOrigin[1] + polarMaxR / 2 * Math.cos(angleStep * order)
+            polarOrigin[0] + polarMaxR / 2 * Math.sin(angleStep2 * order),
+            polarOrigin[1] + polarMaxR / 2 * Math.cos(angleStep2 * order)
           ];
           cluster.SVNextLevelTran = [
             cluster.SVNextLevelPos[0] - cluster.SVPolyCentroid[0],
@@ -16741,7 +16771,7 @@ ${indentData}`);
         });
         this.clusterId2cluster = clusterId2cluster;
         resolve();
-      }, this.voronoiForceTime / 2);
+      });
     });
   }
 
@@ -16800,7 +16830,6 @@ ${indentData}`);
   // federjs/FederView/IvfflatView/layout/searchViewLayout.js
   function searchViewLayoutHandler2({ searchRes }) {
     const SVCoarsePromise = new Promise((resolve) => __async(this, null, function* () {
-      this.overviewInitPromise && (yield this.overviewInitPromise);
       this.searchRes = searchRes;
       searchRes.coarse.forEach(({ id: id2, dis }) => this.clusters[id2].dis = dis);
       this.nprobeClusters = this.clusters.filter((cluster) => this.searchRes.csResIds.indexOf(cluster.clusterId) >= 0);
@@ -17698,6 +17727,7 @@ ${indentData}`);
     }
     searchViewHandler(_0) {
       return __async(this, arguments, function* ({ searchRes }) {
+        this.overviewInitPromise && (yield this.overviewInitPromise);
         this.nprobe = searchRes.csResIds.length;
         this.k = searchRes.fsResIds.length;
         this.colorScheme = range(this.nprobe).map((i) => hsl(360 * i / this.nprobe, 1, 0.5).hex());
@@ -17706,7 +17736,7 @@ ${indentData}`);
         }).then(() => {
         });
         yield this.searchViewInitPromise;
-        console.log("searchViewHandler finished");
+        console.log("searchView Layout finished");
       });
     }
     renderSearchView() {
