@@ -14,8 +14,8 @@ import InfoPanel from './InfoPanel';
 
 const defaultIvfflatViewParams = {
   minVoronoiRadius: 4,
-  voronoiForceTime: 3000,
-  nodeCollisionForceTime: 1000,
+  // voronoiForceTime: 3000,
+  // nodeCollisionForceTime: 1000,
   backgroundColor: 'red',
   voronoiStrokeWidth: 2,
   targetNodeStrokeWidth: 5,
@@ -37,13 +37,14 @@ const defaultIvfflatViewParams = {
   animateExitTime: 1500,
   animateEnterTime: 1000,
   fineSearchNodeTransTime: 1200,
+  forceIterations: 100,
 };
 
 export default class IvfflatView extends BaseView {
-  constructor({ indexMeta, domSelector, viewParams }) {
+  constructor({ indexMeta, dom, viewParams }) {
     super({
       indexMeta,
-      domSelector,
+      dom,
       viewParams,
     });
     for (let key in defaultIvfflatViewParams) {
@@ -58,7 +59,7 @@ export default class IvfflatView extends BaseView {
     this.overviewHandler({ indexMeta });
 
     this.infoPanel = new InfoPanel({
-      domSelector,
+      dom,
       width: viewParams.width,
       height: viewParams.height,
     });
@@ -87,6 +88,7 @@ export default class IvfflatView extends BaseView {
     renderVoronoiView.call(this);
   }
   async searchViewHandler({ searchRes }) {
+    this.overviewInitPromise && (await this.overviewInitPromise);
     this.nprobe = searchRes.csResIds.length;
     this.k = searchRes.fsResIds.length;
     this.colorScheme = d3
@@ -98,7 +100,7 @@ export default class IvfflatView extends BaseView {
       })
       .then(() => {});
     await this.searchViewInitPromise;
-    console.log('searchViewHandler finished');
+    console.log('searchView Layout finished');
   }
   renderSearchView() {
     this.renderCoarseSearch();

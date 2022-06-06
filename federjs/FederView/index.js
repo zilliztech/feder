@@ -24,8 +24,8 @@ export default class FederView {
     this.initDom();
   }
   initDom() {
-    const dom = document.querySelector(this.domSelector);
-    dom.innerHTML = '';
+    const dom = document.createElement('div');
+    this.dom = dom;
     const { width, height } = this.viewParams;
     const domStyle = {
       position: 'relative',
@@ -36,13 +36,18 @@ export default class FederView {
     };
     Object.assign(dom.style, domStyle);
     initLoadingStyle();
-    renderLoading(this.domSelector);
+    renderLoading(this.dom, width, height);
+
+    if (this.domSelector) {
+      const domContainer = document.querySelector(this.domSelector);
+      domContainer.appendChild(dom);
+    }
   }
   initView({ indexType, indexMeta, getVectorById }) {
     if (indexType in viewHandlerMap) {
       this.view = new viewHandlerMap[indexType]({
         indexMeta,
-        domSelector: this.domSelector,
+        dom: this.dom,
         viewParams: this.viewParams,
         getVectorById,
       });
