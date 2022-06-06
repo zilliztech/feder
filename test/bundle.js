@@ -14360,10 +14360,9 @@ ${indentData}`);
     `;
     document.getElementsByTagName("head").item(0).appendChild(style);
   };
-  var renderLoading = (domSelector2) => {
-    const dom = select_default2(domSelector2);
-    const { width, height } = dom.node().getBoundingClientRect();
-    if (!select_default2(`#${loadingSvgId2}`).empty())
+  var renderLoading = (domNode, width, height) => {
+    const dom = select_default2(domNode);
+    if (!dom.select(`#${loadingSvgId2}`).empty())
       return;
     const svg = dom.append("svg").attr("id", loadingSvgId2).attr("width", loadingWidth2).attr("height", loadingWidth2).style("position", "absolute").style("left", width / 2 - loadingWidth2 / 2).style("bottom", height / 2 - loadingWidth2 / 2).style("overflow", "visible");
     const defsG = svg.append("defs");
@@ -14374,15 +14373,15 @@ ${indentData}`);
     const loadingCircle = svg.append("circle").attr("cx", loadingWidth2 / 2).attr("cy", loadingWidth2 / 2).attr("fill", "none").attr("r", loadingWidth2 / 2).attr("stroke", "#1E64FF").attr("stroke-width", loadingStrokeWidth);
     const semiCircle = svg.append("path").attr("d", `M0,${-loadingWidth2 / 2} a ${loadingWidth2 / 2} ${loadingWidth2 / 2} 0 1 1 ${0} ${loadingWidth2}`).attr("fill", "none").attr("stroke", `url(#${linearGradientId})`).attr("stroke-width", loadingStrokeWidth).classed("rotate", true);
   };
-  var finishLoading = (domSelector2) => {
-    const dom = select_default2(domSelector2);
-    dom.select(`#${loadingSvgId2}`).remove();
+  var finishLoading = (domNode) => {
+    const dom = select_default2(domNode);
+    dom.selectAll(`#${loadingSvgId2}`).remove();
   };
 
   // federjs/FederView/BaseView.js
   var BaseView = class {
-    constructor({ domSelector: domSelector2, viewParams, getVectorById }) {
-      this.domSelector = domSelector2;
+    constructor({ dom, viewParams, getVectorById }) {
+      this.dom = dom;
       this.viewParams = viewParams;
       const { width, height, canvasScale, mediaType, mediaCallback } = viewParams;
       this.clientWidth = width;
@@ -14395,8 +14394,8 @@ ${indentData}`);
       this.mediaCallback = mediaCallback;
     }
     initCanvas() {
-      renderLoading(this.domSelector);
-      const dom = select_default2(this.domSelector);
+      renderLoading(this.dom, this.viewParams.width, this.viewParams.height);
+      const dom = select_default2(this.dom);
       dom.selectAll("canvas").remove();
       const canvas = dom.append("canvas").attr("width", this.clientWidth).attr("height", this.clientHeight);
       const ctx = canvas.node().getContext("2d");
@@ -14421,7 +14420,7 @@ ${indentData}`);
         this.clickedNode = null;
         this.hoveredNode = null;
         this.overviewInitPromise && (yield this.overviewInitPromise);
-        finishLoading(this.domSelector);
+        finishLoading(this.dom);
         this.renderOverview();
         this.addMouseListener();
         this.setOverviewListenerHandlers();
@@ -14435,7 +14434,7 @@ ${indentData}`);
         this.clickedNode = null;
         this.hoveredNode = null;
         yield this.searchViewHandler({ searchRes });
-        finishLoading(this.domSelector);
+        finishLoading(this.dom);
         this.renderSearchView();
         this.addMouseListener();
         this.setSearchViewListenerHandlers();
@@ -15785,11 +15784,10 @@ ${indentData}`);
   var hoveredPanelId = "feder-info-hovered-panel";
   var panelBackgroundColor = hexWithOpacity(blackColor, 0.6);
   var InfoPanel = class {
-    constructor({ domSelector: domSelector2, width, height }) {
-      this.domSelector = domSelector2;
+    constructor({ dom, width, height }) {
+      this.dom = dom;
       this.width = width;
       this.height = height;
-      const dom = document.querySelector(domSelector2);
       const overviewPanel = document.createElement("div");
       overviewPanel.setAttribute("id", overviewPanelId);
       overviewPanel.className = overviewPanel.className + " panel-border panel hide";
@@ -15886,7 +15884,7 @@ ${indentData}`);
       document.getElementsByTagName("head").item(0).appendChild(style);
     }
     renderSelectedPanel(itemList = [], color2 = "#000") {
-      const panel = select_default2(this.domSelector).select(`#${selectedPanelId}`);
+      const panel = select_default2(this.dom).select(`#${selectedPanelId}`);
       panel.style("color", color2);
       if (itemList.length === 0)
         panel.classed("hide", true);
@@ -15902,7 +15900,7 @@ ${indentData}`);
       y: y4 = 0,
       isLeft = false
     } = {}) {
-      const panel = select_default2(this.domSelector).select(`#${hoveredPanelId}`);
+      const panel = select_default2(this.dom).select(`#${hoveredPanelId}`);
       if (itemList.length === 0)
         panel.classed("hide", true);
       else {
@@ -15921,7 +15919,7 @@ ${indentData}`);
       }
     }
     renderOverviewPanel(itemList = [], color2) {
-      const panel = select_default2(this.domSelector).select(`#${overviewPanelId}`);
+      const panel = select_default2(this.dom).select(`#${overviewPanelId}`);
       panel.style("color", color2);
       if (itemList.length === 0)
         panel.classed("hide", true);
@@ -16215,10 +16213,10 @@ ${indentData}`);
     hoveredPanelLineWidth: 2
   };
   var HnswView = class extends BaseView {
-    constructor({ indexMeta, domSelector: domSelector2, viewParams, getVectorById }) {
+    constructor({ indexMeta, dom, viewParams, getVectorById }) {
       super({
         indexMeta,
-        domSelector: domSelector2,
+        dom,
         viewParams,
         getVectorById
       });
@@ -16227,7 +16225,7 @@ ${indentData}`);
       }
       this.padding = this.padding.map((num) => num * this.canvasScale);
       const infoPanel = new InfoPanel({
-        domSelector: domSelector2,
+        dom,
         width: this.width,
         height: this.height
       });
@@ -16272,7 +16270,7 @@ ${indentData}`);
       });
     }
     renderSearchView() {
-      const timeControllerView = new TimeControllerView_default(this.domSelector);
+      const timeControllerView = new TimeControllerView_default(this.dom);
       const callback = ({ t, p }) => {
         renderSearchViewTransition.call(this, { t, p });
         timeControllerView.moveSilderBar(p);
@@ -17226,8 +17224,8 @@ ${indentData}`);
   var hoveredPanelId2 = "feder-info-hovered-panel";
   var panelBackgroundColor2 = hexWithOpacity(blackColor, 0.6);
   var InfoPanel2 = class {
-    constructor({ domSelector: domSelector2, width, height }) {
-      this.domSelector = domSelector2;
+    constructor({ dom, width, height }) {
+      this.dom = dom;
       this.width = width;
       this.height = height;
       this.initOverviewPanel();
@@ -17235,7 +17233,7 @@ ${indentData}`);
       this.initStyle();
     }
     initOverviewPanel() {
-      const dom = document.querySelector(this.domSelector);
+      const dom = this.dom;
       const overviewPanel = document.createElement("div");
       overviewPanel.setAttribute("id", overviewPanelId2);
       overviewPanel.className = overviewPanel.className + " panel-border panel hide";
@@ -17404,7 +17402,7 @@ ${indentData}`);
       this.renderOverviewPanel(items, whiteColor);
     }
     initHoveredPanel() {
-      const dom = document.querySelector(this.domSelector);
+      const dom = this.dom;
       const hoveredPanel = document.createElement("div");
       hoveredPanel.setAttribute("id", hoveredPanelId2);
       hoveredPanel.className = hoveredPanel.className + "panel-border panel hide";
@@ -17578,7 +17576,7 @@ ${indentData}`);
       document.getElementsByTagName("head").item(0).appendChild(style);
     }
     renderHoveredPanel(itemList = [], color2 = "#000", x3 = 0, y4 = 0) {
-      const panel = select_default2(this.domSelector).select(`#${hoveredPanelId2}`);
+      const panel = select_default2(this.dom).select(`#${hoveredPanelId2}`);
       if (itemList.length === 0)
         panel.classed("hide", true);
       else {
@@ -17603,7 +17601,7 @@ ${indentData}`);
       }
     }
     renderOverviewPanel(itemList = [], color2) {
-      const panel = select_default2(this.domSelector).select(`#${overviewPanelId2}`);
+      const panel = select_default2(this.dom).select(`#${overviewPanelId2}`);
       panel.style("color", color2);
       if (itemList.length === 0)
         panel.classed("hide", true);
@@ -17689,10 +17687,10 @@ ${indentData}`);
     forceIterations: 100
   };
   var IvfflatView = class extends BaseView {
-    constructor({ indexMeta, domSelector: domSelector2, viewParams }) {
+    constructor({ indexMeta, dom, viewParams }) {
       super({
         indexMeta,
-        domSelector: domSelector2,
+        dom,
         viewParams
       });
       for (let key in defaultIvfflatViewParams) {
@@ -17701,7 +17699,7 @@ ${indentData}`);
       this.projectPadding = this.projectPadding.map((num) => num * this.canvasScale);
       this.overviewHandler({ indexMeta });
       this.infoPanel = new InfoPanel2({
-        domSelector: domSelector2,
+        dom,
         width: viewParams.width,
         height: viewParams.height
       });
@@ -17881,8 +17879,8 @@ ${indentData}`);
       this.initDom();
     }
     initDom() {
-      const dom = document.querySelector(this.domSelector);
-      dom.innerHTML = "";
+      const dom = document.createElement("div");
+      this.dom = dom;
       const { width, height } = this.viewParams;
       const domStyle = {
         position: "relative",
@@ -17891,13 +17889,17 @@ ${indentData}`);
       };
       Object.assign(dom.style, domStyle);
       initLoadingStyle();
-      renderLoading(this.domSelector);
+      renderLoading(this.dom, width, height);
+      if (this.domSelector) {
+        const domContainer = document.querySelector(this.domSelector);
+        domContainer.appendChild(dom);
+      }
     }
     initView({ indexType, indexMeta, getVectorById }) {
       if (indexType in viewHandlerMap) {
         this.view = new viewHandlerMap[indexType]({
           indexMeta,
-          domSelector: this.domSelector,
+          dom: this.dom,
           viewParams: this.viewParams,
           getVectorById
         });
@@ -17925,7 +17927,7 @@ ${indentData}`);
       core = null,
       filePath = "",
       source = "",
-      domSelector: domSelector2,
+      domSelector: domSelector2 = null,
       viewParams = {}
     }) {
       this.federView = new FederView({ domSelector: domSelector2, viewParams });
@@ -17945,6 +17947,9 @@ ${indentData}`);
         });
       } else {
       }
+    }
+    get node() {
+      return this.federView.dom;
     }
     overview() {
       return __async(this, null, function* () {

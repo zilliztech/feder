@@ -27,10 +27,10 @@ export const initLoadingStyle = () => {
   document.getElementsByTagName('head').item(0).appendChild(style);
 };
 
-export const renderLoading = (domSelector) => {
-  const dom = d3.select(domSelector);
-  const { width, height } = dom.node().getBoundingClientRect();
-  if (!d3.select(`#${loadingSvgId}`).empty()) return;
+export const renderLoading = (domNode, width, height) => {
+  const dom = d3.select(domNode);
+  // const { width, height } = dom.node().getBoundingClientRect();
+  if (!dom.select(`#${loadingSvgId}`).empty()) return;
   const svg = dom
     .append('svg')
     .attr('id', loadingSvgId)
@@ -83,7 +83,7 @@ export const renderLoading = (domSelector) => {
     .classed('rotate', true);
 };
 
-export const finishLoading = (domSelector) => {
-  const dom = d3.select(domSelector);
-  dom.select(`#${loadingSvgId}`).remove();
+export const finishLoading = (domNode) => {
+  const dom = d3.select(domNode);
+  dom.selectAll(`#${loadingSvgId}`).remove();
 };
