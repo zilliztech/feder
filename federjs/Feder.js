@@ -5,7 +5,7 @@ export default class Feder {
     core = null,
     filePath = '',
     source = '',
-    domSelector,
+    domSelector = null,
     viewParams = {},
   }) {
     this.federView = new FederView({ domSelector, viewParams });
@@ -31,6 +31,9 @@ export default class Feder {
     }
   }
 
+  get node() {
+    return this.federView.dom;
+  }
   async overview() {
     this.initCorePromise && (await this.initCorePromise);
     this.federView.overview();

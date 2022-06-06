@@ -32,10 +32,10 @@ const defaultHnswViewParams = {
   hoveredPanelLineWidth: 2,
 };
 export default class HnswView extends BaseView {
-  constructor({ indexMeta, domSelector, viewParams, getVectorById }) {
+  constructor({ indexMeta, dom, viewParams, getVectorById }) {
     super({
       indexMeta,
-      domSelector,
+      dom,
       viewParams,
       getVectorById,
     });
@@ -45,7 +45,7 @@ export default class HnswView extends BaseView {
     }
     this.padding = this.padding.map((num) => num * this.canvasScale);
     const infoPanel = new InfoPanel({
-      domSelector,
+      dom,
       width: this.width,
       height: this.height,
     });
@@ -106,7 +106,7 @@ export default class HnswView extends BaseView {
     this.updateSearchViewOverviewInfo({});
   }
   renderSearchView() {
-    const timeControllerView = new TimeControllerView(this.domSelector);
+    const timeControllerView = new TimeControllerView(this.dom);
 
     const callback = ({ t, p }) => {
       renderSearchViewTransition.call(this, { t, p });
