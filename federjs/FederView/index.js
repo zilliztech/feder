@@ -21,7 +21,8 @@ export default class FederView {
 
     this.viewHandler = null;
 
-    this.initDom();
+    // this.initDom();
+    initLoadingStyle();
   }
   initDom() {
     const dom = document.createElement('div');
@@ -35,11 +36,11 @@ export default class FederView {
       // borderRadius: '10px',
     };
     Object.assign(dom.style, domStyle);
-    initLoadingStyle();
     renderLoading(this.dom, width, height);
 
     if (this.domSelector) {
       const domContainer = document.querySelector(this.domSelector);
+      domContainer.innerHTML = '';
       domContainer.appendChild(dom);
     }
   }
@@ -47,17 +48,39 @@ export default class FederView {
     if (indexType in viewHandlerMap) {
       this.view = new viewHandlerMap[indexType]({
         indexMeta,
-        dom: this.dom,
         viewParams: this.viewParams,
         getVectorById,
       });
     } else throw `No view handler for ${indexType}`;
   }
-  overview() {
-    this.view.overview();
+  overview(initCorePromise) {
+    this.initDom();
+    initCorePromise.then(() => {
+      this.view.overview(this.dom);
+    });
   }
-  search({ searchRes, targetMediaUrl }) {
-    this.view.search({ searchRes, targetMediaUrl });
+  search({
+    searchRes = null,
+    targetMediaUrl = null,
+    searchResPromise = null,
+  } = {}) {
+    this.initDom();
+
+    if (searchResPromise) {
+      searchResPromise.then(({ searchRes, targetMediaUrl }) => {
+        this.view.search({
+          searchRes,
+          targetMediaUrl,
+          dom: this.dom,
+        });
+      });
+    } else {
+      this.view.search({
+        searchRes,
+        targetMediaUrl,
+        dom: this.dom,
+      });
+    }
   }
 
   switchSearchView(searchViewType) {

@@ -3,8 +3,7 @@ import { renderLoading, finishLoading } from './loading';
 import { VIEW_TYPE } from 'Types';
 
 export default class BaseView {
-  constructor({ dom, viewParams, getVectorById }) {
-    this.dom = dom;
+  constructor({ viewParams, getVectorById }) {
     this.viewParams = viewParams;
 
     const { width, height, canvasScale, mediaType, mediaCallback } = viewParams;
@@ -36,26 +35,31 @@ export default class BaseView {
   renderSearchView() {}
   setOverviewListenerHandlers() {}
   setSearchViewListenerHandlers() {}
+  initInfoPanel() {}
 
-  async overview() {
+  async overview(dom) {
+    this.dom = dom;
+    this.initInfoPanel(dom);
     this.viewType = VIEW_TYPE.overview;
     this.initCanvas();
     this.clickedNode = null;
     this.hoveredNode = null;
     this.overviewInitPromise && (await this.overviewInitPromise);
-    finishLoading(this.dom);
+    finishLoading(dom);
     this.renderOverview();
     this.addMouseListener();
     this.setOverviewListenerHandlers();
   }
-  async search({ searchRes, targetMediaUrl }) {
+  async search({ searchRes, targetMediaUrl, dom }) {
+    this.dom = dom;
+    this.initInfoPanel(dom);
     this.viewType = VIEW_TYPE.search;
     this.targetMediaUrl = targetMediaUrl;
     this.initCanvas();
     this.clickedNode = null;
     this.hoveredNode = null;
     await this.searchViewHandler({ searchRes });
-    finishLoading(this.dom);
+    finishLoading(dom);
     this.renderSearchView();
     this.addMouseListener();
     this.setSearchViewListenerHandlers();

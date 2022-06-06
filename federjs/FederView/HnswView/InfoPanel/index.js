@@ -153,7 +153,7 @@ export default class InfoPanel {
       // panel.style.top = y + 'px';
       if (isLeft) {
         panel.style('left', null);
-        panel.style('right', (this.width - x) / canvasScale + 'px');
+        panel.style('right', (this.width - x / canvasScale)  + 'px');
         panel.style('flex-direction', 'row-reverse');
       } else {
         panel.style('left', x / canvasScale + 'px');

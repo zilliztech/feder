@@ -41,10 +41,9 @@ const defaultIvfflatViewParams = {
 };
 
 export default class IvfflatView extends BaseView {
-  constructor({ indexMeta, dom, viewParams }) {
+  constructor({ indexMeta, viewParams }) {
     super({
       indexMeta,
-      dom,
       viewParams,
     });
     for (let key in defaultIvfflatViewParams) {
@@ -57,11 +56,13 @@ export default class IvfflatView extends BaseView {
     );
 
     this.overviewHandler({ indexMeta });
+  }
 
+  initInfoPanel(dom) {
     this.infoPanel = new InfoPanel({
       dom,
-      width: viewParams.width,
-      height: viewParams.height,
+      width: this.viewParams.width,
+      height: this.viewParams.height,
     });
   }
 

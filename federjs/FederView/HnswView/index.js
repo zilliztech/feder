@@ -33,10 +33,9 @@ const defaultHnswViewParams = {
   forceIterations: 100,
 };
 export default class HnswView extends BaseView {
-  constructor({ indexMeta, dom, viewParams, getVectorById }) {
+  constructor({ indexMeta, viewParams, getVectorById }) {
     super({
       indexMeta,
-      dom,
       viewParams,
       getVectorById,
     });
@@ -45,10 +44,14 @@ export default class HnswView extends BaseView {
         key in viewParams ? viewParams[key] : defaultHnswViewParams[key];
     }
     this.padding = this.padding.map((num) => num * this.canvasScale);
+    
+    this.overviewHandler({ indexMeta });
+  }
+  initInfoPanel(dom) {
     const infoPanel = new InfoPanel({
       dom,
-      width: this.width,
-      height: this.height,
+      width: this.viewParams.width,
+      height: this.viewParams.height,
     });
     this.infoPanel = infoPanel;
     this.updateOverviewOverviewInfo = (info) =>
@@ -64,7 +67,6 @@ export default class HnswView extends BaseView {
     this.updateSearchViewClickedInfo = (info) =>
       infoPanel.updateSearchViewClickedInfo({ ...this, ...info });
 
-    this.overviewHandler({ indexMeta });
   }
   overviewHandler({ indexMeta }) {
     this.indexMeta = indexMeta;

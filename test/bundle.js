@@ -14380,8 +14380,7 @@ ${indentData}`);
 
   // federjs/FederView/BaseView.js
   var BaseView = class {
-    constructor({ dom, viewParams, getVectorById }) {
-      this.dom = dom;
+    constructor({ viewParams, getVectorById }) {
       this.viewParams = viewParams;
       const { width, height, canvasScale, mediaType, mediaCallback } = viewParams;
       this.clientWidth = width;
@@ -14413,28 +14412,34 @@ ${indentData}`);
     }
     setSearchViewListenerHandlers() {
     }
-    overview() {
+    initInfoPanel() {
+    }
+    overview(dom) {
       return __async(this, null, function* () {
+        this.dom = dom;
+        this.initInfoPanel(dom);
         this.viewType = VIEW_TYPE.overview;
         this.initCanvas();
         this.clickedNode = null;
         this.hoveredNode = null;
         this.overviewInitPromise && (yield this.overviewInitPromise);
-        finishLoading(this.dom);
+        finishLoading(dom);
         this.renderOverview();
         this.addMouseListener();
         this.setOverviewListenerHandlers();
       });
     }
     search(_0) {
-      return __async(this, arguments, function* ({ searchRes, targetMediaUrl }) {
+      return __async(this, arguments, function* ({ searchRes, targetMediaUrl, dom }) {
+        this.dom = dom;
+        this.initInfoPanel(dom);
         this.viewType = VIEW_TYPE.search;
         this.targetMediaUrl = targetMediaUrl;
         this.initCanvas();
         this.clickedNode = null;
         this.hoveredNode = null;
         yield this.searchViewHandler({ searchRes });
-        finishLoading(this.dom);
+        finishLoading(dom);
         this.renderSearchView();
         this.addMouseListener();
         this.setSearchViewListenerHandlers();
@@ -15903,7 +15908,7 @@ ${indentData}`);
         panel.style("color", color2);
         if (isLeft) {
           panel.style("left", null);
-          panel.style("right", (this.width - x3) / canvasScale + "px");
+          panel.style("right", this.width - x3 / canvasScale + "px");
           panel.style("flex-direction", "row-reverse");
         } else {
           panel.style("left", x3 / canvasScale + "px");
@@ -16210,10 +16215,9 @@ ${indentData}`);
     forceIterations: 100
   };
   var HnswView = class extends BaseView {
-    constructor({ indexMeta, dom, viewParams, getVectorById }) {
+    constructor({ indexMeta, viewParams, getVectorById }) {
       super({
         indexMeta,
-        dom,
         viewParams,
         getVectorById
       });
@@ -16221,10 +16225,13 @@ ${indentData}`);
         this[key] = key in viewParams ? viewParams[key] : defaultHnswViewParams[key];
       }
       this.padding = this.padding.map((num) => num * this.canvasScale);
+      this.overviewHandler({ indexMeta });
+    }
+    initInfoPanel(dom) {
       const infoPanel = new InfoPanel({
         dom,
-        width: this.width,
-        height: this.height
+        width: this.viewParams.width,
+        height: this.viewParams.height
       });
       this.infoPanel = infoPanel;
       this.updateOverviewOverviewInfo = (info) => infoPanel.updateOverviewOverviewInfo(info);
@@ -16233,7 +16240,6 @@ ${indentData}`);
       this.updateSearchViewOverviewInfo = (info) => infoPanel.updateSearchViewOverviewInfo(__spreadValues(__spreadValues({}, this), info));
       this.updateSearchViewHoveredInfo = (info) => infoPanel.updateSearchViewHoveredInfo(__spreadValues(__spreadValues({}, this), info));
       this.updateSearchViewClickedInfo = (info) => infoPanel.updateSearchViewClickedInfo(__spreadValues(__spreadValues({}, this), info));
-      this.overviewHandler({ indexMeta });
     }
     overviewHandler({ indexMeta }) {
       this.indexMeta = indexMeta;
@@ -17684,10 +17690,9 @@ ${indentData}`);
     forceIterations: 100
   };
   var IvfflatView = class extends BaseView {
-    constructor({ indexMeta, dom, viewParams }) {
+    constructor({ indexMeta, viewParams }) {
       super({
         indexMeta,
-        dom,
         viewParams
       });
       for (let key in defaultIvfflatViewParams) {
@@ -17695,10 +17700,12 @@ ${indentData}`);
       }
       this.projectPadding = this.projectPadding.map((num) => num * this.canvasScale);
       this.overviewHandler({ indexMeta });
+    }
+    initInfoPanel(dom) {
       this.infoPanel = new InfoPanel2({
         dom,
-        width: viewParams.width,
-        height: viewParams.height
+        width: this.viewParams.width,
+        height: this.viewParams.height
       });
     }
     overviewHandler({ indexMeta }) {
@@ -17873,7 +17880,7 @@ ${indentData}`);
       this.domSelector = domSelector2;
       this.viewParams = Object.assign({}, defaultViewParams, viewParams);
       this.viewHandler = null;
-      this.initDom();
+      initLoadingStyle();
     }
     initDom() {
       const dom = document.createElement("div");
@@ -17885,10 +17892,10 @@ ${indentData}`);
         height: `${height}px`
       };
       Object.assign(dom.style, domStyle);
-      initLoadingStyle();
       renderLoading(this.dom, width, height);
       if (this.domSelector) {
         const domContainer = document.querySelector(this.domSelector);
+        domContainer.innerHTML = "";
         domContainer.appendChild(dom);
       }
     }
@@ -17896,18 +17903,39 @@ ${indentData}`);
       if (indexType in viewHandlerMap) {
         this.view = new viewHandlerMap[indexType]({
           indexMeta,
-          dom: this.dom,
           viewParams: this.viewParams,
           getVectorById
         });
       } else
         throw `No view handler for ${indexType}`;
     }
-    overview() {
-      this.view.overview();
+    overview(initCorePromise) {
+      this.initDom();
+      initCorePromise.then(() => {
+        this.view.overview(this.dom);
+      });
     }
-    search({ searchRes, targetMediaUrl }) {
-      this.view.search({ searchRes, targetMediaUrl });
+    search({
+      searchRes = null,
+      targetMediaUrl = null,
+      searchResPromise = null
+    } = {}) {
+      this.initDom();
+      if (searchResPromise) {
+        searchResPromise.then(({ searchRes: searchRes2, targetMediaUrl: targetMediaUrl2 }) => {
+          this.view.search({
+            searchRes: searchRes2,
+            targetMediaUrl: targetMediaUrl2,
+            dom: this.dom
+          });
+        });
+      } else {
+        this.view.search({
+          searchRes,
+          targetMediaUrl,
+          dom: this.dom
+        });
+      }
     }
     switchSearchView(searchViewType) {
       try {
@@ -17949,53 +17977,61 @@ ${indentData}`);
       return this.federView.dom;
     }
     overview() {
-      return __async(this, null, function* () {
-        this.initCorePromise && (yield this.initCorePromise);
-        this.federView.overview();
-      });
+      this.federView.overview(this.initCorePromise);
+      return this.node;
     }
     search(target = null, targetMediaUrl = null) {
-      return __async(this, null, function* () {
-        this.initCorePromise && (yield this.initCorePromise);
-        if (target) {
+      if (target) {
+        const searchResPromise = this.initCorePromise.then(() => {
           const searchRes = this.core.search(target);
           console.log(searchRes);
           this.searchRes = searchRes;
-          this.federView.search({ searchRes, targetMediaUrl });
-        } else {
-          if (!this.searchRes) {
-            console.error("No target");
-            return;
-          }
-          const searchRes = this.searchRes;
-          const targetMediaUrl2 = this.targetMediaUrl;
-          this.federView.search({ searchRes, targetMediaUrl: targetMediaUrl2 });
+          this.targetMediaUrl = targetMediaUrl;
+          return { searchRes, targetMediaUrl };
+        });
+        this.federView.search({ searchResPromise });
+      } else {
+        if (!this.searchRes) {
+          console.error("No target");
+          return;
         }
-      });
+        const searchRes = this.searchRes;
+        const targetMediaUrl2 = this.targetMediaUrl;
+        this.federView.search({ searchRes, targetMediaUrl: targetMediaUrl2 });
+      }
+      return this.node;
     }
-    searchById(testId = null) {
-      return __async(this, null, function* () {
-        this.initCorePromise && (yield this.initCorePromise);
+    searchById(testId) {
+      const searchResPromise = this.initCorePromise.then(() => {
         if (!(testId in this.core.id2vector)) {
-          console.log("Invalid Id");
+          console.error("Invalid Id");
         } else {
           const testVec = this.core.id2vector[testId];
           const targetMediaUrl = this.viewParams && this.viewParams.mediaCallback ? this.viewParams.mediaCallback(testId) : null;
-          this.search(testVec, targetMediaUrl);
+          const searchRes = this.core.search(testVec);
+          console.log(searchRes);
+          this.searchRes = searchRes;
+          return { searchRes, targetMediaUrl };
         }
       });
+      this.federView.search({ searchResPromise });
+      return this.node;
     }
     searchRandTestVec() {
-      return __async(this, null, function* () {
-        this.initCorePromise && (yield this.initCorePromise);
-        let [testId, testVec] = yield this.core.getTestIdAndVec();
+      const searchResPromise = this.initCorePromise.then(() => {
+        let [testId, testVec] = this.core.getTestIdAndVec();
         while (isNaN(testId)) {
-          [testId, testVec] = yield this.core.getTestIdAndVec();
+          [testId, testVec] = this.core.getTestIdAndVec();
         }
         console.log("random test vector:", testId, testVec);
         const targetMediaUrl = this.viewParams && this.viewParams.mediaCallback ? this.viewParams.mediaCallback(testId) : null;
-        this.search(testVec, targetMediaUrl);
+        const searchRes = this.core.search(testVec);
+        console.log(searchRes);
+        this.searchRes = searchRes;
+        return { searchRes, targetMediaUrl };
       });
+      this.federView.search({ searchResPromise });
+      return this.node;
     }
     setSearchParams(params) {
       return __async(this, null, function* () {
