@@ -34,17 +34,21 @@ export default class Feder {
   get node() {
     return this.federView.dom;
   }
-  async overview() {
-    this.initCorePromise && (await this.initCorePromise);
-    this.federView.overview();
+  overview() {
+    this.federView.overview(this.initCorePromise);
+
+    return this.node;
   }
-  async search(target = null, targetMediaUrl = null) {
-    this.initCorePromise && (await this.initCorePromise);
+  search(target = null, targetMediaUrl = null) {
     if (target) {
-      const searchRes = this.core.search(target);
-      console.log(searchRes);
-      this.searchRes = searchRes;
-      this.federView.search({ searchRes, targetMediaUrl });
+      const searchResPromise = this.initCorePromise.then(() => {
+        const searchRes = this.core.search(target);
+        console.log(searchRes);
+        this.searchRes = searchRes;
+        this.targetMediaUrl = targetMediaUrl;
+        return { searchRes, targetMediaUrl };
+      });
+      this.federView.search({ searchResPromise });
     } else {
       if (!this.searchRes) {
         console.error('No target');
@@ -54,32 +58,49 @@ export default class Feder {
       const targetMediaUrl = this.targetMediaUrl;
       this.federView.search({ searchRes, targetMediaUrl });
     }
+
+    return this.node;
   }
-  async searchById(testId = null) {
-    this.initCorePromise && (await this.initCorePromise);
-    if (!(testId in this.core.id2vector)) {
-      console.log('Invalid Id');
-    } else {
-      const testVec = this.core.id2vector[testId];
+  searchById(testId) {
+    const searchResPromise = this.initCorePromise.then(() => {
+      if (!(testId in this.core.id2vector)) {
+        console.error('Invalid Id');
+      } else {
+        const testVec = this.core.id2vector[testId];
+        const targetMediaUrl =
+          this.viewParams && this.viewParams.mediaCallback
+            ? this.viewParams.mediaCallback(testId)
+            : null;
+        const searchRes = this.core.search(testVec);
+        console.log(searchRes);
+        this.searchRes = searchRes;
+        return { searchRes, targetMediaUrl };
+      }
+    });
+    this.federView.search({ searchResPromise });
+
+    return this.node;
+  }
+  searchRandTestVec() {
+    const searchResPromise = this.initCorePromise.then(() => {
+      let [testId, testVec] = this.core.getTestIdAndVec();
+      while (isNaN(testId)) {
+        [testId, testVec] = this.core.getTestIdAndVec();
+      }
+      console.log('random test vector:', testId, testVec);
       const targetMediaUrl =
         this.viewParams && this.viewParams.mediaCallback
           ? this.viewParams.mediaCallback(testId)
           : null;
-      this.search(testVec, targetMediaUrl);
-    }
-  }
-  async searchRandTestVec() {
-    this.initCorePromise && (await this.initCorePromise);
-    let [testId, testVec] = await this.core.getTestIdAndVec();
-    while (isNaN(testId)) {
-      [testId, testVec] = await this.core.getTestIdAndVec();
-    }
-    console.log('random test vector:', testId, testVec);
-    const targetMediaUrl =
-      this.viewParams && this.viewParams.mediaCallback
-        ? this.viewParams.mediaCallback(testId)
-        : null;
-    this.search(testVec, targetMediaUrl);
+      const searchRes = this.core.search(testVec);
+      console.log(searchRes);
+      this.searchRes = searchRes;
+      return { searchRes, targetMediaUrl };
+    });
+
+    this.federView.search({ searchResPromise });
+
+    return this.node;
   }
 
   async setSearchParams(params) {
