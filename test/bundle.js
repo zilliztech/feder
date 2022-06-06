@@ -13455,6 +13455,34 @@ ${indentData}`);
   var polyPoints2path = (points, withZ = true) => {
     return `M${points.join("L")}${withZ ? "Z" : ""}`;
   };
+  var calAngle = (x3, y4) => {
+    let angle = Math.atan(x3 / y4) / Math.PI * 180;
+    if (angle < 0) {
+      if (x3 < 0) {
+        angle += 360;
+      } else {
+        angle += 180;
+      }
+    } else {
+      if (x3 < 0) {
+        angle += 180;
+      }
+    }
+    return angle;
+  };
+  var vecSort = (vecs, layoutKey, returnKey) => {
+    const center = {
+      x: vecs.reduce((acc, c2) => acc + c2[layoutKey][0], 0) / vecs.length,
+      y: vecs.reduce((acc, c2) => acc + c2[layoutKey][1], 0) / vecs.length
+    };
+    const angles = vecs.map((vec2) => ({
+      _vecSortAngle: calAngle(vec2[layoutKey][0] - center.x, vec2[layoutKey][1] - center.y),
+      _key: vec2[returnKey]
+    }));
+    angles.sort((a2, b) => a2._vecSortAngle - b._vecSortAngle);
+    const res = angles.map((vec2) => vec2._key);
+    return res;
+  };
   var dist2 = (vec1, vec2) => vec1.map((num, i) => num - vec2[i]).reduce((acc, cur) => acc + cur * cur, 0);
   var dist3 = (vec1, vec2) => Math.sqrt(dist2(vec1, vec2));
   var deDupLink = (links, source = "source", target = "target") => {
@@ -14332,10 +14360,9 @@ ${indentData}`);
     `;
     document.getElementsByTagName("head").item(0).appendChild(style);
   };
-  var renderLoading = (domSelector2) => {
-    const dom = select_default2(domSelector2);
-    const { width, height } = dom.node().getBoundingClientRect();
-    if (!select_default2(`#${loadingSvgId2}`).empty())
+  var renderLoading = (domNode, width, height) => {
+    const dom = select_default2(domNode);
+    if (!dom.select(`#${loadingSvgId2}`).empty())
       return;
     const svg = dom.append("svg").attr("id", loadingSvgId2).attr("width", loadingWidth2).attr("height", loadingWidth2).style("position", "absolute").style("left", width / 2 - loadingWidth2 / 2).style("bottom", height / 2 - loadingWidth2 / 2).style("overflow", "visible");
     const defsG = svg.append("defs");
@@ -14346,15 +14373,15 @@ ${indentData}`);
     const loadingCircle = svg.append("circle").attr("cx", loadingWidth2 / 2).attr("cy", loadingWidth2 / 2).attr("fill", "none").attr("r", loadingWidth2 / 2).attr("stroke", "#1E64FF").attr("stroke-width", loadingStrokeWidth);
     const semiCircle = svg.append("path").attr("d", `M0,${-loadingWidth2 / 2} a ${loadingWidth2 / 2} ${loadingWidth2 / 2} 0 1 1 ${0} ${loadingWidth2}`).attr("fill", "none").attr("stroke", `url(#${linearGradientId})`).attr("stroke-width", loadingStrokeWidth).classed("rotate", true);
   };
-  var finishLoading = (domSelector2) => {
-    const dom = select_default2(domSelector2);
-    dom.select(`#${loadingSvgId2}`).remove();
+  var finishLoading = (domNode) => {
+    const dom = select_default2(domNode);
+    dom.selectAll(`#${loadingSvgId2}`).remove();
   };
 
   // federjs/FederView/BaseView.js
   var BaseView = class {
-    constructor({ domSelector: domSelector2, viewParams, getVectorById }) {
-      this.domSelector = domSelector2;
+    constructor({ dom, viewParams, getVectorById }) {
+      this.dom = dom;
       this.viewParams = viewParams;
       const { width, height, canvasScale, mediaType, mediaCallback } = viewParams;
       this.clientWidth = width;
@@ -14367,8 +14394,8 @@ ${indentData}`);
       this.mediaCallback = mediaCallback;
     }
     initCanvas() {
-      renderLoading(this.domSelector);
-      const dom = select_default2(this.domSelector);
+      renderLoading(this.dom, this.viewParams.width, this.viewParams.height);
+      const dom = select_default2(this.dom);
       dom.selectAll("canvas").remove();
       const canvas = dom.append("canvas").attr("width", this.clientWidth).attr("height", this.clientHeight);
       const ctx = canvas.node().getContext("2d");
@@ -14393,7 +14420,7 @@ ${indentData}`);
         this.clickedNode = null;
         this.hoveredNode = null;
         this.overviewInitPromise && (yield this.overviewInitPromise);
-        finishLoading(this.domSelector);
+        finishLoading(this.dom);
         this.renderOverview();
         this.addMouseListener();
         this.setOverviewListenerHandlers();
@@ -14407,7 +14434,7 @@ ${indentData}`);
         this.clickedNode = null;
         this.hoveredNode = null;
         yield this.searchViewHandler({ searchRes });
-        finishLoading(this.domSelector);
+        finishLoading(this.dom);
         this.renderSearchView();
         this.addMouseListener();
         this.setSearchViewListenerHandlers();
@@ -15757,11 +15784,10 @@ ${indentData}`);
   var hoveredPanelId = "feder-info-hovered-panel";
   var panelBackgroundColor = hexWithOpacity(blackColor, 0.6);
   var InfoPanel = class {
-    constructor({ domSelector: domSelector2, width, height }) {
-      this.domSelector = domSelector2;
+    constructor({ dom, width, height }) {
+      this.dom = dom;
       this.width = width;
       this.height = height;
-      const dom = document.querySelector(domSelector2);
       const overviewPanel = document.createElement("div");
       overviewPanel.setAttribute("id", overviewPanelId);
       overviewPanel.className = overviewPanel.className + " panel-border panel hide";
@@ -15858,7 +15884,7 @@ ${indentData}`);
       document.getElementsByTagName("head").item(0).appendChild(style);
     }
     renderSelectedPanel(itemList = [], color2 = "#000") {
-      const panel = select_default2(this.domSelector).select(`#${selectedPanelId}`);
+      const panel = select_default2(this.dom).select(`#${selectedPanelId}`);
       panel.style("color", color2);
       if (itemList.length === 0)
         panel.classed("hide", true);
@@ -15874,7 +15900,7 @@ ${indentData}`);
       y: y4 = 0,
       isLeft = false
     } = {}) {
-      const panel = select_default2(this.domSelector).select(`#${hoveredPanelId}`);
+      const panel = select_default2(this.dom).select(`#${hoveredPanelId}`);
       if (itemList.length === 0)
         panel.classed("hide", true);
       else {
@@ -15893,7 +15919,7 @@ ${indentData}`);
       }
     }
     renderOverviewPanel(itemList = [], color2) {
-      const panel = select_default2(this.domSelector).select(`#${overviewPanelId}`);
+      const panel = select_default2(this.dom).select(`#${overviewPanelId}`);
       panel.style("color", color2);
       if (itemList.length === 0)
         panel.classed("hide", true);
@@ -16187,10 +16213,10 @@ ${indentData}`);
     hoveredPanelLineWidth: 2
   };
   var HnswView = class extends BaseView {
-    constructor({ indexMeta, domSelector: domSelector2, viewParams, getVectorById }) {
+    constructor({ indexMeta, dom, viewParams, getVectorById }) {
       super({
         indexMeta,
-        domSelector: domSelector2,
+        dom,
         viewParams,
         getVectorById
       });
@@ -16199,7 +16225,7 @@ ${indentData}`);
       }
       this.padding = this.padding.map((num) => num * this.canvasScale);
       const infoPanel = new InfoPanel({
-        domSelector: domSelector2,
+        dom,
         width: this.width,
         height: this.height
       });
@@ -16244,7 +16270,7 @@ ${indentData}`);
       });
     }
     renderSearchView() {
-      const timeControllerView = new TimeControllerView_default(this.domSelector);
+      const timeControllerView = new TimeControllerView_default(this.dom);
       const callback = ({ t, p }) => {
         renderSearchViewTransition.call(this, { t, p });
         timeControllerView.moveSilderBar(p);
@@ -16373,33 +16399,31 @@ ${indentData}`);
 
   // federjs/FederView/IvfflatView/layout/overviewLayout.js
   function overviewLayoutHandler2({ indexMeta }) {
-    const width = this.width;
-    const height = this.height;
-    const allArea = width * height;
-    const { ntotal, listCentroidProjections = null, listSizes } = indexMeta;
-    const clusters = listSizes.map((listSize, i) => ({
-      clusterId: i,
-      oriProjection: listCentroidProjections ? listCentroidProjections[i] : [Math.random(), Math.random()],
-      count: listSize,
-      countP: listSize / ntotal,
-      countArea: allArea * (listSize / ntotal)
-    }));
-    const x3 = linear2().domain(extent(clusters, (cluster) => cluster.oriProjection[0])).range([0, width]);
-    const y4 = linear2().domain(extent(clusters, (cluster) => cluster.oriProjection[1])).range([0, height]);
-    clusters.forEach((cluster) => {
-      cluster.x = x3(cluster.oriProjection[0]);
-      cluster.y = y4(cluster.oriProjection[1]);
-      cluster.r = Math.max(this.minVoronoiRadius * this.canvasScale, Math.sqrt(cluster.countArea / Math.PI));
-    });
-    const simulation = simulation_default(clusters).force("collision", collide_default().radius((cluster) => cluster.r)).force("center", center_default(width / 2, height / 2)).on("tick", () => {
-      clusters.forEach((cluster) => {
-        cluster.x = Math.max(cluster.r, Math.min(width - cluster.r, cluster.x));
-        cluster.y = Math.max(cluster.r, Math.min(height - cluster.r, cluster.y));
-      });
-    });
     return new Promise((resolve) => {
-      setTimeout(() => {
-        simulation.stop();
+      const width = this.width;
+      const height = this.height;
+      const allArea = width * height;
+      const { ntotal, listCentroidProjections = null, listSizes } = indexMeta;
+      const clusters = listSizes.map((listSize, i) => ({
+        clusterId: i,
+        oriProjection: listCentroidProjections ? listCentroidProjections[i] : [Math.random(), Math.random()],
+        count: listSize,
+        countP: listSize / ntotal,
+        countArea: allArea * (listSize / ntotal)
+      }));
+      const x3 = linear2().domain(extent(clusters, (cluster) => cluster.oriProjection[0])).range([0, width]);
+      const y4 = linear2().domain(extent(clusters, (cluster) => cluster.oriProjection[1])).range([0, height]);
+      clusters.forEach((cluster) => {
+        cluster.x = x3(cluster.oriProjection[0]);
+        cluster.y = y4(cluster.oriProjection[1]);
+        cluster.r = Math.max(this.minVoronoiRadius * this.canvasScale, Math.sqrt(cluster.countArea / Math.PI));
+      });
+      const simulation = simulation_default(clusters).alphaDecay(1 - Math.pow(1e-3, 1 / this.forceIterations)).force("collision", collide_default().radius((cluster) => cluster.r)).force("center", center_default(width / 2, height / 2)).on("tick", () => {
+        clusters.forEach((cluster) => {
+          cluster.x = Math.max(cluster.r, Math.min(width - cluster.r, cluster.x));
+          cluster.y = Math.max(cluster.r, Math.min(height - cluster.r, cluster.y));
+        });
+      }).on("end", () => {
         clusters.forEach((cluster) => {
           cluster.forceProjection = [cluster.x, cluster.y];
         });
@@ -16411,7 +16435,7 @@ ${indentData}`);
           cluster.OVPolyCentroid = centroid_default(points);
         });
         resolve({ clusters, voronoi });
-      }, this.voronoiForceTime);
+      });
     });
   }
 
@@ -16660,34 +16684,39 @@ ${indentData}`);
 
   // federjs/FederView/IvfflatView/layout/SVCoarseVoronoiHandler.js
   function SVCoarseVoronoiHandler() {
-    const width = this.width;
-    const height = this.height;
-    const clusters = this.clusters;
-    const targetClusterId = this.searchRes.coarse[0].id;
-    const targetCluster = clusters.find((cluster) => cluster.clusterId === targetClusterId);
-    const otherFineClustersId = this.searchRes.csResIds.filter((clusterId) => clusterId !== targetClusterId);
-    const links = otherFineClustersId.map((clusterId) => ({
-      source: clusterId,
-      target: targetClusterId
-    }));
-    clusters.forEach((cluster) => {
-      cluster.x = cluster.forceProjection[0];
-      cluster.y = cluster.forceProjection[1];
-    });
-    const otherFineCluster = clusters.filter((cluster) => otherFineClustersId.indexOf(cluster.clusterId) >= 0);
-    otherFineCluster.forEach((cluster, i) => {
-      cluster.x = targetCluster.x + targetCluster.r / 2 * Math.sin(2 * Math.PI / otherFineCluster.length * i);
-      cluster.y = targetCluster.y - targetCluster.r / 2 * Math.cos(2 * Math.PI / otherFineCluster.length * i);
-    });
-    const simulation = simulation_default(clusters).force("links", link_default(links).id((cluster) => cluster.clusterId).strength((_) => 0.1)).force("collision", collide_default().radius((cluster) => cluster.r).strength(0.1)).force("center", center_default(width / 2, height / 2)).on("tick", () => {
-      clusters.forEach((cluster) => {
-        cluster.x = Math.max(cluster.r, Math.min(width - cluster.r, cluster.x));
-        cluster.y = Math.max(cluster.r, Math.min(height - cluster.r, cluster.y));
-      });
-    });
     return new Promise((resolve) => {
-      setTimeout(() => {
-        simulation.stop();
+      const width = this.width;
+      const height = this.height;
+      const clusters = this.clusters;
+      const fineClusterOrder = vecSort(this.nprobeClusters, "OVPolyCentroid", "clusterId");
+      const targetClusterId = this.searchRes.coarse[0].id;
+      const targetCluster = clusters.find((cluster) => cluster.clusterId === targetClusterId);
+      const otherFineClustersId = fineClusterOrder.filter((clusterId) => clusterId !== targetClusterId);
+      const links = otherFineClustersId.map((clusterId) => ({
+        source: clusterId,
+        target: targetClusterId
+      }));
+      clusters.forEach((cluster) => {
+        cluster.x = cluster.forceProjection[0];
+        cluster.y = cluster.forceProjection[1];
+      });
+      const targetClusterX = this.nprobeClusters.reduce((acc, cluster) => acc + cluster.x, 0) / this.nprobe;
+      const targetClusterY = this.nprobeClusters.reduce((acc, cluster) => acc + cluster.y, 0) / this.nprobe;
+      targetCluster.x = targetClusterX;
+      targetCluster.y = targetClusterY;
+      const otherFineCluster = otherFineClustersId.map((clusterId) => this.nprobeClusters.find((cluster) => cluster.clusterId === clusterId));
+      const angleStep = 2 * Math.PI / (this.nprobe - 1);
+      const biasR = targetCluster.r * 0.5;
+      otherFineCluster.forEach((cluster, i) => {
+        cluster.x = targetClusterX + biasR * Math.sin(angleStep * i);
+        cluster.y = targetClusterY + biasR * Math.cos(angleStep * i);
+      });
+      const simulation = simulation_default(clusters).alphaDecay(1 - Math.pow(1e-3, 1 / this.forceIterations / 2)).force("links", link_default(links).id((cluster) => cluster.clusterId).strength((_) => 0.25)).force("collision", collide_default().radius((cluster) => cluster.r).strength(0.1)).force("center", center_default(width / 2, height / 2)).on("tick", () => {
+        clusters.forEach((cluster) => {
+          cluster.x = Math.max(cluster.r, Math.min(width - cluster.r, cluster.x));
+          cluster.y = Math.max(cluster.r, Math.min(height - cluster.r, cluster.y));
+        });
+      }).on("end", () => {
         clusters.forEach((cluster) => {
           cluster.SVPos = [cluster.x, cluster.y];
         });
@@ -16704,11 +16733,11 @@ ${indentData}`);
         const centroid_fineClusters_y = this.nprobeClusters.reduce((acc, cluster) => acc + cluster.SVPolyCentroid[1], 0) / this.nprobeClusters.length;
         const _x = centoid_fineClusters_x - targetCluster2.SVPos[0];
         const _y = centroid_fineClusters_y - targetCluster2.SVPos[1];
-        const biasR = Math.sqrt(_x * _x + _y * _y);
+        const biasR2 = Math.sqrt(_x * _x + _y * _y);
         const targetNode = {
           SVPos: [
-            targetCluster2.SVPos[0] + targetCluster2.r * 0.4 * (_x / biasR),
-            targetCluster2.SVPos[1] + targetCluster2.r * 0.4 * (_y / biasR)
+            targetCluster2.SVPos[0] + targetCluster2.r * 0.4 * (_x / biasR2),
+            targetCluster2.SVPos[1] + targetCluster2.r * 0.4 * (_y / biasR2)
           ]
         };
         targetNode.isLeft_coarseLevel = targetNode.SVPos[0] < this.width / 2;
@@ -16721,14 +16750,13 @@ ${indentData}`);
         targetNode.polarPos = polarOrigin;
         const polarMaxR = Math.min(width, height) * 0.5 - 5;
         this.polarMaxR = polarMaxR;
-        const fineClusterOrder = this.searchRes.csResIds;
-        const angleStep = Math.PI * 2 / fineClusterOrder.length;
+        const angleStep2 = Math.PI * 2 / fineClusterOrder.length;
         this.nprobeClusters.forEach((cluster) => {
           const order = fineClusterOrder.indexOf(cluster.clusterId);
           cluster.polarOrder = order;
           cluster.SVNextLevelPos = [
-            polarOrigin[0] + polarMaxR / 2 * Math.sin(angleStep * order),
-            polarOrigin[1] + polarMaxR / 2 * Math.cos(angleStep * order)
+            polarOrigin[0] + polarMaxR / 2 * Math.sin(angleStep2 * order),
+            polarOrigin[1] + polarMaxR / 2 * Math.cos(angleStep2 * order)
           ];
           cluster.SVNextLevelTran = [
             cluster.SVNextLevelPos[0] - cluster.SVPolyCentroid[0],
@@ -16741,34 +16769,32 @@ ${indentData}`);
         });
         this.clusterId2cluster = clusterId2cluster;
         resolve();
-      }, this.voronoiForceTime / 2);
+      });
     });
   }
 
   // federjs/FederView/IvfflatView/layout/SVFinePolarHandler.js
   function SVFinePolarHandler() {
-    const nodes = this.searchRes.fine;
-    const polarMaxR = this.polarMaxR;
-    const polarOrigin = this.polarOrigin;
-    const r = linear2().domain([
-      min(nodes.filter((node) => node.dis > 0), (node) => node.dis),
-      max(nodes, (node) => node.dis) * 0.95
-    ]).range([polarMaxR * 0.2, polarMaxR]).clamp(true);
-    nodes.forEach((node) => {
-      const cluster = this.clusterId2cluster[node.listId];
-      const { polarOrder, SVNextLevelPos } = cluster;
-      node.polarOrder = polarOrder;
-      let randAngle = Math.random() * Math.PI * 2;
-      let randBias = [Math.sin, Math.cos].map((f) => cluster.r * Math.random() * 0.7 * f(randAngle));
-      node.voronoiPos = SVNextLevelPos.map((d, i) => d + randBias[i]);
-      node.x = node.voronoiPos[0];
-      node.y = node.voronoiPos[1];
-      node.r = r(node.dis);
-    });
-    const simulation = simulation_default(nodes).force("collide", collide_default().radius((_) => this.nonTopKNodeR * this.canvasScale).strength(0.4)).force("r", radial_default((node) => node.r, ...polarOrigin).strength(1));
     return new Promise((resolve) => {
-      setTimeout(() => {
-        simulation.stop();
+      const nodes = this.searchRes.fine;
+      const polarMaxR = this.polarMaxR;
+      const polarOrigin = this.polarOrigin;
+      const distances = nodes.map((node) => node.dis).filter((a2) => a2 > 0).sort();
+      const minDis = distances.length > 0 ? distances[0] : 0;
+      const maxDis = distances.length > 0 ? distances[Math.round((distances.length - 1) * 0.98)] : 0;
+      const r = linear2().domain([minDis, maxDis]).range([polarMaxR * 0.2, polarMaxR]).clamp(true);
+      nodes.forEach((node) => {
+        const cluster = this.clusterId2cluster[node.listId];
+        const { polarOrder, SVNextLevelPos } = cluster;
+        node.polarOrder = polarOrder;
+        let randAngle = Math.random() * Math.PI * 2;
+        let randBias = [Math.sin, Math.cos].map((f) => cluster.r * Math.random() * 0.7 * f(randAngle));
+        node.voronoiPos = SVNextLevelPos.map((d, i) => d + randBias[i]);
+        node.x = node.voronoiPos[0];
+        node.y = node.voronoiPos[1];
+        node.r = r(node.dis);
+      });
+      const simulation = simulation_default(nodes).alphaDecay(1 - Math.pow(1e-3, 1 / this.forceIterations / 2)).force("collide", collide_default().radius((_) => this.nonTopKNodeR * this.canvasScale).strength(0.4)).force("r", radial_default((node) => node.r, ...polarOrigin).strength(1)).on("end", () => {
         nodes.forEach((node) => {
           node.polarPos = [node.x, node.y];
         });
@@ -16776,7 +16802,7 @@ ${indentData}`);
         this.topKNodes = this.nodes.filter((node) => this.searchRes.fsResIds.find((id2) => id2 == node.id));
         this.nonTopKNodes = this.nodes.filter((node) => !this.searchRes.fsResIds.find((id2) => id2 == node.id));
         resolve();
-      }, this.nodeCollisionForceTime);
+      });
     });
   }
 
@@ -16800,7 +16826,6 @@ ${indentData}`);
   // federjs/FederView/IvfflatView/layout/searchViewLayout.js
   function searchViewLayoutHandler2({ searchRes }) {
     const SVCoarsePromise = new Promise((resolve) => __async(this, null, function* () {
-      this.overviewInitPromise && (yield this.overviewInitPromise);
       this.searchRes = searchRes;
       searchRes.coarse.forEach(({ id: id2, dis }) => this.clusters[id2].dis = dis);
       this.nprobeClusters = this.clusters.filter((cluster) => this.searchRes.csResIds.indexOf(cluster.clusterId) >= 0);
@@ -17199,8 +17224,8 @@ ${indentData}`);
   var hoveredPanelId2 = "feder-info-hovered-panel";
   var panelBackgroundColor2 = hexWithOpacity(blackColor, 0.6);
   var InfoPanel2 = class {
-    constructor({ domSelector: domSelector2, width, height }) {
-      this.domSelector = domSelector2;
+    constructor({ dom, width, height }) {
+      this.dom = dom;
       this.width = width;
       this.height = height;
       this.initOverviewPanel();
@@ -17208,7 +17233,7 @@ ${indentData}`);
       this.initStyle();
     }
     initOverviewPanel() {
-      const dom = document.querySelector(this.domSelector);
+      const dom = this.dom;
       const overviewPanel = document.createElement("div");
       overviewPanel.setAttribute("id", overviewPanelId2);
       overviewPanel.className = overviewPanel.className + " panel-border panel hide";
@@ -17377,7 +17402,7 @@ ${indentData}`);
       this.renderOverviewPanel(items, whiteColor);
     }
     initHoveredPanel() {
-      const dom = document.querySelector(this.domSelector);
+      const dom = this.dom;
       const hoveredPanel = document.createElement("div");
       hoveredPanel.setAttribute("id", hoveredPanelId2);
       hoveredPanel.className = hoveredPanel.className + "panel-border panel hide";
@@ -17551,7 +17576,7 @@ ${indentData}`);
       document.getElementsByTagName("head").item(0).appendChild(style);
     }
     renderHoveredPanel(itemList = [], color2 = "#000", x3 = 0, y4 = 0) {
-      const panel = select_default2(this.domSelector).select(`#${hoveredPanelId2}`);
+      const panel = select_default2(this.dom).select(`#${hoveredPanelId2}`);
       if (itemList.length === 0)
         panel.classed("hide", true);
       else {
@@ -17576,7 +17601,7 @@ ${indentData}`);
       }
     }
     renderOverviewPanel(itemList = [], color2) {
-      const panel = select_default2(this.domSelector).select(`#${overviewPanelId2}`);
+      const panel = select_default2(this.dom).select(`#${overviewPanelId2}`);
       panel.style("color", color2);
       if (itemList.length === 0)
         panel.classed("hide", true);
@@ -17638,8 +17663,6 @@ ${indentData}`);
   // federjs/FederView/IvfflatView/index.js
   var defaultIvfflatViewParams = {
     minVoronoiRadius: 4,
-    voronoiForceTime: 3e3,
-    nodeCollisionForceTime: 1e3,
     backgroundColor: "red",
     voronoiStrokeWidth: 2,
     targetNodeStrokeWidth: 5,
@@ -17660,13 +17683,14 @@ ${indentData}`);
     ease: cubicInOut,
     animateExitTime: 1500,
     animateEnterTime: 1e3,
-    fineSearchNodeTransTime: 1200
+    fineSearchNodeTransTime: 1200,
+    forceIterations: 100
   };
   var IvfflatView = class extends BaseView {
-    constructor({ indexMeta, domSelector: domSelector2, viewParams }) {
+    constructor({ indexMeta, dom, viewParams }) {
       super({
         indexMeta,
-        domSelector: domSelector2,
+        dom,
         viewParams
       });
       for (let key in defaultIvfflatViewParams) {
@@ -17675,7 +17699,7 @@ ${indentData}`);
       this.projectPadding = this.projectPadding.map((num) => num * this.canvasScale);
       this.overviewHandler({ indexMeta });
       this.infoPanel = new InfoPanel2({
-        domSelector: domSelector2,
+        dom,
         width: viewParams.width,
         height: viewParams.height
       });
@@ -17698,6 +17722,7 @@ ${indentData}`);
     }
     searchViewHandler(_0) {
       return __async(this, arguments, function* ({ searchRes }) {
+        this.overviewInitPromise && (yield this.overviewInitPromise);
         this.nprobe = searchRes.csResIds.length;
         this.k = searchRes.fsResIds.length;
         this.colorScheme = range(this.nprobe).map((i) => hsl(360 * i / this.nprobe, 1, 0.5).hex());
@@ -17706,7 +17731,7 @@ ${indentData}`);
         }).then(() => {
         });
         yield this.searchViewInitPromise;
-        console.log("searchViewHandler finished");
+        console.log("searchView Layout finished");
       });
     }
     renderSearchView() {
@@ -17854,8 +17879,8 @@ ${indentData}`);
       this.initDom();
     }
     initDom() {
-      const dom = document.querySelector(this.domSelector);
-      dom.innerHTML = "";
+      const dom = document.createElement("div");
+      this.dom = dom;
       const { width, height } = this.viewParams;
       const domStyle = {
         position: "relative",
@@ -17864,13 +17889,17 @@ ${indentData}`);
       };
       Object.assign(dom.style, domStyle);
       initLoadingStyle();
-      renderLoading(this.domSelector);
+      renderLoading(this.dom, width, height);
+      if (this.domSelector) {
+        const domContainer = document.querySelector(this.domSelector);
+        domContainer.appendChild(dom);
+      }
     }
     initView({ indexType, indexMeta, getVectorById }) {
       if (indexType in viewHandlerMap) {
         this.view = new viewHandlerMap[indexType]({
           indexMeta,
-          domSelector: this.domSelector,
+          dom: this.dom,
           viewParams: this.viewParams,
           getVectorById
         });
@@ -17898,7 +17927,7 @@ ${indentData}`);
       core = null,
       filePath = "",
       source = "",
-      domSelector: domSelector2,
+      domSelector: domSelector2 = null,
       viewParams = {}
     }) {
       this.federView = new FederView({ domSelector: domSelector2, viewParams });
@@ -17918,6 +17947,9 @@ ${indentData}`);
         });
       } else {
       }
+    }
+    get node() {
+      return this.federView.dom;
     }
     overview() {
       return __async(this, null, function* () {

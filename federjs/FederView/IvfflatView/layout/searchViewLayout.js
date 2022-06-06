@@ -4,7 +4,6 @@ import SVFineProjectHandler from './SVFineProjectHandler';
 
 export default function searchViewLayoutHandler({ searchRes }) {
   const SVCoarsePromise = new Promise(async (resolve) => {
-    this.overviewInitPromise && (await this.overviewInitPromise);
     this.searchRes = searchRes;
     searchRes.coarse.forEach(({ id, dis }) => (this.clusters[id].dis = dis));
     this.nprobeClusters = this.clusters.filter(

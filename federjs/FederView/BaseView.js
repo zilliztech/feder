@@ -3,8 +3,8 @@ import { renderLoading, finishLoading } from './loading';
 import { VIEW_TYPE } from 'Types';
 
 export default class BaseView {
-  constructor({ domSelector, viewParams, getVectorById }) {
-    this.domSelector = domSelector;
+  constructor({ dom, viewParams, getVectorById }) {
+    this.dom = dom;
     this.viewParams = viewParams;
 
     const { width, height, canvasScale, mediaType, mediaCallback } = viewParams;
@@ -18,8 +18,8 @@ export default class BaseView {
     this.mediaCallback = mediaCallback;
   }
   initCanvas() {
-    renderLoading(this.domSelector);
-    const dom = d3.select(this.domSelector);
+    renderLoading(this.dom, this.viewParams.width, this.viewParams.height);
+    const dom = d3.select(this.dom);
     dom.selectAll('canvas').remove();
     const canvas = dom
       .append('canvas')
@@ -43,7 +43,7 @@ export default class BaseView {
     this.clickedNode = null;
     this.hoveredNode = null;
     this.overviewInitPromise && (await this.overviewInitPromise);
-    finishLoading(this.domSelector);
+    finishLoading(this.dom);
     this.renderOverview();
     this.addMouseListener();
     this.setOverviewListenerHandlers();
@@ -55,7 +55,7 @@ export default class BaseView {
     this.clickedNode = null;
     this.hoveredNode = null;
     await this.searchViewHandler({ searchRes });
-    finishLoading(this.domSelector);
+    finishLoading(this.dom);
     this.renderSearchView();
     this.addMouseListener();
     this.setSearchViewListenerHandlers();

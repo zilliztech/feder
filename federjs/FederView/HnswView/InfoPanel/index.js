@@ -19,11 +19,10 @@ export const hoveredPanelId = 'feder-info-hovered-panel';
 const panelBackgroundColor = hexWithOpacity(blackColor, 0.6);
 
 export default class InfoPanel {
-  constructor({ domSelector, width, height }) {
-    this.domSelector = domSelector;
+  constructor({ dom, width, height }) {
+    this.dom = dom;
     this.width = width;
     this.height = height;
-    const dom = document.querySelector(domSelector);
 
     const overviewPanel = document.createElement('div');
     overviewPanel.setAttribute('id', overviewPanelId);
@@ -131,7 +130,7 @@ export default class InfoPanel {
   }
 
   renderSelectedPanel(itemList = [], color = '#000') {
-    const panel = d3.select(this.domSelector).select(`#${selectedPanelId}`);
+    const panel = d3.select(this.dom).select(`#${selectedPanelId}`);
     panel.style('color', color);
     if (itemList.length === 0) panel.classed('hide', true);
     else {
@@ -146,7 +145,7 @@ export default class InfoPanel {
     y = 0,
     isLeft = false,
   } = {}) {
-    const panel = d3.select(this.domSelector).select(`#${hoveredPanelId}`);
+    const panel = d3.select(this.dom).select(`#${hoveredPanelId}`);
     if (itemList.length === 0) panel.classed('hide', true);
     else {
       panel.style('color', color);
@@ -168,7 +167,7 @@ export default class InfoPanel {
     }
   }
   renderOverviewPanel(itemList = [], color) {
-    const panel = d3.select(this.domSelector).select(`#${overviewPanelId}`);
+    const panel = d3.select(this.dom).select(`#${overviewPanelId}`);
     panel.style('color', color);
     if (itemList.length === 0) panel.classed('hide', true);
     else {
