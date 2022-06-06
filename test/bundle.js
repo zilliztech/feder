@@ -14506,7 +14506,7 @@ ${indentData}`);
     width,
     height,
     padding,
-    forceTime,
+    forceIterations,
     M
   }) => {
     return new Promise((resolve) => __async(void 0, null, function* () {
@@ -14518,7 +14518,7 @@ ${indentData}`);
           source: curNode.internalId,
           target: targetNodeInternalId
         }))), []);
-        yield forceLevel({ nodes, links, forceTime });
+        yield forceLevel({ nodes, links, forceIterations });
         level > 0 && scaleNodes({ nodes, M });
         level > 0 && fixedCurLevel({ nodes });
         overviewNodesLevels[level] = nodes;
@@ -14543,13 +14543,11 @@ ${indentData}`);
     }));
   };
   var overviewLayout_default = overviewLayoutHandler;
-  var forceLevel = ({ nodes, links, forceTime }) => {
+  var forceLevel = ({ nodes, links, forceIterations }) => {
     return new Promise((resolve) => {
-      const simulation = simulation_default(nodes).force("link", link_default(links).id((d) => d.internalId).strength(1)).force("center", center_default(0, 0)).force("charge", manyBody_default().strength(-500));
-      setTimeout(() => {
-        simulation.stop();
+      const simulation = simulation_default(nodes).alphaDecay(1 - Math.pow(1e-3, 1 / forceIterations * 2)).force("link", link_default(links).id((d) => d.internalId).strength(1)).force("center", center_default(0, 0)).force("charge", manyBody_default().strength(-500)).on("end", () => {
         resolve();
-      }, forceTime);
+      });
     });
   };
   var scaleNodes = ({ nodes, M }) => {
@@ -15146,38 +15144,36 @@ ${indentData}`);
   var parseVisRecords_default = parseVisRecords;
 
   // federjs/FederView/HnswView/layout/forceSearchView.js
-  var forceSearchView = (visData, targetOrigin = [0, 0], forceTime = 5e3) => {
-    const nodeId2dist = {};
-    visData.forEach((levelData) => levelData.nodes.forEach((node) => nodeId2dist[node.id] = node.dist || 0));
-    const nodeIds = Object.keys(nodeId2dist);
-    const nodes = nodeIds.map((nodeId) => ({
-      nodeId,
-      dist: nodeId2dist[nodeId]
-    }));
-    const linksAll = visData.reduce((acc, cur) => acc.concat(cur.links), []);
-    const links = deDupLink(linksAll);
-    const targetNode = {
-      nodeId: "target",
-      dist: 0,
-      fx: targetOrigin[0],
-      fy: targetOrigin[1]
-    };
-    nodes.push(targetNode);
-    const targetLinks = visData[0].fineIds.map((fineId) => ({
-      source: `${fineId}`,
-      target: "target",
-      type: HNSW_LINK_TYPE.None
-    }));
-    links.push(...targetLinks);
-    const rScale = linear2().domain(extent(nodes.filter((node) => node.dist > 0), (node) => node.dist)).range([10, 1e3]).clamp(true);
-    const simulation = simulation_default(nodes).force("link", link_default(links).id((d) => `${d.nodeId}`).strength((d) => d.type === HNSW_LINK_TYPE.None ? 2 : 0.4)).force("r", radial_default((node) => rScale(node.dist), targetOrigin[0], targetOrigin[1]).strength(1)).force("charge", manyBody_default().strength(-1e4));
-    return new Promise((resolve, _) => {
-      setTimeout(() => {
-        simulation.stop();
+  var forceSearchView = (visData, targetOrigin = [0, 0], forceIterations = 100) => {
+    return new Promise((resolve) => {
+      const nodeId2dist = {};
+      visData.forEach((levelData) => levelData.nodes.forEach((node) => nodeId2dist[node.id] = node.dist || 0));
+      const nodeIds = Object.keys(nodeId2dist);
+      const nodes = nodeIds.map((nodeId) => ({
+        nodeId,
+        dist: nodeId2dist[nodeId]
+      }));
+      const linksAll = visData.reduce((acc, cur) => acc.concat(cur.links), []);
+      const links = deDupLink(linksAll);
+      const targetNode = {
+        nodeId: "target",
+        dist: 0,
+        fx: targetOrigin[0],
+        fy: targetOrigin[1]
+      };
+      nodes.push(targetNode);
+      const targetLinks = visData[0].fineIds.map((fineId) => ({
+        source: `${fineId}`,
+        target: "target",
+        type: HNSW_LINK_TYPE.None
+      }));
+      links.push(...targetLinks);
+      const rScale = linear2().domain(extent(nodes.filter((node) => node.dist > 0), (node) => node.dist)).range([10, 1e3]).clamp(true);
+      const simulation = simulation_default(nodes).alphaDecay(1 - Math.pow(1e-3, 1 / forceIterations)).force("link", link_default(links).id((d) => `${d.nodeId}`).strength((d) => d.type === HNSW_LINK_TYPE.None ? 2 : 0.4)).force("r", radial_default((node) => rScale(node.dist), targetOrigin[0], targetOrigin[1]).strength(1)).force("charge", manyBody_default().strength(-1e4)).on("end", () => {
         const id2forcePos = {};
         nodes.forEach((node) => id2forcePos[node.nodeId] = [node.x, node.y]);
         resolve(id2forcePos);
-      }, forceTime);
+      });
     });
   };
   var forceSearchView_default = forceSearchView;
@@ -15254,7 +15250,7 @@ ${indentData}`);
         this.searchRes = searchRes;
         visData = parseVisRecords_default(searchRes);
         this.visData = visData;
-        id2forcePos = yield forceSearchView_default(this.visData, this.targetOrigin, this.forceTime * 2);
+        id2forcePos = yield forceSearchView_default(this.visData, this.targetOrigin, this.forceIterations);
         this.id2forcePos = id2forcePos;
       } else {
         visData = this.visData;
@@ -16210,7 +16206,8 @@ ${indentData}`);
     HoveredPanelLine_1_x: 15,
     HoveredPanelLine_1_y: -25,
     HoveredPanelLine_2_x: 30,
-    hoveredPanelLineWidth: 2
+    hoveredPanelLineWidth: 2,
+    forceIterations: 100
   };
   var HnswView = class extends BaseView {
     constructor({ indexMeta, dom, viewParams, getVectorById }) {
@@ -16711,7 +16708,7 @@ ${indentData}`);
         cluster.x = targetClusterX + biasR * Math.sin(angleStep * i);
         cluster.y = targetClusterY + biasR * Math.cos(angleStep * i);
       });
-      const simulation = simulation_default(clusters).alphaDecay(1 - Math.pow(1e-3, 1 / this.forceIterations / 2)).force("links", link_default(links).id((cluster) => cluster.clusterId).strength((_) => 0.25)).force("collision", collide_default().radius((cluster) => cluster.r).strength(0.1)).force("center", center_default(width / 2, height / 2)).on("tick", () => {
+      const simulation = simulation_default(clusters).alphaDecay(1 - Math.pow(1e-3, 1 / this.forceIterations)).force("links", link_default(links).id((cluster) => cluster.clusterId).strength((_) => 0.25)).force("collision", collide_default().radius((cluster) => cluster.r).strength(0.1)).force("center", center_default(width / 2, height / 2)).on("tick", () => {
         clusters.forEach((cluster) => {
           cluster.x = Math.max(cluster.r, Math.min(width - cluster.r, cluster.x));
           cluster.y = Math.max(cluster.r, Math.min(height - cluster.r, cluster.y));
