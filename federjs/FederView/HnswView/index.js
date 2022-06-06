@@ -30,6 +30,7 @@ const defaultHnswViewParams = {
   HoveredPanelLine_1_y: -25,
   HoveredPanelLine_2_x: 30,
   hoveredPanelLineWidth: 2,
+  forceIterations: 100,
 };
 export default class HnswView extends BaseView {
   constructor({ indexMeta, dom, viewParams, getVectorById }) {

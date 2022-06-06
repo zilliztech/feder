@@ -16,7 +16,7 @@ export default async function searchViewLayoutHandler({ searchRes }) {
     id2forcePos = await forceSearchView(
       this.visData,
       this.targetOrigin,
-      this.forceTime * 2
+      this.forceIterations
     );
     this.id2forcePos = id2forcePos;
   } else {
