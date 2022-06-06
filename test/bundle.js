@@ -16420,7 +16420,7 @@ ${indentData}`);
         cluster.y = y4(cluster.oriProjection[1]);
         cluster.r = Math.max(this.minVoronoiRadius * this.canvasScale, Math.sqrt(cluster.countArea / Math.PI));
       });
-      const simulation = simulation_default(clusters).alphaDecay(1 - Math.pow(1e-3, 1 / 100)).force("collision", collide_default().radius((cluster) => cluster.r)).force("center", center_default(width / 2, height / 2)).on("tick", () => {
+      const simulation = simulation_default(clusters).alphaDecay(1 - Math.pow(1e-3, 1 / this.forceIterations)).force("collision", collide_default().radius((cluster) => cluster.r)).force("center", center_default(width / 2, height / 2)).on("tick", () => {
         clusters.forEach((cluster) => {
           cluster.x = Math.max(cluster.r, Math.min(width - cluster.r, cluster.x));
           cluster.y = Math.max(cluster.r, Math.min(height - cluster.r, cluster.y));
@@ -16713,7 +16713,7 @@ ${indentData}`);
         cluster.x = targetClusterX + biasR * Math.sin(angleStep * i);
         cluster.y = targetClusterY + biasR * Math.cos(angleStep * i);
       });
-      const simulation = simulation_default(clusters).alphaDecay(1 - Math.pow(1e-3, 1 / 50)).force("links", link_default(links).id((cluster) => cluster.clusterId).strength((_) => 0.15)).force("collision", collide_default().radius((cluster) => cluster.r).strength(0.1)).force("center", center_default(width / 2, height / 2)).on("tick", () => {
+      const simulation = simulation_default(clusters).alphaDecay(1 - Math.pow(1e-3, 1 / this.forceIterations / 2)).force("links", link_default(links).id((cluster) => cluster.clusterId).strength((_) => 0.25)).force("collision", collide_default().radius((cluster) => cluster.r).strength(0.1)).force("center", center_default(width / 2, height / 2)).on("tick", () => {
         clusters.forEach((cluster) => {
           cluster.x = Math.max(cluster.r, Math.min(width - cluster.r, cluster.x));
           cluster.y = Math.max(cluster.r, Math.min(height - cluster.r, cluster.y));
@@ -16777,28 +16777,26 @@ ${indentData}`);
 
   // federjs/FederView/IvfflatView/layout/SVFinePolarHandler.js
   function SVFinePolarHandler() {
-    const nodes = this.searchRes.fine;
-    const polarMaxR = this.polarMaxR;
-    const polarOrigin = this.polarOrigin;
-    const r = linear2().domain([
-      min(nodes.filter((node) => node.dis > 0), (node) => node.dis),
-      max(nodes, (node) => node.dis) * 0.95
-    ]).range([polarMaxR * 0.2, polarMaxR]).clamp(true);
-    nodes.forEach((node) => {
-      const cluster = this.clusterId2cluster[node.listId];
-      const { polarOrder, SVNextLevelPos } = cluster;
-      node.polarOrder = polarOrder;
-      let randAngle = Math.random() * Math.PI * 2;
-      let randBias = [Math.sin, Math.cos].map((f) => cluster.r * Math.random() * 0.7 * f(randAngle));
-      node.voronoiPos = SVNextLevelPos.map((d, i) => d + randBias[i]);
-      node.x = node.voronoiPos[0];
-      node.y = node.voronoiPos[1];
-      node.r = r(node.dis);
-    });
-    const simulation = simulation_default(nodes).force("collide", collide_default().radius((_) => this.nonTopKNodeR * this.canvasScale).strength(0.4)).force("r", radial_default((node) => node.r, ...polarOrigin).strength(1));
     return new Promise((resolve) => {
-      setTimeout(() => {
-        simulation.stop();
+      const nodes = this.searchRes.fine;
+      const polarMaxR = this.polarMaxR;
+      const polarOrigin = this.polarOrigin;
+      const distances = nodes.map((node) => node.dis).filter((a2) => a2 > 0).sort();
+      const minDis = distances.length > 0 ? distances[0] : 0;
+      const maxDis = distances.length > 0 ? distances[Math.round((distances.length - 1) * 0.98)] : 0;
+      const r = linear2().domain([minDis, maxDis]).range([polarMaxR * 0.2, polarMaxR]).clamp(true);
+      nodes.forEach((node) => {
+        const cluster = this.clusterId2cluster[node.listId];
+        const { polarOrder, SVNextLevelPos } = cluster;
+        node.polarOrder = polarOrder;
+        let randAngle = Math.random() * Math.PI * 2;
+        let randBias = [Math.sin, Math.cos].map((f) => cluster.r * Math.random() * 0.7 * f(randAngle));
+        node.voronoiPos = SVNextLevelPos.map((d, i) => d + randBias[i]);
+        node.x = node.voronoiPos[0];
+        node.y = node.voronoiPos[1];
+        node.r = r(node.dis);
+      });
+      const simulation = simulation_default(nodes).alphaDecay(1 - Math.pow(1e-3, 1 / this.forceIterations / 2)).force("collide", collide_default().radius((_) => this.nonTopKNodeR * this.canvasScale).strength(0.4)).force("r", radial_default((node) => node.r, ...polarOrigin).strength(1)).on("end", () => {
         nodes.forEach((node) => {
           node.polarPos = [node.x, node.y];
         });
@@ -16806,7 +16804,7 @@ ${indentData}`);
         this.topKNodes = this.nodes.filter((node) => this.searchRes.fsResIds.find((id2) => id2 == node.id));
         this.nonTopKNodes = this.nodes.filter((node) => !this.searchRes.fsResIds.find((id2) => id2 == node.id));
         resolve();
-      }, this.nodeCollisionForceTime);
+      });
     });
   }
 
@@ -17689,7 +17687,8 @@ ${indentData}`);
     ease: cubicInOut,
     animateExitTime: 1500,
     animateEnterTime: 1e3,
-    fineSearchNodeTransTime: 1200
+    fineSearchNodeTransTime: 1200,
+    forceIterations: 100
   };
   var IvfflatView = class extends BaseView {
     constructor({ indexMeta, domSelector: domSelector2, viewParams }) {
