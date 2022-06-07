@@ -51,7 +51,7 @@ export default function SVCoarseVoronoiHandler() {
 
     const simulation = d3
       .forceSimulation(clusters)
-      .alphaDecay(1 - Math.pow(0.001, 1 / this.forceIterations / 2))
+      .alphaDecay(1 - Math.pow(0.001, 1 / this.forceIterations))
       .force(
         'links',
         d3
