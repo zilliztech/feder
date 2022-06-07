@@ -7,7 +7,7 @@ export const overviewLayoutHandler = ({
   width,
   height,
   padding,
-  forceTime,
+  forceIterations,
   M,
 }) => {
   return new Promise(async (resolve) => {
@@ -27,7 +27,7 @@ export const overviewLayoutHandler = ({
           ),
         []
       );
-      await forceLevel({ nodes, links, forceTime });
+      await forceLevel({ nodes, links, forceIterations });
       level > 0 && scaleNodes({ nodes, M });
       level > 0 && fixedCurLevel({ nodes });
       overviewNodesLevels[level] = nodes;
@@ -60,10 +60,11 @@ export const overviewLayoutHandler = ({
 
 export default overviewLayoutHandler;
 
-export const forceLevel = ({ nodes, links, forceTime }) => {
+export const forceLevel = ({ nodes, links, forceIterations }) => {
   return new Promise((resolve) => {
     const simulation = d3
       .forceSimulation(nodes)
+      .alphaDecay(1 - Math.pow(0.001, 1 / forceIterations * 2))
       .force(
         'link',
         d3
@@ -72,12 +73,10 @@ export const forceLevel = ({ nodes, links, forceTime }) => {
           .strength(1)
       )
       .force('center', d3.forceCenter(0, 0))
-      .force('charge', d3.forceManyBody().strength(-500));
-
-    setTimeout(() => {
-      simulation.stop();
-      resolve();
-    }, forceTime);
+      .force('charge', d3.forceManyBody().strength(-500))
+      .on('end', () => {
+        resolve();
+      });
   });
 };
 
