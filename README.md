@@ -2,29 +2,33 @@
 
 ## What is feder
 
-Feder is built for visualizing anns index files, so that we can have a better understanding of anns and high dimensional vectors. so far, we are focusing on the index from Faiss (only ivf_flat) and HNSWlib (hnsw), we will cover more index types later.
+Feder is an javascript tool that built for visualizing anns index files, so that we can have a better understanding of anns and high dimensional vectors.
 
-- HNSW - Search View
-  ![image](./fig/hnsw_search.png)
+So far, we are focusing on the index from Faiss (only ivf_flat) and HNSWlib (hnsw), we will cover more index types later. which index do you prefer?
 
-- IVF_Flat
-  - Coarse Search
-    ![image](./fig/ivfflat_coarse.png)
+Feder is written in **javascript**, and we also provide a python library **federpy**, which is based on federjs.
 
-- IVF_Flat
-  - Fine Search
-    ![image](./fig/ivfflat_fine_polar.png)
-    ![image](./fig/ivfflat_fine_project.png)
+> **_NOTE:_**
 
-## Quick start
-
-Feder is implemented in **javascript**, and we also provide a python library **federpy**, which is based on federjs.
 - In IPython environment, it supports users to generate the corresponding visualization directly.
 - In other environments, it supports outputting visualizations as html files, which can be opened by the user through the browser with web service enabled.
 
-To get more details about federpy you can refer to [federpy-example](https://colab.research.google.com/drive/12L_oJPR-yFDlORpPondsqGNTPVsSsUwi#scrollTo=N3qqBAYxYcbt).
+### Examples
 
-### installation
+- [Javascript example](https://observablehq.com/@min-tian/feder)
+- [Jupternotebook example](https://colab.research.google.com/drive/12L_oJPR-yFDlORpPondsqGNTPVsSsUwi#scrollTo=N3qqBAYxYcbt)
+
+### HNSW visualization screenshots
+
+![image](./fig/hnsw_search.png)
+
+### IVF_Flat visualization screenshots
+
+![image](./fig/ivfflat_coarse.png)
+![image](./fig/ivfflat_fine_polar.png)
+![image](./fig/ivfflat_fine_project.png)
+
+## Installation
 
 Use npm or yarn.
 
@@ -33,16 +37,9 @@ Use npm or yarn.
 yarn install @zilliz/feder
 ```
 
-or
-
-```shell
-#install
-yarn add @zilliz/feder
-```
-
 ### Material Preparation
 
-Make sure that you have Built an index and dumped the index file by Faiss or HNSWlib.
+Make sure that you have built an index and dumped the index file by Faiss or HNSWlib.
 
 ### Init Feder
 
@@ -240,11 +237,17 @@ or randomly select an vector as the target to visualize the search process.
 feder.searchRandTestVec();
 ```
 
-More cases refer to the **test/test.js** 
+More cases refer to the **test/test.js**
 
-## Join us
+## Blogs
 
-Welcome to Zilliz!
+- [Visualize Your Approximate Nearest Neighbor Search with Feder](https://zilliz.com/blog/Visualize-Your-Approximate-Nearest-Neighbor-Search-with-Feder)
+- [Visualize Reverse Image Search with Feder](https://zilliz.com/blog/Visualize-Reverse-Image-Search-with-Feder)
+
+
+
+## Roadmap
+We're still in the early stages, we will support more types of anns index, and more unstructured data viewer, stay tuned.
 
 ## Acknowledgments
 
