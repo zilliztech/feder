@@ -14391,10 +14391,11 @@ ${indentData}`);
       this.canvasScale = canvasScale;
       this.mediaType = mediaType;
       this.mediaCallback = mediaCallback;
+      this.actionPromise = null;
     }
-    initCanvas() {
-      renderLoading(this.dom, this.viewParams.width, this.viewParams.height);
-      const dom = select_default2(this.dom);
+    initCanvas(domNode) {
+      renderLoading(domNode, this.viewParams.width, this.viewParams.height);
+      const dom = select_default2(domNode);
       dom.selectAll("canvas").remove();
       const canvas = dom.append("canvas").attr("width", this.clientWidth).attr("height", this.clientHeight);
       const ctx = canvas.node().getContext("2d");
@@ -14416,51 +14417,64 @@ ${indentData}`);
     }
     overview(dom) {
       return __async(this, null, function* () {
-        this.dom = dom;
-        this.initInfoPanel(dom);
-        this.viewType = VIEW_TYPE.overview;
-        this.initCanvas();
-        this.clickedNode = null;
-        this.hoveredNode = null;
-        this.overviewInitPromise && (yield this.overviewInitPromise);
-        finishLoading(dom);
-        this.renderOverview();
-        this.addMouseListener();
-        this.setOverviewListenerHandlers();
+        console.log("begin overview", dom.id);
+        this.actionPromise && (yield this.actionPromise);
+        console.log("wait overview", dom.id);
+        this.actionPromise = new Promise((resolve) => __async(this, null, function* () {
+          console.log("overview actionPromise", dom.id);
+          this.initInfoPanel(dom);
+          this.viewType = VIEW_TYPE.overview;
+          this.initCanvas(dom);
+          this.clickedNode = null;
+          this.hoveredNode = null;
+          this.overviewInitPromise && (yield this.overviewInitPromise);
+          finishLoading(dom);
+          this.renderOverview();
+          this.addMouseListener(dom);
+          this.setOverviewListenerHandlers();
+          console.log("end overview");
+          resolve();
+        }));
       });
     }
     search(_0) {
       return __async(this, arguments, function* ({ searchRes, targetMediaUrl, dom }) {
-        this.dom = dom;
-        this.initInfoPanel(dom);
-        this.viewType = VIEW_TYPE.search;
-        this.targetMediaUrl = targetMediaUrl;
-        this.initCanvas();
-        this.clickedNode = null;
-        this.hoveredNode = null;
-        yield this.searchViewHandler({ searchRes });
-        finishLoading(dom);
-        this.renderSearchView();
-        this.addMouseListener();
-        this.setSearchViewListenerHandlers();
+        console.log("begin search", dom.id);
+        this.actionPromise && (yield this.actionPromise);
+        console.log("wait search", dom.id);
+        this.actionPromise = new Promise((resolve) => __async(this, null, function* () {
+          console.log("search actionPromise", dom.id);
+          this.initInfoPanel(dom);
+          this.viewType = VIEW_TYPE.search;
+          this.targetMediaUrl = targetMediaUrl;
+          this.initCanvas(dom);
+          this.clickedNode = null;
+          this.hoveredNode = null;
+          yield this.searchViewHandler({ searchRes });
+          finishLoading(dom);
+          this.renderSearchView();
+          this.addMouseListener(dom);
+          this.setSearchViewListenerHandlers();
+          console.log("end search");
+          resolve();
+        }));
       });
     }
-    addMouseListener() {
-      const canvas = this.canvas;
+    addMouseListener(dom) {
       const canvasScale = this.canvasScale;
-      canvas.addEventListener("mousemove", (e) => {
+      dom.addEventListener("mousemove", (e) => {
         const { offsetX, offsetY } = e;
         const x3 = offsetX * canvasScale;
         const y4 = offsetY * canvasScale;
         this.mouseMoveHandler && this.mouseMoveHandler({ x: x3, y: y4 });
       });
-      canvas.addEventListener("click", (e) => {
+      dom.addEventListener("click", (e) => {
         const { offsetX, offsetY } = e;
         const x3 = offsetX * canvasScale;
         const y4 = offsetY * canvasScale;
         this.mouseClickHandler && this.mouseClickHandler({ x: x3, y: y4 });
       });
-      canvas.addEventListener("mouseleave", () => {
+      dom.addEventListener("mouseleave", () => {
         this.mouse = null;
         this.mouseLeaveHandler && this.mouseLeaveHandler();
       });
@@ -17884,7 +17898,8 @@ ${indentData}`);
     }
     initDom() {
       const dom = document.createElement("div");
-      this.dom = dom;
+      dom.id = `feder-dom-${Math.floor(Math.random() * 43543895)}`;
+      console.log("generate", dom.id);
       const { width, height } = this.viewParams;
       const domStyle = {
         position: "relative",
@@ -17892,12 +17907,14 @@ ${indentData}`);
         height: `${height}px`
       };
       Object.assign(dom.style, domStyle);
-      renderLoading(this.dom, width, height);
+      renderLoading(dom, width, height);
+      this.dom = dom;
       if (this.domSelector) {
         const domContainer = document.querySelector(this.domSelector);
         domContainer.innerHTML = "";
         domContainer.appendChild(dom);
       }
+      return dom;
     }
     initView({ indexType, indexMeta, getVectorById }) {
       if (indexType in viewHandlerMap) {
@@ -17910,9 +17927,9 @@ ${indentData}`);
         throw `No view handler for ${indexType}`;
     }
     overview(initCorePromise) {
-      this.initDom();
+      const dom = this.initDom();
       initCorePromise.then(() => {
-        this.view.overview(this.dom);
+        this.view.overview(dom);
       });
     }
     search({
@@ -17920,20 +17937,20 @@ ${indentData}`);
       targetMediaUrl = null,
       searchResPromise = null
     } = {}) {
-      this.initDom();
+      const dom = this.initDom();
       if (searchResPromise) {
         searchResPromise.then(({ searchRes: searchRes2, targetMediaUrl: targetMediaUrl2 }) => {
           this.view.search({
             searchRes: searchRes2,
             targetMediaUrl: targetMediaUrl2,
-            dom: this.dom
+            dom
           });
         });
       } else {
         this.view.search({
           searchRes,
           targetMediaUrl,
-          dom: this.dom
+          dom
         });
       }
     }
@@ -18059,8 +18076,8 @@ ${indentData}`);
     const feder = new Feder({
       filePath,
       source: "faiss",
-      domSelector,
       viewParams: {
+        height: 300,
         mediaType: "img",
         mediaCallback,
         projectSeed: 1235,
@@ -18077,6 +18094,7 @@ ${indentData}`);
       nprobe: 8,
       ef: 10
     });
-    feder.searchRandTestVec();
+    document.querySelector(domSelector).appendChild(feder.overview());
+    document.querySelector(domSelector).appendChild(feder.searchRandTestVec());
   }));
 })();
