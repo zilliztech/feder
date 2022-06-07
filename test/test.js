@@ -74,8 +74,9 @@ const testIVFFlatWithImages = async (filePath) => {
   const feder = new Feder({
     filePath,
     source: 'faiss',
-    domSelector,
+    // domSelector,
     viewParams: {
+      height: 300,
       mediaType: 'img',
       mediaCallback,
       // coarseSearchWithProjection: true,
@@ -111,10 +112,12 @@ window.addEventListener('DOMContentLoaded', async () => {
     nprobe: 8,
     ef: 10,
   });
-  feder.searchRandTestVec();
+  // feder.searchRandTestVec();
   // feder.searchById(4365);
 
-  // document.querySelector(domSelector).appendChild(feder.overview());
+
+  document.querySelector(domSelector).appendChild(feder.overview());
+  document.querySelector(domSelector).appendChild(feder.searchRandTestVec());
   // document.querySelector(domSelector).appendChild(feder.searchRandTestVec());
   // document.querySelector(domSelector).appendChild(feder.searchById(4365));
 });
