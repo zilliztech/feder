@@ -57,13 +57,12 @@ export default class BaseView {
     const searchViewLayoutData = await this.searchViewHandler(searchRes);
     console.log('===> searchViewLayoutData', searchViewLayoutData);
     finishLoading(dom);
-    this.renderSearchView(
+    this.renderSearchView(ctx, infoPanel, searchViewLayoutData, targetMediaUrl);
+    const eventHandlers = this.getSearchViewEventHandler(
       ctx,
-      infoPanel,
       searchViewLayoutData,
-      targetMediaUrl
+      infoPanel
     );
-    const eventHandlers = this.getSearchViewEventHandler(infoPanel);
     addMouseListener(canvas, this.canvasScale, eventHandlers);
   }
 }

@@ -1,19 +1,13 @@
 import { SEARCH_VIEW_TYPE } from 'Types';
-import {
-  hexWithOpacity,
-  drawCircle,
-  whiteColor,
-} from 'Utils/renderUtils';
+import { hexWithOpacity, drawCircle, whiteColor } from 'Utils/renderUtils';
 
-export default function renderSelectedNode({
-  ctx,colorScheme,
-  hoveredNode,
+export default function renderSelectedNode(
+  ctx,
+  { colorScheme },
+  { hoveredNodeR, canvasScale, hoveredNodeOpacity, hoveredNodeStrokeWidth },
   searchViewType,
-  hoveredNodeR,
-  canvasScale,
-  hoveredNodeOpacity,
-  hoveredNodeStrokeWidth,
-}) {
+  hoveredNode
+) {
   const circle =
     searchViewType === SEARCH_VIEW_TYPE.polar
       ? [

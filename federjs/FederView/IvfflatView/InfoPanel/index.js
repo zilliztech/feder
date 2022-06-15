@@ -136,11 +136,21 @@ export default class InfoPanel {
     this.renderOverviewPanel(items, whiteColor);
   }
 
-  updateSearchViewFinePolarOverviewInfo(federView) {
-    const { k, nprobe, searchRes, targetMediaUrl, mediaCallback } = federView;
-    const fineAllVectorsCount = searchRes.fine.length;
-    const showImages = searchRes.fsResIds
-      .map((id) => mediaCallback(id))
+  updateSearchViewFinePolarOverviewInfo(searchViewLayoutData, federView) {
+    const {
+      k,
+      nprobe,
+      nodes,
+      topKNodes,
+      switchSearchViewHandlers,
+      targetMediaUrl,
+    } = searchViewLayoutData;
+    const { switchVoronoi, switchPolar, switchProject } =
+      switchSearchViewHandlers;
+    const { mediaCallback } = federView;
+    const fineAllVectorsCount = nodes.length;
+    const showImages = topKNodes
+      .map(({ id }) => mediaCallback(id))
       .filter((a) => a);
     const items = [
       {
@@ -154,19 +164,19 @@ export default class InfoPanel {
         isOption: true,
         isActive: false,
         label: 'Coarse Search',
-        callback: () => federView.switchSearchView('voronoi', this),
+        callback: switchVoronoi,
       },
       {
         isOption: true,
         isActive: true,
         label: 'Fine Search (Distance)',
-        callback: () => federView.switchSearchView('polar', this),
+        callback: switchPolar,
       },
       {
         isOption: true,
         isActive: false,
         label: 'Fine Search (Project)',
-        callback: () => federView.switchSearchView('project', this),
+        callback: switchProject,
       },
       {
         text: `Find the ${k} (k=${k}) vectors closest to the target from these ${nprobe} (nprobe=${nprobe}) clusters, ${fineAllVectorsCount} vectors in total.`,
@@ -179,12 +189,20 @@ export default class InfoPanel {
     this.renderOverviewPanel(items, whiteColor);
   }
 
-  updateSearchViewFineProjectOverviewInfo(federView) {
-    const { k, nprobe, searchRes, targetMediaUrl, mediaCallback, viewParams } =
-      federView;
-    const fineAllVectorsCount = searchRes.fine.length;
-    const showImages = searchRes.fsResIds
-      .map((id) => mediaCallback(id))
+  updateSearchViewFineProjectOverviewInfo(searchViewLayoutData, federView) {
+    const {
+      nprobe,
+      nodes,
+      topKNodes,
+      targetMediaUrl,
+      switchSearchViewHandlers,
+    } = searchViewLayoutData;
+    const { switchVoronoi, switchPolar, switchProject } =
+      switchSearchViewHandlers;
+    const { mediaCallback, viewParams } = federView;
+    const fineAllVectorsCount = nodes.length;
+    const showImages = topKNodes
+      .map(({ id }) => mediaCallback(id))
       .filter((a) => a);
     const items = [
       {
@@ -198,19 +216,19 @@ export default class InfoPanel {
         isOption: true,
         isActive: false,
         label: 'Coarse Search',
-        callback: () => federView.switchSearchView('voronoi', this),
+        callback: switchVoronoi,
       },
       {
         isOption: true,
         isActive: false,
         label: 'Fine Search (Distance)',
-        callback: () => federView.switchSearchView('polar', this),
+        callback: switchPolar,
       },
       {
         isOption: true,
         isActive: true,
         label: 'Fine Search (Project)',
-        callback: () => federView.switchSearchView('project', this),
+        callback: switchProject,
       },
       {
         text: `Projection of all ${fineAllVectorsCount} vectors in the ${nprobe} (nprobe=${nprobe}) clusters using ${

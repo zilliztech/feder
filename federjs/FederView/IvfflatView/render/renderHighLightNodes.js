@@ -1,17 +1,12 @@
 import { SEARCH_VIEW_TYPE } from 'Types';
 import { hexWithOpacity, drawCircle, whiteColor } from 'Utils/renderUtils';
 
-export default function renderHighLightNodes({
+export default function renderHighLightNodes(
   ctx,
-  colorScheme,
-  topKNodes,
-  searchViewType,
-  topKNodeR,
-  canvasScale,
-  nprobe,
-  topKNodeOpacity,
-  topKNodeStrokeWidth,
-}) {
+  { colorScheme, topKNodes, nprobe },
+  { topKNodeR, canvasScale, topKNodeOpacity, topKNodeStrokeWidth },
+  searchViewType
+) {
   const allCircles =
     searchViewType === SEARCH_VIEW_TYPE.polar
       ? topKNodes.map((node) => [
