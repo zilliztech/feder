@@ -19833,7 +19833,6 @@ ${indentData}`);
         const ctx = canvas.getContext("2d");
         const infoPanel = this.initInfoPanel(dom);
         const searchViewLayoutData = yield this.searchViewHandler(searchRes);
-        console.log("===> searchViewLayoutData", searchViewLayoutData);
         finishLoading(dom);
         this.renderSearchView(ctx, infoPanel, searchViewLayoutData, targetMediaUrl);
         const eventHandlers = this.getSearchViewEventHandler(ctx, searchViewLayoutData, infoPanel);
@@ -19977,14 +19976,7 @@ ${indentData}`);
   };
 
   // federjs/FederView/HnswView/layout/mouse2node.js
-  function mouse2node({
-    mouse,
-    mouse2nodeBias,
-    canvasScale,
-    layerPosLevels,
-    nodesLevels,
-    posAttr
-  }) {
+  function mouse2node({ mouse, layerPosLevels, nodesLevels, posAttr }, { mouse2nodeBias, canvasScale }) {
     const mouseLevel = layerPosLevels.findIndex((points) => contains_default(points, mouse));
     let mouseNode;
     if (mouseLevel >= 0) {
@@ -20203,7 +20195,7 @@ ${indentData}`);
   };
 
   // federjs/FederView/HnswView/render/renderBackground.js
-  function renderBackground({ ctx, width, height }) {
+  function renderBackground(ctx, { width, height }) {
     drawRect({
       ctx,
       width,
@@ -20214,12 +20206,7 @@ ${indentData}`);
   }
 
   // federjs/FederView/HnswView/render/renderlevelLayer.js
-  function renderlevelLayer({
-    ctx,
-    canvasScale,
-    layerDotNum,
-    points
-  }) {
+  function renderlevelLayer(ctx, points, { canvasScale, layerDotNum }) {
     drawPath({
       ctx,
       points,
@@ -20262,14 +20249,7 @@ ${indentData}`);
   }
 
   // federjs/FederView/HnswView/render/renderLinks.js
-  function renderLinks({
-    ctx,
-    shortenLineD,
-    overviewLinkLineWidth,
-    canvasScale,
-    links,
-    level
-  }) {
+  function renderLinks(ctx, links, level, { shortenLineD, overviewLinkLineWidth, canvasScale }) {
     const pointsList = links.map((link) => shortenLine(link.source.overviewPosLevels[level], link.target.overviewPosLevels[level], shortenLineD * canvasScale));
     drawLinesWithLinearGradient({
       ctx,
@@ -20283,14 +20263,7 @@ ${indentData}`);
   }
 
   // federjs/FederView/HnswView/render/renderNodes.js
-  function renderNodes({
-    ctx,
-    canvasScale,
-    ellipseRation,
-    shadowBlur,
-    nodes,
-    level
-  }) {
+  function renderNodes(ctx, nodes, level, { canvasScale, ellipseRation, shadowBlur }) {
     drawEllipse({
       ctx,
       circles: nodes.map((node) => [
@@ -20306,19 +20279,14 @@ ${indentData}`);
   }
 
   // federjs/FederView/HnswView/render/renderReachable.js
-  function renderReachableData({
-    reachableLevel,
-    reachableNodes,
-    reachableLinks,
-    ctx,
+  function renderReachableData(ctx, level, { reachableLevel, reachableNodes, reachableLinks }, {
     shortenLineD,
     canvasScale,
     reachableLineWidth,
     ellipseRation,
     shadowBlur,
     highlightRadiusExt,
-    posAttr,
-    level
+    posAttr = "overviewPosLevels"
   }) {
     if (level != reachableLevel)
       return;
@@ -20347,18 +20315,14 @@ ${indentData}`);
   }
 
   // federjs/FederView/HnswView/render/renderShortestPath.js
-  function renderShortestPath({
-    SPLinksLevels,
-    SPNodesLevels,
-    ctx,
+  function renderShortestPath(ctx, level, { SPLinksLevels, SPNodesLevels }, {
     shortenLineD,
     canvasScale,
     shortestPathLineWidth,
     highlightRadiusExt,
     shadowBlur,
     ellipseRation,
-    level,
-    posAttr
+    posAttr = "overviewPosLevels"
   }) {
     const pointsList = (SPLinksLevels ? SPLinksLevels[level] : []).map((link) => link.source === link.target ? !!link.source[posAttr][level + 1] ? [link.source[posAttr][level + 1], link.target[posAttr][level]] : null : [link.source[posAttr][level], link.target[posAttr][level]]).filter((a2) => a2).map((points) => shortenLine(...points, shortenLineD * canvasScale));
     drawLinesWithLinearGradient({
@@ -20385,30 +20349,29 @@ ${indentData}`);
   }
 
   // federjs/FederView/HnswView/render/renderOverview.js
-  function renderOverview() {
-    renderBackground(this);
-    for (let level = 0; level < this.overviewLevelCount; level++) {
-      renderlevelLayer(__spreadProps(__spreadValues({}, this), {
-        points: this.overviewLayerPosLevels[level]
-      }));
-      const nodes = this.overviewNodesLevels[level];
-      const links = this.overviewLinksLevels[level];
-      level > 0 && renderLinks(__spreadProps(__spreadValues({}, this), { links, level }));
-      renderNodes(__spreadProps(__spreadValues({}, this), { nodes, level }));
-      const isActive = this.clickedNode || this.hoveredNode;
-      isActive && renderReachableData(__spreadProps(__spreadValues({}, this), { level, posAttr: "overviewPosLevels" }));
-      isActive && renderShortestPath(__spreadProps(__spreadValues({}, this), { level, posAttr: "overviewPosLevels" }));
+  function renderOverview(ctx, federView, overviewHighlightData) {
+    const {
+      overviewLevelCount,
+      overviewNodesLevels,
+      overviewLinksLevels,
+      overviewLayerPosLevels
+    } = federView;
+    renderBackground(ctx, federView);
+    for (let level = 0; level < overviewLevelCount; level++) {
+      renderlevelLayer(ctx, overviewLayerPosLevels[level], federView);
+      const nodes = overviewNodesLevels[level];
+      const links = overviewLinksLevels[level];
+      level > 0 && renderLinks(ctx, links, level, federView);
+      renderNodes(ctx, nodes, level, federView);
+      if (overviewHighlightData) {
+        renderReachableData(ctx, level, overviewHighlightData, federView);
+        renderShortestPath(ctx, level, overviewHighlightData, federView);
+      }
     }
   }
 
   // federjs/FederView/HnswView/layout/overviewShortestPath.js
-  function getOverviewShortestPathData({
-    keyNode,
-    keyLevel,
-    overviewNodesLevels,
-    internalId2overviewNode,
-    overviewLevelCount
-  }) {
+  function getOverviewShortestPathData(keyNode, keyLevel, { overviewNodesLevels, internalId2overviewNode, overviewLevelCount }) {
     let SPLinksLevels = overviewNodesLevels.map((_) => []);
     let SPNodesLevels = overviewNodesLevels.map((_) => []);
     let reachableNodes = [];
@@ -20458,7 +20421,13 @@ ${indentData}`);
         target
       }));
     }
-    return { SPLinksLevels, SPNodesLevels, reachableLevel, reachableNodes, reachableLinks };
+    return {
+      SPLinksLevels,
+      SPNodesLevels,
+      reachableLevel,
+      reachableNodes,
+      reachableLinks
+    };
   }
 
   // federjs/FederView/HnswView/layout/parseVisRecords.js
@@ -20869,6 +20838,50 @@ ${indentData}`);
       });
     }
   };
+
+  // federjs/FederView/HnswView/render/renderHoverLine.js
+  var renderHoverLine = (ctx, { hoveredNode, hoveredLevel, clickedNode, clickedLevel }, {
+    width,
+    padding,
+    hoveredPanelLineWidth,
+    HoveredPanelLine_1_x,
+    HoveredPanelLine_1_y,
+    HoveredPanelLine_2_x,
+    canvasScale
+  }) => {
+    let isLeft = true;
+    let endX = 0;
+    let endY = 0;
+    if (!!hoveredNode) {
+      const [x3, y4] = hoveredNode.overviewPosLevels[hoveredLevel];
+      const originX = (width - padding[1] - padding[3]) / 2 + padding[3];
+      isLeft = !clickedNode ? originX > x3 : clickedNode.overviewPosLevels[clickedLevel][0] > x3;
+      const k = isLeft ? -1 : 1;
+      endX = x3 + HoveredPanelLine_1_x * canvasScale * k + HoveredPanelLine_2_x * canvasScale * k;
+      endY = y4 + HoveredPanelLine_1_y * canvasScale * k;
+      const points = [
+        [x3, y4],
+        [
+          x3 + HoveredPanelLine_1_x * canvasScale * k,
+          y4 + HoveredPanelLine_1_y * canvasScale * k
+        ],
+        [
+          x3 + HoveredPanelLine_1_x * canvasScale * k + HoveredPanelLine_2_x * canvasScale * k,
+          y4 + HoveredPanelLine_1_y * canvasScale * k
+        ]
+      ];
+      drawPath({
+        ctx,
+        points,
+        withZ: false,
+        hasStroke: true,
+        strokeStyle: hexWithOpacity(ZYellow, 1),
+        lineWidth: hoveredPanelLineWidth * canvasScale
+      });
+    }
+    return { isLeft, endX, endY };
+  };
+  var renderHoverLine_default = renderHoverLine;
 
   // federjs/FederView/HnswView/render/renderSearchViewLinks.js
   function renderSearchViewLinks({
@@ -21376,14 +21389,7 @@ ${indentData}`);
       }
       this.renderOverviewPanel(overviewInfo, whiteColor);
     }
-    updateOverviewClickedInfo({
-      node,
-      level,
-      indexMeta,
-      mediaType,
-      mediaCallback,
-      getVectorById
-    }) {
+    updateOverviewClickedInfo(node, level, { indexMeta, mediaType, mediaCallback, getVectorById }) {
       const itemList = [];
       if (node) {
         itemList.push({
@@ -21411,48 +21417,8 @@ ${indentData}`);
       }
       this.renderSelectedPanel(itemList, ZYellow);
     }
-    updateOverviewHoveredInfo({
-      ctx,
-      hoveredNode,
-      hoveredLevel,
-      clickedNode,
-      clickedLevel,
-      width,
-      padding,
-      mediaType,
-      mediaCallback,
-      hoveredPanelLineWidth,
-      HoveredPanelLine_1_x,
-      HoveredPanelLine_1_y,
-      HoveredPanelLine_2_x,
-      canvasScale
-    }) {
+    updateOverviewHoveredInfo(hoveredNode, { isLeft, endX, endY }, { mediaType, mediaCallback, canvasScale }) {
       if (!!hoveredNode) {
-        const [x3, y4] = hoveredNode.overviewPosLevels[hoveredLevel];
-        const originX = (width - padding[1] - padding[3]) / 2 + padding[3];
-        const isLeft = !clickedNode ? originX > x3 : clickedNode.overviewPosLevels[clickedLevel][0] > x3;
-        const k = isLeft ? -1 : 1;
-        const endX = x3 + HoveredPanelLine_1_x * canvasScale * k + HoveredPanelLine_2_x * canvasScale * k;
-        const endY = y4 + HoveredPanelLine_1_y * canvasScale * k;
-        const points = [
-          [x3, y4],
-          [
-            x3 + HoveredPanelLine_1_x * canvasScale * k,
-            y4 + HoveredPanelLine_1_y * canvasScale * k
-          ],
-          [
-            x3 + HoveredPanelLine_1_x * canvasScale * k + HoveredPanelLine_2_x * canvasScale * k,
-            y4 + HoveredPanelLine_1_y * canvasScale * k
-          ]
-        ];
-        drawPath({
-          ctx,
-          points,
-          withZ: false,
-          hasStroke: true,
-          strokeStyle: hexWithOpacity(ZYellow, 1),
-          lineWidth: hoveredPanelLineWidth * canvasScale
-        });
         const itemList = [];
         itemList.push({
           text: `No. ${hoveredNode.id}`,
@@ -21626,7 +21592,7 @@ ${indentData}`);
         this[key] = key in viewParams ? viewParams[key] : defaultHnswViewParams[key];
       }
       this.padding = this.padding.map((num) => num * this.canvasScale);
-      this.overviewHandler({ indexMeta });
+      this.overviewHandler(indexMeta);
     }
     initInfoPanel(dom) {
       const infoPanel = new InfoPanel({
@@ -21634,21 +21600,16 @@ ${indentData}`);
         width: this.viewParams.width,
         height: this.viewParams.height
       });
-      this.infoPanel = infoPanel;
-      this.updateOverviewOverviewInfo = (info) => infoPanel.updateOverviewOverviewInfo(info);
-      this.updateOverviewHoveredInfo = (info) => infoPanel.updateOverviewHoveredInfo(__spreadValues(__spreadValues({}, this), info));
-      this.updateOverviewClickedInfo = (info) => infoPanel.updateOverviewClickedInfo(__spreadValues(__spreadValues({}, this), info));
-      this.updateSearchViewOverviewInfo = (info) => infoPanel.updateSearchViewOverviewInfo(__spreadValues(__spreadValues({}, this), info));
-      this.updateSearchViewHoveredInfo = (info) => infoPanel.updateSearchViewHoveredInfo(__spreadValues(__spreadValues({}, this), info));
-      this.updateSearchViewClickedInfo = (info) => infoPanel.updateSearchViewClickedInfo(__spreadValues(__spreadValues({}, this), info));
+      return infoPanel;
     }
-    overviewHandler({ indexMeta }) {
+    overviewHandler(indexMeta) {
+      console.log(indexMeta);
       this.indexMeta = indexMeta;
       Object.assign(this, indexMeta);
       const internalId2overviewNode = {};
       this.overviewNodes.forEach((node) => internalId2overviewNode[node.internalId] = node);
       this.internalId2overviewNode = internalId2overviewNode;
-      this.overviewInitPromise = overviewLayout_default(this).then(({
+      this.overviewLayoutPromise = overviewLayout_default(this).then(({
         overviewLayerPosLevels,
         overviewNodesLevels,
         overviewLinksLevels
@@ -21658,14 +21619,65 @@ ${indentData}`);
         this.overviewLinksLevels = overviewLinksLevels;
       });
     }
-    renderOverview() {
+    renderOverview(ctx, infoPanel) {
       const indexMeta = this.indexMeta;
       const nodesCount = this.overviewNodesLevels.map((nodesLevel) => nodesLevel.length);
       const linksCount = this.overviewLinksLevels.map((linksLevel) => linksLevel.length);
       const overviewInfo = { indexMeta, nodesCount, linksCount };
-      this.updateOverviewOverviewInfo(overviewInfo);
-      this.searchTransitionTimer && this.searchTransitionTimer.stop();
-      renderOverview.call(this);
+      infoPanel.updateOverviewOverviewInfo(overviewInfo);
+      renderOverview(ctx, this);
+    }
+    getOverviewEventHandler(ctx, infoPanel) {
+      let clickedNode = null;
+      let clickedLevel = null;
+      let hoveredNode = null;
+      let hoveredLevel = null;
+      let overviewHighlightData = null;
+      const mouseMoveHandler = ({ x: x3, y: y4 }) => {
+        const mouse = [x3, y4];
+        const { mouseLevel, mouseNode } = mouse2node({
+          mouse,
+          layerPosLevels: this.overviewLayerPosLevels,
+          nodesLevels: this.overviewNodesLevels,
+          posAttr: "overviewPosLevels"
+        }, this);
+        const hoveredNodeChanged = hoveredLevel !== mouseLevel || hoveredNode !== mouseNode;
+        hoveredNode = mouseNode;
+        hoveredLevel = mouseLevel;
+        if (hoveredNodeChanged && !clickedNode) {
+        }
+        if (hoveredNodeChanged) {
+          if (!clickedNode) {
+            overviewHighlightData = getOverviewShortestPathData(mouseNode, mouseLevel, this);
+          }
+          renderOverview(ctx, this, overviewHighlightData);
+          const hoveredPanelPos = renderHoverLine_default(ctx, {
+            hoveredNode,
+            hoveredLevel,
+            clickedNode,
+            clickedLevel
+          }, this);
+          infoPanel.updateOverviewHoveredInfo(mouseNode, hoveredPanelPos, this);
+        }
+      };
+      const mouseClickHandler = ({ x: x3, y: y4 }) => {
+        const mouse = [x3, y4];
+        const { mouseLevel, mouseNode } = mouse2node({
+          mouse,
+          layerPosLevels: this.overviewLayerPosLevels,
+          nodesLevels: this.overviewNodesLevels,
+          posAttr: "overviewPosLevels"
+        }, this);
+        const clickedNodeChanged = clickedLevel !== mouseLevel || clickedNode !== mouseNode;
+        clickedNode = mouseNode;
+        clickedLevel = mouseLevel;
+        if (clickedNodeChanged) {
+          overviewHighlightData = getOverviewShortestPathData(mouseNode, mouseLevel, this);
+          renderOverview(ctx, this, overviewHighlightData);
+          infoPanel.updateOverviewClickedInfo(mouseNode, mouseLevel, this);
+        }
+      };
+      return { mouseMoveHandler, mouseClickHandler };
     }
     searchViewHandler(_0) {
       return __async(this, arguments, function* ({ searchRes }) {
@@ -21688,68 +21700,6 @@ ${indentData}`);
       timeControllerView.setTimer(timer2);
       timer2.start();
       this.searchTransitionTimer = timer2;
-    }
-    setOverviewListenerHandlers() {
-      this.mouseLeaveHandler = null;
-      this.mouseMoveHandler = ({ x: x3, y: y4 }) => {
-        const mouse = [x3, y4];
-        const { mouseLevel, mouseNode } = mouse2node(__spreadProps(__spreadValues({}, this), {
-          mouse,
-          layerPosLevels: this.overviewLayerPosLevels,
-          nodesLevels: this.overviewNodesLevels,
-          posAttr: "overviewPosLevels"
-        }));
-        this.hoveredNodeChanged = this.hoveredLevel !== mouseLevel || this.hoveredNode !== mouseNode;
-        this.hoveredNode = mouseNode;
-        this.hoveredLevel = mouseLevel;
-        if (this.hoveredNodeChanged && !this.clickedNode) {
-          Object.assign(this, getOverviewShortestPathData(__spreadProps(__spreadValues({}, this), {
-            keyNode: mouseNode,
-            keyLevel: mouseLevel
-          })));
-          this.renderOverview();
-          this.updateOverviewClickedInfo({
-            x: x3,
-            y: y4,
-            node: mouseNode,
-            level: mouseLevel
-          });
-        }
-        if (this.hoveredNodeChanged) {
-          this.renderOverview();
-          this.updateOverviewHoveredInfo({
-            x: x3,
-            y: y4,
-            node: mouseNode,
-            level: mouseLevel
-          });
-        }
-      };
-      this.mouseClickHandler = ({ x: x3, y: y4 }) => {
-        const mouse = [x3, y4];
-        const { mouseLevel, mouseNode } = mouse2node(__spreadProps(__spreadValues({}, this), {
-          mouse,
-          layerPosLevels: this.overviewLayerPosLevels,
-          nodesLevels: this.overviewNodesLevels,
-          posAttr: "overviewPosLevels"
-        }));
-        this.clickedNodeChanged = this.clickedLevel !== mouseLevel || this.clickedNode !== mouseNode;
-        this.clickedNode = mouseNode;
-        this.clickedLevel = mouseLevel;
-        if (this.clickedNodeChanged) {
-          Object.assign(this, getOverviewShortestPathData(__spreadProps(__spreadValues({}, this), {
-            keyNode: mouseNode,
-            keyLevel: mouseLevel
-          })));
-          this.updateOverviewClickedInfo({
-            x: x3,
-            y: y4,
-            node: mouseNode,
-            level: mouseLevel
-          });
-          this.renderOverview();
-        }
-      };
     }
     setSearchViewListenerHandlers() {
       this.mouseLeaveHandler = null;
@@ -23285,7 +23235,6 @@ ${indentData}`);
     initDom() {
       const dom = document.createElement("div");
       dom.id = `feder-dom-${Math.floor(Math.random() * 1e5)}`;
-      console.log("generate", dom.id);
       const { width, height } = this.viewParams;
       const domStyle = {
         position: "relative",
@@ -23454,24 +23403,22 @@ ${indentData}`);
     data.forEach((d, i) => rowId2name[i] = d.name);
     return rowId2name;
   });
-  var testIVFFlatWithImages = (filePath) => __async(void 0, null, function* () {
+  var testHNSWWithImages = (filePath) => __async(void 0, null, function* () {
     const rowId2name = yield getId2name();
     const mediaCallback = (rowId) => rowId in rowId2name ? `https://assets.zilliz.com/voc2012/JPEGImages/${rowId2name[rowId]}` : null;
     const feder = new Feder({
       filePath,
-      source: "faiss",
+      source: "hnswlib",
       viewParams: {
-        height: 300,
+        height: 400,
         mediaType: "img",
-        mediaCallback,
-        projectSeed: 1235,
-        projectMethod: "umap"
+        mediaCallback
       }
     });
     return feder;
   });
   window.addEventListener("DOMContentLoaded", () => __async(void 0, null, function* () {
-    const feder = yield testIVFFlatWithImages("https://assets.zilliz.com/faiss_ivf_flat_voc_17k_ab112eec72.index");
+    const feder = yield testHNSWWithImages("./data/hnswlib_hnsw_voc_17k.index");
     console.log(feder);
     feder.setSearchParams({
       k: 12,
@@ -23479,8 +23426,6 @@ ${indentData}`);
       ef: 10
     });
     document.querySelector(domSelector).appendChild(feder.overview());
-    document.querySelector(domSelector).appendChild(feder.searchRandTestVec());
-    document.querySelector(domSelector).appendChild(feder.searchRandTestVec());
   }));
 })();
 /**

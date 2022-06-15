@@ -1,10 +1,8 @@
-export default function getOverviewShortestPathData({
+export default function getOverviewShortestPathData(
   keyNode,
   keyLevel,
-  overviewNodesLevels,
-  internalId2overviewNode,
-  overviewLevelCount,
-}) {
+  { overviewNodesLevels, internalId2overviewNode, overviewLevelCount }
+) {
   let SPLinksLevels = overviewNodesLevels.map((_) => []);
   let SPNodesLevels = overviewNodesLevels.map((_) => []);
   let reachableNodes = [];
@@ -57,5 +55,11 @@ export default function getOverviewShortestPathData({
       target,
     }));
   }
-  return { SPLinksLevels, SPNodesLevels, reachableLevel, reachableNodes, reachableLinks };
+  return {
+    SPLinksLevels,
+    SPNodesLevels,
+    reachableLevel,
+    reachableNodes,
+    reachableLinks,
+  };
 }
