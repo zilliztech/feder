@@ -1,6 +1,6 @@
 import * as d3 from 'd3';
 import { renderLoading, finishLoading } from './loading';
-import { VIEW_TYPE } from 'Types';
+// import { VIEW_TYPE } from 'Types';
 
 export default class BaseView {
   constructor({ viewParams, getVectorById }) {
@@ -15,96 +15,93 @@ export default class BaseView {
     this.canvasScale = canvasScale;
     this.mediaType = mediaType;
     this.mediaCallback = mediaCallback;
+  }
 
-    this.actionPromise = null;
-  }
-  initCanvas(domNode) {
-    renderLoading(domNode, this.viewParams.width, this.viewParams.height);
-    const dom = d3.select(domNode);
-    dom.selectAll('canvas').remove();
-    const canvas = dom
-      .append('canvas')
-      .attr('width', this.clientWidth)
-      .attr('height', this.clientHeight);
-    const ctx = canvas.node().getContext('2d');
-    ctx.scale(1 / this.canvasScale, 1 / this.canvasScale);
-    this.ctx = ctx;
-    this.canvas = canvas.node();
-  }
   // override
-  overviewHandler() {}
+  initInfoPanel() {}
   renderOverview() {}
   renderSearchView() {}
-  setOverviewListenerHandlers() {}
-  setSearchViewListenerHandlers() {}
-  initInfoPanel() {}
+  searchViewHandler() {}
+  getOverviewEventHandler() {}
+  getSearchViewEventHandler() {}
 
   async overview(dom) {
-    console.log('begin overview', dom.id);
-    this.actionPromise && (await this.actionPromise);
-    console.log('wait overview', dom.id);
+    const canvas = initCanvas(
+      dom,
+      this.clientWidth,
+      this.clientHeight,
+      this.canvasScale
+    );
+    const ctx = canvas.getContext('2d');
+    const infoPanel = this.initInfoPanel(dom);
+    // const viewType = VIEW_TYPE.overview;
 
-    this.actionPromise = new Promise(async (resolve) => {
-      // this.dom = dom;
-      console.log('overview actionPromise', dom.id);
-      this.initInfoPanel(dom);
-      this.viewType = VIEW_TYPE.overview;
-      this.initCanvas(dom);
-      this.clickedNode = null;
-      this.hoveredNode = null;
-      this.overviewInitPromise && (await this.overviewInitPromise);
-      finishLoading(dom);
-      this.renderOverview();
-      this.addMouseListener(dom);
-      this.setOverviewListenerHandlers();
-      console.log('end overview');
-
-      resolve();
-    });
-  }
-  async search({ searchRes, targetMediaUrl, dom }) {
-    console.log('begin search', dom.id);
-    this.actionPromise && (await this.actionPromise);
-    console.log('wait search', dom.id);
-
-    this.actionPromise = new Promise(async (resolve) => {
-      // this.dom = dom;
-      console.log('search actionPromise', dom.id);
-      this.initInfoPanel(dom);
-      this.viewType = VIEW_TYPE.search;
-      this.targetMediaUrl = targetMediaUrl;
-      this.initCanvas(dom);
-      this.clickedNode = null;
-      this.hoveredNode = null;
-      await this.searchViewHandler({ searchRes });
-      finishLoading(dom);
-      this.renderSearchView();
-      this.addMouseListener(dom);
-      this.setSearchViewListenerHandlers();
-
-      console.log('end search');
-      resolve();
-    });
+    this.overviewLayoutPromise && (await this.overviewLayoutPromise);
+    finishLoading(dom);
+    this.renderOverview(ctx, infoPanel);
+    const eventHandlers = this.getOverviewEventHandler(ctx, infoPanel);
+    addMouseListener(canvas, this.canvasScale, eventHandlers);
   }
 
-  addMouseListener(dom) {
-    // const canvas = this.canvas;
-    const canvasScale = this.canvasScale;
-    dom.addEventListener('mousemove', (e) => {
-      const { offsetX, offsetY } = e;
-      const x = offsetX * canvasScale;
-      const y = offsetY * canvasScale;
-      this.mouseMoveHandler && this.mouseMoveHandler({ x, y });
-    });
-    dom.addEventListener('click', (e) => {
-      const { offsetX, offsetY } = e;
-      const x = offsetX * canvasScale;
-      const y = offsetY * canvasScale;
-      this.mouseClickHandler && this.mouseClickHandler({ x, y });
-    });
-    dom.addEventListener('mouseleave', () => {
-      this.mouse = null;
-      this.mouseLeaveHandler && this.mouseLeaveHandler();
-    });
+  async search(dom, { searchRes, targetMediaUrl }) {
+    const canvas = initCanvas(
+      dom,
+      this.clientWidth,
+      this.clientHeight,
+      this.canvasScale
+    );
+    const ctx = canvas.getContext('2d');
+    const infoPanel = this.initInfoPanel(dom);
+    // const viewType = VIEW_TYPE.search;
+
+    const searchViewLayoutData = await this.searchViewHandler(searchRes);
+    console.log('===> searchViewLayoutData', searchViewLayoutData);
+    finishLoading(dom);
+    this.renderSearchView(
+      ctx,
+      infoPanel,
+      searchViewLayoutData,
+      targetMediaUrl
+    );
+    const eventHandlers = this.getSearchViewEventHandler(infoPanel);
+    addMouseListener(canvas, this.canvasScale, eventHandlers);
   }
 }
+
+const addMouseListener = (
+  element,
+  canvasScale,
+  { mouseMoveHandler, mouseClickHandler, mouseLeaveHandler } = {}
+) => {
+  element.addEventListener('mousemove', (e) => {
+    const { offsetX, offsetY } = e;
+    const x = offsetX * canvasScale;
+    const y = offsetY * canvasScale;
+    mouseMoveHandler && mouseMoveHandler({ x, y });
+  });
+  element.addEventListener('click', (e) => {
+    const { offsetX, offsetY } = e;
+    const x = offsetX * canvasScale;
+    const y = offsetY * canvasScale;
+    mouseClickHandler && mouseClickHandler({ x, y });
+  });
+  element.addEventListener('mouseleave', () => {
+    mouseLeaveHandler && mouseLeaveHandler();
+  });
+};
+
+const initCanvas = (dom, clientWidth, clientHeight, canvasScale) => {
+  renderLoading(dom, clientWidth, clientHeight);
+
+  const domD3 = d3.select(dom);
+  domD3.selectAll('canvas').remove();
+
+  const canvas = domD3
+    .append('canvas')
+    .attr('width', clientWidth)
+    .attr('height', clientHeight);
+  const ctx = canvas.node().getContext('2d');
+  ctx.scale(1 / canvasScale, 1 / canvasScale);
+
+  return canvas.node();
+};

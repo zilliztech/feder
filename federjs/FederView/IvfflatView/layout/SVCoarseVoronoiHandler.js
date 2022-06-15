@@ -2,20 +2,22 @@ import * as d3 from 'd3';
 import getVoronoi from './getVoronoi';
 import { vecSort } from 'Utils';
 
-export default function SVCoarseVoronoiHandler() {
+export default function SVCoarseVoronoiHandler(
+  searchRes,
+  searchViewLayoutData,
+  federView
+) {
   return new Promise((resolve) => {
-    const width = this.width;
-    const height = this.height;
-    const clusters = this.clusters;
-
+    const { clusters, nprobeClusters, nprobe } = searchViewLayoutData;
+    const { width, height, forceIterations, polarOriginBias } = federView;
     const fineClusterOrder = vecSort(
-      this.nprobeClusters,
+      nprobeClusters,
       'OVPolyCentroid',
       'clusterId'
     );
     // console.log('fineClusterOrder', fineClusterOrder);
 
-    const targetClusterId = this.searchRes.coarse[0].id;
+    const targetClusterId = searchRes.coarse[0].id;
     const targetCluster = clusters.find(
       (cluster) => cluster.clusterId === targetClusterId
     );
@@ -31,18 +33,16 @@ export default function SVCoarseVoronoiHandler() {
       cluster.y = cluster.forceProjection[1];
     });
     const targetClusterX =
-      this.nprobeClusters.reduce((acc, cluster) => acc + cluster.x, 0) /
-      this.nprobe;
+      nprobeClusters.reduce((acc, cluster) => acc + cluster.x, 0) / nprobe;
     const targetClusterY =
-      this.nprobeClusters.reduce((acc, cluster) => acc + cluster.y, 0) /
-      this.nprobe;
+      nprobeClusters.reduce((acc, cluster) => acc + cluster.y, 0) / nprobe;
     targetCluster.x = targetClusterX;
     targetCluster.y = targetClusterY;
 
     const otherFineCluster = otherFineClustersId.map((clusterId) =>
-      this.nprobeClusters.find((cluster) => cluster.clusterId === clusterId)
+      nprobeClusters.find((cluster) => cluster.clusterId === clusterId)
     );
-    const angleStep = (2 * Math.PI) / (this.nprobe - 1);
+    const angleStep = (2 * Math.PI) / (nprobe - 1);
     const biasR = targetCluster.r * 0.5;
     otherFineCluster.forEach((cluster, i) => {
       cluster.x = targetClusterX + biasR * Math.sin(angleStep * i);
@@ -51,7 +51,7 @@ export default function SVCoarseVoronoiHandler() {
 
     const simulation = d3
       .forceSimulation(clusters)
-      .alphaDecay(1 - Math.pow(0.001, 1 / this.forceIterations))
+      .alphaDecay(1 - Math.pow(0.001, 1 / forceIterations))
       .force(
         'links',
         d3
@@ -91,21 +91,21 @@ export default function SVCoarseVoronoiHandler() {
           cluster.SVPolyPoints = points;
           cluster.SVPolyCentroid = d3.polygonCentroid(points);
         });
-        this.SVVoronoi = voronoi;
+        searchViewLayoutData.SVVoronoi = voronoi;
 
         const targetCluster = clusters.find(
           (cluster) => cluster.clusterId === targetClusterId
         );
         const centoid_fineClusters_x =
-          this.nprobeClusters.reduce(
+          nprobeClusters.reduce(
             (acc, cluster) => acc + cluster.SVPolyCentroid[0],
             0
-          ) / this.nprobeClusters.length;
+          ) / nprobe;
         const centroid_fineClusters_y =
-          this.nprobeClusters.reduce(
+          nprobeClusters.reduce(
             (acc, cluster) => acc + cluster.SVPolyCentroid[1],
             0
-          ) / this.nprobeClusters.length;
+          ) / nprobe;
         const _x = centoid_fineClusters_x - targetCluster.SVPos[0];
         const _y = centroid_fineClusters_y - targetCluster.SVPos[1];
         const biasR = Math.sqrt(_x * _x + _y * _y);
@@ -115,23 +115,21 @@ export default function SVCoarseVoronoiHandler() {
             targetCluster.SVPos[1] + targetCluster.r * 0.4 * (_y / biasR),
           ],
         };
-        targetNode.isLeft_coarseLevel = targetNode.SVPos[0] < this.width / 2;
-        this.targetNode = targetNode;
+        targetNode.isLeft_coarseLevel = targetNode.SVPos[0] < width / 2;
+        searchViewLayoutData.targetNode = targetNode;
 
         const polarOrigin = [
           width / 2 +
-            (targetNode.isLeft_coarseLevel ? -1 : 1) *
-              this.polarOriginBias *
-              width,
+            (targetNode.isLeft_coarseLevel ? -1 : 1) * polarOriginBias * width,
           height / 2,
         ];
         // const polarOrigin = [width / 2, height / 2];
-        this.polarOrigin = polarOrigin;
+        searchViewLayoutData.polarOrigin = polarOrigin;
         targetNode.polarPos = polarOrigin;
         const polarMaxR = Math.min(width, height) * 0.5 - 5;
-        this.polarMaxR = polarMaxR;
+        searchViewLayoutData.polarMaxR = polarMaxR;
         const angleStep = (Math.PI * 2) / fineClusterOrder.length;
-        this.nprobeClusters.forEach((cluster) => {
+        nprobeClusters.forEach((cluster) => {
           const order = fineClusterOrder.indexOf(cluster.clusterId);
           cluster.polarOrder = order;
           cluster.SVNextLevelPos = [
@@ -144,10 +142,10 @@ export default function SVCoarseVoronoiHandler() {
           ];
         });
         const clusterId2cluster = {};
-        this.nprobeClusters.forEach((cluster) => {
+        nprobeClusters.forEach((cluster) => {
           clusterId2cluster[cluster.clusterId] = cluster;
         });
-        this.clusterId2cluster = clusterId2cluster;
+        searchViewLayoutData.clusterId2cluster = clusterId2cluster;
 
         resolve();
       });

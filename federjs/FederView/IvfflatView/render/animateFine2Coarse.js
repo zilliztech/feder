@@ -5,55 +5,71 @@ import animateNprobeClustersTrans from './animateNprobeClustersTrans';
 import animateTargetNode from './animateTargetNode';
 import animateNprobeClustersOpacity from './animateNprobeClustersOpacity';
 import animateNodesOpacityAndTrans from './animateNodesOpacityAndTrans';
-import { ANIMATION_TYPE, SEARCH_VIEW_TYPE } from 'Types';
+import { ANIMATION_TYPE } from 'Types';
 
-export default function animateFine2Coarse({
+export default function animateFine2Coarse(
   oldSearchViewType,
   newSearchViewType,
-}) {
-  const stepAllTime = this.animateExitTime + this.animateEnterTime;
+  ctx,
+  searchViewLayoutData,
+  federView,
+  endCallback = () => {}
+) {
+  const { animateExitTime, animateEnterTime } = federView;
+
+  const stepAllTime = animateExitTime + animateEnterTime;
   const timer = d3.timer((elapsed) => {
-    renderBackground(this);
+    renderBackground(ctx, federView);
 
     animateNodesOpacityAndTrans({
-      ...this,
+      ctx,
+      searchViewLayoutData,
+      federView,
       elapsed,
       delay: 0,
-      duration: this.animateExitTime,
+      duration: animateExitTime,
       animationType: ANIMATION_TYPE.exit,
       oldSearchViewType,
       newSearchViewType,
     });
 
     animateNprobeClustersOpacity({
-      ...this,
+      ctx,
+      searchViewLayoutData,
+      federView,
       elapsed,
       delay: 0,
-      duration: this.animateExitTime,
+      duration: animateExitTime,
       animationType: ANIMATION_TYPE.enter,
     });
 
     animateNonNprobeClusters({
-      ...this,
+      ctx,
+      searchViewLayoutData,
+      federView,
       elapsed,
-      delay: this.animateExitTime,
-      duration: this.animateEnterTime,
+      delay: animateExitTime,
+      duration: animateEnterTime,
       animationType: ANIMATION_TYPE.enter,
     });
 
     animateNprobeClustersTrans({
-      ...this,
+      ctx,
+      searchViewLayoutData,
+      federView,
       elapsed,
-      delay: this.animateExitTime,
-      duration: this.animateEnterTime,
+      delay: animateExitTime,
+      duration: animateEnterTime,
       animationType: ANIMATION_TYPE.enter,
     });
 
     animateTargetNode({
-      ...this,
+      ctx,
+      searchViewLayoutData,
+      federView,
       elapsed,
-      delay: this.animateExitTime,
-      duration: this.animateEnterTime,
+      delay: animateExitTime,
+      duration: animateEnterTime,
       animationType: ANIMATION_TYPE.enter,
       newSearchViewType,
     });
@@ -61,8 +77,7 @@ export default function animateFine2Coarse({
     if (elapsed >= stepAllTime) {
       console.log('Fine => Coarse [OK]');
       timer.stop();
-      this.searchViewType = newSearchViewType;
-      this.renderCoarseSearch();
+      endCallback();
     }
   });
 }

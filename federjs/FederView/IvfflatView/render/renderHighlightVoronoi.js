@@ -7,12 +7,11 @@ import {
   blackColor,
 } from 'Utils/renderUtils';
 
-export default function renderHighlightVoronoi({
+export default function renderHighlightVoronoi(
   ctx,
-  nprobeClusters,
-  voronoiStrokeWidth,
-  canvasScale,
-}) {
+  { nprobeClusters },
+  { voronoiStrokeWidth, canvasScale }
+) {
   const pointsList = nprobeClusters.map((cluster) => cluster.SVPolyPoints);
   drawVoronoi({
     ctx,
