@@ -26,8 +26,8 @@ export default class FederView {
   }
   initDom() {
     const dom = document.createElement('div');
-    dom.id = `feder-dom-${Math.floor(Math.random() * 43543895)}`;
-    console.log('generate', dom.id)
+    dom.id = `feder-dom-${Math.floor(Math.random() * 100000)}`;
+    console.log('generate', dom.id);
     const { width, height } = this.viewParams;
     const domStyle = {
       position: 'relative',
@@ -58,11 +58,13 @@ export default class FederView {
       });
     } else throw `No view handler for ${indexType}`;
   }
-  overview(initCorePromise) {
+  overview(initCoreAndViewPromise) {
     const dom = this.initDom();
-    initCorePromise.then(() => {
+    initCoreAndViewPromise.then(() => {
       this.view.overview(dom);
     });
+
+    return dom;
   }
   search({
     searchRes = null,
@@ -73,19 +75,19 @@ export default class FederView {
 
     if (searchResPromise) {
       searchResPromise.then(({ searchRes, targetMediaUrl }) => {
-        this.view.search({
+        this.view.search(dom, {
           searchRes,
           targetMediaUrl,
-          dom,
         });
       });
     } else {
-      this.view.search({
+      this.view.search(dom, {
         searchRes,
         targetMediaUrl,
-        dom,
       });
     }
+
+    return dom;
   }
 
   switchSearchView(searchViewType) {

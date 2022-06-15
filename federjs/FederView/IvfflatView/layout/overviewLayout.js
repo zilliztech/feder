@@ -1,10 +1,15 @@
 import * as d3 from 'd3';
 import getVoronoi from './getVoronoi';
 
-export default function overviewLayoutHandler({ indexMeta }) {
+export default function overviewLayoutHandler({
+  indexMeta,
+  width,
+  height,
+  canvasScale,
+  minVoronoiRadius,
+  forceIterations,
+}) {
   return new Promise((resolve) => {
-    const width = this.width;
-    const height = this.height;
     const allArea = width * height;
     const { ntotal, listCentroidProjections = null, listSizes } = indexMeta;
     const clusters = listSizes.map((listSize, i) => ({
@@ -30,14 +35,14 @@ export default function overviewLayoutHandler({ indexMeta }) {
       cluster.x = x(cluster.oriProjection[0]);
       cluster.y = y(cluster.oriProjection[1]);
       cluster.r = Math.max(
-        this.minVoronoiRadius * this.canvasScale,
+        minVoronoiRadius * canvasScale,
         Math.sqrt(cluster.countArea / Math.PI)
       );
     });
 
     const simulation = d3
       .forceSimulation(clusters)
-      .alphaDecay(1 - Math.pow(0.001, 1 / this.forceIterations))
+      .alphaDecay(1 - Math.pow(0.001, 1 / forceIterations))
       .force(
         'collision',
         d3.forceCollide().radius((cluster) => cluster.r)
@@ -55,9 +60,6 @@ export default function overviewLayoutHandler({ indexMeta }) {
             Math.min(height - cluster.r, cluster.y)
           );
         });
-
-        // test += 1;
-        // console.log('test', test);
       })
       .on('end', () => {
         clusters.forEach((cluster) => {

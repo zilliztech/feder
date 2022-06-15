@@ -1,14 +1,17 @@
 import { VIEW_TYPE } from 'Types';
-import { drawVoronoi, ZBlue, hexWithOpacity, blackColor } from 'Utils/renderUtils';
+import {
+  drawVoronoi,
+  ZBlue,
+  hexWithOpacity,
+  blackColor,
+} from 'Utils/renderUtils';
 
-export default function renderNormalVoronoi({
+export default function renderNormalVoronoi(
   ctx,
-  clusters,
-  nonNprobeClusters,
   viewType,
-  voronoiStrokeWidth,
-  canvasScale,
-}) {
+  { clusters, nonNprobeClusters },
+  { voronoiStrokeWidth, canvasScale }
+) {
   const pointsList =
     viewType === VIEW_TYPE.overview
       ? clusters.map((cluster) => cluster.OVPolyPoints)

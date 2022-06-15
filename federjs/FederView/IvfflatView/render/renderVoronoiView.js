@@ -3,21 +3,29 @@ import renderNormalVoronoi from './renderNormalVoronoi';
 import renderHighlightVoronoi from './renderHighlightVoronoi';
 import renderSelectedVoronoi from './renderSelectedVoronoi';
 import renderTarget from './renderTarget';
-import { VIEW_TYPE } from 'Types';
+import { VIEW_TYPE, SEARCH_VIEW_TYPE } from 'Types';
 
-export default function renderVoronoiView() {
+export default function renderVoronoiView(
+  ctx,
+  viewType,
+  layoutData,
+  federView,
+  hoveredCluster = null,
+) {
   // background
-  renderBackground(this);
+  renderBackground(ctx, federView);
 
   // normal-cluster
-  renderNormalVoronoi(this);
+  renderNormalVoronoi(ctx, viewType, layoutData, federView);
 
   // nprobe-cluster   search
-  this.viewType === VIEW_TYPE.search && renderHighlightVoronoi(this);
+  viewType === VIEW_TYPE.search &&
+    renderHighlightVoronoi(ctx, layoutData, federView);
 
   // hoverCluster
-  !!this.hoveredCluster && renderSelectedVoronoi(this);
+  !!hoveredCluster &&
+    renderSelectedVoronoi(ctx, viewType, hoveredCluster, federView);
 
   // target           search
-  this.viewType === VIEW_TYPE.search && renderTarget(this);
+  viewType === VIEW_TYPE.search && renderTarget(ctx, SEARCH_VIEW_TYPE.voronoi, layoutData, federView);
 }
