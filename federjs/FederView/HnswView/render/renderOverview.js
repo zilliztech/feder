@@ -5,22 +5,24 @@ import renderNodes from './renderNodes';
 import renderReachable from './renderReachable';
 import renderShortestPath from './renderShortestPath';
 
-export default function renderOverview() {
-  renderBackground(this);
-  for (let level = 0; level < this.overviewLevelCount; level++) {
-    renderlevelLayer({
-      ...this,
-      points: this.overviewLayerPosLevels[level],
-    });
-    const nodes = this.overviewNodesLevels[level];
-    const links = this.overviewLinksLevels[level];
-    level > 0 && renderLinks({ ...this, links, level });
-    renderNodes({ ...this, nodes, level });
+export default function renderOverview(ctx, federView, overviewHighlightData) {
+  const {
+    overviewLevelCount,
+    overviewNodesLevels,
+    overviewLinksLevels,
+    overviewLayerPosLevels,
+  } = federView;
+  renderBackground(ctx, federView);
+  for (let level = 0; level < overviewLevelCount; level++) {
+    renderlevelLayer(ctx, overviewLayerPosLevels[level], federView);
+    const nodes = overviewNodesLevels[level];
+    const links = overviewLinksLevels[level];
+    level > 0 && renderLinks(ctx, links, level, federView);
+    renderNodes(ctx, nodes, level, federView);
 
-    const isActive = this.clickedNode || this.hoveredNode;
-    isActive &&
-      renderReachable({ ...this, level, posAttr: 'overviewPosLevels' });
-    isActive &&
-      renderShortestPath({ ...this, level, posAttr: 'overviewPosLevels' });
+    if (overviewHighlightData) {
+      renderReachable(ctx, level, overviewHighlightData, federView);
+      renderShortestPath(ctx, level, overviewHighlightData, federView);
+    }
   }
 }

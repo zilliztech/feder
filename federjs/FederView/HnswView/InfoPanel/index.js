@@ -153,7 +153,7 @@ export default class InfoPanel {
       // panel.style.top = y + 'px';
       if (isLeft) {
         panel.style('left', null);
-        panel.style('right', (this.width - x / canvasScale)  + 'px');
+        panel.style('right', this.width - x / canvasScale + 'px');
         panel.style('flex-direction', 'row-reverse');
       } else {
         panel.style('left', x / canvasScale + 'px');
@@ -225,14 +225,11 @@ export default class InfoPanel {
     }
     this.renderOverviewPanel(overviewInfo, whiteColor);
   }
-  updateOverviewClickedInfo({
+  updateOverviewClickedInfo(
     node,
     level,
-    indexMeta,
-    mediaType,
-    mediaCallback,
-    getVectorById,
-  }) {
+    { indexMeta, mediaType, mediaCallback, getVectorById }
+  ) {
     const itemList = [];
     if (node) {
       itemList.push({
@@ -263,57 +260,12 @@ export default class InfoPanel {
     }
     this.renderSelectedPanel(itemList, ZYellow);
   }
-  updateOverviewHoveredInfo({
-    ctx,
+  updateOverviewHoveredInfo(
     hoveredNode,
-    hoveredLevel,
-    clickedNode,
-    clickedLevel,
-    width,
-    padding,
-    mediaType,
-    mediaCallback,
-
-    hoveredPanelLineWidth,
-    HoveredPanelLine_1_x,
-    HoveredPanelLine_1_y,
-    HoveredPanelLine_2_x,
-    canvasScale,
-  }) {
+    { isLeft, endX, endY },
+    { mediaType, mediaCallback, canvasScale }
+  ) {
     if (!!hoveredNode) {
-      const [x, y] = hoveredNode.overviewPosLevels[hoveredLevel];
-      const originX = (width - padding[1] - padding[3]) / 2 + padding[3];
-      const isLeft = !clickedNode
-        ? originX > x
-        : clickedNode.overviewPosLevels[clickedLevel][0] > x;
-      const k = isLeft ? -1 : 1;
-      const endX =
-        x +
-        HoveredPanelLine_1_x * canvasScale * k +
-        HoveredPanelLine_2_x * canvasScale * k;
-      const endY = y + HoveredPanelLine_1_y * canvasScale * k;
-      const points = [
-        [x, y],
-        [
-          x + HoveredPanelLine_1_x * canvasScale * k,
-          y + HoveredPanelLine_1_y * canvasScale * k,
-        ],
-        [
-          x +
-            HoveredPanelLine_1_x * canvasScale * k +
-            HoveredPanelLine_2_x * canvasScale * k,
-          y + HoveredPanelLine_1_y * canvasScale * k,
-        ],
-      ];
-      drawPath({
-        ctx,
-        points,
-        withZ: false,
-        hasStroke: true,
-        strokeStyle: hexWithOpacity(ZYellow, 1),
-        lineWidth: hoveredPanelLineWidth * canvasScale,
-      });
-
       const itemList = [];
       itemList.push({
         text: `No. ${hoveredNode.id}`,

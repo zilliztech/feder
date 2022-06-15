@@ -34,7 +34,6 @@ export default class BaseView {
     );
     const ctx = canvas.getContext('2d');
     const infoPanel = this.initInfoPanel(dom);
-    // const viewType = VIEW_TYPE.overview;
 
     this.overviewLayoutPromise && (await this.overviewLayoutPromise);
     finishLoading(dom);
@@ -52,10 +51,8 @@ export default class BaseView {
     );
     const ctx = canvas.getContext('2d');
     const infoPanel = this.initInfoPanel(dom);
-    // const viewType = VIEW_TYPE.search;
 
     const searchViewLayoutData = await this.searchViewHandler(searchRes);
-    console.log('===> searchViewLayoutData', searchViewLayoutData);
     finishLoading(dom);
     this.renderSearchView(ctx, infoPanel, searchViewLayoutData, targetMediaUrl);
     const eventHandlers = this.getSearchViewEventHandler(

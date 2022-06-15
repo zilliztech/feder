@@ -7,7 +7,6 @@ import getOverviewShortestPathData from './layout/overviewShortestPath';
 import searchViewLayoutHandler from './layout/searchViewLayout';
 import TimeControllerView from './render/TimeControllerView';
 import TimerController from './render/TimerController';
-import renderHoverLine from './render/renderHoverLine';
 import renderSearchViewTransition from './render/renderSearchViewTransition';
 import InfoPanel from './InfoPanel';
 
@@ -45,7 +44,7 @@ export default class HnswView extends BaseView {
         key in viewParams ? viewParams[key] : defaultHnswViewParams[key];
     }
     this.padding = this.padding.map((num) => num * this.canvasScale);
-
+    
     this.overviewHandler(indexMeta);
   }
   initInfoPanel(dom) {
@@ -54,10 +53,22 @@ export default class HnswView extends BaseView {
       width: this.viewParams.width,
       height: this.viewParams.height,
     });
-    return infoPanel;
+    this.infoPanel = infoPanel;
+    this.updateOverviewOverviewInfo = (info) =>
+      infoPanel.updateOverviewOverviewInfo(info);
+    this.updateOverviewHoveredInfo = (info) =>
+      infoPanel.updateOverviewHoveredInfo({ ...this, ...info });
+    this.updateOverviewClickedInfo = (info) =>
+      infoPanel.updateOverviewClickedInfo({ ...this, ...info });
+    this.updateSearchViewOverviewInfo = (info) =>
+      infoPanel.updateSearchViewOverviewInfo({ ...this, ...info });
+    this.updateSearchViewHoveredInfo = (info) =>
+      infoPanel.updateSearchViewHoveredInfo({ ...this, ...info });
+    this.updateSearchViewClickedInfo = (info) =>
+      infoPanel.updateSearchViewClickedInfo({ ...this, ...info });
+
   }
   overviewHandler(indexMeta) {
-    console.log(indexMeta);
     this.indexMeta = indexMeta;
     Object.assign(this, indexMeta);
 
@@ -79,7 +90,7 @@ export default class HnswView extends BaseView {
       }
     );
   }
-  renderOverview(ctx, infoPanel) {
+  renderOverview() {
     const indexMeta = this.indexMeta;
     const nodesCount = this.overviewNodesLevels.map(
       (nodesLevel) => nodesLevel.length
@@ -88,88 +99,11 @@ export default class HnswView extends BaseView {
       (linksLevel) => linksLevel.length
     );
     const overviewInfo = { indexMeta, nodesCount, linksCount };
-    infoPanel.updateOverviewOverviewInfo(overviewInfo);
+    this.updateOverviewOverviewInfo(overviewInfo);
 
-    // this.searchTransitionTimer && this.searchTransitionTimer.stop();
-    renderOverview(ctx, this);
+    this.searchTransitionTimer && this.searchTransitionTimer.stop();
+    renderOverview.call(this);
   }
-  getOverviewEventHandler(ctx, infoPanel) {
-    let clickedNode = null;
-    let clickedLevel = null;
-    let hoveredNode = null;
-    let hoveredLevel = null;
-    let overviewHighlightData = null;
-    const mouseMoveHandler = ({ x, y }) => {
-      const mouse = [x, y];
-      const { mouseLevel, mouseNode } = mouse2node(
-        {
-          mouse,
-          layerPosLevels: this.overviewLayerPosLevels,
-          nodesLevels: this.overviewNodesLevels,
-          posAttr: 'overviewPosLevels',
-        },
-        this
-      );
-      const hoveredNodeChanged =
-        hoveredLevel !== mouseLevel || hoveredNode !== mouseNode;
-      hoveredNode = mouseNode;
-      hoveredLevel = mouseLevel;
-
-      if (hoveredNodeChanged && !clickedNode) {
-        // infoPanel.updateOverviewClickedInfo(mouseNode, mouseLevel, this);
-      }
-
-      if (hoveredNodeChanged) {
-        if (!clickedNode) {
-          overviewHighlightData = getOverviewShortestPathData(
-            mouseNode,
-            mouseLevel,
-            this
-          );
-        }
-        renderOverview(ctx, this, overviewHighlightData);
-        const hoveredPanelPos = renderHoverLine(
-          ctx,
-          {
-            hoveredNode,
-            hoveredLevel,
-            clickedNode,
-            clickedLevel,
-          },
-          this
-        );
-        infoPanel.updateOverviewHoveredInfo(mouseNode, hoveredPanelPos, this);
-      }
-    };
-    const mouseClickHandler = ({ x, y }) => {
-      const mouse = [x, y];
-      const { mouseLevel, mouseNode } = mouse2node(
-        {
-          mouse,
-          layerPosLevels: this.overviewLayerPosLevels,
-          nodesLevels: this.overviewNodesLevels,
-          posAttr: 'overviewPosLevels',
-        },
-        this
-      );
-      const clickedNodeChanged =
-        clickedLevel !== mouseLevel || clickedNode !== mouseNode;
-      clickedNode = mouseNode;
-      clickedLevel = mouseLevel;
-
-      if (clickedNodeChanged) {
-        overviewHighlightData = getOverviewShortestPathData(
-          mouseNode,
-          mouseLevel,
-          this
-        );
-        renderOverview(ctx, this, overviewHighlightData);
-        infoPanel.updateOverviewClickedInfo(mouseNode, mouseLevel, this);
-      }
-    };
-    return { mouseMoveHandler, mouseClickHandler };
-  }
-
   async searchViewHandler({ searchRes }) {
     await searchViewLayoutHandler.call(this, { searchRes });
     this.updateSearchViewOverviewInfo({});
@@ -190,6 +124,85 @@ export default class HnswView extends BaseView {
     timeControllerView.setTimer(timer);
     timer.start();
     this.searchTransitionTimer = timer;
+  }
+  setOverviewListenerHandlers() {
+    this.mouseLeaveHandler = null;
+    this.mouseMoveHandler = ({ x, y }) => {
+      const mouse = [x, y];
+      const { mouseLevel, mouseNode } = mouse2node({
+        ...this,
+        mouse,
+        layerPosLevels: this.overviewLayerPosLevels,
+        nodesLevels: this.overviewNodesLevels,
+        posAttr: 'overviewPosLevels',
+      });
+      this.hoveredNodeChanged =
+        this.hoveredLevel !== mouseLevel || this.hoveredNode !== mouseNode;
+      this.hoveredNode = mouseNode;
+      this.hoveredLevel = mouseLevel;
+
+      if (this.hoveredNodeChanged && !this.clickedNode) {
+        Object.assign(
+          this,
+          getOverviewShortestPathData({
+            ...this,
+            keyNode: mouseNode,
+            keyLevel: mouseLevel,
+          })
+        );
+        this.renderOverview();
+        this.updateOverviewClickedInfo({
+          x,
+          y,
+          node: mouseNode,
+          level: mouseLevel,
+        });
+      }
+
+      if (this.hoveredNodeChanged) {
+        this.renderOverview();
+        this.updateOverviewHoveredInfo({
+          x,
+          y,
+          node: mouseNode,
+          level: mouseLevel,
+        });
+      }
+    };
+
+    this.mouseClickHandler = ({ x, y }) => {
+      const mouse = [x, y];
+      const { mouseLevel, mouseNode } = mouse2node({
+        ...this,
+        mouse,
+        layerPosLevels: this.overviewLayerPosLevels,
+        nodesLevels: this.overviewNodesLevels,
+        posAttr: 'overviewPosLevels',
+      });
+      this.clickedNodeChanged =
+        this.clickedLevel !== mouseLevel || this.clickedNode !== mouseNode;
+      this.clickedNode = mouseNode;
+      this.clickedLevel = mouseLevel;
+
+      if (this.clickedNodeChanged) {
+        Object.assign(
+          this,
+          getOverviewShortestPathData({
+            ...this,
+            keyNode: mouseNode,
+            keyLevel: mouseLevel,
+          })
+        );
+
+        this.updateOverviewClickedInfo({
+          x,
+          y,
+          node: mouseNode,
+          level: mouseLevel,
+        });
+        this.renderOverview();
+      }
+    };
   }
   setSearchViewListenerHandlers() {
     this.mouseLeaveHandler = null;

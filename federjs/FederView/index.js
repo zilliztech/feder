@@ -27,7 +27,6 @@ export default class FederView {
   initDom() {
     const dom = document.createElement('div');
     dom.id = `feder-dom-${Math.floor(Math.random() * 100000)}`;
-    console.log('generate', dom.id);
     const { width, height } = this.viewParams;
     const domStyle = {
       position: 'relative',
