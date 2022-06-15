@@ -79,11 +79,11 @@ export default class IvfflatView extends BaseView {
     infoPanel.updateOverviewOverviewInfo(this);
     renderVoronoiView(ctx, VIEW_TYPE.overview, this.overviewLayoutData, this);
   }
-
   getOverviewEventHandler(ctx, infoPanel) {
     let hoveredClusterId = null;
 
     const mouseLeaveHandler = () => {
+      hoveredClusterId = null;
       renderVoronoiView(ctx, VIEW_TYPE.overview, this.overviewLayoutData, this);
       infoPanel.updateOverviewHoveredInfo();
     };
@@ -147,7 +147,6 @@ export default class IvfflatView extends BaseView {
     await searchViewLayoutHandler(searchRes, searchViewLayoutData, this);
     return searchViewLayoutData;
   }
-
   renderSearchView(ctx, infoPanel, searchViewLayoutData, targetMediaUrl) {
     searchViewLayoutData.targetMediaUrl = targetMediaUrl;
     searchViewLayoutData.switchSearchViewHandlers = {
@@ -187,9 +186,21 @@ export default class IvfflatView extends BaseView {
     ctx,
     infoPanel,
     searchViewLayoutData,
-    newSearchViewType = SEARCH_VIEW_TYPE.polar
-  ) {}
+    searchViewType = SEARCH_VIEW_TYPE.polar
+  ) {
+    searchViewType === SEARCH_VIEW_TYPE.polar &&
+      infoPanel.updateSearchViewFinePolarOverviewInfo(
+        searchViewLayoutData,
+        this
+      );
+    searchViewType === SEARCH_VIEW_TYPE.project &&
+      infoPanel.updateSearchViewFineProjectOverviewInfo(
+        searchViewLayoutData,
+        this
+      );
 
+    renderNodeView(ctx, searchViewLayoutData, this, searchViewType);
+  }
   switchSearchView(searchViewType, ctx, infoPanel, searchViewLayoutData) {
     if (searchViewType == searchViewLayoutData.searchViewType) return;
 
@@ -242,12 +253,106 @@ export default class IvfflatView extends BaseView {
       oldSearchViewType !== SEARCH_VIEW_TYPE.voronoi
     ) {
       console.log('fine - intra [start]');
-      const endCallback = () => {};
-      animateFine2Fine.call(this, {
+      const endCallback = () => {
+        searchViewLayoutData.searchViewType = newSearchViewType;
+        this.renderFineSearch(
+          ctx,
+          infoPanel,
+          searchViewLayoutData,
+          newSearchViewType
+        );
+      };
+      animateFine2Fine(
         oldSearchViewType,
         newSearchViewType,
-        infoPanel,
-      });
+        ctx,
+        searchViewLayoutData,
+        this,
+        endCallback
+      );
     }
+  }
+  getSearchViewEventHandler(ctx, searchViewLayoutData, infoPanel) {
+    let hoveredClusterId = null;
+    let hoveredNode = null;
+    const mouseLeaveHandler = () => {
+      hoveredClusterId = null;
+      hoveredNode = null;
+      const { searchViewType } = searchViewLayoutData;
+      if (searchViewType === SEARCH_VIEW_TYPE.voronoi) {
+        renderVoronoiView(ctx, VIEW_TYPE.search, searchViewLayoutData, this);
+        infoPanel.updateSearchViewHoveredInfo();
+      } else {
+        infoPanel.updateSearchViewHoveredNodeInfo();
+      }
+    };
+    const mouseMoveHandler = ({ x, y }) => {
+      const { searchViewType, clusters, nodes } = searchViewLayoutData;
+      if (searchViewType === SEARCH_VIEW_TYPE.voronoi) {
+        const currentHoveredClusterId = mouse2voronoi({
+          voronoi: searchViewLayoutData.SVVoronoi,
+          x,
+          y,
+        });
+        if (hoveredClusterId !== currentHoveredClusterId) {
+          hoveredClusterId = currentHoveredClusterId;
+          const hoveredCluster = clusters.find(
+            (cluster) => cluster.clusterId == hoveredClusterId
+          );
+          renderVoronoiView(
+            ctx,
+            VIEW_TYPE.search,
+            searchViewLayoutData,
+            this,
+            hoveredCluster
+          );
+
+          if (!!hoveredCluster) {
+            infoPanel.updateSearchViewHoveredInfo({
+              hoveredCluster,
+              listIds: this.indexMeta.listIds[hoveredClusterId],
+              images: this.indexMeta.listIds[hoveredClusterId].map((listId) =>
+                this.mediaCallback(listId)
+              ),
+              x: hoveredCluster.SVPolyCentroid[0] / this.canvasScale,
+              y: hoveredCluster.SVPolyCentroid[1] / this.canvasScale,
+            });
+          }
+        }
+      } else {
+        if (!nodes) return;
+        const nodesPos =
+          searchViewType === SEARCH_VIEW_TYPE.polar
+            ? nodes.map((node) => node.polarPos)
+            : nodes.map((node) => node.projectPos);
+        const hoveredNodeIndex = mouse2node({
+          nodesPos,
+          x,
+          y,
+          bias: (this.hoveredNodeR + 2) * this.canvasScale,
+        });
+        const currentHoveredNode =
+          hoveredNodeIndex >= 0 ? nodes[hoveredNodeIndex] : null;
+        if (hoveredNode !== currentHoveredNode) {
+          hoveredNode = currentHoveredNode;
+          this.renderFineSearch(
+            ctx,
+            infoPanel,
+            searchViewLayoutData,
+            searchViewType,
+            hoveredNode
+          );
+        }
+
+        const img = hoveredNode ? this.mediaCallback(hoveredNode.id) : '';
+        infoPanel.updateSearchViewHoveredNodeInfo({
+          hoveredNode,
+          img,
+          x: x / this.canvasScale,
+          y: y / this.canvasScale,
+        });
+      }
+    };
+    return { mouseLeaveHandler, mouseMoveHandler };
   }
 }

@@ -1,16 +1,12 @@
 import { SEARCH_VIEW_TYPE } from 'Types';
 import { hexWithOpacity, drawCircle } from 'Utils/renderUtils';
 
-export default function renderNormalNodes({
+export default function renderNormalNodes(
   ctx,
-  colorScheme,
-  nonTopKNodes,
-  searchViewType,
-  nonTopKNodeR,
-  canvasScale,
-  nprobe,
-  nonTopKNodeOpacity,
-}) {
+  { colorScheme, nonTopKNodes, nprobe },
+  { nonTopKNodeR, canvasScale, nonTopKNodeOpacity },
+  searchViewType
+) {
   const allCircles =
     searchViewType === SEARCH_VIEW_TYPE.polar
       ? nonTopKNodes.map((node) => [
