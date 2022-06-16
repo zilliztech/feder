@@ -11,7 +11,6 @@ import animateCoarse2Fine from './render/animateCoarse2Fine';
 import animateFine2Coarse from './render/animateFine2Coarse';
 import animateFine2Fine from './render/animateFine2Fine';
 import InfoPanel from './InfoPanel';
-import { cloneDeep } from 'lodash';
 
 const defaultIvfflatViewParams = {
   minVoronoiRadius: 4,
@@ -130,7 +129,7 @@ export default class IvfflatView extends BaseView {
     const searchViewLayoutData = {
       nprobe: searchRes.csResIds.length,
       k: searchRes.fsResIds.length,
-      clusters: cloneDeep(this.overviewLayoutData.clusters),
+      clusters: JSON.parse(JSON.stringify(this.overviewLayoutData.clusters)),
     };
     searchViewLayoutData.nprobeClusters = searchViewLayoutData.clusters.filter(
       (cluster) => searchRes.csResIds.indexOf(cluster.clusterId) >= 0
