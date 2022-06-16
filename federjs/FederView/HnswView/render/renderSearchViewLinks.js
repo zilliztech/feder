@@ -3,20 +3,14 @@ import {
   highLightGradientStopColors,
   normalGradientStopColors,
 } from 'Utils/renderUtils';
-import {
-  shortenLine,
-  getInprocessPos,
-} from 'Utils';
+import { shortenLine, getInprocessPos } from 'Utils';
 import { HNSW_LINK_TYPE } from 'Types';
 
-export default function renderSearchViewLinks({
+export default function renderSearchViewLinks(
   ctx,
-  shortenLineD,
-  canvasScale,
-  links,
-  inProcessLinks,
-  level,
-}) {
+  { links, inProcessLinks, level },
+  { shortenLineD, canvasScale }
+) {
   let pointsList = [];
   let inprocessPointsList = [];
 

@@ -1,16 +1,10 @@
 import * as d3 from 'd3';
 import { generateArray } from 'Utils';
 
-export const transformHandler = ({
+export const transformHandler = (
   nodes,
-  levelCount,
-  width,
-  height,
-  padding,
-  xBias = 0.65,
-  yBias = 0.4,
-  yOver = 0.1,
-}) => {
+  { levelCount, width, height, padding, xBias = 0.65, yBias = 0.4, yOver = 0.1 }
+) => {
   const layerWidth = width - padding[1] - padding[3];
   const layerHeight =
     (height - padding[0] - padding[2]) /

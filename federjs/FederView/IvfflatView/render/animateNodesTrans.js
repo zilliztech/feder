@@ -3,22 +3,23 @@ import { hexWithOpacity, drawCircle, whiteColor } from 'Utils/renderUtils';
 
 export default function animateNodesTrans({
   ctx,
-  colorScheme,
-  ease,
+  searchViewLayoutData,
+  federView,
   elapsed,
   duration,
   delay,
   newSearchViewType,
-  nonTopKNodes,
-  nonTopKNodeR,
-  canvasScale,
-  topKNodes,
-  topKNodeR,
-  topKNodeStrokeWidth,
-  nprobe,
-  nonTopKNodeOpacity,
-  topKNodeOpacity,
 }) {
+  const { colorScheme, nonTopKNodes, topKNodes, nprobe } = searchViewLayoutData;
+  const {
+    ease,
+    nonTopKNodeR,
+    canvasScale,
+    topKNodeR,
+    topKNodeStrokeWidth,
+    nonTopKNodeOpacity,
+    topKNodeOpacity,
+  } = federView;
   let t = ease((elapsed - delay) / duration);
   if (t > 1 || t < 0) return;
 

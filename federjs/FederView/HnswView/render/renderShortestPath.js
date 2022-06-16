@@ -7,19 +7,20 @@ import {
   hexWithOpacity,
 } from 'Utils/renderUtils';
 
-export default function renderShortestPath({
-  SPLinksLevels,
-  SPNodesLevels,
+export default function renderShortestPath(
   ctx,
-  shortenLineD,
-  canvasScale,
-  shortestPathLineWidth,
-  highlightRadiusExt,
-  shadowBlur,
-  ellipseRation,
   level,
-  posAttr,
-}) {
+  { SPLinksLevels, SPNodesLevels },
+  {
+    shortenLineD,
+    canvasScale,
+    shortestPathLineWidth,
+    highlightRadiusExt,
+    shadowBlur,
+    ellipseRation,
+    posAttr = 'overviewPosLevels',
+  }
+) {
   const pointsList = (SPLinksLevels ? SPLinksLevels[level] : [])
     .map((link) =>
       link.source === link.target

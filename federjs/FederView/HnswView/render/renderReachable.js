@@ -8,19 +8,20 @@ import {
 
 import { shortenLine } from 'Utils';
 
-export default function renderReachableData({
-  reachableLevel,
-  reachableNodes,
-  reachableLinks,
+export default function renderReachableData(
   ctx,
-  shortenLineD,
-  canvasScale,
-  reachableLineWidth,
-  ellipseRation,
-  shadowBlur,highlightRadiusExt,
-  posAttr,
   level,
-}) {
+  { reachableLevel, reachableNodes, reachableLinks },
+  {
+    shortenLineD,
+    canvasScale,
+    reachableLineWidth,
+    ellipseRation,
+    shadowBlur,
+    highlightRadiusExt,
+    posAttr = 'overviewPosLevels',
+  }
+) {
   if (level != reachableLevel) return;
   const pointsList = reachableLinks
     .map((link) => [link.source[posAttr][level], link.target[posAttr][level]])

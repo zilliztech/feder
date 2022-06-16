@@ -13,111 +13,134 @@ import {
   getEntryLinkIdWithLevel,
 } from 'Utils';
 
-export default function renderSearchViewTransition({ t, p }) {
-  renderBackground(this);
+export default function renderSearchViewTransition(
+  ctx,
+  {
+    searchNodesLevels,
+    searchLinksLevels,
+    searchLayerPosLevels,
+    searchNodeShowTime,
+    searchLinkShowTime,
+    searchTarget,
+    searchTargetShowTime,
+    entryNodesLevels,
 
-  for (let level = 0; level < this.searchNodesLevels.length; level++) {
-    renderlevelLayer({
-      ...this,
-      points: this.searchLayerPosLevels[level],
-    });
-    const nodes = this.searchNodesLevels[level].filter(
-      (node) => this.searchNodeShowTime[getNodeIdWithLevel(node.id, level)] < t
+    clickedLevel,
+    clickedNode,
+    hoveredLevel,
+    hoveredNode,
+  },
+  federView,
+  { t, p }
+) {
+  const {
+    searchIntraLevelTime,
+    searchInterLevelTime,
+    width,
+    padding,
+    canvasScale,
+  } = federView;
+  renderBackground(ctx, federView);
+
+  for (let level = 0; level < searchNodesLevels.length; level++) {
+    renderlevelLayer(ctx, searchLayerPosLevels[level], federView);
+    const nodes = searchNodesLevels[level].filter(
+      (node) => searchNodeShowTime[getNodeIdWithLevel(node.id, level)] < t
     );
-    const links = this.searchLinksLevels[level].filter(
+    const links = searchLinksLevels[level].filter(
       (link) =>
-        this.searchLinkShowTime[
+        searchLinkShowTime[
           getLinkIdWithLevel(link.source.id, link.target.id, level)
         ] +
-          this.searchIntraLevelTime <
+          searchIntraLevelTime <
         t
     );
-    const inProcessLinks = this.searchLinksLevels[level]
+    const inProcessLinks = searchLinksLevels[level]
       .filter(
         (link) =>
-          this.searchLinkShowTime[
+          searchLinkShowTime[
             getLinkIdWithLevel(link.source.id, link.target.id, level)
           ] < t &&
-          this.searchLinkShowTime[
+          searchLinkShowTime[
             getLinkIdWithLevel(link.source.id, link.target.id, level)
           ] +
-            this.searchIntraLevelTime >=
+            searchIntraLevelTime >=
             t
       )
       .map((link) => ({
         t:
           (t -
-            this.searchLinkShowTime[
+            searchLinkShowTime[
               getLinkIdWithLevel(link.source.id, link.target.id, level)
             ]) /
-          this.searchIntraLevelTime,
+          searchIntraLevelTime,
         link,
       }));
     const entryNodes =
-      level === this.entryNodesLevels.length - 1
+      level === entryNodesLevels.length - 1
         ? []
-        : this.entryNodesLevels[level].filter(
+        : entryNodesLevels[level].filter(
             (entryNode) =>
-              this.searchLinkShowTime[
-                getEntryLinkIdWithLevel(entryNode.id, level)
-              ] +
-                this.searchInterLevelTime <
+              searchLinkShowTime[getEntryLinkIdWithLevel(entryNode.id, level)] +
+                searchInterLevelTime <
               t
           );
     const inprocessEntryNodes =
-      level === this.entryNodesLevels.length - 1
+      level === entryNodesLevels.length - 1
         ? []
-        : this.entryNodesLevels[level]
+        : entryNodesLevels[level]
             .filter(
               (entryNode) =>
-                this.searchLinkShowTime[
+                searchLinkShowTime[
                   getEntryLinkIdWithLevel(entryNode.id, level)
                 ] < t &&
-                this.searchLinkShowTime[
+                searchLinkShowTime[
                   getEntryLinkIdWithLevel(entryNode.id, level)
                 ] +
-                  this.searchInterLevelTime >=
+                  searchInterLevelTime >=
                   t
             )
             .map((node) => ({
               node,
               t:
                 (t -
-                  this.searchLinkShowTime[
-                    getEntryLinkIdWithLevel(node.id, level)
-                  ]) /
-                this.searchInterLevelTime,
+                  searchLinkShowTime[getEntryLinkIdWithLevel(node.id, level)]) /
+                searchInterLevelTime,
             }));
-    const searchTarget = this.searchTarget;
-    renderSearchViewLinks({ ...this, links, inProcessLinks, level });
+    renderSearchViewLinks(ctx, { links, inProcessLinks, level }, federView);
     // console.log(level, entryNodes);
-    renderSearchViewInterLevelLinks({
-      ...this,
-      entryNodes,
-      inprocessEntryNodes,
-      searchTarget,
-      level,
-    });
-    renderSearchViewNodes({ ...this, nodes, level });
+    renderSearchViewInterLevelLinks(
+      ctx,
+      {
+        entryNodes,
+        inprocessEntryNodes,
+        searchTarget,
+        level,
+      },
+      federView
+    );
+    renderSearchViewNodes(ctx, { nodes, level }, federView);
 
-    this.searchTargetShowTime[level] < t &&
-      renderSearchViewTarget({ ...this, node: this.searchTarget, level });
+    searchTargetShowTime[level] < t &&
+      renderSearchViewTarget(ctx, { node: searchTarget, level }, federView);
 
-    if (!!this.hoveredNode) {
-      const [x, y] = this.hoveredNode.searchViewPosLevels[this.hoveredLevel];
-      const originX =
-        (this.width - this.padding[1] - this.padding[3]) / 2 + this.padding[3];
+    if (!!hoveredNode) {
+      const [x, y] = hoveredNode.searchViewPosLevels[hoveredLevel];
+      const originX = (width - padding[1] - padding[3]) / 2 + padding[3];
       const isLeft = originX > x;
 
-      renderHoveredPanelLine({ ...this, x, y, isLeft });
+      renderHoveredPanelLine(ctx, { x, y, isLeft }, federView);
     }
 
-    if (!!this.clickedNode) {
-      renderSelectedNode({
-        ...this,
-        pos: this.clickedNode.searchViewPosLevels[this.clickedLevel],
-        r: this.clickedNode.r + 2 * this.canvasScale,
-      });
+    if (!!clickedNode) {
+      renderSelectedNode(
+        ctx,
+        {
+          pos: clickedNode.searchViewPosLevels[clickedLevel],
+          r: clickedNode.r + 2 * canvasScale,
+        },
+        federView
+      );
     }
   }
 }

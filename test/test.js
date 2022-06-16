@@ -33,8 +33,9 @@ const testHNSWWithImages = async (filePath) => {
   const feder = new Feder({
     filePath,
     source: 'hnswlib',
-    domSelector,
+    // domSelector,
     viewParams: {
+      height: 400,
       mediaType: 'img',
       mediaCallback,
       // overviewLevelCount: 2,
@@ -63,19 +64,12 @@ const testIVFFlatWithImages = async (filePath) => {
     rowId in rowId2name
       ? `https://assets.zilliz.com/voc2012/JPEGImages/${rowId2name[rowId]}`
       : null;
-  // const mediaCallback = (rowId) => {
-  //   if (rowId in rowId2name)
-  //     return `https://assets.zilliz.com/voc2012/JPEGImages/${rowId2name[rowId]}`;
-  //   else {
-  //     console.log(rowId);
-  //     return null;
-  //   }
-  // };
   const feder = new Feder({
     filePath,
     source: 'faiss',
-    domSelector,
+    // domSelector,
     viewParams: {
+      height: 300,
       mediaType: 'img',
       mediaCallback,
       // coarseSearchWithProjection: true,
@@ -100,9 +94,13 @@ window.addEventListener('DOMContentLoaded', async () => {
   // const feder = await testHNSWWithImages(
   //   'https://assets.zilliz.com/hnswlib_hnsw_voc_17k_1f1dfd63a9.index'
   // );
+  // const feder = await testHNSWWithImages('./data/hnswlib_hnsw_voc_17k.index');
   const feder = await testIVFFlatWithImages(
     'https://assets.zilliz.com/faiss_ivf_flat_voc_17k_ab112eec72.index'
   );
+  // const feder = await testIVFFlatWithImages(
+  //   './data/faiss_ivf_flat_voc_17k.index'
+  // );
 
   console.log(feder);
   // feder.overview();
@@ -111,8 +109,14 @@ window.addEventListener('DOMContentLoaded', async () => {
     nprobe: 8,
     ef: 10,
   });
-  feder.searchRandTestVec();
+  // feder.searchRandTestVec();
   // feder.searchById(4365);
 
-  // document.querySelector(domSelector).appendChild(feder.node);
+  document.querySelector(domSelector).appendChild(feder.overview());
+  document.querySelector(domSelector).appendChild(feder.searchRandTestVec());
+  feder.setSearchParams({ k: 4, nprobe: 6, ef: 6 });
+  document.querySelector(domSelector).appendChild(feder.searchById(4365));
+  feder.setSearchParams({ k: 6, nprobe: 10, ef: 8 });
+  document.querySelector(domSelector).appendChild(feder.searchRandTestVec());
+  document.querySelector(domSelector).appendChild(feder.overview());
 });

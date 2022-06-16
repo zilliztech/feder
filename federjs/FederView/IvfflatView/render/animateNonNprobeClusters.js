@@ -11,12 +11,12 @@ export default function animateNonNprobeClusters({
   elapsed,
   duration,
   delay,
-  ease,
-  nonNprobeClusters,
-  voronoiStrokeWidth,
-  canvasScale,
   animationType,
+  searchViewLayoutData,
+  federView,
 }) {
+  const { ease, voronoiStrokeWidth, canvasScale } = federView;
+  const { nonNprobeClusters } = searchViewLayoutData;
   let t = ease((elapsed - delay) / duration);
   if (t > 1 || t < 0) return;
   const opacity = animationType === ANIMATION_TYPE.enter ? t : 1 - t;

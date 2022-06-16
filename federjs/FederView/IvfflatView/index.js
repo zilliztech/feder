@@ -11,6 +11,7 @@ import animateCoarse2Fine from './render/animateCoarse2Fine';
 import animateFine2Coarse from './render/animateFine2Coarse';
 import animateFine2Fine from './render/animateFine2Fine';
 import InfoPanel from './InfoPanel';
+import { cloneDeep } from 'lodash';
 
 const defaultIvfflatViewParams = {
   minVoronoiRadius: 4,
@@ -41,11 +42,10 @@ const defaultIvfflatViewParams = {
 };
 
 export default class IvfflatView extends BaseView {
-  constructor({ indexMeta, dom, viewParams }) {
+  constructor({ indexMeta, viewParams, getVectorById }) {
     super({
-      indexMeta,
-      dom,
       viewParams,
+      getVectorById,
     });
     for (let key in defaultIvfflatViewParams) {
       this[key] =
@@ -55,97 +55,196 @@ export default class IvfflatView extends BaseView {
     this.projectPadding = this.projectPadding.map(
       (num) => num * this.canvasScale
     );
-
-    this.overviewHandler({ indexMeta });
-
-    this.infoPanel = new InfoPanel({
+    this.indexMeta = indexMeta;
+    this.overviewLayoutHandler();
+  }
+  initInfoPanel(dom) {
+    const infoPanel = new InfoPanel({
       dom,
-      width: viewParams.width,
-      height: viewParams.height,
+      width: this.clientWidth,
+      height: this.clientHeight,
     });
+    return infoPanel;
   }
+  overviewLayoutHandler() {
+    this.overviewLayoutPromise = overviewLayoutHandler(this).then(
+      ({ clusters, voronoi }) => {
+        // this.clusters = clusters;
+        // this.OVVoronoi = voronoi;
+        this.overviewLayoutData = { clusters, OVVoronoi: voronoi };
+      }
+    );
+  }
+  renderOverview(ctx, infoPanel) {
+    infoPanel.updateOverviewOverviewInfo(this);
+    renderVoronoiView(ctx, VIEW_TYPE.overview, this.overviewLayoutData, this);
+  }
+  getOverviewEventHandler(ctx, infoPanel) {
+    let hoveredClusterId = null;
 
-  overviewHandler({ indexMeta }) {
-    Object.assign(this, indexMeta);
-    this.overviewInitPromise = overviewLayoutHandler
-      .call(this, { indexMeta })
-      .then(({ clusters, voronoi }) => {
-        this.clusters = clusters;
-        this.OVVoronoi = voronoi;
+    const mouseLeaveHandler = () => {
+      hoveredClusterId = null;
+      renderVoronoiView(ctx, VIEW_TYPE.overview, this.overviewLayoutData, this);
+      infoPanel.updateOverviewHoveredInfo();
+    };
+
+    const mouseMoveHandler = ({ x, y }) => {
+      const currentHoveredClusterId = mouse2voronoi({
+        voronoi: this.overviewLayoutData.OVVoronoi,
+        x,
+        y,
       });
-  }
-  async renderOverview() {
-    this.viewType === VIEW_TYPE.overview &&
-      this.overviewInitPromise &&
-      (await this.overviewInitPromise);
-    this.viewType === VIEW_TYPE.search &&
-      this.searchViewInitPromise &&
-      (await this.searchViewInitPromise);
-    this.viewType === VIEW_TYPE.overview &&
-      this.infoPanel.updateOverviewOverviewInfo(this);
-    this.viewType === VIEW_TYPE.search &&
-      this.infoPanel.updateSearchViewCoarseOverviewInfo(this);
-    renderVoronoiView.call(this);
-  }
-  async searchViewHandler({ searchRes }) {
-    this.overviewInitPromise && (await this.overviewInitPromise);
-    this.nprobe = searchRes.csResIds.length;
-    this.k = searchRes.fsResIds.length;
-    this.colorScheme = d3
-      .range(this.nprobe)
-      .map((i) => d3.hsl((360 * i) / this.nprobe, 1, 0.5).hex());
-    this.searchViewInitPromise = searchViewLayoutHandler
-      .call(this, {
-        searchRes,
-      })
-      .then(() => {});
-    await this.searchViewInitPromise;
-    console.log('searchView Layout finished');
-  }
-  renderSearchView() {
-    this.renderCoarseSearch();
-  }
-  renderCoarseSearch() {
-    this.infoPanel.setOverviewPanelPos(!this.targetNode.isLeft_coarseLevel);
-    this.infoPanel.updateSearchViewCoarseOverviewInfo(this);
 
-    this.searchViewType = SEARCH_VIEW_TYPE.voronoi;
-    renderVoronoiView.call(this);
-  }
-  async renderFineSearch(searchViewType = SEARCH_VIEW_TYPE.polar) {
-    this.SVFinePromise && (await this.SVFinePromise);
-    this.searchViewType = searchViewType;
+      if (hoveredClusterId !== currentHoveredClusterId) {
+        hoveredClusterId = currentHoveredClusterId;
+        const hoveredCluster = this.overviewLayoutData.clusters.find(
+          (cluster) => cluster.clusterId == hoveredClusterId
+        );
+        if (!!hoveredCluster) {
+          renderVoronoiView(
+            ctx,
+            VIEW_TYPE.overview,
+            this.overviewLayoutData,
+            this,
+            hoveredCluster
+          );
+          infoPanel.updateOverviewHoveredInfo({
+            hoveredCluster,
+            listIds: this.indexMeta.listIds[hoveredClusterId],
+            images: this.indexMeta.listIds[hoveredClusterId].map((listId) =>
+              this.mediaCallback(listId)
+            ),
+            x: hoveredCluster.OVPolyCentroid[0] / this.canvasScale,
+            y: hoveredCluster.OVPolyCentroid[1] / this.canvasScale,
+          });
+        }
+      }
+    };
 
+    return { mouseLeaveHandler, mouseMoveHandler };
+  }
+
+  async searchViewHandler(searchRes) {
+    this.overviewLayoutPromise && (await this.overviewLayoutPromise);
+
+    const searchViewLayoutData = {
+      nprobe: searchRes.csResIds.length,
+      k: searchRes.fsResIds.length,
+      clusters: cloneDeep(this.overviewLayoutData.clusters),
+    };
+    searchViewLayoutData.nprobeClusters = searchViewLayoutData.clusters.filter(
+      (cluster) => searchRes.csResIds.indexOf(cluster.clusterId) >= 0
+    );
+    searchViewLayoutData.nonNprobeClusters =
+      searchViewLayoutData.clusters.filter(
+        (cluster) => searchRes.csResIds.indexOf(cluster.clusterId) < 0
+      );
+    searchViewLayoutData.colorScheme = d3
+      .range(searchViewLayoutData.nprobe)
+      .map((i) =>
+        d3.hsl((360 * i) / searchViewLayoutData.nprobe, 1, 0.5).formatHex()
+      );
+    await searchViewLayoutHandler(searchRes, searchViewLayoutData, this);
+    return searchViewLayoutData;
+  }
+  renderSearchView(ctx, infoPanel, searchViewLayoutData, targetMediaUrl) {
+    searchViewLayoutData.targetMediaUrl = targetMediaUrl;
+    searchViewLayoutData.switchSearchViewHandlers = {
+      switchVoronoi: () =>
+        this.switchSearchView(
+          SEARCH_VIEW_TYPE.voronoi,
+          ctx,
+          infoPanel,
+          searchViewLayoutData
+        ),
+      switchPolar: () =>
+        this.switchSearchView(
+          SEARCH_VIEW_TYPE.polar,
+          ctx,
+          infoPanel,
+          searchViewLayoutData
+        ),
+      switchProject: () =>
+        this.switchSearchView(
+          SEARCH_VIEW_TYPE.project,
+          ctx,
+          infoPanel,
+          searchViewLayoutData
+        ),
+    };
+    searchViewLayoutData.searchViewType = SEARCH_VIEW_TYPE.voronoi;
+    this.renderCoarseSearch(ctx, infoPanel, searchViewLayoutData);
+  }
+  renderCoarseSearch(ctx, infoPanel, searchViewLayoutData) {
+    infoPanel.setOverviewPanelPos(
+      !searchViewLayoutData.targetNode.isLeft_coarseLevel
+    );
+    infoPanel.updateSearchViewCoarseOverviewInfo(searchViewLayoutData, this);
+    renderVoronoiView(ctx, VIEW_TYPE.search, searchViewLayoutData, this);
+  }
+  renderFineSearch(
+    ctx,
+    infoPanel,
+    searchViewLayoutData,
+    searchViewType = SEARCH_VIEW_TYPE.polar
+  ) {
     searchViewType === SEARCH_VIEW_TYPE.polar &&
-      this.infoPanel.updateSearchViewFinePolarOverviewInfo(this);
+      infoPanel.updateSearchViewFinePolarOverviewInfo(
+        searchViewLayoutData,
+        this
+      );
     searchViewType === SEARCH_VIEW_TYPE.project &&
-      this.infoPanel.updateSearchViewFineProjectOverviewInfo(this);
+      infoPanel.updateSearchViewFineProjectOverviewInfo(
+        searchViewLayoutData,
+        this
+      );
 
-    renderNodeView.call(this);
+    renderNodeView(ctx, searchViewLayoutData, this, searchViewType);
   }
+  switchSearchView(searchViewType, ctx, infoPanel, searchViewLayoutData) {
+    if (searchViewType == searchViewLayoutData.searchViewType) return;
 
-  async switchSearchView(searchViewType) {
-    if (this.viewType !== VIEW_TYPE.search) {
-      console.error('Only when searching can switch steps.');
-      return;
-    }
-
-    if (searchViewType == this.searchViewType) return;
-
-    this.SVFinePromise && (await this.SVFinePromise);
-
-    const oldSearchViewType = this.searchViewType;
+    const oldSearchViewType = searchViewLayoutData.searchViewType;
     const newSearchViewType = searchViewType;
+
     // coarse => fine
+
     if (oldSearchViewType === SEARCH_VIEW_TYPE.voronoi) {
       console.log('coarse => fine [start]');
-      animateCoarse2Fine.call(this, { oldSearchViewType, newSearchViewType });
+      const endCallback = () => {
+        searchViewLayoutData.searchViewType = newSearchViewType;
+        this.renderFineSearch(
+          ctx,
+          infoPanel,
+          searchViewLayoutData,
+          newSearchViewType
+        );
+      };
+      animateCoarse2Fine(
+        oldSearchViewType,
+        newSearchViewType,
+        ctx,
+        searchViewLayoutData,
+        this,
+        endCallback
+      );
     }
 
     // fine => coarse
     if (newSearchViewType === SEARCH_VIEW_TYPE.voronoi) {
       console.log('fine => coarse [start]');
-      animateFine2Coarse.call(this, { oldSearchViewType, newSearchViewType });
+      const endCallback = () => {
+        searchViewLayoutData.searchViewType = newSearchViewType;
+        this.renderCoarseSearch(ctx, infoPanel, searchViewLayoutData);
+      };
+      animateFine2Coarse(
+        oldSearchViewType,
+        newSearchViewType,
+        ctx,
+        searchViewLayoutData,
+        this,
+        endCallback
+      );
     }
 
     // fine - intra
@@ -154,105 +253,99 @@ export default class IvfflatView extends BaseView {
       oldSearchViewType !== SEARCH_VIEW_TYPE.voronoi
     ) {
       console.log('fine - intra [start]');
-      animateFine2Fine.call(this, { oldSearchViewType, newSearchViewType });
+      const endCallback = () => {
+        searchViewLayoutData.searchViewType = newSearchViewType;
+        this.renderFineSearch(
+          ctx,
+          infoPanel,
+          searchViewLayoutData,
+          newSearchViewType
+        );
+      };
+      animateFine2Fine(
+        oldSearchViewType,
+        newSearchViewType,
+        ctx,
+        searchViewLayoutData,
+        this,
+        endCallback
+      );
     }
   }
-
-  setOverviewListenerHandlers() {
-    this.mouseLeaveHandler = () => {
-      this.hoveredCluster = null;
-      // this.renderOverview();
-      renderVoronoiView.call(this);
-      this.infoPanel.updateOverviewHoveredInfo();
-    };
-    this.mouseMoveHandler = ({ x, y }) => {
-      const hoveredClusterId = mouse2voronoi({
-        voronoi: this.OVVoronoi,
-        x,
-        y,
-      });
-      if (hoveredClusterId !== this.hoveredClusterId) {
-        this.hoveredClusterId = hoveredClusterId;
-        this.hoveredCluster = this.clusters.find(
-          (cluster) => cluster.clusterId == hoveredClusterId
-        );
-        // this.renderOverview();
-        renderVoronoiView.call(this);
-
-        if (!!this.hoveredCluster) {
-          this.infoPanel.updateOverviewHoveredInfo({
-            hoveredCluster: this.hoveredCluster,
-            listIds: this.listIds[hoveredClusterId],
-            images: this.listIds[hoveredClusterId].map((listId) =>
-              this.mediaCallback(listId)
-            ),
-            x: this.hoveredCluster.OVPolyCentroid[0] / this.canvasScale,
-            y: this.hoveredCluster.OVPolyCentroid[1] / this.canvasScale,
-          });
-        }
+  getSearchViewEventHandler(ctx, searchViewLayoutData, infoPanel) {
+    let hoveredClusterId = null;
+    let hoveredNode = null;
+    const mouseLeaveHandler = () => {
+      hoveredClusterId = null;
+      hoveredNode = null;
+      const { searchViewType } = searchViewLayoutData;
+      if (searchViewType === SEARCH_VIEW_TYPE.voronoi) {
+        renderVoronoiView(ctx, VIEW_TYPE.search, searchViewLayoutData, this);
+        infoPanel.updateSearchViewHoveredInfo();
+      } else {
+        infoPanel.updateSearchViewHoveredNodeInfo();
       }
     };
-  }
-  setSearchViewListenerHandlers() {
-    this.mouseLeaveHandler = () => {
-      this.hoveredCluster = null;
-      this.searchViewType === SEARCH_VIEW_TYPE.voronoi &&
-        renderVoronoiView.call(this);
-
-      this.hoveredNode = null;
-      this.searchViewType === SEARCH_VIEW_TYPE.voronoi &&
-        this.infoPanel.updateSearchViewHoveredInfo();
-      this.searchViewType !== SEARCH_VIEW_TYPE.voronoi &&
-        this.infoPanel.updateSearchViewHoveredNodeInfo();
-    };
-    this.mouseMoveHandler = ({ x, y }) => {
-      if (this.searchViewType === SEARCH_VIEW_TYPE.voronoi) {
-        const hoveredClusterId = mouse2voronoi({
-          voronoi: this.SVVoronoi,
+    const mouseMoveHandler = ({ x, y }) => {
+      const { searchViewType, clusters, nodes } = searchViewLayoutData;
+      if (searchViewType === SEARCH_VIEW_TYPE.voronoi) {
+        const currentHoveredClusterId = mouse2voronoi({
+          voronoi: searchViewLayoutData.SVVoronoi,
           x,
           y,
         });
-        if (hoveredClusterId !== this.hoveredClusterId) {
-          this.hoveredClusterId = hoveredClusterId;
-          this.hoveredCluster = this.clusters.find(
+        if (hoveredClusterId !== currentHoveredClusterId) {
+          hoveredClusterId = currentHoveredClusterId;
+          const hoveredCluster = clusters.find(
             (cluster) => cluster.clusterId == hoveredClusterId
           );
-          // this.renderOverview();
-          renderVoronoiView.call(this);
+          renderVoronoiView(
+            ctx,
+            VIEW_TYPE.search,
+            searchViewLayoutData,
+            this,
+            hoveredCluster
+          );
 
-          if (!!this.hoveredCluster) {
-            this.infoPanel.updateSearchViewHoveredInfo({
-              hoveredCluster: this.hoveredCluster,
-              listIds: this.listIds[hoveredClusterId],
-              images: this.listIds[hoveredClusterId].map((listId) =>
+          if (!!hoveredCluster) {
+            infoPanel.updateSearchViewHoveredInfo({
+              hoveredCluster,
+              listIds: this.indexMeta.listIds[hoveredClusterId],
+              images: this.indexMeta.listIds[hoveredClusterId].map((listId) =>
                 this.mediaCallback(listId)
               ),
-              x: this.hoveredCluster.SVPolyCentroid[0] / this.canvasScale,
-              y: this.hoveredCluster.SVPolyCentroid[1] / this.canvasScale,
+              x: hoveredCluster.SVPolyCentroid[0] / this.canvasScale,
+              y: hoveredCluster.SVPolyCentroid[1] / this.canvasScale,
             });
           }
         }
       } else {
-        if (!this.nodes) return;
+        if (!nodes) return;
         const nodesPos =
-          this.searchViewType === SEARCH_VIEW_TYPE.polar
-            ? this.nodes.map((node) => node.polarPos)
-            : this.nodes.map((node) => node.projectPos);
+          searchViewType === SEARCH_VIEW_TYPE.polar
+            ? nodes.map((node) => node.polarPos)
+            : nodes.map((node) => node.projectPos);
         const hoveredNodeIndex = mouse2node({
           nodesPos,
           x,
           y,
           bias: (this.hoveredNodeR + 2) * this.canvasScale,
         });
-        const hoveredNode =
-          hoveredNodeIndex >= 0 ? this.nodes[hoveredNodeIndex] : null;
-        if (hoveredNode !== this.hoveredNode) {
-          this.hoveredNode = hoveredNode;
-          this.renderFineSearch(this.searchViewType);
+        const currentHoveredNode =
+          hoveredNodeIndex >= 0 ? nodes[hoveredNodeIndex] : null;
+        if (hoveredNode !== currentHoveredNode) {
+          hoveredNode = currentHoveredNode;
+          this.renderFineSearch(
+            ctx,
+            infoPanel,
+            searchViewLayoutData,
+            searchViewType,
+            hoveredNode
+          );
         }
 
         const img = hoveredNode ? this.mediaCallback(hoveredNode.id) : '';
-        this.infoPanel.updateSearchViewHoveredNodeInfo({
+        infoPanel.updateSearchViewHoveredNodeInfo({
           hoveredNode,
           img,
           x: x / this.canvasScale,
@@ -260,5 +353,6 @@ export default class IvfflatView extends BaseView {
         });
       }
     };
+    return { mouseLeaveHandler, mouseMoveHandler };
   }
 }
