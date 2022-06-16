@@ -1,12 +1,11 @@
 import { drawEllipse, ZBlue, hexWithOpacity } from 'Utils/renderUtils';
 
-export default function renderNodes({
+export default function renderNodes(
   ctx,
-  canvasScale,
-  ellipseRation,shadowBlur,
   nodes,
   level,
-}) {
+  { canvasScale, ellipseRation, shadowBlur }
+) {
   drawEllipse({
     ctx,
     circles: nodes.map((node) => [

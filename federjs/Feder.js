@@ -11,7 +11,7 @@ export default class Feder {
     this.federView = new FederView({ domSelector, viewParams });
     this.viewParams = viewParams;
     if (!core) {
-      this.initCorePromise = fetch(filePath)
+      this.initCoreAndViewPromise = fetch(filePath)
         .then((res) => res.arrayBuffer())
         .then((data) => {
           core = new FederCore({ data, source, viewParams });
@@ -31,20 +31,19 @@ export default class Feder {
     }
   }
 
-  get node() {
-    return this.federView.dom;
+  overview() {
+    return this.federView.overview(this.initCoreAndViewPromise);
   }
-  async overview() {
-    this.initCorePromise && (await this.initCorePromise);
-    this.federView.overview();
-  }
-  async search(target = null, targetMediaUrl = null) {
-    this.initCorePromise && (await this.initCorePromise);
+  search(target = null, targetMediaUrl = null) {
     if (target) {
-      const searchRes = this.core.search(target);
-      console.log(searchRes);
-      this.searchRes = searchRes;
-      this.federView.search({ searchRes, targetMediaUrl });
+      const searchResPromise = this.initCoreAndViewPromise.then(() => {
+        const searchRes = this.core.search(target);
+        console.log(searchRes);
+        this.searchRes = searchRes;
+        this.targetMediaUrl = targetMediaUrl;
+        return { searchRes, targetMediaUrl };
+      });
+      return this.federView.search({ searchResPromise });
     } else {
       if (!this.searchRes) {
         console.error('No target');
@@ -52,38 +51,49 @@ export default class Feder {
       }
       const searchRes = this.searchRes;
       const targetMediaUrl = this.targetMediaUrl;
-      this.federView.search({ searchRes, targetMediaUrl });
+      return this.federView.search({ searchRes, targetMediaUrl });
     }
   }
-  async searchById(testId = null) {
-    this.initCorePromise && (await this.initCorePromise);
-    if (!(testId in this.core.id2vector)) {
-      console.log('Invalid Id');
-    } else {
-      const testVec = this.core.id2vector[testId];
+  searchById(testId) {
+    const searchResPromise = this.initCoreAndViewPromise.then(() => {
+      if (!(testId in this.core.id2vector)) {
+        console.error('Invalid Id');
+      } else {
+        const testVec = this.core.id2vector[testId];
+        const targetMediaUrl =
+          this.viewParams && this.viewParams.mediaCallback
+            ? this.viewParams.mediaCallback(testId)
+            : null;
+        const searchRes = this.core.search(testVec);
+        console.log(searchRes);
+        this.searchRes = searchRes;
+        return { searchRes, targetMediaUrl };
+      }
+    });
+    return this.federView.search({ searchResPromise });
+  }
+  searchRandTestVec() {
+    const searchResPromise = this.initCoreAndViewPromise.then(() => {
+      let [testId, testVec] = this.core.getTestIdAndVec();
+      while (isNaN(testId)) {
+        [testId, testVec] = this.core.getTestIdAndVec();
+      }
+      console.log('random test vector:', testId, testVec);
       const targetMediaUrl =
         this.viewParams && this.viewParams.mediaCallback
           ? this.viewParams.mediaCallback(testId)
           : null;
-      this.search(testVec, targetMediaUrl);
-    }
-  }
-  async searchRandTestVec() {
-    this.initCorePromise && (await this.initCorePromise);
-    let [testId, testVec] = await this.core.getTestIdAndVec();
-    while (isNaN(testId)) {
-      [testId, testVec] = await this.core.getTestIdAndVec();
-    }
-    console.log('random test vector:', testId, testVec);
-    const targetMediaUrl =
-      this.viewParams && this.viewParams.mediaCallback
-        ? this.viewParams.mediaCallback(testId)
-        : null;
-    this.search(testVec, targetMediaUrl);
+      const searchRes = this.core.search(testVec);
+      console.log(searchRes);
+      this.searchRes = searchRes;
+      return { searchRes, targetMediaUrl };
+    });
+
+    return this.federView.search({ searchResPromise });
   }
 
   async setSearchParams(params) {
-    this.initCorePromise && (await this.initCorePromise);
+    this.initCoreAndViewPromise && (await this.initCoreAndViewPromise);
     if (!this.core) {
       console.error('No feder-core');
     } else {

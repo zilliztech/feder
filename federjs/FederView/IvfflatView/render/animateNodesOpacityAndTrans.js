@@ -3,24 +3,25 @@ import { ANIMATION_TYPE, SEARCH_VIEW_TYPE } from 'Types';
 
 export default function animateNodesOpacityAndTrans({
   ctx,
-  colorScheme,
+  searchViewLayoutData,
+  federView,
   elapsed,
   duration,
   delay,
-  nprobe,
-  ease,
-  topKNodes,
-  topKNodeR,
-  topKNodeOpacity,
-  topKNodeStrokeWidth,
-  nonTopKNodes,
-  nonTopKNodeR,
-  nonTopKNodeOpacity,
-  canvasScale,
   animationType,
   newSearchViewType,
   oldSearchViewType,
 }) {
+  const { colorScheme, nprobe, topKNodes, nonTopKNodes } = searchViewLayoutData;
+  const {
+    ease,
+    topKNodeR,
+    topKNodeOpacity,
+    topKNodeStrokeWidth,
+    nonTopKNodeR,
+    nonTopKNodeOpacity,
+    canvasScale,
+  } = federView;
   let t = ease((elapsed - delay) / duration);
   if (t > 1 || t < 0) return;
   t = animationType === ANIMATION_TYPE.enter ? 1 - t : t;

@@ -1,9 +1,7 @@
 (() => {
   var __create = Object.create;
   var __defProp = Object.defineProperty;
-  var __defProps = Object.defineProperties;
   var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
-  var __getOwnPropDescs = Object.getOwnPropertyDescriptors;
   var __getOwnPropNames = Object.getOwnPropertyNames;
   var __getOwnPropSymbols = Object.getOwnPropertySymbols;
   var __getProtoOf = Object.getPrototypeOf;
@@ -21,7 +19,6 @@
       }
     return a2;
   };
-  var __spreadProps = (a2, b) => __defProps(a2, __getOwnPropDescs(b));
   var __objRest = (source, exclude) => {
     var target = {};
     for (var prop in source)
@@ -6802,7 +6799,7 @@ ${indentData}`);
   // node_modules/seedrandom/lib/alea.js
   var require_alea = __commonJS({
     "node_modules/seedrandom/lib/alea.js"(exports, module) {
-      (function(global, module2, define2) {
+      (function(global2, module2, define2) {
         function Alea(seed) {
           var me = this, mash = Mash();
           me.next = function() {
@@ -6888,7 +6885,7 @@ ${indentData}`);
   // node_modules/seedrandom/lib/xor128.js
   var require_xor128 = __commonJS({
     "node_modules/seedrandom/lib/xor128.js"(exports, module) {
-      (function(global, module2, define2) {
+      (function(global2, module2, define2) {
         function XorGen(seed) {
           var me = this, strseed = "";
           me.x = 0;
@@ -6956,7 +6953,7 @@ ${indentData}`);
   // node_modules/seedrandom/lib/xorwow.js
   var require_xorwow = __commonJS({
     "node_modules/seedrandom/lib/xorwow.js"(exports, module) {
-      (function(global, module2, define2) {
+      (function(global2, module2, define2) {
         function XorGen(seed) {
           var me = this, strseed = "";
           me.next = function() {
@@ -7031,7 +7028,7 @@ ${indentData}`);
   // node_modules/seedrandom/lib/xorshift7.js
   var require_xorshift7 = __commonJS({
     "node_modules/seedrandom/lib/xorshift7.js"(exports, module) {
-      (function(global, module2, define2) {
+      (function(global2, module2, define2) {
         function XorGen(seed) {
           var me = this;
           me.next = function() {
@@ -7122,7 +7119,7 @@ ${indentData}`);
   // node_modules/seedrandom/lib/xor4096.js
   var require_xor4096 = __commonJS({
     "node_modules/seedrandom/lib/xor4096.js"(exports, module) {
-      (function(global, module2, define2) {
+      (function(global2, module2, define2) {
         function XorGen(seed) {
           var me = this;
           me.next = function() {
@@ -7228,7 +7225,7 @@ ${indentData}`);
   // node_modules/seedrandom/lib/tychei.js
   var require_tychei = __commonJS({
     "node_modules/seedrandom/lib/tychei.js"(exports, module) {
-      (function(global, module2, define2) {
+      (function(global2, module2, define2) {
         function XorGen(seed) {
           var me = this, strseed = "";
           me.next = function() {
@@ -7308,7 +7305,7 @@ ${indentData}`);
   // node_modules/seedrandom/seedrandom.js
   var require_seedrandom = __commonJS({
     "node_modules/seedrandom/seedrandom.js"(exports, module) {
-      (function(global, pool, math) {
+      (function(global2, pool, math) {
         var width = 256, chunks = 6, digits = 52, rngname = "random", startdenom = math.pow(width, chunks), significance = math.pow(2, digits), overflow = significance * 2, mask = width - 1, nodecrypto;
         function seedrandom3(seed, options, callback) {
           var key = [];
@@ -7409,12 +7406,12 @@ ${indentData}`);
               out = out(width);
             } else {
               out = new Uint8Array(width);
-              (global.crypto || global.msCrypto).getRandomValues(out);
+              (global2.crypto || global2.msCrypto).getRandomValues(out);
             }
             return tostring(out);
           } catch (e) {
-            var browser = global.navigator, plugins = browser && browser.plugins;
-            return [+new Date(), global, plugins, global.screen, tostring(pool)];
+            var browser = global2.navigator, plugins = browser && browser.plugins;
+            return [+new Date(), global2, plugins, global2.screen, tostring(pool)];
           }
         }
         function tostring(a2) {
@@ -7455,6 +7452,5417 @@ ${indentData}`);
       sr.xor4096 = xor4096;
       sr.tychei = tychei;
       module.exports = sr;
+    }
+  });
+
+  // node_modules/lodash/lodash.js
+  var require_lodash = __commonJS({
+    "node_modules/lodash/lodash.js"(exports, module) {
+      (function() {
+        var undefined2;
+        var VERSION = "4.17.21";
+        var LARGE_ARRAY_SIZE = 200;
+        var CORE_ERROR_TEXT = "Unsupported core-js use. Try https://npms.io/search?q=ponyfill.", FUNC_ERROR_TEXT = "Expected a function", INVALID_TEMPL_VAR_ERROR_TEXT = "Invalid `variable` option passed into `_.template`";
+        var HASH_UNDEFINED = "__lodash_hash_undefined__";
+        var MAX_MEMOIZE_SIZE = 500;
+        var PLACEHOLDER = "__lodash_placeholder__";
+        var CLONE_DEEP_FLAG = 1, CLONE_FLAT_FLAG = 2, CLONE_SYMBOLS_FLAG = 4;
+        var COMPARE_PARTIAL_FLAG = 1, COMPARE_UNORDERED_FLAG = 2;
+        var WRAP_BIND_FLAG = 1, WRAP_BIND_KEY_FLAG = 2, WRAP_CURRY_BOUND_FLAG = 4, WRAP_CURRY_FLAG = 8, WRAP_CURRY_RIGHT_FLAG = 16, WRAP_PARTIAL_FLAG = 32, WRAP_PARTIAL_RIGHT_FLAG = 64, WRAP_ARY_FLAG = 128, WRAP_REARG_FLAG = 256, WRAP_FLIP_FLAG = 512;
+        var DEFAULT_TRUNC_LENGTH = 30, DEFAULT_TRUNC_OMISSION = "...";
+        var HOT_COUNT = 800, HOT_SPAN = 16;
+        var LAZY_FILTER_FLAG = 1, LAZY_MAP_FLAG = 2, LAZY_WHILE_FLAG = 3;
+        var INFINITY = 1 / 0, MAX_SAFE_INTEGER = 9007199254740991, MAX_INTEGER = 17976931348623157e292, NAN = 0 / 0;
+        var MAX_ARRAY_LENGTH = 4294967295, MAX_ARRAY_INDEX = MAX_ARRAY_LENGTH - 1, HALF_MAX_ARRAY_LENGTH = MAX_ARRAY_LENGTH >>> 1;
+        var wrapFlags = [
+          ["ary", WRAP_ARY_FLAG],
+          ["bind", WRAP_BIND_FLAG],
+          ["bindKey", WRAP_BIND_KEY_FLAG],
+          ["curry", WRAP_CURRY_FLAG],
+          ["curryRight", WRAP_CURRY_RIGHT_FLAG],
+          ["flip", WRAP_FLIP_FLAG],
+          ["partial", WRAP_PARTIAL_FLAG],
+          ["partialRight", WRAP_PARTIAL_RIGHT_FLAG],
+          ["rearg", WRAP_REARG_FLAG]
+        ];
+        var argsTag = "[object Arguments]", arrayTag = "[object Array]", asyncTag = "[object AsyncFunction]", boolTag = "[object Boolean]", dateTag = "[object Date]", domExcTag = "[object DOMException]", errorTag = "[object Error]", funcTag = "[object Function]", genTag = "[object GeneratorFunction]", mapTag = "[object Map]", numberTag = "[object Number]", nullTag = "[object Null]", objectTag = "[object Object]", promiseTag = "[object Promise]", proxyTag = "[object Proxy]", regexpTag = "[object RegExp]", setTag = "[object Set]", stringTag = "[object String]", symbolTag = "[object Symbol]", undefinedTag = "[object Undefined]", weakMapTag = "[object WeakMap]", weakSetTag = "[object WeakSet]";
+        var arrayBufferTag = "[object ArrayBuffer]", dataViewTag = "[object DataView]", float32Tag = "[object Float32Array]", float64Tag = "[object Float64Array]", int8Tag = "[object Int8Array]", int16Tag = "[object Int16Array]", int32Tag = "[object Int32Array]", uint8Tag = "[object Uint8Array]", uint8ClampedTag = "[object Uint8ClampedArray]", uint16Tag = "[object Uint16Array]", uint32Tag = "[object Uint32Array]";
+        var reEmptyStringLeading = /\b__p \+= '';/g, reEmptyStringMiddle = /\b(__p \+=) '' \+/g, reEmptyStringTrailing = /(__e\(.*?\)|\b__t\)) \+\n'';/g;
+        var reEscapedHtml = /&(?:amp|lt|gt|quot|#39);/g, reUnescapedHtml = /[&<>"']/g, reHasEscapedHtml = RegExp(reEscapedHtml.source), reHasUnescapedHtml = RegExp(reUnescapedHtml.source);
+        var reEscape = /<%-([\s\S]+?)%>/g, reEvaluate = /<%([\s\S]+?)%>/g, reInterpolate = /<%=([\s\S]+?)%>/g;
+        var reIsDeepProp = /\.|\[(?:[^[\]]*|(["'])(?:(?!\1)[^\\]|\\.)*?\1)\]/, reIsPlainProp = /^\w*$/, rePropName = /[^.[\]]+|\[(?:(-?\d+(?:\.\d+)?)|(["'])((?:(?!\2)[^\\]|\\.)*?)\2)\]|(?=(?:\.|\[\])(?:\.|\[\]|$))/g;
+        var reRegExpChar = /[\\^$.*+?()[\]{}|]/g, reHasRegExpChar = RegExp(reRegExpChar.source);
+        var reTrimStart = /^\s+/;
+        var reWhitespace = /\s/;
+        var reWrapComment = /\{(?:\n\/\* \[wrapped with .+\] \*\/)?\n?/, reWrapDetails = /\{\n\/\* \[wrapped with (.+)\] \*/, reSplitDetails = /,? & /;
+        var reAsciiWord = /[^\x00-\x2f\x3a-\x40\x5b-\x60\x7b-\x7f]+/g;
+        var reForbiddenIdentifierChars = /[()=,{}\[\]\/\s]/;
+        var reEscapeChar = /\\(\\)?/g;
+        var reEsTemplate = /\$\{([^\\}]*(?:\\.[^\\}]*)*)\}/g;
+        var reFlags = /\w*$/;
+        var reIsBadHex = /^[-+]0x[0-9a-f]+$/i;
+        var reIsBinary = /^0b[01]+$/i;
+        var reIsHostCtor = /^\[object .+?Constructor\]$/;
+        var reIsOctal = /^0o[0-7]+$/i;
+        var reIsUint = /^(?:0|[1-9]\d*)$/;
+        var reLatin = /[\xc0-\xd6\xd8-\xf6\xf8-\xff\u0100-\u017f]/g;
+        var reNoMatch = /($^)/;
+        var reUnescapedString = /['\n\r\u2028\u2029\\]/g;
+        var rsAstralRange = "\\ud800-\\udfff", rsComboMarksRange = "\\u0300-\\u036f", reComboHalfMarksRange = "\\ufe20-\\ufe2f", rsComboSymbolsRange = "\\u20d0-\\u20ff", rsComboRange = rsComboMarksRange + reComboHalfMarksRange + rsComboSymbolsRange, rsDingbatRange = "\\u2700-\\u27bf", rsLowerRange = "a-z\\xdf-\\xf6\\xf8-\\xff", rsMathOpRange = "\\xac\\xb1\\xd7\\xf7", rsNonCharRange = "\\x00-\\x2f\\x3a-\\x40\\x5b-\\x60\\x7b-\\xbf", rsPunctuationRange = "\\u2000-\\u206f", rsSpaceRange = " \\t\\x0b\\f\\xa0\\ufeff\\n\\r\\u2028\\u2029\\u1680\\u180e\\u2000\\u2001\\u2002\\u2003\\u2004\\u2005\\u2006\\u2007\\u2008\\u2009\\u200a\\u202f\\u205f\\u3000", rsUpperRange = "A-Z\\xc0-\\xd6\\xd8-\\xde", rsVarRange = "\\ufe0e\\ufe0f", rsBreakRange = rsMathOpRange + rsNonCharRange + rsPunctuationRange + rsSpaceRange;
+        var rsApos = "['\u2019]", rsAstral = "[" + rsAstralRange + "]", rsBreak = "[" + rsBreakRange + "]", rsCombo = "[" + rsComboRange + "]", rsDigits = "\\d+", rsDingbat = "[" + rsDingbatRange + "]", rsLower = "[" + rsLowerRange + "]", rsMisc = "[^" + rsAstralRange + rsBreakRange + rsDigits + rsDingbatRange + rsLowerRange + rsUpperRange + "]", rsFitz = "\\ud83c[\\udffb-\\udfff]", rsModifier = "(?:" + rsCombo + "|" + rsFitz + ")", rsNonAstral = "[^" + rsAstralRange + "]", rsRegional = "(?:\\ud83c[\\udde6-\\uddff]){2}", rsSurrPair = "[\\ud800-\\udbff][\\udc00-\\udfff]", rsUpper = "[" + rsUpperRange + "]", rsZWJ = "\\u200d";
+        var rsMiscLower = "(?:" + rsLower + "|" + rsMisc + ")", rsMiscUpper = "(?:" + rsUpper + "|" + rsMisc + ")", rsOptContrLower = "(?:" + rsApos + "(?:d|ll|m|re|s|t|ve))?", rsOptContrUpper = "(?:" + rsApos + "(?:D|LL|M|RE|S|T|VE))?", reOptMod = rsModifier + "?", rsOptVar = "[" + rsVarRange + "]?", rsOptJoin = "(?:" + rsZWJ + "(?:" + [rsNonAstral, rsRegional, rsSurrPair].join("|") + ")" + rsOptVar + reOptMod + ")*", rsOrdLower = "\\d*(?:1st|2nd|3rd|(?![123])\\dth)(?=\\b|[A-Z_])", rsOrdUpper = "\\d*(?:1ST|2ND|3RD|(?![123])\\dTH)(?=\\b|[a-z_])", rsSeq = rsOptVar + reOptMod + rsOptJoin, rsEmoji = "(?:" + [rsDingbat, rsRegional, rsSurrPair].join("|") + ")" + rsSeq, rsSymbol = "(?:" + [rsNonAstral + rsCombo + "?", rsCombo, rsRegional, rsSurrPair, rsAstral].join("|") + ")";
+        var reApos = RegExp(rsApos, "g");
+        var reComboMark = RegExp(rsCombo, "g");
+        var reUnicode = RegExp(rsFitz + "(?=" + rsFitz + ")|" + rsSymbol + rsSeq, "g");
+        var reUnicodeWord = RegExp([
+          rsUpper + "?" + rsLower + "+" + rsOptContrLower + "(?=" + [rsBreak, rsUpper, "$"].join("|") + ")",
+          rsMiscUpper + "+" + rsOptContrUpper + "(?=" + [rsBreak, rsUpper + rsMiscLower, "$"].join("|") + ")",
+          rsUpper + "?" + rsMiscLower + "+" + rsOptContrLower,
+          rsUpper + "+" + rsOptContrUpper,
+          rsOrdUpper,
+          rsOrdLower,
+          rsDigits,
+          rsEmoji
+        ].join("|"), "g");
+        var reHasUnicode = RegExp("[" + rsZWJ + rsAstralRange + rsComboRange + rsVarRange + "]");
+        var reHasUnicodeWord = /[a-z][A-Z]|[A-Z]{2}[a-z]|[0-9][a-zA-Z]|[a-zA-Z][0-9]|[^a-zA-Z0-9 ]/;
+        var contextProps = [
+          "Array",
+          "Buffer",
+          "DataView",
+          "Date",
+          "Error",
+          "Float32Array",
+          "Float64Array",
+          "Function",
+          "Int8Array",
+          "Int16Array",
+          "Int32Array",
+          "Map",
+          "Math",
+          "Object",
+          "Promise",
+          "RegExp",
+          "Set",
+          "String",
+          "Symbol",
+          "TypeError",
+          "Uint8Array",
+          "Uint8ClampedArray",
+          "Uint16Array",
+          "Uint32Array",
+          "WeakMap",
+          "_",
+          "clearTimeout",
+          "isFinite",
+          "parseInt",
+          "setTimeout"
+        ];
+        var templateCounter = -1;
+        var typedArrayTags = {};
+        typedArrayTags[float32Tag] = typedArrayTags[float64Tag] = typedArrayTags[int8Tag] = typedArrayTags[int16Tag] = typedArrayTags[int32Tag] = typedArrayTags[uint8Tag] = typedArrayTags[uint8ClampedTag] = typedArrayTags[uint16Tag] = typedArrayTags[uint32Tag] = true;
+        typedArrayTags[argsTag] = typedArrayTags[arrayTag] = typedArrayTags[arrayBufferTag] = typedArrayTags[boolTag] = typedArrayTags[dataViewTag] = typedArrayTags[dateTag] = typedArrayTags[errorTag] = typedArrayTags[funcTag] = typedArrayTags[mapTag] = typedArrayTags[numberTag] = typedArrayTags[objectTag] = typedArrayTags[regexpTag] = typedArrayTags[setTag] = typedArrayTags[stringTag] = typedArrayTags[weakMapTag] = false;
+        var cloneableTags = {};
+        cloneableTags[argsTag] = cloneableTags[arrayTag] = cloneableTags[arrayBufferTag] = cloneableTags[dataViewTag] = cloneableTags[boolTag] = cloneableTags[dateTag] = cloneableTags[float32Tag] = cloneableTags[float64Tag] = cloneableTags[int8Tag] = cloneableTags[int16Tag] = cloneableTags[int32Tag] = cloneableTags[mapTag] = cloneableTags[numberTag] = cloneableTags[objectTag] = cloneableTags[regexpTag] = cloneableTags[setTag] = cloneableTags[stringTag] = cloneableTags[symbolTag] = cloneableTags[uint8Tag] = cloneableTags[uint8ClampedTag] = cloneableTags[uint16Tag] = cloneableTags[uint32Tag] = true;
+        cloneableTags[errorTag] = cloneableTags[funcTag] = cloneableTags[weakMapTag] = false;
+        var deburredLetters = {
+          "\xC0": "A",
+          "\xC1": "A",
+          "\xC2": "A",
+          "\xC3": "A",
+          "\xC4": "A",
+          "\xC5": "A",
+          "\xE0": "a",
+          "\xE1": "a",
+          "\xE2": "a",
+          "\xE3": "a",
+          "\xE4": "a",
+          "\xE5": "a",
+          "\xC7": "C",
+          "\xE7": "c",
+          "\xD0": "D",
+          "\xF0": "d",
+          "\xC8": "E",
+          "\xC9": "E",
+          "\xCA": "E",
+          "\xCB": "E",
+          "\xE8": "e",
+          "\xE9": "e",
+          "\xEA": "e",
+          "\xEB": "e",
+          "\xCC": "I",
+          "\xCD": "I",
+          "\xCE": "I",
+          "\xCF": "I",
+          "\xEC": "i",
+          "\xED": "i",
+          "\xEE": "i",
+          "\xEF": "i",
+          "\xD1": "N",
+          "\xF1": "n",
+          "\xD2": "O",
+          "\xD3": "O",
+          "\xD4": "O",
+          "\xD5": "O",
+          "\xD6": "O",
+          "\xD8": "O",
+          "\xF2": "o",
+          "\xF3": "o",
+          "\xF4": "o",
+          "\xF5": "o",
+          "\xF6": "o",
+          "\xF8": "o",
+          "\xD9": "U",
+          "\xDA": "U",
+          "\xDB": "U",
+          "\xDC": "U",
+          "\xF9": "u",
+          "\xFA": "u",
+          "\xFB": "u",
+          "\xFC": "u",
+          "\xDD": "Y",
+          "\xFD": "y",
+          "\xFF": "y",
+          "\xC6": "Ae",
+          "\xE6": "ae",
+          "\xDE": "Th",
+          "\xFE": "th",
+          "\xDF": "ss",
+          "\u0100": "A",
+          "\u0102": "A",
+          "\u0104": "A",
+          "\u0101": "a",
+          "\u0103": "a",
+          "\u0105": "a",
+          "\u0106": "C",
+          "\u0108": "C",
+          "\u010A": "C",
+          "\u010C": "C",
+          "\u0107": "c",
+          "\u0109": "c",
+          "\u010B": "c",
+          "\u010D": "c",
+          "\u010E": "D",
+          "\u0110": "D",
+          "\u010F": "d",
+          "\u0111": "d",
+          "\u0112": "E",
+          "\u0114": "E",
+          "\u0116": "E",
+          "\u0118": "E",
+          "\u011A": "E",
+          "\u0113": "e",
+          "\u0115": "e",
+          "\u0117": "e",
+          "\u0119": "e",
+          "\u011B": "e",
+          "\u011C": "G",
+          "\u011E": "G",
+          "\u0120": "G",
+          "\u0122": "G",
+          "\u011D": "g",
+          "\u011F": "g",
+          "\u0121": "g",
+          "\u0123": "g",
+          "\u0124": "H",
+          "\u0126": "H",
+          "\u0125": "h",
+          "\u0127": "h",
+          "\u0128": "I",
+          "\u012A": "I",
+          "\u012C": "I",
+          "\u012E": "I",
+          "\u0130": "I",
+          "\u0129": "i",
+          "\u012B": "i",
+          "\u012D": "i",
+          "\u012F": "i",
+          "\u0131": "i",
+          "\u0134": "J",
+          "\u0135": "j",
+          "\u0136": "K",
+          "\u0137": "k",
+          "\u0138": "k",
+          "\u0139": "L",
+          "\u013B": "L",
+          "\u013D": "L",
+          "\u013F": "L",
+          "\u0141": "L",
+          "\u013A": "l",
+          "\u013C": "l",
+          "\u013E": "l",
+          "\u0140": "l",
+          "\u0142": "l",
+          "\u0143": "N",
+          "\u0145": "N",
+          "\u0147": "N",
+          "\u014A": "N",
+          "\u0144": "n",
+          "\u0146": "n",
+          "\u0148": "n",
+          "\u014B": "n",
+          "\u014C": "O",
+          "\u014E": "O",
+          "\u0150": "O",
+          "\u014D": "o",
+          "\u014F": "o",
+          "\u0151": "o",
+          "\u0154": "R",
+          "\u0156": "R",
+          "\u0158": "R",
+          "\u0155": "r",
+          "\u0157": "r",
+          "\u0159": "r",
+          "\u015A": "S",
+          "\u015C": "S",
+          "\u015E": "S",
+          "\u0160": "S",
+          "\u015B": "s",
+          "\u015D": "s",
+          "\u015F": "s",
+          "\u0161": "s",
+          "\u0162": "T",
+          "\u0164": "T",
+          "\u0166": "T",
+          "\u0163": "t",
+          "\u0165": "t",
+          "\u0167": "t",
+          "\u0168": "U",
+          "\u016A": "U",
+          "\u016C": "U",
+          "\u016E": "U",
+          "\u0170": "U",
+          "\u0172": "U",
+          "\u0169": "u",
+          "\u016B": "u",
+          "\u016D": "u",
+          "\u016F": "u",
+          "\u0171": "u",
+          "\u0173": "u",
+          "\u0174": "W",
+          "\u0175": "w",
+          "\u0176": "Y",
+          "\u0177": "y",
+          "\u0178": "Y",
+          "\u0179": "Z",
+          "\u017B": "Z",
+          "\u017D": "Z",
+          "\u017A": "z",
+          "\u017C": "z",
+          "\u017E": "z",
+          "\u0132": "IJ",
+          "\u0133": "ij",
+          "\u0152": "Oe",
+          "\u0153": "oe",
+          "\u0149": "'n",
+          "\u017F": "s"
+        };
+        var htmlEscapes = {
+          "&": "&amp;",
+          "<": "&lt;",
+          ">": "&gt;",
+          '"': "&quot;",
+          "'": "&#39;"
+        };
+        var htmlUnescapes = {
+          "&amp;": "&",
+          "&lt;": "<",
+          "&gt;": ">",
+          "&quot;": '"',
+          "&#39;": "'"
+        };
+        var stringEscapes = {
+          "\\": "\\",
+          "'": "'",
+          "\n": "n",
+          "\r": "r",
+          "\u2028": "u2028",
+          "\u2029": "u2029"
+        };
+        var freeParseFloat = parseFloat, freeParseInt = parseInt;
+        var freeGlobal = typeof global == "object" && global && global.Object === Object && global;
+        var freeSelf = typeof self == "object" && self && self.Object === Object && self;
+        var root2 = freeGlobal || freeSelf || Function("return this")();
+        var freeExports = typeof exports == "object" && exports && !exports.nodeType && exports;
+        var freeModule = freeExports && typeof module == "object" && module && !module.nodeType && module;
+        var moduleExports = freeModule && freeModule.exports === freeExports;
+        var freeProcess = moduleExports && freeGlobal.process;
+        var nodeUtil = function() {
+          try {
+            var types = freeModule && freeModule.require && freeModule.require("util").types;
+            if (types) {
+              return types;
+            }
+            return freeProcess && freeProcess.binding && freeProcess.binding("util");
+          } catch (e) {
+          }
+        }();
+        var nodeIsArrayBuffer = nodeUtil && nodeUtil.isArrayBuffer, nodeIsDate = nodeUtil && nodeUtil.isDate, nodeIsMap = nodeUtil && nodeUtil.isMap, nodeIsRegExp = nodeUtil && nodeUtil.isRegExp, nodeIsSet = nodeUtil && nodeUtil.isSet, nodeIsTypedArray = nodeUtil && nodeUtil.isTypedArray;
+        function apply(func, thisArg, args) {
+          switch (args.length) {
+            case 0:
+              return func.call(thisArg);
+            case 1:
+              return func.call(thisArg, args[0]);
+            case 2:
+              return func.call(thisArg, args[0], args[1]);
+            case 3:
+              return func.call(thisArg, args[0], args[1], args[2]);
+          }
+          return func.apply(thisArg, args);
+        }
+        function arrayAggregator(array2, setter, iteratee, accumulator) {
+          var index2 = -1, length = array2 == null ? 0 : array2.length;
+          while (++index2 < length) {
+            var value = array2[index2];
+            setter(accumulator, value, iteratee(value), array2);
+          }
+          return accumulator;
+        }
+        function arrayEach(array2, iteratee) {
+          var index2 = -1, length = array2 == null ? 0 : array2.length;
+          while (++index2 < length) {
+            if (iteratee(array2[index2], index2, array2) === false) {
+              break;
+            }
+          }
+          return array2;
+        }
+        function arrayEachRight(array2, iteratee) {
+          var length = array2 == null ? 0 : array2.length;
+          while (length--) {
+            if (iteratee(array2[length], length, array2) === false) {
+              break;
+            }
+          }
+          return array2;
+        }
+        function arrayEvery(array2, predicate) {
+          var index2 = -1, length = array2 == null ? 0 : array2.length;
+          while (++index2 < length) {
+            if (!predicate(array2[index2], index2, array2)) {
+              return false;
+            }
+          }
+          return true;
+        }
+        function arrayFilter(array2, predicate) {
+          var index2 = -1, length = array2 == null ? 0 : array2.length, resIndex = 0, result = [];
+          while (++index2 < length) {
+            var value = array2[index2];
+            if (predicate(value, index2, array2)) {
+              result[resIndex++] = value;
+            }
+          }
+          return result;
+        }
+        function arrayIncludes(array2, value) {
+          var length = array2 == null ? 0 : array2.length;
+          return !!length && baseIndexOf(array2, value, 0) > -1;
+        }
+        function arrayIncludesWith(array2, value, comparator) {
+          var index2 = -1, length = array2 == null ? 0 : array2.length;
+          while (++index2 < length) {
+            if (comparator(value, array2[index2])) {
+              return true;
+            }
+          }
+          return false;
+        }
+        function arrayMap(array2, iteratee) {
+          var index2 = -1, length = array2 == null ? 0 : array2.length, result = Array(length);
+          while (++index2 < length) {
+            result[index2] = iteratee(array2[index2], index2, array2);
+          }
+          return result;
+        }
+        function arrayPush(array2, values) {
+          var index2 = -1, length = values.length, offset = array2.length;
+          while (++index2 < length) {
+            array2[offset + index2] = values[index2];
+          }
+          return array2;
+        }
+        function arrayReduce(array2, iteratee, accumulator, initAccum) {
+          var index2 = -1, length = array2 == null ? 0 : array2.length;
+          if (initAccum && length) {
+            accumulator = array2[++index2];
+          }
+          while (++index2 < length) {
+            accumulator = iteratee(accumulator, array2[index2], index2, array2);
+          }
+          return accumulator;
+        }
+        function arrayReduceRight(array2, iteratee, accumulator, initAccum) {
+          var length = array2 == null ? 0 : array2.length;
+          if (initAccum && length) {
+            accumulator = array2[--length];
+          }
+          while (length--) {
+            accumulator = iteratee(accumulator, array2[length], length, array2);
+          }
+          return accumulator;
+        }
+        function arraySome(array2, predicate) {
+          var index2 = -1, length = array2 == null ? 0 : array2.length;
+          while (++index2 < length) {
+            if (predicate(array2[index2], index2, array2)) {
+              return true;
+            }
+          }
+          return false;
+        }
+        var asciiSize = baseProperty("length");
+        function asciiToArray(string) {
+          return string.split("");
+        }
+        function asciiWords(string) {
+          return string.match(reAsciiWord) || [];
+        }
+        function baseFindKey(collection, predicate, eachFunc) {
+          var result;
+          eachFunc(collection, function(value, key, collection2) {
+            if (predicate(value, key, collection2)) {
+              result = key;
+              return false;
+            }
+          });
+          return result;
+        }
+        function baseFindIndex(array2, predicate, fromIndex, fromRight) {
+          var length = array2.length, index2 = fromIndex + (fromRight ? 1 : -1);
+          while (fromRight ? index2-- : ++index2 < length) {
+            if (predicate(array2[index2], index2, array2)) {
+              return index2;
+            }
+          }
+          return -1;
+        }
+        function baseIndexOf(array2, value, fromIndex) {
+          return value === value ? strictIndexOf(array2, value, fromIndex) : baseFindIndex(array2, baseIsNaN, fromIndex);
+        }
+        function baseIndexOfWith(array2, value, fromIndex, comparator) {
+          var index2 = fromIndex - 1, length = array2.length;
+          while (++index2 < length) {
+            if (comparator(array2[index2], value)) {
+              return index2;
+            }
+          }
+          return -1;
+        }
+        function baseIsNaN(value) {
+          return value !== value;
+        }
+        function baseMean(array2, iteratee) {
+          var length = array2 == null ? 0 : array2.length;
+          return length ? baseSum(array2, iteratee) / length : NAN;
+        }
+        function baseProperty(key) {
+          return function(object) {
+            return object == null ? undefined2 : object[key];
+          };
+        }
+        function basePropertyOf(object) {
+          return function(key) {
+            return object == null ? undefined2 : object[key];
+          };
+        }
+        function baseReduce(collection, iteratee, accumulator, initAccum, eachFunc) {
+          eachFunc(collection, function(value, index2, collection2) {
+            accumulator = initAccum ? (initAccum = false, value) : iteratee(accumulator, value, index2, collection2);
+          });
+          return accumulator;
+        }
+        function baseSortBy(array2, comparer) {
+          var length = array2.length;
+          array2.sort(comparer);
+          while (length--) {
+            array2[length] = array2[length].value;
+          }
+          return array2;
+        }
+        function baseSum(array2, iteratee) {
+          var result, index2 = -1, length = array2.length;
+          while (++index2 < length) {
+            var current = iteratee(array2[index2]);
+            if (current !== undefined2) {
+              result = result === undefined2 ? current : result + current;
+            }
+          }
+          return result;
+        }
+        function baseTimes(n, iteratee) {
+          var index2 = -1, result = Array(n);
+          while (++index2 < n) {
+            result[index2] = iteratee(index2);
+          }
+          return result;
+        }
+        function baseToPairs(object, props) {
+          return arrayMap(props, function(key) {
+            return [key, object[key]];
+          });
+        }
+        function baseTrim(string) {
+          return string ? string.slice(0, trimmedEndIndex(string) + 1).replace(reTrimStart, "") : string;
+        }
+        function baseUnary(func) {
+          return function(value) {
+            return func(value);
+          };
+        }
+        function baseValues(object, props) {
+          return arrayMap(props, function(key) {
+            return object[key];
+          });
+        }
+        function cacheHas(cache, key) {
+          return cache.has(key);
+        }
+        function charsStartIndex(strSymbols, chrSymbols) {
+          var index2 = -1, length = strSymbols.length;
+          while (++index2 < length && baseIndexOf(chrSymbols, strSymbols[index2], 0) > -1) {
+          }
+          return index2;
+        }
+        function charsEndIndex(strSymbols, chrSymbols) {
+          var index2 = strSymbols.length;
+          while (index2-- && baseIndexOf(chrSymbols, strSymbols[index2], 0) > -1) {
+          }
+          return index2;
+        }
+        function countHolders(array2, placeholder) {
+          var length = array2.length, result = 0;
+          while (length--) {
+            if (array2[length] === placeholder) {
+              ++result;
+            }
+          }
+          return result;
+        }
+        var deburrLetter = basePropertyOf(deburredLetters);
+        var escapeHtmlChar = basePropertyOf(htmlEscapes);
+        function escapeStringChar(chr) {
+          return "\\" + stringEscapes[chr];
+        }
+        function getValue(object, key) {
+          return object == null ? undefined2 : object[key];
+        }
+        function hasUnicode(string) {
+          return reHasUnicode.test(string);
+        }
+        function hasUnicodeWord(string) {
+          return reHasUnicodeWord.test(string);
+        }
+        function iteratorToArray(iterator) {
+          var data, result = [];
+          while (!(data = iterator.next()).done) {
+            result.push(data.value);
+          }
+          return result;
+        }
+        function mapToArray(map2) {
+          var index2 = -1, result = Array(map2.size);
+          map2.forEach(function(value, key) {
+            result[++index2] = [key, value];
+          });
+          return result;
+        }
+        function overArg(func, transform2) {
+          return function(arg) {
+            return func(transform2(arg));
+          };
+        }
+        function replaceHolders(array2, placeholder) {
+          var index2 = -1, length = array2.length, resIndex = 0, result = [];
+          while (++index2 < length) {
+            var value = array2[index2];
+            if (value === placeholder || value === PLACEHOLDER) {
+              array2[index2] = PLACEHOLDER;
+              result[resIndex++] = index2;
+            }
+          }
+          return result;
+        }
+        function setToArray(set3) {
+          var index2 = -1, result = Array(set3.size);
+          set3.forEach(function(value) {
+            result[++index2] = value;
+          });
+          return result;
+        }
+        function setToPairs(set3) {
+          var index2 = -1, result = Array(set3.size);
+          set3.forEach(function(value) {
+            result[++index2] = [value, value];
+          });
+          return result;
+        }
+        function strictIndexOf(array2, value, fromIndex) {
+          var index2 = fromIndex - 1, length = array2.length;
+          while (++index2 < length) {
+            if (array2[index2] === value) {
+              return index2;
+            }
+          }
+          return -1;
+        }
+        function strictLastIndexOf(array2, value, fromIndex) {
+          var index2 = fromIndex + 1;
+          while (index2--) {
+            if (array2[index2] === value) {
+              return index2;
+            }
+          }
+          return index2;
+        }
+        function stringSize(string) {
+          return hasUnicode(string) ? unicodeSize(string) : asciiSize(string);
+        }
+        function stringToArray(string) {
+          return hasUnicode(string) ? unicodeToArray(string) : asciiToArray(string);
+        }
+        function trimmedEndIndex(string) {
+          var index2 = string.length;
+          while (index2-- && reWhitespace.test(string.charAt(index2))) {
+          }
+          return index2;
+        }
+        var unescapeHtmlChar = basePropertyOf(htmlUnescapes);
+        function unicodeSize(string) {
+          var result = reUnicode.lastIndex = 0;
+          while (reUnicode.test(string)) {
+            ++result;
+          }
+          return result;
+        }
+        function unicodeToArray(string) {
+          return string.match(reUnicode) || [];
+        }
+        function unicodeWords(string) {
+          return string.match(reUnicodeWord) || [];
+        }
+        var runInContext = function runInContext2(context) {
+          context = context == null ? root2 : _.defaults(root2.Object(), context, _.pick(root2, contextProps));
+          var Array2 = context.Array, Date2 = context.Date, Error2 = context.Error, Function2 = context.Function, Math2 = context.Math, Object2 = context.Object, RegExp2 = context.RegExp, String2 = context.String, TypeError2 = context.TypeError;
+          var arrayProto = Array2.prototype, funcProto = Function2.prototype, objectProto = Object2.prototype;
+          var coreJsData = context["__core-js_shared__"];
+          var funcToString = funcProto.toString;
+          var hasOwnProperty = objectProto.hasOwnProperty;
+          var idCounter = 0;
+          var maskSrcKey = function() {
+            var uid = /[^.]+$/.exec(coreJsData && coreJsData.keys && coreJsData.keys.IE_PROTO || "");
+            return uid ? "Symbol(src)_1." + uid : "";
+          }();
+          var nativeObjectToString = objectProto.toString;
+          var objectCtorString = funcToString.call(Object2);
+          var oldDash = root2._;
+          var reIsNative = RegExp2("^" + funcToString.call(hasOwnProperty).replace(reRegExpChar, "\\$&").replace(/hasOwnProperty|(function).*?(?=\\\()| for .+?(?=\\\])/g, "$1.*?") + "$");
+          var Buffer2 = moduleExports ? context.Buffer : undefined2, Symbol2 = context.Symbol, Uint8Array2 = context.Uint8Array, allocUnsafe = Buffer2 ? Buffer2.allocUnsafe : undefined2, getPrototype = overArg(Object2.getPrototypeOf, Object2), objectCreate = Object2.create, propertyIsEnumerable = objectProto.propertyIsEnumerable, splice = arrayProto.splice, spreadableSymbol = Symbol2 ? Symbol2.isConcatSpreadable : undefined2, symIterator = Symbol2 ? Symbol2.iterator : undefined2, symToStringTag = Symbol2 ? Symbol2.toStringTag : undefined2;
+          var defineProperty = function() {
+            try {
+              var func = getNative(Object2, "defineProperty");
+              func({}, "", {});
+              return func;
+            } catch (e) {
+            }
+          }();
+          var ctxClearTimeout = context.clearTimeout !== root2.clearTimeout && context.clearTimeout, ctxNow = Date2 && Date2.now !== root2.Date.now && Date2.now, ctxSetTimeout = context.setTimeout !== root2.setTimeout && context.setTimeout;
+          var nativeCeil = Math2.ceil, nativeFloor = Math2.floor, nativeGetSymbols = Object2.getOwnPropertySymbols, nativeIsBuffer = Buffer2 ? Buffer2.isBuffer : undefined2, nativeIsFinite = context.isFinite, nativeJoin = arrayProto.join, nativeKeys = overArg(Object2.keys, Object2), nativeMax = Math2.max, nativeMin = Math2.min, nativeNow = Date2.now, nativeParseInt = context.parseInt, nativeRandom = Math2.random, nativeReverse = arrayProto.reverse;
+          var DataView2 = getNative(context, "DataView"), Map2 = getNative(context, "Map"), Promise2 = getNative(context, "Promise"), Set2 = getNative(context, "Set"), WeakMap = getNative(context, "WeakMap"), nativeCreate = getNative(Object2, "create");
+          var metaMap = WeakMap && new WeakMap();
+          var realNames = {};
+          var dataViewCtorString = toSource(DataView2), mapCtorString = toSource(Map2), promiseCtorString = toSource(Promise2), setCtorString = toSource(Set2), weakMapCtorString = toSource(WeakMap);
+          var symbolProto = Symbol2 ? Symbol2.prototype : undefined2, symbolValueOf = symbolProto ? symbolProto.valueOf : undefined2, symbolToString = symbolProto ? symbolProto.toString : undefined2;
+          function lodash(value) {
+            if (isObjectLike(value) && !isArray(value) && !(value instanceof LazyWrapper)) {
+              if (value instanceof LodashWrapper) {
+                return value;
+              }
+              if (hasOwnProperty.call(value, "__wrapped__")) {
+                return wrapperClone(value);
+              }
+            }
+            return new LodashWrapper(value);
+          }
+          var baseCreate = function() {
+            function object() {
+            }
+            return function(proto) {
+              if (!isObject(proto)) {
+                return {};
+              }
+              if (objectCreate) {
+                return objectCreate(proto);
+              }
+              object.prototype = proto;
+              var result2 = new object();
+              object.prototype = undefined2;
+              return result2;
+            };
+          }();
+          function baseLodash() {
+          }
+          function LodashWrapper(value, chainAll) {
+            this.__wrapped__ = value;
+            this.__actions__ = [];
+            this.__chain__ = !!chainAll;
+            this.__index__ = 0;
+            this.__values__ = undefined2;
+          }
+          lodash.templateSettings = {
+            "escape": reEscape,
+            "evaluate": reEvaluate,
+            "interpolate": reInterpolate,
+            "variable": "",
+            "imports": {
+              "_": lodash
+            }
+          };
+          lodash.prototype = baseLodash.prototype;
+          lodash.prototype.constructor = lodash;
+          LodashWrapper.prototype = baseCreate(baseLodash.prototype);
+          LodashWrapper.prototype.constructor = LodashWrapper;
+          function LazyWrapper(value) {
+            this.__wrapped__ = value;
+            this.__actions__ = [];
+            this.__dir__ = 1;
+            this.__filtered__ = false;
+            this.__iteratees__ = [];
+            this.__takeCount__ = MAX_ARRAY_LENGTH;
+            this.__views__ = [];
+          }
+          function lazyClone() {
+            var result2 = new LazyWrapper(this.__wrapped__);
+            result2.__actions__ = copyArray(this.__actions__);
+            result2.__dir__ = this.__dir__;
+            result2.__filtered__ = this.__filtered__;
+            result2.__iteratees__ = copyArray(this.__iteratees__);
+            result2.__takeCount__ = this.__takeCount__;
+            result2.__views__ = copyArray(this.__views__);
+            return result2;
+          }
+          function lazyReverse() {
+            if (this.__filtered__) {
+              var result2 = new LazyWrapper(this);
+              result2.__dir__ = -1;
+              result2.__filtered__ = true;
+            } else {
+              result2 = this.clone();
+              result2.__dir__ *= -1;
+            }
+            return result2;
+          }
+          function lazyValue() {
+            var array2 = this.__wrapped__.value(), dir = this.__dir__, isArr = isArray(array2), isRight = dir < 0, arrLength = isArr ? array2.length : 0, view = getView(0, arrLength, this.__views__), start2 = view.start, end = view.end, length = end - start2, index2 = isRight ? end : start2 - 1, iteratees = this.__iteratees__, iterLength = iteratees.length, resIndex = 0, takeCount = nativeMin(length, this.__takeCount__);
+            if (!isArr || !isRight && arrLength == length && takeCount == length) {
+              return baseWrapperValue(array2, this.__actions__);
+            }
+            var result2 = [];
+            outer:
+              while (length-- && resIndex < takeCount) {
+                index2 += dir;
+                var iterIndex = -1, value = array2[index2];
+                while (++iterIndex < iterLength) {
+                  var data = iteratees[iterIndex], iteratee2 = data.iteratee, type2 = data.type, computed = iteratee2(value);
+                  if (type2 == LAZY_MAP_FLAG) {
+                    value = computed;
+                  } else if (!computed) {
+                    if (type2 == LAZY_FILTER_FLAG) {
+                      continue outer;
+                    } else {
+                      break outer;
+                    }
+                  }
+                }
+                result2[resIndex++] = value;
+              }
+            return result2;
+          }
+          LazyWrapper.prototype = baseCreate(baseLodash.prototype);
+          LazyWrapper.prototype.constructor = LazyWrapper;
+          function Hash(entries) {
+            var index2 = -1, length = entries == null ? 0 : entries.length;
+            this.clear();
+            while (++index2 < length) {
+              var entry = entries[index2];
+              this.set(entry[0], entry[1]);
+            }
+          }
+          function hashClear() {
+            this.__data__ = nativeCreate ? nativeCreate(null) : {};
+            this.size = 0;
+          }
+          function hashDelete(key) {
+            var result2 = this.has(key) && delete this.__data__[key];
+            this.size -= result2 ? 1 : 0;
+            return result2;
+          }
+          function hashGet(key) {
+            var data = this.__data__;
+            if (nativeCreate) {
+              var result2 = data[key];
+              return result2 === HASH_UNDEFINED ? undefined2 : result2;
+            }
+            return hasOwnProperty.call(data, key) ? data[key] : undefined2;
+          }
+          function hashHas(key) {
+            var data = this.__data__;
+            return nativeCreate ? data[key] !== undefined2 : hasOwnProperty.call(data, key);
+          }
+          function hashSet(key, value) {
+            var data = this.__data__;
+            this.size += this.has(key) ? 0 : 1;
+            data[key] = nativeCreate && value === undefined2 ? HASH_UNDEFINED : value;
+            return this;
+          }
+          Hash.prototype.clear = hashClear;
+          Hash.prototype["delete"] = hashDelete;
+          Hash.prototype.get = hashGet;
+          Hash.prototype.has = hashHas;
+          Hash.prototype.set = hashSet;
+          function ListCache(entries) {
+            var index2 = -1, length = entries == null ? 0 : entries.length;
+            this.clear();
+            while (++index2 < length) {
+              var entry = entries[index2];
+              this.set(entry[0], entry[1]);
+            }
+          }
+          function listCacheClear() {
+            this.__data__ = [];
+            this.size = 0;
+          }
+          function listCacheDelete(key) {
+            var data = this.__data__, index2 = assocIndexOf(data, key);
+            if (index2 < 0) {
+              return false;
+            }
+            var lastIndex = data.length - 1;
+            if (index2 == lastIndex) {
+              data.pop();
+            } else {
+              splice.call(data, index2, 1);
+            }
+            --this.size;
+            return true;
+          }
+          function listCacheGet(key) {
+            var data = this.__data__, index2 = assocIndexOf(data, key);
+            return index2 < 0 ? undefined2 : data[index2][1];
+          }
+          function listCacheHas(key) {
+            return assocIndexOf(this.__data__, key) > -1;
+          }
+          function listCacheSet(key, value) {
+            var data = this.__data__, index2 = assocIndexOf(data, key);
+            if (index2 < 0) {
+              ++this.size;
+              data.push([key, value]);
+            } else {
+              data[index2][1] = value;
+            }
+            return this;
+          }
+          ListCache.prototype.clear = listCacheClear;
+          ListCache.prototype["delete"] = listCacheDelete;
+          ListCache.prototype.get = listCacheGet;
+          ListCache.prototype.has = listCacheHas;
+          ListCache.prototype.set = listCacheSet;
+          function MapCache(entries) {
+            var index2 = -1, length = entries == null ? 0 : entries.length;
+            this.clear();
+            while (++index2 < length) {
+              var entry = entries[index2];
+              this.set(entry[0], entry[1]);
+            }
+          }
+          function mapCacheClear() {
+            this.size = 0;
+            this.__data__ = {
+              "hash": new Hash(),
+              "map": new (Map2 || ListCache)(),
+              "string": new Hash()
+            };
+          }
+          function mapCacheDelete(key) {
+            var result2 = getMapData(this, key)["delete"](key);
+            this.size -= result2 ? 1 : 0;
+            return result2;
+          }
+          function mapCacheGet(key) {
+            return getMapData(this, key).get(key);
+          }
+          function mapCacheHas(key) {
+            return getMapData(this, key).has(key);
+          }
+          function mapCacheSet(key, value) {
+            var data = getMapData(this, key), size2 = data.size;
+            data.set(key, value);
+            this.size += data.size == size2 ? 0 : 1;
+            return this;
+          }
+          MapCache.prototype.clear = mapCacheClear;
+          MapCache.prototype["delete"] = mapCacheDelete;
+          MapCache.prototype.get = mapCacheGet;
+          MapCache.prototype.has = mapCacheHas;
+          MapCache.prototype.set = mapCacheSet;
+          function SetCache(values2) {
+            var index2 = -1, length = values2 == null ? 0 : values2.length;
+            this.__data__ = new MapCache();
+            while (++index2 < length) {
+              this.add(values2[index2]);
+            }
+          }
+          function setCacheAdd(value) {
+            this.__data__.set(value, HASH_UNDEFINED);
+            return this;
+          }
+          function setCacheHas(value) {
+            return this.__data__.has(value);
+          }
+          SetCache.prototype.add = SetCache.prototype.push = setCacheAdd;
+          SetCache.prototype.has = setCacheHas;
+          function Stack(entries) {
+            var data = this.__data__ = new ListCache(entries);
+            this.size = data.size;
+          }
+          function stackClear() {
+            this.__data__ = new ListCache();
+            this.size = 0;
+          }
+          function stackDelete(key) {
+            var data = this.__data__, result2 = data["delete"](key);
+            this.size = data.size;
+            return result2;
+          }
+          function stackGet(key) {
+            return this.__data__.get(key);
+          }
+          function stackHas(key) {
+            return this.__data__.has(key);
+          }
+          function stackSet(key, value) {
+            var data = this.__data__;
+            if (data instanceof ListCache) {
+              var pairs = data.__data__;
+              if (!Map2 || pairs.length < LARGE_ARRAY_SIZE - 1) {
+                pairs.push([key, value]);
+                this.size = ++data.size;
+                return this;
+              }
+              data = this.__data__ = new MapCache(pairs);
+            }
+            data.set(key, value);
+            this.size = data.size;
+            return this;
+          }
+          Stack.prototype.clear = stackClear;
+          Stack.prototype["delete"] = stackDelete;
+          Stack.prototype.get = stackGet;
+          Stack.prototype.has = stackHas;
+          Stack.prototype.set = stackSet;
+          function arrayLikeKeys(value, inherited) {
+            var isArr = isArray(value), isArg = !isArr && isArguments(value), isBuff = !isArr && !isArg && isBuffer(value), isType = !isArr && !isArg && !isBuff && isTypedArray(value), skipIndexes = isArr || isArg || isBuff || isType, result2 = skipIndexes ? baseTimes(value.length, String2) : [], length = result2.length;
+            for (var key in value) {
+              if ((inherited || hasOwnProperty.call(value, key)) && !(skipIndexes && (key == "length" || isBuff && (key == "offset" || key == "parent") || isType && (key == "buffer" || key == "byteLength" || key == "byteOffset") || isIndex(key, length)))) {
+                result2.push(key);
+              }
+            }
+            return result2;
+          }
+          function arraySample(array2) {
+            var length = array2.length;
+            return length ? array2[baseRandom(0, length - 1)] : undefined2;
+          }
+          function arraySampleSize(array2, n) {
+            return shuffleSelf(copyArray(array2), baseClamp(n, 0, array2.length));
+          }
+          function arrayShuffle(array2) {
+            return shuffleSelf(copyArray(array2));
+          }
+          function assignMergeValue(object, key, value) {
+            if (value !== undefined2 && !eq(object[key], value) || value === undefined2 && !(key in object)) {
+              baseAssignValue(object, key, value);
+            }
+          }
+          function assignValue(object, key, value) {
+            var objValue = object[key];
+            if (!(hasOwnProperty.call(object, key) && eq(objValue, value)) || value === undefined2 && !(key in object)) {
+              baseAssignValue(object, key, value);
+            }
+          }
+          function assocIndexOf(array2, key) {
+            var length = array2.length;
+            while (length--) {
+              if (eq(array2[length][0], key)) {
+                return length;
+              }
+            }
+            return -1;
+          }
+          function baseAggregator(collection, setter, iteratee2, accumulator) {
+            baseEach(collection, function(value, key, collection2) {
+              setter(accumulator, value, iteratee2(value), collection2);
+            });
+            return accumulator;
+          }
+          function baseAssign(object, source) {
+            return object && copyObject(source, keys(source), object);
+          }
+          function baseAssignIn(object, source) {
+            return object && copyObject(source, keysIn(source), object);
+          }
+          function baseAssignValue(object, key, value) {
+            if (key == "__proto__" && defineProperty) {
+              defineProperty(object, key, {
+                "configurable": true,
+                "enumerable": true,
+                "value": value,
+                "writable": true
+              });
+            } else {
+              object[key] = value;
+            }
+          }
+          function baseAt(object, paths) {
+            var index2 = -1, length = paths.length, result2 = Array2(length), skip = object == null;
+            while (++index2 < length) {
+              result2[index2] = skip ? undefined2 : get3(object, paths[index2]);
+            }
+            return result2;
+          }
+          function baseClamp(number4, lower2, upper) {
+            if (number4 === number4) {
+              if (upper !== undefined2) {
+                number4 = number4 <= upper ? number4 : upper;
+              }
+              if (lower2 !== undefined2) {
+                number4 = number4 >= lower2 ? number4 : lower2;
+              }
+            }
+            return number4;
+          }
+          function baseClone(value, bitmask, customizer, key, object, stack) {
+            var result2, isDeep = bitmask & CLONE_DEEP_FLAG, isFlat = bitmask & CLONE_FLAT_FLAG, isFull = bitmask & CLONE_SYMBOLS_FLAG;
+            if (customizer) {
+              result2 = object ? customizer(value, key, object, stack) : customizer(value);
+            }
+            if (result2 !== undefined2) {
+              return result2;
+            }
+            if (!isObject(value)) {
+              return value;
+            }
+            var isArr = isArray(value);
+            if (isArr) {
+              result2 = initCloneArray(value);
+              if (!isDeep) {
+                return copyArray(value, result2);
+              }
+            } else {
+              var tag = getTag(value), isFunc = tag == funcTag || tag == genTag;
+              if (isBuffer(value)) {
+                return cloneBuffer(value, isDeep);
+              }
+              if (tag == objectTag || tag == argsTag || isFunc && !object) {
+                result2 = isFlat || isFunc ? {} : initCloneObject(value);
+                if (!isDeep) {
+                  return isFlat ? copySymbolsIn(value, baseAssignIn(result2, value)) : copySymbols(value, baseAssign(result2, value));
+                }
+              } else {
+                if (!cloneableTags[tag]) {
+                  return object ? value : {};
+                }
+                result2 = initCloneByTag(value, tag, isDeep);
+              }
+            }
+            stack || (stack = new Stack());
+            var stacked = stack.get(value);
+            if (stacked) {
+              return stacked;
+            }
+            stack.set(value, result2);
+            if (isSet(value)) {
+              value.forEach(function(subValue) {
+                result2.add(baseClone(subValue, bitmask, customizer, subValue, value, stack));
+              });
+            } else if (isMap(value)) {
+              value.forEach(function(subValue, key2) {
+                result2.set(key2, baseClone(subValue, bitmask, customizer, key2, value, stack));
+              });
+            }
+            var keysFunc = isFull ? isFlat ? getAllKeysIn : getAllKeys : isFlat ? keysIn : keys;
+            var props = isArr ? undefined2 : keysFunc(value);
+            arrayEach(props || value, function(subValue, key2) {
+              if (props) {
+                key2 = subValue;
+                subValue = value[key2];
+              }
+              assignValue(result2, key2, baseClone(subValue, bitmask, customizer, key2, value, stack));
+            });
+            return result2;
+          }
+          function baseConforms(source) {
+            var props = keys(source);
+            return function(object) {
+              return baseConformsTo(object, source, props);
+            };
+          }
+          function baseConformsTo(object, source, props) {
+            var length = props.length;
+            if (object == null) {
+              return !length;
+            }
+            object = Object2(object);
+            while (length--) {
+              var key = props[length], predicate = source[key], value = object[key];
+              if (value === undefined2 && !(key in object) || !predicate(value)) {
+                return false;
+              }
+            }
+            return true;
+          }
+          function baseDelay(func, wait, args) {
+            if (typeof func != "function") {
+              throw new TypeError2(FUNC_ERROR_TEXT);
+            }
+            return setTimeout2(function() {
+              func.apply(undefined2, args);
+            }, wait);
+          }
+          function baseDifference(array2, values2, iteratee2, comparator) {
+            var index2 = -1, includes2 = arrayIncludes, isCommon = true, length = array2.length, result2 = [], valuesLength = values2.length;
+            if (!length) {
+              return result2;
+            }
+            if (iteratee2) {
+              values2 = arrayMap(values2, baseUnary(iteratee2));
+            }
+            if (comparator) {
+              includes2 = arrayIncludesWith;
+              isCommon = false;
+            } else if (values2.length >= LARGE_ARRAY_SIZE) {
+              includes2 = cacheHas;
+              isCommon = false;
+              values2 = new SetCache(values2);
+            }
+            outer:
+              while (++index2 < length) {
+                var value = array2[index2], computed = iteratee2 == null ? value : iteratee2(value);
+                value = comparator || value !== 0 ? value : 0;
+                if (isCommon && computed === computed) {
+                  var valuesIndex = valuesLength;
+                  while (valuesIndex--) {
+                    if (values2[valuesIndex] === computed) {
+                      continue outer;
+                    }
+                  }
+                  result2.push(value);
+                } else if (!includes2(values2, computed, comparator)) {
+                  result2.push(value);
+                }
+              }
+            return result2;
+          }
+          var baseEach = createBaseEach(baseForOwn);
+          var baseEachRight = createBaseEach(baseForOwnRight, true);
+          function baseEvery(collection, predicate) {
+            var result2 = true;
+            baseEach(collection, function(value, index2, collection2) {
+              result2 = !!predicate(value, index2, collection2);
+              return result2;
+            });
+            return result2;
+          }
+          function baseExtremum(array2, iteratee2, comparator) {
+            var index2 = -1, length = array2.length;
+            while (++index2 < length) {
+              var value = array2[index2], current = iteratee2(value);
+              if (current != null && (computed === undefined2 ? current === current && !isSymbol(current) : comparator(current, computed))) {
+                var computed = current, result2 = value;
+              }
+            }
+            return result2;
+          }
+          function baseFill(array2, value, start2, end) {
+            var length = array2.length;
+            start2 = toInteger(start2);
+            if (start2 < 0) {
+              start2 = -start2 > length ? 0 : length + start2;
+            }
+            end = end === undefined2 || end > length ? length : toInteger(end);
+            if (end < 0) {
+              end += length;
+            }
+            end = start2 > end ? 0 : toLength(end);
+            while (start2 < end) {
+              array2[start2++] = value;
+            }
+            return array2;
+          }
+          function baseFilter(collection, predicate) {
+            var result2 = [];
+            baseEach(collection, function(value, index2, collection2) {
+              if (predicate(value, index2, collection2)) {
+                result2.push(value);
+              }
+            });
+            return result2;
+          }
+          function baseFlatten(array2, depth, predicate, isStrict, result2) {
+            var index2 = -1, length = array2.length;
+            predicate || (predicate = isFlattenable);
+            result2 || (result2 = []);
+            while (++index2 < length) {
+              var value = array2[index2];
+              if (depth > 0 && predicate(value)) {
+                if (depth > 1) {
+                  baseFlatten(value, depth - 1, predicate, isStrict, result2);
+                } else {
+                  arrayPush(result2, value);
+                }
+              } else if (!isStrict) {
+                result2[result2.length] = value;
+              }
+            }
+            return result2;
+          }
+          var baseFor = createBaseFor();
+          var baseForRight = createBaseFor(true);
+          function baseForOwn(object, iteratee2) {
+            return object && baseFor(object, iteratee2, keys);
+          }
+          function baseForOwnRight(object, iteratee2) {
+            return object && baseForRight(object, iteratee2, keys);
+          }
+          function baseFunctions(object, props) {
+            return arrayFilter(props, function(key) {
+              return isFunction(object[key]);
+            });
+          }
+          function baseGet(object, path2) {
+            path2 = castPath(path2, object);
+            var index2 = 0, length = path2.length;
+            while (object != null && index2 < length) {
+              object = object[toKey(path2[index2++])];
+            }
+            return index2 && index2 == length ? object : undefined2;
+          }
+          function baseGetAllKeys(object, keysFunc, symbolsFunc) {
+            var result2 = keysFunc(object);
+            return isArray(object) ? result2 : arrayPush(result2, symbolsFunc(object));
+          }
+          function baseGetTag(value) {
+            if (value == null) {
+              return value === undefined2 ? undefinedTag : nullTag;
+            }
+            return symToStringTag && symToStringTag in Object2(value) ? getRawTag(value) : objectToString(value);
+          }
+          function baseGt(value, other) {
+            return value > other;
+          }
+          function baseHas(object, key) {
+            return object != null && hasOwnProperty.call(object, key);
+          }
+          function baseHasIn(object, key) {
+            return object != null && key in Object2(object);
+          }
+          function baseInRange(number4, start2, end) {
+            return number4 >= nativeMin(start2, end) && number4 < nativeMax(start2, end);
+          }
+          function baseIntersection(arrays, iteratee2, comparator) {
+            var includes2 = comparator ? arrayIncludesWith : arrayIncludes, length = arrays[0].length, othLength = arrays.length, othIndex = othLength, caches = Array2(othLength), maxLength = Infinity, result2 = [];
+            while (othIndex--) {
+              var array2 = arrays[othIndex];
+              if (othIndex && iteratee2) {
+                array2 = arrayMap(array2, baseUnary(iteratee2));
+              }
+              maxLength = nativeMin(array2.length, maxLength);
+              caches[othIndex] = !comparator && (iteratee2 || length >= 120 && array2.length >= 120) ? new SetCache(othIndex && array2) : undefined2;
+            }
+            array2 = arrays[0];
+            var index2 = -1, seen = caches[0];
+            outer:
+              while (++index2 < length && result2.length < maxLength) {
+                var value = array2[index2], computed = iteratee2 ? iteratee2(value) : value;
+                value = comparator || value !== 0 ? value : 0;
+                if (!(seen ? cacheHas(seen, computed) : includes2(result2, computed, comparator))) {
+                  othIndex = othLength;
+                  while (--othIndex) {
+                    var cache = caches[othIndex];
+                    if (!(cache ? cacheHas(cache, computed) : includes2(arrays[othIndex], computed, comparator))) {
+                      continue outer;
+                    }
+                  }
+                  if (seen) {
+                    seen.push(computed);
+                  }
+                  result2.push(value);
+                }
+              }
+            return result2;
+          }
+          function baseInverter(object, setter, iteratee2, accumulator) {
+            baseForOwn(object, function(value, key, object2) {
+              setter(accumulator, iteratee2(value), key, object2);
+            });
+            return accumulator;
+          }
+          function baseInvoke(object, path2, args) {
+            path2 = castPath(path2, object);
+            object = parent(object, path2);
+            var func = object == null ? object : object[toKey(last(path2))];
+            return func == null ? undefined2 : apply(func, object, args);
+          }
+          function baseIsArguments(value) {
+            return isObjectLike(value) && baseGetTag(value) == argsTag;
+          }
+          function baseIsArrayBuffer(value) {
+            return isObjectLike(value) && baseGetTag(value) == arrayBufferTag;
+          }
+          function baseIsDate(value) {
+            return isObjectLike(value) && baseGetTag(value) == dateTag;
+          }
+          function baseIsEqual(value, other, bitmask, customizer, stack) {
+            if (value === other) {
+              return true;
+            }
+            if (value == null || other == null || !isObjectLike(value) && !isObjectLike(other)) {
+              return value !== value && other !== other;
+            }
+            return baseIsEqualDeep(value, other, bitmask, customizer, baseIsEqual, stack);
+          }
+          function baseIsEqualDeep(object, other, bitmask, customizer, equalFunc, stack) {
+            var objIsArr = isArray(object), othIsArr = isArray(other), objTag = objIsArr ? arrayTag : getTag(object), othTag = othIsArr ? arrayTag : getTag(other);
+            objTag = objTag == argsTag ? objectTag : objTag;
+            othTag = othTag == argsTag ? objectTag : othTag;
+            var objIsObj = objTag == objectTag, othIsObj = othTag == objectTag, isSameTag = objTag == othTag;
+            if (isSameTag && isBuffer(object)) {
+              if (!isBuffer(other)) {
+                return false;
+              }
+              objIsArr = true;
+              objIsObj = false;
+            }
+            if (isSameTag && !objIsObj) {
+              stack || (stack = new Stack());
+              return objIsArr || isTypedArray(object) ? equalArrays(object, other, bitmask, customizer, equalFunc, stack) : equalByTag(object, other, objTag, bitmask, customizer, equalFunc, stack);
+            }
+            if (!(bitmask & COMPARE_PARTIAL_FLAG)) {
+              var objIsWrapped = objIsObj && hasOwnProperty.call(object, "__wrapped__"), othIsWrapped = othIsObj && hasOwnProperty.call(other, "__wrapped__");
+              if (objIsWrapped || othIsWrapped) {
+                var objUnwrapped = objIsWrapped ? object.value() : object, othUnwrapped = othIsWrapped ? other.value() : other;
+                stack || (stack = new Stack());
+                return equalFunc(objUnwrapped, othUnwrapped, bitmask, customizer, stack);
+              }
+            }
+            if (!isSameTag) {
+              return false;
+            }
+            stack || (stack = new Stack());
+            return equalObjects(object, other, bitmask, customizer, equalFunc, stack);
+          }
+          function baseIsMap(value) {
+            return isObjectLike(value) && getTag(value) == mapTag;
+          }
+          function baseIsMatch(object, source, matchData, customizer) {
+            var index2 = matchData.length, length = index2, noCustomizer = !customizer;
+            if (object == null) {
+              return !length;
+            }
+            object = Object2(object);
+            while (index2--) {
+              var data = matchData[index2];
+              if (noCustomizer && data[2] ? data[1] !== object[data[0]] : !(data[0] in object)) {
+                return false;
+              }
+            }
+            while (++index2 < length) {
+              data = matchData[index2];
+              var key = data[0], objValue = object[key], srcValue = data[1];
+              if (noCustomizer && data[2]) {
+                if (objValue === undefined2 && !(key in object)) {
+                  return false;
+                }
+              } else {
+                var stack = new Stack();
+                if (customizer) {
+                  var result2 = customizer(objValue, srcValue, key, object, source, stack);
+                }
+                if (!(result2 === undefined2 ? baseIsEqual(srcValue, objValue, COMPARE_PARTIAL_FLAG | COMPARE_UNORDERED_FLAG, customizer, stack) : result2)) {
+                  return false;
+                }
+              }
+            }
+            return true;
+          }
+          function baseIsNative(value) {
+            if (!isObject(value) || isMasked(value)) {
+              return false;
+            }
+            var pattern = isFunction(value) ? reIsNative : reIsHostCtor;
+            return pattern.test(toSource(value));
+          }
+          function baseIsRegExp(value) {
+            return isObjectLike(value) && baseGetTag(value) == regexpTag;
+          }
+          function baseIsSet(value) {
+            return isObjectLike(value) && getTag(value) == setTag;
+          }
+          function baseIsTypedArray(value) {
+            return isObjectLike(value) && isLength(value.length) && !!typedArrayTags[baseGetTag(value)];
+          }
+          function baseIteratee(value) {
+            if (typeof value == "function") {
+              return value;
+            }
+            if (value == null) {
+              return identity4;
+            }
+            if (typeof value == "object") {
+              return isArray(value) ? baseMatchesProperty(value[0], value[1]) : baseMatches(value);
+            }
+            return property(value);
+          }
+          function baseKeys(object) {
+            if (!isPrototype(object)) {
+              return nativeKeys(object);
+            }
+            var result2 = [];
+            for (var key in Object2(object)) {
+              if (hasOwnProperty.call(object, key) && key != "constructor") {
+                result2.push(key);
+              }
+            }
+            return result2;
+          }
+          function baseKeysIn(object) {
+            if (!isObject(object)) {
+              return nativeKeysIn(object);
+            }
+            var isProto = isPrototype(object), result2 = [];
+            for (var key in object) {
+              if (!(key == "constructor" && (isProto || !hasOwnProperty.call(object, key)))) {
+                result2.push(key);
+              }
+            }
+            return result2;
+          }
+          function baseLt(value, other) {
+            return value < other;
+          }
+          function baseMap(collection, iteratee2) {
+            var index2 = -1, result2 = isArrayLike(collection) ? Array2(collection.length) : [];
+            baseEach(collection, function(value, key, collection2) {
+              result2[++index2] = iteratee2(value, key, collection2);
+            });
+            return result2;
+          }
+          function baseMatches(source) {
+            var matchData = getMatchData(source);
+            if (matchData.length == 1 && matchData[0][2]) {
+              return matchesStrictComparable(matchData[0][0], matchData[0][1]);
+            }
+            return function(object) {
+              return object === source || baseIsMatch(object, source, matchData);
+            };
+          }
+          function baseMatchesProperty(path2, srcValue) {
+            if (isKey(path2) && isStrictComparable(srcValue)) {
+              return matchesStrictComparable(toKey(path2), srcValue);
+            }
+            return function(object) {
+              var objValue = get3(object, path2);
+              return objValue === undefined2 && objValue === srcValue ? hasIn(object, path2) : baseIsEqual(srcValue, objValue, COMPARE_PARTIAL_FLAG | COMPARE_UNORDERED_FLAG);
+            };
+          }
+          function baseMerge(object, source, srcIndex, customizer, stack) {
+            if (object === source) {
+              return;
+            }
+            baseFor(source, function(srcValue, key) {
+              stack || (stack = new Stack());
+              if (isObject(srcValue)) {
+                baseMergeDeep(object, source, key, srcIndex, baseMerge, customizer, stack);
+              } else {
+                var newValue = customizer ? customizer(safeGet(object, key), srcValue, key + "", object, source, stack) : undefined2;
+                if (newValue === undefined2) {
+                  newValue = srcValue;
+                }
+                assignMergeValue(object, key, newValue);
+              }
+            }, keysIn);
+          }
+          function baseMergeDeep(object, source, key, srcIndex, mergeFunc, customizer, stack) {
+            var objValue = safeGet(object, key), srcValue = safeGet(source, key), stacked = stack.get(srcValue);
+            if (stacked) {
+              assignMergeValue(object, key, stacked);
+              return;
+            }
+            var newValue = customizer ? customizer(objValue, srcValue, key + "", object, source, stack) : undefined2;
+            var isCommon = newValue === undefined2;
+            if (isCommon) {
+              var isArr = isArray(srcValue), isBuff = !isArr && isBuffer(srcValue), isTyped = !isArr && !isBuff && isTypedArray(srcValue);
+              newValue = srcValue;
+              if (isArr || isBuff || isTyped) {
+                if (isArray(objValue)) {
+                  newValue = objValue;
+                } else if (isArrayLikeObject(objValue)) {
+                  newValue = copyArray(objValue);
+                } else if (isBuff) {
+                  isCommon = false;
+                  newValue = cloneBuffer(srcValue, true);
+                } else if (isTyped) {
+                  isCommon = false;
+                  newValue = cloneTypedArray(srcValue, true);
+                } else {
+                  newValue = [];
+                }
+              } else if (isPlainObject(srcValue) || isArguments(srcValue)) {
+                newValue = objValue;
+                if (isArguments(objValue)) {
+                  newValue = toPlainObject(objValue);
+                } else if (!isObject(objValue) || isFunction(objValue)) {
+                  newValue = initCloneObject(srcValue);
+                }
+              } else {
+                isCommon = false;
+              }
+            }
+            if (isCommon) {
+              stack.set(srcValue, newValue);
+              mergeFunc(newValue, srcValue, srcIndex, customizer, stack);
+              stack["delete"](srcValue);
+            }
+            assignMergeValue(object, key, newValue);
+          }
+          function baseNth(array2, n) {
+            var length = array2.length;
+            if (!length) {
+              return;
+            }
+            n += n < 0 ? length : 0;
+            return isIndex(n, length) ? array2[n] : undefined2;
+          }
+          function baseOrderBy(collection, iteratees, orders) {
+            if (iteratees.length) {
+              iteratees = arrayMap(iteratees, function(iteratee2) {
+                if (isArray(iteratee2)) {
+                  return function(value) {
+                    return baseGet(value, iteratee2.length === 1 ? iteratee2[0] : iteratee2);
+                  };
+                }
+                return iteratee2;
+              });
+            } else {
+              iteratees = [identity4];
+            }
+            var index2 = -1;
+            iteratees = arrayMap(iteratees, baseUnary(getIteratee()));
+            var result2 = baseMap(collection, function(value, key, collection2) {
+              var criteria = arrayMap(iteratees, function(iteratee2) {
+                return iteratee2(value);
+              });
+              return { "criteria": criteria, "index": ++index2, "value": value };
+            });
+            return baseSortBy(result2, function(object, other) {
+              return compareMultiple(object, other, orders);
+            });
+          }
+          function basePick(object, paths) {
+            return basePickBy(object, paths, function(value, path2) {
+              return hasIn(object, path2);
+            });
+          }
+          function basePickBy(object, paths, predicate) {
+            var index2 = -1, length = paths.length, result2 = {};
+            while (++index2 < length) {
+              var path2 = paths[index2], value = baseGet(object, path2);
+              if (predicate(value, path2)) {
+                baseSet(result2, castPath(path2, object), value);
+              }
+            }
+            return result2;
+          }
+          function basePropertyDeep(path2) {
+            return function(object) {
+              return baseGet(object, path2);
+            };
+          }
+          function basePullAll(array2, values2, iteratee2, comparator) {
+            var indexOf2 = comparator ? baseIndexOfWith : baseIndexOf, index2 = -1, length = values2.length, seen = array2;
+            if (array2 === values2) {
+              values2 = copyArray(values2);
+            }
+            if (iteratee2) {
+              seen = arrayMap(array2, baseUnary(iteratee2));
+            }
+            while (++index2 < length) {
+              var fromIndex = 0, value = values2[index2], computed = iteratee2 ? iteratee2(value) : value;
+              while ((fromIndex = indexOf2(seen, computed, fromIndex, comparator)) > -1) {
+                if (seen !== array2) {
+                  splice.call(seen, fromIndex, 1);
+                }
+                splice.call(array2, fromIndex, 1);
+              }
+            }
+            return array2;
+          }
+          function basePullAt(array2, indexes) {
+            var length = array2 ? indexes.length : 0, lastIndex = length - 1;
+            while (length--) {
+              var index2 = indexes[length];
+              if (length == lastIndex || index2 !== previous) {
+                var previous = index2;
+                if (isIndex(index2)) {
+                  splice.call(array2, index2, 1);
+                } else {
+                  baseUnset(array2, index2);
+                }
+              }
+            }
+            return array2;
+          }
+          function baseRandom(lower2, upper) {
+            return lower2 + nativeFloor(nativeRandom() * (upper - lower2 + 1));
+          }
+          function baseRange(start2, end, step, fromRight) {
+            var index2 = -1, length = nativeMax(nativeCeil((end - start2) / (step || 1)), 0), result2 = Array2(length);
+            while (length--) {
+              result2[fromRight ? length : ++index2] = start2;
+              start2 += step;
+            }
+            return result2;
+          }
+          function baseRepeat(string, n) {
+            var result2 = "";
+            if (!string || n < 1 || n > MAX_SAFE_INTEGER) {
+              return result2;
+            }
+            do {
+              if (n % 2) {
+                result2 += string;
+              }
+              n = nativeFloor(n / 2);
+              if (n) {
+                string += string;
+              }
+            } while (n);
+            return result2;
+          }
+          function baseRest(func, start2) {
+            return setToString(overRest(func, start2, identity4), func + "");
+          }
+          function baseSample(collection) {
+            return arraySample(values(collection));
+          }
+          function baseSampleSize(collection, n) {
+            var array2 = values(collection);
+            return shuffleSelf(array2, baseClamp(n, 0, array2.length));
+          }
+          function baseSet(object, path2, value, customizer) {
+            if (!isObject(object)) {
+              return object;
+            }
+            path2 = castPath(path2, object);
+            var index2 = -1, length = path2.length, lastIndex = length - 1, nested = object;
+            while (nested != null && ++index2 < length) {
+              var key = toKey(path2[index2]), newValue = value;
+              if (key === "__proto__" || key === "constructor" || key === "prototype") {
+                return object;
+              }
+              if (index2 != lastIndex) {
+                var objValue = nested[key];
+                newValue = customizer ? customizer(objValue, key, nested) : undefined2;
+                if (newValue === undefined2) {
+                  newValue = isObject(objValue) ? objValue : isIndex(path2[index2 + 1]) ? [] : {};
+                }
+              }
+              assignValue(nested, key, newValue);
+              nested = nested[key];
+            }
+            return object;
+          }
+          var baseSetData = !metaMap ? identity4 : function(func, data) {
+            metaMap.set(func, data);
+            return func;
+          };
+          var baseSetToString = !defineProperty ? identity4 : function(func, string) {
+            return defineProperty(func, "toString", {
+              "configurable": true,
+              "enumerable": false,
+              "value": constant(string),
+              "writable": true
+            });
+          };
+          function baseShuffle(collection) {
+            return shuffleSelf(values(collection));
+          }
+          function baseSlice(array2, start2, end) {
+            var index2 = -1, length = array2.length;
+            if (start2 < 0) {
+              start2 = -start2 > length ? 0 : length + start2;
+            }
+            end = end > length ? length : end;
+            if (end < 0) {
+              end += length;
+            }
+            length = start2 > end ? 0 : end - start2 >>> 0;
+            start2 >>>= 0;
+            var result2 = Array2(length);
+            while (++index2 < length) {
+              result2[index2] = array2[index2 + start2];
+            }
+            return result2;
+          }
+          function baseSome(collection, predicate) {
+            var result2;
+            baseEach(collection, function(value, index2, collection2) {
+              result2 = predicate(value, index2, collection2);
+              return !result2;
+            });
+            return !!result2;
+          }
+          function baseSortedIndex(array2, value, retHighest) {
+            var low = 0, high = array2 == null ? low : array2.length;
+            if (typeof value == "number" && value === value && high <= HALF_MAX_ARRAY_LENGTH) {
+              while (low < high) {
+                var mid = low + high >>> 1, computed = array2[mid];
+                if (computed !== null && !isSymbol(computed) && (retHighest ? computed <= value : computed < value)) {
+                  low = mid + 1;
+                } else {
+                  high = mid;
+                }
+              }
+              return high;
+            }
+            return baseSortedIndexBy(array2, value, identity4, retHighest);
+          }
+          function baseSortedIndexBy(array2, value, iteratee2, retHighest) {
+            var low = 0, high = array2 == null ? 0 : array2.length;
+            if (high === 0) {
+              return 0;
+            }
+            value = iteratee2(value);
+            var valIsNaN = value !== value, valIsNull = value === null, valIsSymbol = isSymbol(value), valIsUndefined = value === undefined2;
+            while (low < high) {
+              var mid = nativeFloor((low + high) / 2), computed = iteratee2(array2[mid]), othIsDefined = computed !== undefined2, othIsNull = computed === null, othIsReflexive = computed === computed, othIsSymbol = isSymbol(computed);
+              if (valIsNaN) {
+                var setLow = retHighest || othIsReflexive;
+              } else if (valIsUndefined) {
+                setLow = othIsReflexive && (retHighest || othIsDefined);
+              } else if (valIsNull) {
+                setLow = othIsReflexive && othIsDefined && (retHighest || !othIsNull);
+              } else if (valIsSymbol) {
+                setLow = othIsReflexive && othIsDefined && !othIsNull && (retHighest || !othIsSymbol);
+              } else if (othIsNull || othIsSymbol) {
+                setLow = false;
+              } else {
+                setLow = retHighest ? computed <= value : computed < value;
+              }
+              if (setLow) {
+                low = mid + 1;
+              } else {
+                high = mid;
+              }
+            }
+            return nativeMin(high, MAX_ARRAY_INDEX);
+          }
+          function baseSortedUniq(array2, iteratee2) {
+            var index2 = -1, length = array2.length, resIndex = 0, result2 = [];
+            while (++index2 < length) {
+              var value = array2[index2], computed = iteratee2 ? iteratee2(value) : value;
+              if (!index2 || !eq(computed, seen)) {
+                var seen = computed;
+                result2[resIndex++] = value === 0 ? 0 : value;
+              }
+            }
+            return result2;
+          }
+          function baseToNumber(value) {
+            if (typeof value == "number") {
+              return value;
+            }
+            if (isSymbol(value)) {
+              return NAN;
+            }
+            return +value;
+          }
+          function baseToString(value) {
+            if (typeof value == "string") {
+              return value;
+            }
+            if (isArray(value)) {
+              return arrayMap(value, baseToString) + "";
+            }
+            if (isSymbol(value)) {
+              return symbolToString ? symbolToString.call(value) : "";
+            }
+            var result2 = value + "";
+            return result2 == "0" && 1 / value == -INFINITY ? "-0" : result2;
+          }
+          function baseUniq(array2, iteratee2, comparator) {
+            var index2 = -1, includes2 = arrayIncludes, length = array2.length, isCommon = true, result2 = [], seen = result2;
+            if (comparator) {
+              isCommon = false;
+              includes2 = arrayIncludesWith;
+            } else if (length >= LARGE_ARRAY_SIZE) {
+              var set4 = iteratee2 ? null : createSet(array2);
+              if (set4) {
+                return setToArray(set4);
+              }
+              isCommon = false;
+              includes2 = cacheHas;
+              seen = new SetCache();
+            } else {
+              seen = iteratee2 ? [] : result2;
+            }
+            outer:
+              while (++index2 < length) {
+                var value = array2[index2], computed = iteratee2 ? iteratee2(value) : value;
+                value = comparator || value !== 0 ? value : 0;
+                if (isCommon && computed === computed) {
+                  var seenIndex = seen.length;
+                  while (seenIndex--) {
+                    if (seen[seenIndex] === computed) {
+                      continue outer;
+                    }
+                  }
+                  if (iteratee2) {
+                    seen.push(computed);
+                  }
+                  result2.push(value);
+                } else if (!includes2(seen, computed, comparator)) {
+                  if (seen !== result2) {
+                    seen.push(computed);
+                  }
+                  result2.push(value);
+                }
+              }
+            return result2;
+          }
+          function baseUnset(object, path2) {
+            path2 = castPath(path2, object);
+            object = parent(object, path2);
+            return object == null || delete object[toKey(last(path2))];
+          }
+          function baseUpdate(object, path2, updater, customizer) {
+            return baseSet(object, path2, updater(baseGet(object, path2)), customizer);
+          }
+          function baseWhile(array2, predicate, isDrop, fromRight) {
+            var length = array2.length, index2 = fromRight ? length : -1;
+            while ((fromRight ? index2-- : ++index2 < length) && predicate(array2[index2], index2, array2)) {
+            }
+            return isDrop ? baseSlice(array2, fromRight ? 0 : index2, fromRight ? index2 + 1 : length) : baseSlice(array2, fromRight ? index2 + 1 : 0, fromRight ? length : index2);
+          }
+          function baseWrapperValue(value, actions) {
+            var result2 = value;
+            if (result2 instanceof LazyWrapper) {
+              result2 = result2.value();
+            }
+            return arrayReduce(actions, function(result3, action) {
+              return action.func.apply(action.thisArg, arrayPush([result3], action.args));
+            }, result2);
+          }
+          function baseXor(arrays, iteratee2, comparator) {
+            var length = arrays.length;
+            if (length < 2) {
+              return length ? baseUniq(arrays[0]) : [];
+            }
+            var index2 = -1, result2 = Array2(length);
+            while (++index2 < length) {
+              var array2 = arrays[index2], othIndex = -1;
+              while (++othIndex < length) {
+                if (othIndex != index2) {
+                  result2[index2] = baseDifference(result2[index2] || array2, arrays[othIndex], iteratee2, comparator);
+                }
+              }
+            }
+            return baseUniq(baseFlatten(result2, 1), iteratee2, comparator);
+          }
+          function baseZipObject(props, values2, assignFunc) {
+            var index2 = -1, length = props.length, valsLength = values2.length, result2 = {};
+            while (++index2 < length) {
+              var value = index2 < valsLength ? values2[index2] : undefined2;
+              assignFunc(result2, props[index2], value);
+            }
+            return result2;
+          }
+          function castArrayLikeObject(value) {
+            return isArrayLikeObject(value) ? value : [];
+          }
+          function castFunction(value) {
+            return typeof value == "function" ? value : identity4;
+          }
+          function castPath(value, object) {
+            if (isArray(value)) {
+              return value;
+            }
+            return isKey(value, object) ? [value] : stringToPath(toString(value));
+          }
+          var castRest = baseRest;
+          function castSlice(array2, start2, end) {
+            var length = array2.length;
+            end = end === undefined2 ? length : end;
+            return !start2 && end >= length ? array2 : baseSlice(array2, start2, end);
+          }
+          var clearTimeout2 = ctxClearTimeout || function(id2) {
+            return root2.clearTimeout(id2);
+          };
+          function cloneBuffer(buffer, isDeep) {
+            if (isDeep) {
+              return buffer.slice();
+            }
+            var length = buffer.length, result2 = allocUnsafe ? allocUnsafe(length) : new buffer.constructor(length);
+            buffer.copy(result2);
+            return result2;
+          }
+          function cloneArrayBuffer(arrayBuffer) {
+            var result2 = new arrayBuffer.constructor(arrayBuffer.byteLength);
+            new Uint8Array2(result2).set(new Uint8Array2(arrayBuffer));
+            return result2;
+          }
+          function cloneDataView(dataView, isDeep) {
+            var buffer = isDeep ? cloneArrayBuffer(dataView.buffer) : dataView.buffer;
+            return new dataView.constructor(buffer, dataView.byteOffset, dataView.byteLength);
+          }
+          function cloneRegExp(regexp) {
+            var result2 = new regexp.constructor(regexp.source, reFlags.exec(regexp));
+            result2.lastIndex = regexp.lastIndex;
+            return result2;
+          }
+          function cloneSymbol(symbol) {
+            return symbolValueOf ? Object2(symbolValueOf.call(symbol)) : {};
+          }
+          function cloneTypedArray(typedArray, isDeep) {
+            var buffer = isDeep ? cloneArrayBuffer(typedArray.buffer) : typedArray.buffer;
+            return new typedArray.constructor(buffer, typedArray.byteOffset, typedArray.length);
+          }
+          function compareAscending(value, other) {
+            if (value !== other) {
+              var valIsDefined = value !== undefined2, valIsNull = value === null, valIsReflexive = value === value, valIsSymbol = isSymbol(value);
+              var othIsDefined = other !== undefined2, othIsNull = other === null, othIsReflexive = other === other, othIsSymbol = isSymbol(other);
+              if (!othIsNull && !othIsSymbol && !valIsSymbol && value > other || valIsSymbol && othIsDefined && othIsReflexive && !othIsNull && !othIsSymbol || valIsNull && othIsDefined && othIsReflexive || !valIsDefined && othIsReflexive || !valIsReflexive) {
+                return 1;
+              }
+              if (!valIsNull && !valIsSymbol && !othIsSymbol && value < other || othIsSymbol && valIsDefined && valIsReflexive && !valIsNull && !valIsSymbol || othIsNull && valIsDefined && valIsReflexive || !othIsDefined && valIsReflexive || !othIsReflexive) {
+                return -1;
+              }
+            }
+            return 0;
+          }
+          function compareMultiple(object, other, orders) {
+            var index2 = -1, objCriteria = object.criteria, othCriteria = other.criteria, length = objCriteria.length, ordersLength = orders.length;
+            while (++index2 < length) {
+              var result2 = compareAscending(objCriteria[index2], othCriteria[index2]);
+              if (result2) {
+                if (index2 >= ordersLength) {
+                  return result2;
+                }
+                var order = orders[index2];
+                return result2 * (order == "desc" ? -1 : 1);
+              }
+            }
+            return object.index - other.index;
+          }
+          function composeArgs(args, partials, holders, isCurried) {
+            var argsIndex = -1, argsLength = args.length, holdersLength = holders.length, leftIndex = -1, leftLength = partials.length, rangeLength = nativeMax(argsLength - holdersLength, 0), result2 = Array2(leftLength + rangeLength), isUncurried = !isCurried;
+            while (++leftIndex < leftLength) {
+              result2[leftIndex] = partials[leftIndex];
+            }
+            while (++argsIndex < holdersLength) {
+              if (isUncurried || argsIndex < argsLength) {
+                result2[holders[argsIndex]] = args[argsIndex];
+              }
+            }
+            while (rangeLength--) {
+              result2[leftIndex++] = args[argsIndex++];
+            }
+            return result2;
+          }
+          function composeArgsRight(args, partials, holders, isCurried) {
+            var argsIndex = -1, argsLength = args.length, holdersIndex = -1, holdersLength = holders.length, rightIndex = -1, rightLength = partials.length, rangeLength = nativeMax(argsLength - holdersLength, 0), result2 = Array2(rangeLength + rightLength), isUncurried = !isCurried;
+            while (++argsIndex < rangeLength) {
+              result2[argsIndex] = args[argsIndex];
+            }
+            var offset = argsIndex;
+            while (++rightIndex < rightLength) {
+              result2[offset + rightIndex] = partials[rightIndex];
+            }
+            while (++holdersIndex < holdersLength) {
+              if (isUncurried || argsIndex < argsLength) {
+                result2[offset + holders[holdersIndex]] = args[argsIndex++];
+              }
+            }
+            return result2;
+          }
+          function copyArray(source, array2) {
+            var index2 = -1, length = source.length;
+            array2 || (array2 = Array2(length));
+            while (++index2 < length) {
+              array2[index2] = source[index2];
+            }
+            return array2;
+          }
+          function copyObject(source, props, object, customizer) {
+            var isNew = !object;
+            object || (object = {});
+            var index2 = -1, length = props.length;
+            while (++index2 < length) {
+              var key = props[index2];
+              var newValue = customizer ? customizer(object[key], source[key], key, object, source) : undefined2;
+              if (newValue === undefined2) {
+                newValue = source[key];
+              }
+              if (isNew) {
+                baseAssignValue(object, key, newValue);
+              } else {
+                assignValue(object, key, newValue);
+              }
+            }
+            return object;
+          }
+          function copySymbols(source, object) {
+            return copyObject(source, getSymbols(source), object);
+          }
+          function copySymbolsIn(source, object) {
+            return copyObject(source, getSymbolsIn(source), object);
+          }
+          function createAggregator(setter, initializer) {
+            return function(collection, iteratee2) {
+              var func = isArray(collection) ? arrayAggregator : baseAggregator, accumulator = initializer ? initializer() : {};
+              return func(collection, setter, getIteratee(iteratee2, 2), accumulator);
+            };
+          }
+          function createAssigner(assigner) {
+            return baseRest(function(object, sources) {
+              var index2 = -1, length = sources.length, customizer = length > 1 ? sources[length - 1] : undefined2, guard = length > 2 ? sources[2] : undefined2;
+              customizer = assigner.length > 3 && typeof customizer == "function" ? (length--, customizer) : undefined2;
+              if (guard && isIterateeCall(sources[0], sources[1], guard)) {
+                customizer = length < 3 ? undefined2 : customizer;
+                length = 1;
+              }
+              object = Object2(object);
+              while (++index2 < length) {
+                var source = sources[index2];
+                if (source) {
+                  assigner(object, source, index2, customizer);
+                }
+              }
+              return object;
+            });
+          }
+          function createBaseEach(eachFunc, fromRight) {
+            return function(collection, iteratee2) {
+              if (collection == null) {
+                return collection;
+              }
+              if (!isArrayLike(collection)) {
+                return eachFunc(collection, iteratee2);
+              }
+              var length = collection.length, index2 = fromRight ? length : -1, iterable = Object2(collection);
+              while (fromRight ? index2-- : ++index2 < length) {
+                if (iteratee2(iterable[index2], index2, iterable) === false) {
+                  break;
+                }
+              }
+              return collection;
+            };
+          }
+          function createBaseFor(fromRight) {
+            return function(object, iteratee2, keysFunc) {
+              var index2 = -1, iterable = Object2(object), props = keysFunc(object), length = props.length;
+              while (length--) {
+                var key = props[fromRight ? length : ++index2];
+                if (iteratee2(iterable[key], key, iterable) === false) {
+                  break;
+                }
+              }
+              return object;
+            };
+          }
+          function createBind(func, bitmask, thisArg) {
+            var isBind = bitmask & WRAP_BIND_FLAG, Ctor = createCtor(func);
+            function wrapper() {
+              var fn = this && this !== root2 && this instanceof wrapper ? Ctor : func;
+              return fn.apply(isBind ? thisArg : this, arguments);
+            }
+            return wrapper;
+          }
+          function createCaseFirst(methodName) {
+            return function(string) {
+              string = toString(string);
+              var strSymbols = hasUnicode(string) ? stringToArray(string) : undefined2;
+              var chr = strSymbols ? strSymbols[0] : string.charAt(0);
+              var trailing = strSymbols ? castSlice(strSymbols, 1).join("") : string.slice(1);
+              return chr[methodName]() + trailing;
+            };
+          }
+          function createCompounder(callback) {
+            return function(string) {
+              return arrayReduce(words(deburr(string).replace(reApos, "")), callback, "");
+            };
+          }
+          function createCtor(Ctor) {
+            return function() {
+              var args = arguments;
+              switch (args.length) {
+                case 0:
+                  return new Ctor();
+                case 1:
+                  return new Ctor(args[0]);
+                case 2:
+                  return new Ctor(args[0], args[1]);
+                case 3:
+                  return new Ctor(args[0], args[1], args[2]);
+                case 4:
+                  return new Ctor(args[0], args[1], args[2], args[3]);
+                case 5:
+                  return new Ctor(args[0], args[1], args[2], args[3], args[4]);
+                case 6:
+                  return new Ctor(args[0], args[1], args[2], args[3], args[4], args[5]);
+                case 7:
+                  return new Ctor(args[0], args[1], args[2], args[3], args[4], args[5], args[6]);
+              }
+              var thisBinding = baseCreate(Ctor.prototype), result2 = Ctor.apply(thisBinding, args);
+              return isObject(result2) ? result2 : thisBinding;
+            };
+          }
+          function createCurry(func, bitmask, arity) {
+            var Ctor = createCtor(func);
+            function wrapper() {
+              var length = arguments.length, args = Array2(length), index2 = length, placeholder = getHolder(wrapper);
+              while (index2--) {
+                args[index2] = arguments[index2];
+              }
+              var holders = length < 3 && args[0] !== placeholder && args[length - 1] !== placeholder ? [] : replaceHolders(args, placeholder);
+              length -= holders.length;
+              if (length < arity) {
+                return createRecurry(func, bitmask, createHybrid, wrapper.placeholder, undefined2, args, holders, undefined2, undefined2, arity - length);
+              }
+              var fn = this && this !== root2 && this instanceof wrapper ? Ctor : func;
+              return apply(fn, this, args);
+            }
+            return wrapper;
+          }
+          function createFind(findIndexFunc) {
+            return function(collection, predicate, fromIndex) {
+              var iterable = Object2(collection);
+              if (!isArrayLike(collection)) {
+                var iteratee2 = getIteratee(predicate, 3);
+                collection = keys(collection);
+                predicate = function(key) {
+                  return iteratee2(iterable[key], key, iterable);
+                };
+              }
+              var index2 = findIndexFunc(collection, predicate, fromIndex);
+              return index2 > -1 ? iterable[iteratee2 ? collection[index2] : index2] : undefined2;
+            };
+          }
+          function createFlow(fromRight) {
+            return flatRest(function(funcs) {
+              var length = funcs.length, index2 = length, prereq = LodashWrapper.prototype.thru;
+              if (fromRight) {
+                funcs.reverse();
+              }
+              while (index2--) {
+                var func = funcs[index2];
+                if (typeof func != "function") {
+                  throw new TypeError2(FUNC_ERROR_TEXT);
+                }
+                if (prereq && !wrapper && getFuncName(func) == "wrapper") {
+                  var wrapper = new LodashWrapper([], true);
+                }
+              }
+              index2 = wrapper ? index2 : length;
+              while (++index2 < length) {
+                func = funcs[index2];
+                var funcName = getFuncName(func), data = funcName == "wrapper" ? getData(func) : undefined2;
+                if (data && isLaziable(data[0]) && data[1] == (WRAP_ARY_FLAG | WRAP_CURRY_FLAG | WRAP_PARTIAL_FLAG | WRAP_REARG_FLAG) && !data[4].length && data[9] == 1) {
+                  wrapper = wrapper[getFuncName(data[0])].apply(wrapper, data[3]);
+                } else {
+                  wrapper = func.length == 1 && isLaziable(func) ? wrapper[funcName]() : wrapper.thru(func);
+                }
+              }
+              return function() {
+                var args = arguments, value = args[0];
+                if (wrapper && args.length == 1 && isArray(value)) {
+                  return wrapper.plant(value).value();
+                }
+                var index3 = 0, result2 = length ? funcs[index3].apply(this, args) : value;
+                while (++index3 < length) {
+                  result2 = funcs[index3].call(this, result2);
+                }
+                return result2;
+              };
+            });
+          }
+          function createHybrid(func, bitmask, thisArg, partials, holders, partialsRight, holdersRight, argPos, ary2, arity) {
+            var isAry = bitmask & WRAP_ARY_FLAG, isBind = bitmask & WRAP_BIND_FLAG, isBindKey = bitmask & WRAP_BIND_KEY_FLAG, isCurried = bitmask & (WRAP_CURRY_FLAG | WRAP_CURRY_RIGHT_FLAG), isFlip = bitmask & WRAP_FLIP_FLAG, Ctor = isBindKey ? undefined2 : createCtor(func);
+            function wrapper() {
+              var length = arguments.length, args = Array2(length), index2 = length;
+              while (index2--) {
+                args[index2] = arguments[index2];
+              }
+              if (isCurried) {
+                var placeholder = getHolder(wrapper), holdersCount = countHolders(args, placeholder);
+              }
+              if (partials) {
+                args = composeArgs(args, partials, holders, isCurried);
+              }
+              if (partialsRight) {
+                args = composeArgsRight(args, partialsRight, holdersRight, isCurried);
+              }
+              length -= holdersCount;
+              if (isCurried && length < arity) {
+                var newHolders = replaceHolders(args, placeholder);
+                return createRecurry(func, bitmask, createHybrid, wrapper.placeholder, thisArg, args, newHolders, argPos, ary2, arity - length);
+              }
+              var thisBinding = isBind ? thisArg : this, fn = isBindKey ? thisBinding[func] : func;
+              length = args.length;
+              if (argPos) {
+                args = reorder(args, argPos);
+              } else if (isFlip && length > 1) {
+                args.reverse();
+              }
+              if (isAry && ary2 < length) {
+                args.length = ary2;
+              }
+              if (this && this !== root2 && this instanceof wrapper) {
+                fn = Ctor || createCtor(fn);
+              }
+              return fn.apply(thisBinding, args);
+            }
+            return wrapper;
+          }
+          function createInverter(setter, toIteratee) {
+            return function(object, iteratee2) {
+              return baseInverter(object, setter, toIteratee(iteratee2), {});
+            };
+          }
+          function createMathOperation(operator, defaultValue) {
+            return function(value, other) {
+              var result2;
+              if (value === undefined2 && other === undefined2) {
+                return defaultValue;
+              }
+              if (value !== undefined2) {
+                result2 = value;
+              }
+              if (other !== undefined2) {
+                if (result2 === undefined2) {
+                  return other;
+                }
+                if (typeof value == "string" || typeof other == "string") {
+                  value = baseToString(value);
+                  other = baseToString(other);
+                } else {
+                  value = baseToNumber(value);
+                  other = baseToNumber(other);
+                }
+                result2 = operator(value, other);
+              }
+              return result2;
+            };
+          }
+          function createOver(arrayFunc) {
+            return flatRest(function(iteratees) {
+              iteratees = arrayMap(iteratees, baseUnary(getIteratee()));
+              return baseRest(function(args) {
+                var thisArg = this;
+                return arrayFunc(iteratees, function(iteratee2) {
+                  return apply(iteratee2, thisArg, args);
+                });
+              });
+            });
+          }
+          function createPadding(length, chars) {
+            chars = chars === undefined2 ? " " : baseToString(chars);
+            var charsLength = chars.length;
+            if (charsLength < 2) {
+              return charsLength ? baseRepeat(chars, length) : chars;
+            }
+            var result2 = baseRepeat(chars, nativeCeil(length / stringSize(chars)));
+            return hasUnicode(chars) ? castSlice(stringToArray(result2), 0, length).join("") : result2.slice(0, length);
+          }
+          function createPartial(func, bitmask, thisArg, partials) {
+            var isBind = bitmask & WRAP_BIND_FLAG, Ctor = createCtor(func);
+            function wrapper() {
+              var argsIndex = -1, argsLength = arguments.length, leftIndex = -1, leftLength = partials.length, args = Array2(leftLength + argsLength), fn = this && this !== root2 && this instanceof wrapper ? Ctor : func;
+              while (++leftIndex < leftLength) {
+                args[leftIndex] = partials[leftIndex];
+              }
+              while (argsLength--) {
+                args[leftIndex++] = arguments[++argsIndex];
+              }
+              return apply(fn, isBind ? thisArg : this, args);
+            }
+            return wrapper;
+          }
+          function createRange(fromRight) {
+            return function(start2, end, step) {
+              if (step && typeof step != "number" && isIterateeCall(start2, end, step)) {
+                end = step = undefined2;
+              }
+              start2 = toFinite(start2);
+              if (end === undefined2) {
+                end = start2;
+                start2 = 0;
+              } else {
+                end = toFinite(end);
+              }
+              step = step === undefined2 ? start2 < end ? 1 : -1 : toFinite(step);
+              return baseRange(start2, end, step, fromRight);
+            };
+          }
+          function createRelationalOperation(operator) {
+            return function(value, other) {
+              if (!(typeof value == "string" && typeof other == "string")) {
+                value = toNumber(value);
+                other = toNumber(other);
+              }
+              return operator(value, other);
+            };
+          }
+          function createRecurry(func, bitmask, wrapFunc, placeholder, thisArg, partials, holders, argPos, ary2, arity) {
+            var isCurry = bitmask & WRAP_CURRY_FLAG, newHolders = isCurry ? holders : undefined2, newHoldersRight = isCurry ? undefined2 : holders, newPartials = isCurry ? partials : undefined2, newPartialsRight = isCurry ? undefined2 : partials;
+            bitmask |= isCurry ? WRAP_PARTIAL_FLAG : WRAP_PARTIAL_RIGHT_FLAG;
+            bitmask &= ~(isCurry ? WRAP_PARTIAL_RIGHT_FLAG : WRAP_PARTIAL_FLAG);
+            if (!(bitmask & WRAP_CURRY_BOUND_FLAG)) {
+              bitmask &= ~(WRAP_BIND_FLAG | WRAP_BIND_KEY_FLAG);
+            }
+            var newData = [
+              func,
+              bitmask,
+              thisArg,
+              newPartials,
+              newHolders,
+              newPartialsRight,
+              newHoldersRight,
+              argPos,
+              ary2,
+              arity
+            ];
+            var result2 = wrapFunc.apply(undefined2, newData);
+            if (isLaziable(func)) {
+              setData(result2, newData);
+            }
+            result2.placeholder = placeholder;
+            return setWrapToString(result2, func, bitmask);
+          }
+          function createRound(methodName) {
+            var func = Math2[methodName];
+            return function(number4, precision) {
+              number4 = toNumber(number4);
+              precision = precision == null ? 0 : nativeMin(toInteger(precision), 292);
+              if (precision && nativeIsFinite(number4)) {
+                var pair = (toString(number4) + "e").split("e"), value = func(pair[0] + "e" + (+pair[1] + precision));
+                pair = (toString(value) + "e").split("e");
+                return +(pair[0] + "e" + (+pair[1] - precision));
+              }
+              return func(number4);
+            };
+          }
+          var createSet = !(Set2 && 1 / setToArray(new Set2([, -0]))[1] == INFINITY) ? noop2 : function(values2) {
+            return new Set2(values2);
+          };
+          function createToPairs(keysFunc) {
+            return function(object) {
+              var tag = getTag(object);
+              if (tag == mapTag) {
+                return mapToArray(object);
+              }
+              if (tag == setTag) {
+                return setToPairs(object);
+              }
+              return baseToPairs(object, keysFunc(object));
+            };
+          }
+          function createWrap(func, bitmask, thisArg, partials, holders, argPos, ary2, arity) {
+            var isBindKey = bitmask & WRAP_BIND_KEY_FLAG;
+            if (!isBindKey && typeof func != "function") {
+              throw new TypeError2(FUNC_ERROR_TEXT);
+            }
+            var length = partials ? partials.length : 0;
+            if (!length) {
+              bitmask &= ~(WRAP_PARTIAL_FLAG | WRAP_PARTIAL_RIGHT_FLAG);
+              partials = holders = undefined2;
+            }
+            ary2 = ary2 === undefined2 ? ary2 : nativeMax(toInteger(ary2), 0);
+            arity = arity === undefined2 ? arity : toInteger(arity);
+            length -= holders ? holders.length : 0;
+            if (bitmask & WRAP_PARTIAL_RIGHT_FLAG) {
+              var partialsRight = partials, holdersRight = holders;
+              partials = holders = undefined2;
+            }
+            var data = isBindKey ? undefined2 : getData(func);
+            var newData = [
+              func,
+              bitmask,
+              thisArg,
+              partials,
+              holders,
+              partialsRight,
+              holdersRight,
+              argPos,
+              ary2,
+              arity
+            ];
+            if (data) {
+              mergeData(newData, data);
+            }
+            func = newData[0];
+            bitmask = newData[1];
+            thisArg = newData[2];
+            partials = newData[3];
+            holders = newData[4];
+            arity = newData[9] = newData[9] === undefined2 ? isBindKey ? 0 : func.length : nativeMax(newData[9] - length, 0);
+            if (!arity && bitmask & (WRAP_CURRY_FLAG | WRAP_CURRY_RIGHT_FLAG)) {
+              bitmask &= ~(WRAP_CURRY_FLAG | WRAP_CURRY_RIGHT_FLAG);
+            }
+            if (!bitmask || bitmask == WRAP_BIND_FLAG) {
+              var result2 = createBind(func, bitmask, thisArg);
+            } else if (bitmask == WRAP_CURRY_FLAG || bitmask == WRAP_CURRY_RIGHT_FLAG) {
+              result2 = createCurry(func, bitmask, arity);
+            } else if ((bitmask == WRAP_PARTIAL_FLAG || bitmask == (WRAP_BIND_FLAG | WRAP_PARTIAL_FLAG)) && !holders.length) {
+              result2 = createPartial(func, bitmask, thisArg, partials);
+            } else {
+              result2 = createHybrid.apply(undefined2, newData);
+            }
+            var setter = data ? baseSetData : setData;
+            return setWrapToString(setter(result2, newData), func, bitmask);
+          }
+          function customDefaultsAssignIn(objValue, srcValue, key, object) {
+            if (objValue === undefined2 || eq(objValue, objectProto[key]) && !hasOwnProperty.call(object, key)) {
+              return srcValue;
+            }
+            return objValue;
+          }
+          function customDefaultsMerge(objValue, srcValue, key, object, source, stack) {
+            if (isObject(objValue) && isObject(srcValue)) {
+              stack.set(srcValue, objValue);
+              baseMerge(objValue, srcValue, undefined2, customDefaultsMerge, stack);
+              stack["delete"](srcValue);
+            }
+            return objValue;
+          }
+          function customOmitClone(value) {
+            return isPlainObject(value) ? undefined2 : value;
+          }
+          function equalArrays(array2, other, bitmask, customizer, equalFunc, stack) {
+            var isPartial = bitmask & COMPARE_PARTIAL_FLAG, arrLength = array2.length, othLength = other.length;
+            if (arrLength != othLength && !(isPartial && othLength > arrLength)) {
+              return false;
+            }
+            var arrStacked = stack.get(array2);
+            var othStacked = stack.get(other);
+            if (arrStacked && othStacked) {
+              return arrStacked == other && othStacked == array2;
+            }
+            var index2 = -1, result2 = true, seen = bitmask & COMPARE_UNORDERED_FLAG ? new SetCache() : undefined2;
+            stack.set(array2, other);
+            stack.set(other, array2);
+            while (++index2 < arrLength) {
+              var arrValue = array2[index2], othValue = other[index2];
+              if (customizer) {
+                var compared = isPartial ? customizer(othValue, arrValue, index2, other, array2, stack) : customizer(arrValue, othValue, index2, array2, other, stack);
+              }
+              if (compared !== undefined2) {
+                if (compared) {
+                  continue;
+                }
+                result2 = false;
+                break;
+              }
+              if (seen) {
+                if (!arraySome(other, function(othValue2, othIndex) {
+                  if (!cacheHas(seen, othIndex) && (arrValue === othValue2 || equalFunc(arrValue, othValue2, bitmask, customizer, stack))) {
+                    return seen.push(othIndex);
+                  }
+                })) {
+                  result2 = false;
+                  break;
+                }
+              } else if (!(arrValue === othValue || equalFunc(arrValue, othValue, bitmask, customizer, stack))) {
+                result2 = false;
+                break;
+              }
+            }
+            stack["delete"](array2);
+            stack["delete"](other);
+            return result2;
+          }
+          function equalByTag(object, other, tag, bitmask, customizer, equalFunc, stack) {
+            switch (tag) {
+              case dataViewTag:
+                if (object.byteLength != other.byteLength || object.byteOffset != other.byteOffset) {
+                  return false;
+                }
+                object = object.buffer;
+                other = other.buffer;
+              case arrayBufferTag:
+                if (object.byteLength != other.byteLength || !equalFunc(new Uint8Array2(object), new Uint8Array2(other))) {
+                  return false;
+                }
+                return true;
+              case boolTag:
+              case dateTag:
+              case numberTag:
+                return eq(+object, +other);
+              case errorTag:
+                return object.name == other.name && object.message == other.message;
+              case regexpTag:
+              case stringTag:
+                return object == other + "";
+              case mapTag:
+                var convert = mapToArray;
+              case setTag:
+                var isPartial = bitmask & COMPARE_PARTIAL_FLAG;
+                convert || (convert = setToArray);
+                if (object.size != other.size && !isPartial) {
+                  return false;
+                }
+                var stacked = stack.get(object);
+                if (stacked) {
+                  return stacked == other;
+                }
+                bitmask |= COMPARE_UNORDERED_FLAG;
+                stack.set(object, other);
+                var result2 = equalArrays(convert(object), convert(other), bitmask, customizer, equalFunc, stack);
+                stack["delete"](object);
+                return result2;
+              case symbolTag:
+                if (symbolValueOf) {
+                  return symbolValueOf.call(object) == symbolValueOf.call(other);
+                }
+            }
+            return false;
+          }
+          function equalObjects(object, other, bitmask, customizer, equalFunc, stack) {
+            var isPartial = bitmask & COMPARE_PARTIAL_FLAG, objProps = getAllKeys(object), objLength = objProps.length, othProps = getAllKeys(other), othLength = othProps.length;
+            if (objLength != othLength && !isPartial) {
+              return false;
+            }
+            var index2 = objLength;
+            while (index2--) {
+              var key = objProps[index2];
+              if (!(isPartial ? key in other : hasOwnProperty.call(other, key))) {
+                return false;
+              }
+            }
+            var objStacked = stack.get(object);
+            var othStacked = stack.get(other);
+            if (objStacked && othStacked) {
+              return objStacked == other && othStacked == object;
+            }
+            var result2 = true;
+            stack.set(object, other);
+            stack.set(other, object);
+            var skipCtor = isPartial;
+            while (++index2 < objLength) {
+              key = objProps[index2];
+              var objValue = object[key], othValue = other[key];
+              if (customizer) {
+                var compared = isPartial ? customizer(othValue, objValue, key, other, object, stack) : customizer(objValue, othValue, key, object, other, stack);
+              }
+              if (!(compared === undefined2 ? objValue === othValue || equalFunc(objValue, othValue, bitmask, customizer, stack) : compared)) {
+                result2 = false;
+                break;
+              }
+              skipCtor || (skipCtor = key == "constructor");
+            }
+            if (result2 && !skipCtor) {
+              var objCtor = object.constructor, othCtor = other.constructor;
+              if (objCtor != othCtor && ("constructor" in object && "constructor" in other) && !(typeof objCtor == "function" && objCtor instanceof objCtor && typeof othCtor == "function" && othCtor instanceof othCtor)) {
+                result2 = false;
+              }
+            }
+            stack["delete"](object);
+            stack["delete"](other);
+            return result2;
+          }
+          function flatRest(func) {
+            return setToString(overRest(func, undefined2, flatten), func + "");
+          }
+          function getAllKeys(object) {
+            return baseGetAllKeys(object, keys, getSymbols);
+          }
+          function getAllKeysIn(object) {
+            return baseGetAllKeys(object, keysIn, getSymbolsIn);
+          }
+          var getData = !metaMap ? noop2 : function(func) {
+            return metaMap.get(func);
+          };
+          function getFuncName(func) {
+            var result2 = func.name + "", array2 = realNames[result2], length = hasOwnProperty.call(realNames, result2) ? array2.length : 0;
+            while (length--) {
+              var data = array2[length], otherFunc = data.func;
+              if (otherFunc == null || otherFunc == func) {
+                return data.name;
+              }
+            }
+            return result2;
+          }
+          function getHolder(func) {
+            var object = hasOwnProperty.call(lodash, "placeholder") ? lodash : func;
+            return object.placeholder;
+          }
+          function getIteratee() {
+            var result2 = lodash.iteratee || iteratee;
+            result2 = result2 === iteratee ? baseIteratee : result2;
+            return arguments.length ? result2(arguments[0], arguments[1]) : result2;
+          }
+          function getMapData(map3, key) {
+            var data = map3.__data__;
+            return isKeyable(key) ? data[typeof key == "string" ? "string" : "hash"] : data.map;
+          }
+          function getMatchData(object) {
+            var result2 = keys(object), length = result2.length;
+            while (length--) {
+              var key = result2[length], value = object[key];
+              result2[length] = [key, value, isStrictComparable(value)];
+            }
+            return result2;
+          }
+          function getNative(object, key) {
+            var value = getValue(object, key);
+            return baseIsNative(value) ? value : undefined2;
+          }
+          function getRawTag(value) {
+            var isOwn = hasOwnProperty.call(value, symToStringTag), tag = value[symToStringTag];
+            try {
+              value[symToStringTag] = undefined2;
+              var unmasked = true;
+            } catch (e) {
+            }
+            var result2 = nativeObjectToString.call(value);
+            if (unmasked) {
+              if (isOwn) {
+                value[symToStringTag] = tag;
+              } else {
+                delete value[symToStringTag];
+              }
+            }
+            return result2;
+          }
+          var getSymbols = !nativeGetSymbols ? stubArray : function(object) {
+            if (object == null) {
+              return [];
+            }
+            object = Object2(object);
+            return arrayFilter(nativeGetSymbols(object), function(symbol) {
+              return propertyIsEnumerable.call(object, symbol);
+            });
+          };
+          var getSymbolsIn = !nativeGetSymbols ? stubArray : function(object) {
+            var result2 = [];
+            while (object) {
+              arrayPush(result2, getSymbols(object));
+              object = getPrototype(object);
+            }
+            return result2;
+          };
+          var getTag = baseGetTag;
+          if (DataView2 && getTag(new DataView2(new ArrayBuffer(1))) != dataViewTag || Map2 && getTag(new Map2()) != mapTag || Promise2 && getTag(Promise2.resolve()) != promiseTag || Set2 && getTag(new Set2()) != setTag || WeakMap && getTag(new WeakMap()) != weakMapTag) {
+            getTag = function(value) {
+              var result2 = baseGetTag(value), Ctor = result2 == objectTag ? value.constructor : undefined2, ctorString = Ctor ? toSource(Ctor) : "";
+              if (ctorString) {
+                switch (ctorString) {
+                  case dataViewCtorString:
+                    return dataViewTag;
+                  case mapCtorString:
+                    return mapTag;
+                  case promiseCtorString:
+                    return promiseTag;
+                  case setCtorString:
+                    return setTag;
+                  case weakMapCtorString:
+                    return weakMapTag;
+                }
+              }
+              return result2;
+            };
+          }
+          function getView(start2, end, transforms) {
+            var index2 = -1, length = transforms.length;
+            while (++index2 < length) {
+              var data = transforms[index2], size2 = data.size;
+              switch (data.type) {
+                case "drop":
+                  start2 += size2;
+                  break;
+                case "dropRight":
+                  end -= size2;
+                  break;
+                case "take":
+                  end = nativeMin(end, start2 + size2);
+                  break;
+                case "takeRight":
+                  start2 = nativeMax(start2, end - size2);
+                  break;
+              }
+            }
+            return { "start": start2, "end": end };
+          }
+          function getWrapDetails(source) {
+            var match = source.match(reWrapDetails);
+            return match ? match[1].split(reSplitDetails) : [];
+          }
+          function hasPath(object, path2, hasFunc) {
+            path2 = castPath(path2, object);
+            var index2 = -1, length = path2.length, result2 = false;
+            while (++index2 < length) {
+              var key = toKey(path2[index2]);
+              if (!(result2 = object != null && hasFunc(object, key))) {
+                break;
+              }
+              object = object[key];
+            }
+            if (result2 || ++index2 != length) {
+              return result2;
+            }
+            length = object == null ? 0 : object.length;
+            return !!length && isLength(length) && isIndex(key, length) && (isArray(object) || isArguments(object));
+          }
+          function initCloneArray(array2) {
+            var length = array2.length, result2 = new array2.constructor(length);
+            if (length && typeof array2[0] == "string" && hasOwnProperty.call(array2, "index")) {
+              result2.index = array2.index;
+              result2.input = array2.input;
+            }
+            return result2;
+          }
+          function initCloneObject(object) {
+            return typeof object.constructor == "function" && !isPrototype(object) ? baseCreate(getPrototype(object)) : {};
+          }
+          function initCloneByTag(object, tag, isDeep) {
+            var Ctor = object.constructor;
+            switch (tag) {
+              case arrayBufferTag:
+                return cloneArrayBuffer(object);
+              case boolTag:
+              case dateTag:
+                return new Ctor(+object);
+              case dataViewTag:
+                return cloneDataView(object, isDeep);
+              case float32Tag:
+              case float64Tag:
+              case int8Tag:
+              case int16Tag:
+              case int32Tag:
+              case uint8Tag:
+              case uint8ClampedTag:
+              case uint16Tag:
+              case uint32Tag:
+                return cloneTypedArray(object, isDeep);
+              case mapTag:
+                return new Ctor();
+              case numberTag:
+              case stringTag:
+                return new Ctor(object);
+              case regexpTag:
+                return cloneRegExp(object);
+              case setTag:
+                return new Ctor();
+              case symbolTag:
+                return cloneSymbol(object);
+            }
+          }
+          function insertWrapDetails(source, details) {
+            var length = details.length;
+            if (!length) {
+              return source;
+            }
+            var lastIndex = length - 1;
+            details[lastIndex] = (length > 1 ? "& " : "") + details[lastIndex];
+            details = details.join(length > 2 ? ", " : " ");
+            return source.replace(reWrapComment, "{\n/* [wrapped with " + details + "] */\n");
+          }
+          function isFlattenable(value) {
+            return isArray(value) || isArguments(value) || !!(spreadableSymbol && value && value[spreadableSymbol]);
+          }
+          function isIndex(value, length) {
+            var type2 = typeof value;
+            length = length == null ? MAX_SAFE_INTEGER : length;
+            return !!length && (type2 == "number" || type2 != "symbol" && reIsUint.test(value)) && (value > -1 && value % 1 == 0 && value < length);
+          }
+          function isIterateeCall(value, index2, object) {
+            if (!isObject(object)) {
+              return false;
+            }
+            var type2 = typeof index2;
+            if (type2 == "number" ? isArrayLike(object) && isIndex(index2, object.length) : type2 == "string" && index2 in object) {
+              return eq(object[index2], value);
+            }
+            return false;
+          }
+          function isKey(value, object) {
+            if (isArray(value)) {
+              return false;
+            }
+            var type2 = typeof value;
+            if (type2 == "number" || type2 == "symbol" || type2 == "boolean" || value == null || isSymbol(value)) {
+              return true;
+            }
+            return reIsPlainProp.test(value) || !reIsDeepProp.test(value) || object != null && value in Object2(object);
+          }
+          function isKeyable(value) {
+            var type2 = typeof value;
+            return type2 == "string" || type2 == "number" || type2 == "symbol" || type2 == "boolean" ? value !== "__proto__" : value === null;
+          }
+          function isLaziable(func) {
+            var funcName = getFuncName(func), other = lodash[funcName];
+            if (typeof other != "function" || !(funcName in LazyWrapper.prototype)) {
+              return false;
+            }
+            if (func === other) {
+              return true;
+            }
+            var data = getData(other);
+            return !!data && func === data[0];
+          }
+          function isMasked(func) {
+            return !!maskSrcKey && maskSrcKey in func;
+          }
+          var isMaskable = coreJsData ? isFunction : stubFalse;
+          function isPrototype(value) {
+            var Ctor = value && value.constructor, proto = typeof Ctor == "function" && Ctor.prototype || objectProto;
+            return value === proto;
+          }
+          function isStrictComparable(value) {
+            return value === value && !isObject(value);
+          }
+          function matchesStrictComparable(key, srcValue) {
+            return function(object) {
+              if (object == null) {
+                return false;
+              }
+              return object[key] === srcValue && (srcValue !== undefined2 || key in Object2(object));
+            };
+          }
+          function memoizeCapped(func) {
+            var result2 = memoize(func, function(key) {
+              if (cache.size === MAX_MEMOIZE_SIZE) {
+                cache.clear();
+              }
+              return key;
+            });
+            var cache = result2.cache;
+            return result2;
+          }
+          function mergeData(data, source) {
+            var bitmask = data[1], srcBitmask = source[1], newBitmask = bitmask | srcBitmask, isCommon = newBitmask < (WRAP_BIND_FLAG | WRAP_BIND_KEY_FLAG | WRAP_ARY_FLAG);
+            var isCombo = srcBitmask == WRAP_ARY_FLAG && bitmask == WRAP_CURRY_FLAG || srcBitmask == WRAP_ARY_FLAG && bitmask == WRAP_REARG_FLAG && data[7].length <= source[8] || srcBitmask == (WRAP_ARY_FLAG | WRAP_REARG_FLAG) && source[7].length <= source[8] && bitmask == WRAP_CURRY_FLAG;
+            if (!(isCommon || isCombo)) {
+              return data;
+            }
+            if (srcBitmask & WRAP_BIND_FLAG) {
+              data[2] = source[2];
+              newBitmask |= bitmask & WRAP_BIND_FLAG ? 0 : WRAP_CURRY_BOUND_FLAG;
+            }
+            var value = source[3];
+            if (value) {
+              var partials = data[3];
+              data[3] = partials ? composeArgs(partials, value, source[4]) : value;
+              data[4] = partials ? replaceHolders(data[3], PLACEHOLDER) : source[4];
+            }
+            value = source[5];
+            if (value) {
+              partials = data[5];
+              data[5] = partials ? composeArgsRight(partials, value, source[6]) : value;
+              data[6] = partials ? replaceHolders(data[5], PLACEHOLDER) : source[6];
+            }
+            value = source[7];
+            if (value) {
+              data[7] = value;
+            }
+            if (srcBitmask & WRAP_ARY_FLAG) {
+              data[8] = data[8] == null ? source[8] : nativeMin(data[8], source[8]);
+            }
+            if (data[9] == null) {
+              data[9] = source[9];
+            }
+            data[0] = source[0];
+            data[1] = newBitmask;
+            return data;
+          }
+          function nativeKeysIn(object) {
+            var result2 = [];
+            if (object != null) {
+              for (var key in Object2(object)) {
+                result2.push(key);
+              }
+            }
+            return result2;
+          }
+          function objectToString(value) {
+            return nativeObjectToString.call(value);
+          }
+          function overRest(func, start2, transform3) {
+            start2 = nativeMax(start2 === undefined2 ? func.length - 1 : start2, 0);
+            return function() {
+              var args = arguments, index2 = -1, length = nativeMax(args.length - start2, 0), array2 = Array2(length);
+              while (++index2 < length) {
+                array2[index2] = args[start2 + index2];
+              }
+              index2 = -1;
+              var otherArgs = Array2(start2 + 1);
+              while (++index2 < start2) {
+                otherArgs[index2] = args[index2];
+              }
+              otherArgs[start2] = transform3(array2);
+              return apply(func, this, otherArgs);
+            };
+          }
+          function parent(object, path2) {
+            return path2.length < 2 ? object : baseGet(object, baseSlice(path2, 0, -1));
+          }
+          function reorder(array2, indexes) {
+            var arrLength = array2.length, length = nativeMin(indexes.length, arrLength), oldArray = copyArray(array2);
+            while (length--) {
+              var index2 = indexes[length];
+              array2[length] = isIndex(index2, arrLength) ? oldArray[index2] : undefined2;
+            }
+            return array2;
+          }
+          function safeGet(object, key) {
+            if (key === "constructor" && typeof object[key] === "function") {
+              return;
+            }
+            if (key == "__proto__") {
+              return;
+            }
+            return object[key];
+          }
+          var setData = shortOut(baseSetData);
+          var setTimeout2 = ctxSetTimeout || function(func, wait) {
+            return root2.setTimeout(func, wait);
+          };
+          var setToString = shortOut(baseSetToString);
+          function setWrapToString(wrapper, reference, bitmask) {
+            var source = reference + "";
+            return setToString(wrapper, insertWrapDetails(source, updateWrapDetails(getWrapDetails(source), bitmask)));
+          }
+          function shortOut(func) {
+            var count = 0, lastCalled = 0;
+            return function() {
+              var stamp = nativeNow(), remaining = HOT_SPAN - (stamp - lastCalled);
+              lastCalled = stamp;
+              if (remaining > 0) {
+                if (++count >= HOT_COUNT) {
+                  return arguments[0];
+                }
+              } else {
+                count = 0;
+              }
+              return func.apply(undefined2, arguments);
+            };
+          }
+          function shuffleSelf(array2, size2) {
+            var index2 = -1, length = array2.length, lastIndex = length - 1;
+            size2 = size2 === undefined2 ? length : size2;
+            while (++index2 < size2) {
+              var rand = baseRandom(index2, lastIndex), value = array2[rand];
+              array2[rand] = array2[index2];
+              array2[index2] = value;
+            }
+            array2.length = size2;
+            return array2;
+          }
+          var stringToPath = memoizeCapped(function(string) {
+            var result2 = [];
+            if (string.charCodeAt(0) === 46) {
+              result2.push("");
+            }
+            string.replace(rePropName, function(match, number4, quote, subString) {
+              result2.push(quote ? subString.replace(reEscapeChar, "$1") : number4 || match);
+            });
+            return result2;
+          });
+          function toKey(value) {
+            if (typeof value == "string" || isSymbol(value)) {
+              return value;
+            }
+            var result2 = value + "";
+            return result2 == "0" && 1 / value == -INFINITY ? "-0" : result2;
+          }
+          function toSource(func) {
+            if (func != null) {
+              try {
+                return funcToString.call(func);
+              } catch (e) {
+              }
+              try {
+                return func + "";
+              } catch (e) {
+              }
+            }
+            return "";
+          }
+          function updateWrapDetails(details, bitmask) {
+            arrayEach(wrapFlags, function(pair) {
+              var value = "_." + pair[0];
+              if (bitmask & pair[1] && !arrayIncludes(details, value)) {
+                details.push(value);
+              }
+            });
+            return details.sort();
+          }
+          function wrapperClone(wrapper) {
+            if (wrapper instanceof LazyWrapper) {
+              return wrapper.clone();
+            }
+            var result2 = new LodashWrapper(wrapper.__wrapped__, wrapper.__chain__);
+            result2.__actions__ = copyArray(wrapper.__actions__);
+            result2.__index__ = wrapper.__index__;
+            result2.__values__ = wrapper.__values__;
+            return result2;
+          }
+          function chunk(array2, size2, guard) {
+            if (guard ? isIterateeCall(array2, size2, guard) : size2 === undefined2) {
+              size2 = 1;
+            } else {
+              size2 = nativeMax(toInteger(size2), 0);
+            }
+            var length = array2 == null ? 0 : array2.length;
+            if (!length || size2 < 1) {
+              return [];
+            }
+            var index2 = 0, resIndex = 0, result2 = Array2(nativeCeil(length / size2));
+            while (index2 < length) {
+              result2[resIndex++] = baseSlice(array2, index2, index2 += size2);
+            }
+            return result2;
+          }
+          function compact(array2) {
+            var index2 = -1, length = array2 == null ? 0 : array2.length, resIndex = 0, result2 = [];
+            while (++index2 < length) {
+              var value = array2[index2];
+              if (value) {
+                result2[resIndex++] = value;
+              }
+            }
+            return result2;
+          }
+          function concat() {
+            var length = arguments.length;
+            if (!length) {
+              return [];
+            }
+            var args = Array2(length - 1), array2 = arguments[0], index2 = length;
+            while (index2--) {
+              args[index2 - 1] = arguments[index2];
+            }
+            return arrayPush(isArray(array2) ? copyArray(array2) : [array2], baseFlatten(args, 1));
+          }
+          var difference = baseRest(function(array2, values2) {
+            return isArrayLikeObject(array2) ? baseDifference(array2, baseFlatten(values2, 1, isArrayLikeObject, true)) : [];
+          });
+          var differenceBy = baseRest(function(array2, values2) {
+            var iteratee2 = last(values2);
+            if (isArrayLikeObject(iteratee2)) {
+              iteratee2 = undefined2;
+            }
+            return isArrayLikeObject(array2) ? baseDifference(array2, baseFlatten(values2, 1, isArrayLikeObject, true), getIteratee(iteratee2, 2)) : [];
+          });
+          var differenceWith = baseRest(function(array2, values2) {
+            var comparator = last(values2);
+            if (isArrayLikeObject(comparator)) {
+              comparator = undefined2;
+            }
+            return isArrayLikeObject(array2) ? baseDifference(array2, baseFlatten(values2, 1, isArrayLikeObject, true), undefined2, comparator) : [];
+          });
+          function drop(array2, n, guard) {
+            var length = array2 == null ? 0 : array2.length;
+            if (!length) {
+              return [];
+            }
+            n = guard || n === undefined2 ? 1 : toInteger(n);
+            return baseSlice(array2, n < 0 ? 0 : n, length);
+          }
+          function dropRight(array2, n, guard) {
+            var length = array2 == null ? 0 : array2.length;
+            if (!length) {
+              return [];
+            }
+            n = guard || n === undefined2 ? 1 : toInteger(n);
+            n = length - n;
+            return baseSlice(array2, 0, n < 0 ? 0 : n);
+          }
+          function dropRightWhile(array2, predicate) {
+            return array2 && array2.length ? baseWhile(array2, getIteratee(predicate, 3), true, true) : [];
+          }
+          function dropWhile(array2, predicate) {
+            return array2 && array2.length ? baseWhile(array2, getIteratee(predicate, 3), true) : [];
+          }
+          function fill(array2, value, start2, end) {
+            var length = array2 == null ? 0 : array2.length;
+            if (!length) {
+              return [];
+            }
+            if (start2 && typeof start2 != "number" && isIterateeCall(array2, value, start2)) {
+              start2 = 0;
+              end = length;
+            }
+            return baseFill(array2, value, start2, end);
+          }
+          function findIndex(array2, predicate, fromIndex) {
+            var length = array2 == null ? 0 : array2.length;
+            if (!length) {
+              return -1;
+            }
+            var index2 = fromIndex == null ? 0 : toInteger(fromIndex);
+            if (index2 < 0) {
+              index2 = nativeMax(length + index2, 0);
+            }
+            return baseFindIndex(array2, getIteratee(predicate, 3), index2);
+          }
+          function findLastIndex(array2, predicate, fromIndex) {
+            var length = array2 == null ? 0 : array2.length;
+            if (!length) {
+              return -1;
+            }
+            var index2 = length - 1;
+            if (fromIndex !== undefined2) {
+              index2 = toInteger(fromIndex);
+              index2 = fromIndex < 0 ? nativeMax(length + index2, 0) : nativeMin(index2, length - 1);
+            }
+            return baseFindIndex(array2, getIteratee(predicate, 3), index2, true);
+          }
+          function flatten(array2) {
+            var length = array2 == null ? 0 : array2.length;
+            return length ? baseFlatten(array2, 1) : [];
+          }
+          function flattenDeep(array2) {
+            var length = array2 == null ? 0 : array2.length;
+            return length ? baseFlatten(array2, INFINITY) : [];
+          }
+          function flattenDepth(array2, depth) {
+            var length = array2 == null ? 0 : array2.length;
+            if (!length) {
+              return [];
+            }
+            depth = depth === undefined2 ? 1 : toInteger(depth);
+            return baseFlatten(array2, depth);
+          }
+          function fromPairs(pairs) {
+            var index2 = -1, length = pairs == null ? 0 : pairs.length, result2 = {};
+            while (++index2 < length) {
+              var pair = pairs[index2];
+              result2[pair[0]] = pair[1];
+            }
+            return result2;
+          }
+          function head(array2) {
+            return array2 && array2.length ? array2[0] : undefined2;
+          }
+          function indexOf(array2, value, fromIndex) {
+            var length = array2 == null ? 0 : array2.length;
+            if (!length) {
+              return -1;
+            }
+            var index2 = fromIndex == null ? 0 : toInteger(fromIndex);
+            if (index2 < 0) {
+              index2 = nativeMax(length + index2, 0);
+            }
+            return baseIndexOf(array2, value, index2);
+          }
+          function initial(array2) {
+            var length = array2 == null ? 0 : array2.length;
+            return length ? baseSlice(array2, 0, -1) : [];
+          }
+          var intersection = baseRest(function(arrays) {
+            var mapped = arrayMap(arrays, castArrayLikeObject);
+            return mapped.length && mapped[0] === arrays[0] ? baseIntersection(mapped) : [];
+          });
+          var intersectionBy = baseRest(function(arrays) {
+            var iteratee2 = last(arrays), mapped = arrayMap(arrays, castArrayLikeObject);
+            if (iteratee2 === last(mapped)) {
+              iteratee2 = undefined2;
+            } else {
+              mapped.pop();
+            }
+            return mapped.length && mapped[0] === arrays[0] ? baseIntersection(mapped, getIteratee(iteratee2, 2)) : [];
+          });
+          var intersectionWith = baseRest(function(arrays) {
+            var comparator = last(arrays), mapped = arrayMap(arrays, castArrayLikeObject);
+            comparator = typeof comparator == "function" ? comparator : undefined2;
+            if (comparator) {
+              mapped.pop();
+            }
+            return mapped.length && mapped[0] === arrays[0] ? baseIntersection(mapped, undefined2, comparator) : [];
+          });
+          function join(array2, separator) {
+            return array2 == null ? "" : nativeJoin.call(array2, separator);
+          }
+          function last(array2) {
+            var length = array2 == null ? 0 : array2.length;
+            return length ? array2[length - 1] : undefined2;
+          }
+          function lastIndexOf(array2, value, fromIndex) {
+            var length = array2 == null ? 0 : array2.length;
+            if (!length) {
+              return -1;
+            }
+            var index2 = length;
+            if (fromIndex !== undefined2) {
+              index2 = toInteger(fromIndex);
+              index2 = index2 < 0 ? nativeMax(length + index2, 0) : nativeMin(index2, length - 1);
+            }
+            return value === value ? strictLastIndexOf(array2, value, index2) : baseFindIndex(array2, baseIsNaN, index2, true);
+          }
+          function nth(array2, n) {
+            return array2 && array2.length ? baseNth(array2, toInteger(n)) : undefined2;
+          }
+          var pull = baseRest(pullAll);
+          function pullAll(array2, values2) {
+            return array2 && array2.length && values2 && values2.length ? basePullAll(array2, values2) : array2;
+          }
+          function pullAllBy(array2, values2, iteratee2) {
+            return array2 && array2.length && values2 && values2.length ? basePullAll(array2, values2, getIteratee(iteratee2, 2)) : array2;
+          }
+          function pullAllWith(array2, values2, comparator) {
+            return array2 && array2.length && values2 && values2.length ? basePullAll(array2, values2, undefined2, comparator) : array2;
+          }
+          var pullAt = flatRest(function(array2, indexes) {
+            var length = array2 == null ? 0 : array2.length, result2 = baseAt(array2, indexes);
+            basePullAt(array2, arrayMap(indexes, function(index2) {
+              return isIndex(index2, length) ? +index2 : index2;
+            }).sort(compareAscending));
+            return result2;
+          });
+          function remove2(array2, predicate) {
+            var result2 = [];
+            if (!(array2 && array2.length)) {
+              return result2;
+            }
+            var index2 = -1, indexes = [], length = array2.length;
+            predicate = getIteratee(predicate, 3);
+            while (++index2 < length) {
+              var value = array2[index2];
+              if (predicate(value, index2, array2)) {
+                result2.push(value);
+                indexes.push(index2);
+              }
+            }
+            basePullAt(array2, indexes);
+            return result2;
+          }
+          function reverse(array2) {
+            return array2 == null ? array2 : nativeReverse.call(array2);
+          }
+          function slice(array2, start2, end) {
+            var length = array2 == null ? 0 : array2.length;
+            if (!length) {
+              return [];
+            }
+            if (end && typeof end != "number" && isIterateeCall(array2, start2, end)) {
+              start2 = 0;
+              end = length;
+            } else {
+              start2 = start2 == null ? 0 : toInteger(start2);
+              end = end === undefined2 ? length : toInteger(end);
+            }
+            return baseSlice(array2, start2, end);
+          }
+          function sortedIndex(array2, value) {
+            return baseSortedIndex(array2, value);
+          }
+          function sortedIndexBy(array2, value, iteratee2) {
+            return baseSortedIndexBy(array2, value, getIteratee(iteratee2, 2));
+          }
+          function sortedIndexOf(array2, value) {
+            var length = array2 == null ? 0 : array2.length;
+            if (length) {
+              var index2 = baseSortedIndex(array2, value);
+              if (index2 < length && eq(array2[index2], value)) {
+                return index2;
+              }
+            }
+            return -1;
+          }
+          function sortedLastIndex(array2, value) {
+            return baseSortedIndex(array2, value, true);
+          }
+          function sortedLastIndexBy(array2, value, iteratee2) {
+            return baseSortedIndexBy(array2, value, getIteratee(iteratee2, 2), true);
+          }
+          function sortedLastIndexOf(array2, value) {
+            var length = array2 == null ? 0 : array2.length;
+            if (length) {
+              var index2 = baseSortedIndex(array2, value, true) - 1;
+              if (eq(array2[index2], value)) {
+                return index2;
+              }
+            }
+            return -1;
+          }
+          function sortedUniq(array2) {
+            return array2 && array2.length ? baseSortedUniq(array2) : [];
+          }
+          function sortedUniqBy(array2, iteratee2) {
+            return array2 && array2.length ? baseSortedUniq(array2, getIteratee(iteratee2, 2)) : [];
+          }
+          function tail(array2) {
+            var length = array2 == null ? 0 : array2.length;
+            return length ? baseSlice(array2, 1, length) : [];
+          }
+          function take(array2, n, guard) {
+            if (!(array2 && array2.length)) {
+              return [];
+            }
+            n = guard || n === undefined2 ? 1 : toInteger(n);
+            return baseSlice(array2, 0, n < 0 ? 0 : n);
+          }
+          function takeRight(array2, n, guard) {
+            var length = array2 == null ? 0 : array2.length;
+            if (!length) {
+              return [];
+            }
+            n = guard || n === undefined2 ? 1 : toInteger(n);
+            n = length - n;
+            return baseSlice(array2, n < 0 ? 0 : n, length);
+          }
+          function takeRightWhile(array2, predicate) {
+            return array2 && array2.length ? baseWhile(array2, getIteratee(predicate, 3), false, true) : [];
+          }
+          function takeWhile(array2, predicate) {
+            return array2 && array2.length ? baseWhile(array2, getIteratee(predicate, 3)) : [];
+          }
+          var union = baseRest(function(arrays) {
+            return baseUniq(baseFlatten(arrays, 1, isArrayLikeObject, true));
+          });
+          var unionBy = baseRest(function(arrays) {
+            var iteratee2 = last(arrays);
+            if (isArrayLikeObject(iteratee2)) {
+              iteratee2 = undefined2;
+            }
+            return baseUniq(baseFlatten(arrays, 1, isArrayLikeObject, true), getIteratee(iteratee2, 2));
+          });
+          var unionWith = baseRest(function(arrays) {
+            var comparator = last(arrays);
+            comparator = typeof comparator == "function" ? comparator : undefined2;
+            return baseUniq(baseFlatten(arrays, 1, isArrayLikeObject, true), undefined2, comparator);
+          });
+          function uniq(array2) {
+            return array2 && array2.length ? baseUniq(array2) : [];
+          }
+          function uniqBy(array2, iteratee2) {
+            return array2 && array2.length ? baseUniq(array2, getIteratee(iteratee2, 2)) : [];
+          }
+          function uniqWith(array2, comparator) {
+            comparator = typeof comparator == "function" ? comparator : undefined2;
+            return array2 && array2.length ? baseUniq(array2, undefined2, comparator) : [];
+          }
+          function unzip(array2) {
+            if (!(array2 && array2.length)) {
+              return [];
+            }
+            var length = 0;
+            array2 = arrayFilter(array2, function(group) {
+              if (isArrayLikeObject(group)) {
+                length = nativeMax(group.length, length);
+                return true;
+              }
+            });
+            return baseTimes(length, function(index2) {
+              return arrayMap(array2, baseProperty(index2));
+            });
+          }
+          function unzipWith(array2, iteratee2) {
+            if (!(array2 && array2.length)) {
+              return [];
+            }
+            var result2 = unzip(array2);
+            if (iteratee2 == null) {
+              return result2;
+            }
+            return arrayMap(result2, function(group) {
+              return apply(iteratee2, undefined2, group);
+            });
+          }
+          var without = baseRest(function(array2, values2) {
+            return isArrayLikeObject(array2) ? baseDifference(array2, values2) : [];
+          });
+          var xor = baseRest(function(arrays) {
+            return baseXor(arrayFilter(arrays, isArrayLikeObject));
+          });
+          var xorBy = baseRest(function(arrays) {
+            var iteratee2 = last(arrays);
+            if (isArrayLikeObject(iteratee2)) {
+              iteratee2 = undefined2;
+            }
+            return baseXor(arrayFilter(arrays, isArrayLikeObject), getIteratee(iteratee2, 2));
+          });
+          var xorWith = baseRest(function(arrays) {
+            var comparator = last(arrays);
+            comparator = typeof comparator == "function" ? comparator : undefined2;
+            return baseXor(arrayFilter(arrays, isArrayLikeObject), undefined2, comparator);
+          });
+          var zip = baseRest(unzip);
+          function zipObject(props, values2) {
+            return baseZipObject(props || [], values2 || [], assignValue);
+          }
+          function zipObjectDeep(props, values2) {
+            return baseZipObject(props || [], values2 || [], baseSet);
+          }
+          var zipWith = baseRest(function(arrays) {
+            var length = arrays.length, iteratee2 = length > 1 ? arrays[length - 1] : undefined2;
+            iteratee2 = typeof iteratee2 == "function" ? (arrays.pop(), iteratee2) : undefined2;
+            return unzipWith(arrays, iteratee2);
+          });
+          function chain(value) {
+            var result2 = lodash(value);
+            result2.__chain__ = true;
+            return result2;
+          }
+          function tap(value, interceptor) {
+            interceptor(value);
+            return value;
+          }
+          function thru(value, interceptor) {
+            return interceptor(value);
+          }
+          var wrapperAt = flatRest(function(paths) {
+            var length = paths.length, start2 = length ? paths[0] : 0, value = this.__wrapped__, interceptor = function(object) {
+              return baseAt(object, paths);
+            };
+            if (length > 1 || this.__actions__.length || !(value instanceof LazyWrapper) || !isIndex(start2)) {
+              return this.thru(interceptor);
+            }
+            value = value.slice(start2, +start2 + (length ? 1 : 0));
+            value.__actions__.push({
+              "func": thru,
+              "args": [interceptor],
+              "thisArg": undefined2
+            });
+            return new LodashWrapper(value, this.__chain__).thru(function(array2) {
+              if (length && !array2.length) {
+                array2.push(undefined2);
+              }
+              return array2;
+            });
+          });
+          function wrapperChain() {
+            return chain(this);
+          }
+          function wrapperCommit() {
+            return new LodashWrapper(this.value(), this.__chain__);
+          }
+          function wrapperNext() {
+            if (this.__values__ === undefined2) {
+              this.__values__ = toArray(this.value());
+            }
+            var done = this.__index__ >= this.__values__.length, value = done ? undefined2 : this.__values__[this.__index__++];
+            return { "done": done, "value": value };
+          }
+          function wrapperToIterator() {
+            return this;
+          }
+          function wrapperPlant(value) {
+            var result2, parent2 = this;
+            while (parent2 instanceof baseLodash) {
+              var clone2 = wrapperClone(parent2);
+              clone2.__index__ = 0;
+              clone2.__values__ = undefined2;
+              if (result2) {
+                previous.__wrapped__ = clone2;
+              } else {
+                result2 = clone2;
+              }
+              var previous = clone2;
+              parent2 = parent2.__wrapped__;
+            }
+            previous.__wrapped__ = value;
+            return result2;
+          }
+          function wrapperReverse() {
+            var value = this.__wrapped__;
+            if (value instanceof LazyWrapper) {
+              var wrapped = value;
+              if (this.__actions__.length) {
+                wrapped = new LazyWrapper(this);
+              }
+              wrapped = wrapped.reverse();
+              wrapped.__actions__.push({
+                "func": thru,
+                "args": [reverse],
+                "thisArg": undefined2
+              });
+              return new LodashWrapper(wrapped, this.__chain__);
+            }
+            return this.thru(reverse);
+          }
+          function wrapperValue() {
+            return baseWrapperValue(this.__wrapped__, this.__actions__);
+          }
+          var countBy = createAggregator(function(result2, value, key) {
+            if (hasOwnProperty.call(result2, key)) {
+              ++result2[key];
+            } else {
+              baseAssignValue(result2, key, 1);
+            }
+          });
+          function every(collection, predicate, guard) {
+            var func = isArray(collection) ? arrayEvery : baseEvery;
+            if (guard && isIterateeCall(collection, predicate, guard)) {
+              predicate = undefined2;
+            }
+            return func(collection, getIteratee(predicate, 3));
+          }
+          function filter2(collection, predicate) {
+            var func = isArray(collection) ? arrayFilter : baseFilter;
+            return func(collection, getIteratee(predicate, 3));
+          }
+          var find3 = createFind(findIndex);
+          var findLast = createFind(findLastIndex);
+          function flatMap(collection, iteratee2) {
+            return baseFlatten(map2(collection, iteratee2), 1);
+          }
+          function flatMapDeep(collection, iteratee2) {
+            return baseFlatten(map2(collection, iteratee2), INFINITY);
+          }
+          function flatMapDepth(collection, iteratee2, depth) {
+            depth = depth === undefined2 ? 1 : toInteger(depth);
+            return baseFlatten(map2(collection, iteratee2), depth);
+          }
+          function forEach(collection, iteratee2) {
+            var func = isArray(collection) ? arrayEach : baseEach;
+            return func(collection, getIteratee(iteratee2, 3));
+          }
+          function forEachRight(collection, iteratee2) {
+            var func = isArray(collection) ? arrayEachRight : baseEachRight;
+            return func(collection, getIteratee(iteratee2, 3));
+          }
+          var groupBy = createAggregator(function(result2, value, key) {
+            if (hasOwnProperty.call(result2, key)) {
+              result2[key].push(value);
+            } else {
+              baseAssignValue(result2, key, [value]);
+            }
+          });
+          function includes(collection, value, fromIndex, guard) {
+            collection = isArrayLike(collection) ? collection : values(collection);
+            fromIndex = fromIndex && !guard ? toInteger(fromIndex) : 0;
+            var length = collection.length;
+            if (fromIndex < 0) {
+              fromIndex = nativeMax(length + fromIndex, 0);
+            }
+            return isString(collection) ? fromIndex <= length && collection.indexOf(value, fromIndex) > -1 : !!length && baseIndexOf(collection, value, fromIndex) > -1;
+          }
+          var invokeMap = baseRest(function(collection, path2, args) {
+            var index2 = -1, isFunc = typeof path2 == "function", result2 = isArrayLike(collection) ? Array2(collection.length) : [];
+            baseEach(collection, function(value) {
+              result2[++index2] = isFunc ? apply(path2, value, args) : baseInvoke(value, path2, args);
+            });
+            return result2;
+          });
+          var keyBy = createAggregator(function(result2, value, key) {
+            baseAssignValue(result2, key, value);
+          });
+          function map2(collection, iteratee2) {
+            var func = isArray(collection) ? arrayMap : baseMap;
+            return func(collection, getIteratee(iteratee2, 3));
+          }
+          function orderBy(collection, iteratees, orders, guard) {
+            if (collection == null) {
+              return [];
+            }
+            if (!isArray(iteratees)) {
+              iteratees = iteratees == null ? [] : [iteratees];
+            }
+            orders = guard ? undefined2 : orders;
+            if (!isArray(orders)) {
+              orders = orders == null ? [] : [orders];
+            }
+            return baseOrderBy(collection, iteratees, orders);
+          }
+          var partition = createAggregator(function(result2, value, key) {
+            result2[key ? 0 : 1].push(value);
+          }, function() {
+            return [[], []];
+          });
+          function reduce(collection, iteratee2, accumulator) {
+            var func = isArray(collection) ? arrayReduce : baseReduce, initAccum = arguments.length < 3;
+            return func(collection, getIteratee(iteratee2, 4), accumulator, initAccum, baseEach);
+          }
+          function reduceRight(collection, iteratee2, accumulator) {
+            var func = isArray(collection) ? arrayReduceRight : baseReduce, initAccum = arguments.length < 3;
+            return func(collection, getIteratee(iteratee2, 4), accumulator, initAccum, baseEachRight);
+          }
+          function reject(collection, predicate) {
+            var func = isArray(collection) ? arrayFilter : baseFilter;
+            return func(collection, negate2(getIteratee(predicate, 3)));
+          }
+          function sample(collection) {
+            var func = isArray(collection) ? arraySample : baseSample;
+            return func(collection);
+          }
+          function sampleSize(collection, n, guard) {
+            if (guard ? isIterateeCall(collection, n, guard) : n === undefined2) {
+              n = 1;
+            } else {
+              n = toInteger(n);
+            }
+            var func = isArray(collection) ? arraySampleSize : baseSampleSize;
+            return func(collection, n);
+          }
+          function shuffle(collection) {
+            var func = isArray(collection) ? arrayShuffle : baseShuffle;
+            return func(collection);
+          }
+          function size(collection) {
+            if (collection == null) {
+              return 0;
+            }
+            if (isArrayLike(collection)) {
+              return isString(collection) ? stringSize(collection) : collection.length;
+            }
+            var tag = getTag(collection);
+            if (tag == mapTag || tag == setTag) {
+              return collection.size;
+            }
+            return baseKeys(collection).length;
+          }
+          function some(collection, predicate, guard) {
+            var func = isArray(collection) ? arraySome : baseSome;
+            if (guard && isIterateeCall(collection, predicate, guard)) {
+              predicate = undefined2;
+            }
+            return func(collection, getIteratee(predicate, 3));
+          }
+          var sortBy = baseRest(function(collection, iteratees) {
+            if (collection == null) {
+              return [];
+            }
+            var length = iteratees.length;
+            if (length > 1 && isIterateeCall(collection, iteratees[0], iteratees[1])) {
+              iteratees = [];
+            } else if (length > 2 && isIterateeCall(iteratees[0], iteratees[1], iteratees[2])) {
+              iteratees = [iteratees[0]];
+            }
+            return baseOrderBy(collection, baseFlatten(iteratees, 1), []);
+          });
+          var now2 = ctxNow || function() {
+            return root2.Date.now();
+          };
+          function after(n, func) {
+            if (typeof func != "function") {
+              throw new TypeError2(FUNC_ERROR_TEXT);
+            }
+            n = toInteger(n);
+            return function() {
+              if (--n < 1) {
+                return func.apply(this, arguments);
+              }
+            };
+          }
+          function ary(func, n, guard) {
+            n = guard ? undefined2 : n;
+            n = func && n == null ? func.length : n;
+            return createWrap(func, WRAP_ARY_FLAG, undefined2, undefined2, undefined2, undefined2, n);
+          }
+          function before(n, func) {
+            var result2;
+            if (typeof func != "function") {
+              throw new TypeError2(FUNC_ERROR_TEXT);
+            }
+            n = toInteger(n);
+            return function() {
+              if (--n > 0) {
+                result2 = func.apply(this, arguments);
+              }
+              if (n <= 1) {
+                func = undefined2;
+              }
+              return result2;
+            };
+          }
+          var bind = baseRest(function(func, thisArg, partials) {
+            var bitmask = WRAP_BIND_FLAG;
+            if (partials.length) {
+              var holders = replaceHolders(partials, getHolder(bind));
+              bitmask |= WRAP_PARTIAL_FLAG;
+            }
+            return createWrap(func, bitmask, thisArg, partials, holders);
+          });
+          var bindKey2 = baseRest(function(object, key, partials) {
+            var bitmask = WRAP_BIND_FLAG | WRAP_BIND_KEY_FLAG;
+            if (partials.length) {
+              var holders = replaceHolders(partials, getHolder(bindKey2));
+              bitmask |= WRAP_PARTIAL_FLAG;
+            }
+            return createWrap(key, bitmask, object, partials, holders);
+          });
+          function curry(func, arity, guard) {
+            arity = guard ? undefined2 : arity;
+            var result2 = createWrap(func, WRAP_CURRY_FLAG, undefined2, undefined2, undefined2, undefined2, undefined2, arity);
+            result2.placeholder = curry.placeholder;
+            return result2;
+          }
+          function curryRight(func, arity, guard) {
+            arity = guard ? undefined2 : arity;
+            var result2 = createWrap(func, WRAP_CURRY_RIGHT_FLAG, undefined2, undefined2, undefined2, undefined2, undefined2, arity);
+            result2.placeholder = curryRight.placeholder;
+            return result2;
+          }
+          function debounce(func, wait, options) {
+            var lastArgs, lastThis, maxWait, result2, timerId, lastCallTime, lastInvokeTime = 0, leading = false, maxing = false, trailing = true;
+            if (typeof func != "function") {
+              throw new TypeError2(FUNC_ERROR_TEXT);
+            }
+            wait = toNumber(wait) || 0;
+            if (isObject(options)) {
+              leading = !!options.leading;
+              maxing = "maxWait" in options;
+              maxWait = maxing ? nativeMax(toNumber(options.maxWait) || 0, wait) : maxWait;
+              trailing = "trailing" in options ? !!options.trailing : trailing;
+            }
+            function invokeFunc(time) {
+              var args = lastArgs, thisArg = lastThis;
+              lastArgs = lastThis = undefined2;
+              lastInvokeTime = time;
+              result2 = func.apply(thisArg, args);
+              return result2;
+            }
+            function leadingEdge(time) {
+              lastInvokeTime = time;
+              timerId = setTimeout2(timerExpired, wait);
+              return leading ? invokeFunc(time) : result2;
+            }
+            function remainingWait(time) {
+              var timeSinceLastCall = time - lastCallTime, timeSinceLastInvoke = time - lastInvokeTime, timeWaiting = wait - timeSinceLastCall;
+              return maxing ? nativeMin(timeWaiting, maxWait - timeSinceLastInvoke) : timeWaiting;
+            }
+            function shouldInvoke(time) {
+              var timeSinceLastCall = time - lastCallTime, timeSinceLastInvoke = time - lastInvokeTime;
+              return lastCallTime === undefined2 || timeSinceLastCall >= wait || timeSinceLastCall < 0 || maxing && timeSinceLastInvoke >= maxWait;
+            }
+            function timerExpired() {
+              var time = now2();
+              if (shouldInvoke(time)) {
+                return trailingEdge(time);
+              }
+              timerId = setTimeout2(timerExpired, remainingWait(time));
+            }
+            function trailingEdge(time) {
+              timerId = undefined2;
+              if (trailing && lastArgs) {
+                return invokeFunc(time);
+              }
+              lastArgs = lastThis = undefined2;
+              return result2;
+            }
+            function cancel() {
+              if (timerId !== undefined2) {
+                clearTimeout2(timerId);
+              }
+              lastInvokeTime = 0;
+              lastArgs = lastCallTime = lastThis = timerId = undefined2;
+            }
+            function flush() {
+              return timerId === undefined2 ? result2 : trailingEdge(now2());
+            }
+            function debounced() {
+              var time = now2(), isInvoking = shouldInvoke(time);
+              lastArgs = arguments;
+              lastThis = this;
+              lastCallTime = time;
+              if (isInvoking) {
+                if (timerId === undefined2) {
+                  return leadingEdge(lastCallTime);
+                }
+                if (maxing) {
+                  clearTimeout2(timerId);
+                  timerId = setTimeout2(timerExpired, wait);
+                  return invokeFunc(lastCallTime);
+                }
+              }
+              if (timerId === undefined2) {
+                timerId = setTimeout2(timerExpired, wait);
+              }
+              return result2;
+            }
+            debounced.cancel = cancel;
+            debounced.flush = flush;
+            return debounced;
+          }
+          var defer = baseRest(function(func, args) {
+            return baseDelay(func, 1, args);
+          });
+          var delay = baseRest(function(func, wait, args) {
+            return baseDelay(func, toNumber(wait) || 0, args);
+          });
+          function flip(func) {
+            return createWrap(func, WRAP_FLIP_FLAG);
+          }
+          function memoize(func, resolver) {
+            if (typeof func != "function" || resolver != null && typeof resolver != "function") {
+              throw new TypeError2(FUNC_ERROR_TEXT);
+            }
+            var memoized = function() {
+              var args = arguments, key = resolver ? resolver.apply(this, args) : args[0], cache = memoized.cache;
+              if (cache.has(key)) {
+                return cache.get(key);
+              }
+              var result2 = func.apply(this, args);
+              memoized.cache = cache.set(key, result2) || cache;
+              return result2;
+            };
+            memoized.cache = new (memoize.Cache || MapCache)();
+            return memoized;
+          }
+          memoize.Cache = MapCache;
+          function negate2(predicate) {
+            if (typeof predicate != "function") {
+              throw new TypeError2(FUNC_ERROR_TEXT);
+            }
+            return function() {
+              var args = arguments;
+              switch (args.length) {
+                case 0:
+                  return !predicate.call(this);
+                case 1:
+                  return !predicate.call(this, args[0]);
+                case 2:
+                  return !predicate.call(this, args[0], args[1]);
+                case 3:
+                  return !predicate.call(this, args[0], args[1], args[2]);
+              }
+              return !predicate.apply(this, args);
+            };
+          }
+          function once(func) {
+            return before(2, func);
+          }
+          var overArgs = castRest(function(func, transforms) {
+            transforms = transforms.length == 1 && isArray(transforms[0]) ? arrayMap(transforms[0], baseUnary(getIteratee())) : arrayMap(baseFlatten(transforms, 1), baseUnary(getIteratee()));
+            var funcsLength = transforms.length;
+            return baseRest(function(args) {
+              var index2 = -1, length = nativeMin(args.length, funcsLength);
+              while (++index2 < length) {
+                args[index2] = transforms[index2].call(this, args[index2]);
+              }
+              return apply(func, this, args);
+            });
+          });
+          var partial = baseRest(function(func, partials) {
+            var holders = replaceHolders(partials, getHolder(partial));
+            return createWrap(func, WRAP_PARTIAL_FLAG, undefined2, partials, holders);
+          });
+          var partialRight = baseRest(function(func, partials) {
+            var holders = replaceHolders(partials, getHolder(partialRight));
+            return createWrap(func, WRAP_PARTIAL_RIGHT_FLAG, undefined2, partials, holders);
+          });
+          var rearg = flatRest(function(func, indexes) {
+            return createWrap(func, WRAP_REARG_FLAG, undefined2, undefined2, undefined2, indexes);
+          });
+          function rest(func, start2) {
+            if (typeof func != "function") {
+              throw new TypeError2(FUNC_ERROR_TEXT);
+            }
+            start2 = start2 === undefined2 ? start2 : toInteger(start2);
+            return baseRest(func, start2);
+          }
+          function spread(func, start2) {
+            if (typeof func != "function") {
+              throw new TypeError2(FUNC_ERROR_TEXT);
+            }
+            start2 = start2 == null ? 0 : nativeMax(toInteger(start2), 0);
+            return baseRest(function(args) {
+              var array2 = args[start2], otherArgs = castSlice(args, 0, start2);
+              if (array2) {
+                arrayPush(otherArgs, array2);
+              }
+              return apply(func, this, otherArgs);
+            });
+          }
+          function throttle(func, wait, options) {
+            var leading = true, trailing = true;
+            if (typeof func != "function") {
+              throw new TypeError2(FUNC_ERROR_TEXT);
+            }
+            if (isObject(options)) {
+              leading = "leading" in options ? !!options.leading : leading;
+              trailing = "trailing" in options ? !!options.trailing : trailing;
+            }
+            return debounce(func, wait, {
+              "leading": leading,
+              "maxWait": wait,
+              "trailing": trailing
+            });
+          }
+          function unary(func) {
+            return ary(func, 1);
+          }
+          function wrap(value, wrapper) {
+            return partial(castFunction(wrapper), value);
+          }
+          function castArray() {
+            if (!arguments.length) {
+              return [];
+            }
+            var value = arguments[0];
+            return isArray(value) ? value : [value];
+          }
+          function clone(value) {
+            return baseClone(value, CLONE_SYMBOLS_FLAG);
+          }
+          function cloneWith(value, customizer) {
+            customizer = typeof customizer == "function" ? customizer : undefined2;
+            return baseClone(value, CLONE_SYMBOLS_FLAG, customizer);
+          }
+          function cloneDeep2(value) {
+            return baseClone(value, CLONE_DEEP_FLAG | CLONE_SYMBOLS_FLAG);
+          }
+          function cloneDeepWith(value, customizer) {
+            customizer = typeof customizer == "function" ? customizer : undefined2;
+            return baseClone(value, CLONE_DEEP_FLAG | CLONE_SYMBOLS_FLAG, customizer);
+          }
+          function conformsTo(object, source) {
+            return source == null || baseConformsTo(object, source, keys(source));
+          }
+          function eq(value, other) {
+            return value === other || value !== value && other !== other;
+          }
+          var gt = createRelationalOperation(baseGt);
+          var gte = createRelationalOperation(function(value, other) {
+            return value >= other;
+          });
+          var isArguments = baseIsArguments(function() {
+            return arguments;
+          }()) ? baseIsArguments : function(value) {
+            return isObjectLike(value) && hasOwnProperty.call(value, "callee") && !propertyIsEnumerable.call(value, "callee");
+          };
+          var isArray = Array2.isArray;
+          var isArrayBuffer = nodeIsArrayBuffer ? baseUnary(nodeIsArrayBuffer) : baseIsArrayBuffer;
+          function isArrayLike(value) {
+            return value != null && isLength(value.length) && !isFunction(value);
+          }
+          function isArrayLikeObject(value) {
+            return isObjectLike(value) && isArrayLike(value);
+          }
+          function isBoolean(value) {
+            return value === true || value === false || isObjectLike(value) && baseGetTag(value) == boolTag;
+          }
+          var isBuffer = nativeIsBuffer || stubFalse;
+          var isDate = nodeIsDate ? baseUnary(nodeIsDate) : baseIsDate;
+          function isElement(value) {
+            return isObjectLike(value) && value.nodeType === 1 && !isPlainObject(value);
+          }
+          function isEmpty(value) {
+            if (value == null) {
+              return true;
+            }
+            if (isArrayLike(value) && (isArray(value) || typeof value == "string" || typeof value.splice == "function" || isBuffer(value) || isTypedArray(value) || isArguments(value))) {
+              return !value.length;
+            }
+            var tag = getTag(value);
+            if (tag == mapTag || tag == setTag) {
+              return !value.size;
+            }
+            if (isPrototype(value)) {
+              return !baseKeys(value).length;
+            }
+            for (var key in value) {
+              if (hasOwnProperty.call(value, key)) {
+                return false;
+              }
+            }
+            return true;
+          }
+          function isEqual(value, other) {
+            return baseIsEqual(value, other);
+          }
+          function isEqualWith(value, other, customizer) {
+            customizer = typeof customizer == "function" ? customizer : undefined2;
+            var result2 = customizer ? customizer(value, other) : undefined2;
+            return result2 === undefined2 ? baseIsEqual(value, other, undefined2, customizer) : !!result2;
+          }
+          function isError(value) {
+            if (!isObjectLike(value)) {
+              return false;
+            }
+            var tag = baseGetTag(value);
+            return tag == errorTag || tag == domExcTag || typeof value.message == "string" && typeof value.name == "string" && !isPlainObject(value);
+          }
+          function isFinite2(value) {
+            return typeof value == "number" && nativeIsFinite(value);
+          }
+          function isFunction(value) {
+            if (!isObject(value)) {
+              return false;
+            }
+            var tag = baseGetTag(value);
+            return tag == funcTag || tag == genTag || tag == asyncTag || tag == proxyTag;
+          }
+          function isInteger(value) {
+            return typeof value == "number" && value == toInteger(value);
+          }
+          function isLength(value) {
+            return typeof value == "number" && value > -1 && value % 1 == 0 && value <= MAX_SAFE_INTEGER;
+          }
+          function isObject(value) {
+            var type2 = typeof value;
+            return value != null && (type2 == "object" || type2 == "function");
+          }
+          function isObjectLike(value) {
+            return value != null && typeof value == "object";
+          }
+          var isMap = nodeIsMap ? baseUnary(nodeIsMap) : baseIsMap;
+          function isMatch(object, source) {
+            return object === source || baseIsMatch(object, source, getMatchData(source));
+          }
+          function isMatchWith(object, source, customizer) {
+            customizer = typeof customizer == "function" ? customizer : undefined2;
+            return baseIsMatch(object, source, getMatchData(source), customizer);
+          }
+          function isNaN2(value) {
+            return isNumber(value) && value != +value;
+          }
+          function isNative(value) {
+            if (isMaskable(value)) {
+              throw new Error2(CORE_ERROR_TEXT);
+            }
+            return baseIsNative(value);
+          }
+          function isNull(value) {
+            return value === null;
+          }
+          function isNil(value) {
+            return value == null;
+          }
+          function isNumber(value) {
+            return typeof value == "number" || isObjectLike(value) && baseGetTag(value) == numberTag;
+          }
+          function isPlainObject(value) {
+            if (!isObjectLike(value) || baseGetTag(value) != objectTag) {
+              return false;
+            }
+            var proto = getPrototype(value);
+            if (proto === null) {
+              return true;
+            }
+            var Ctor = hasOwnProperty.call(proto, "constructor") && proto.constructor;
+            return typeof Ctor == "function" && Ctor instanceof Ctor && funcToString.call(Ctor) == objectCtorString;
+          }
+          var isRegExp = nodeIsRegExp ? baseUnary(nodeIsRegExp) : baseIsRegExp;
+          function isSafeInteger(value) {
+            return isInteger(value) && value >= -MAX_SAFE_INTEGER && value <= MAX_SAFE_INTEGER;
+          }
+          var isSet = nodeIsSet ? baseUnary(nodeIsSet) : baseIsSet;
+          function isString(value) {
+            return typeof value == "string" || !isArray(value) && isObjectLike(value) && baseGetTag(value) == stringTag;
+          }
+          function isSymbol(value) {
+            return typeof value == "symbol" || isObjectLike(value) && baseGetTag(value) == symbolTag;
+          }
+          var isTypedArray = nodeIsTypedArray ? baseUnary(nodeIsTypedArray) : baseIsTypedArray;
+          function isUndefined(value) {
+            return value === undefined2;
+          }
+          function isWeakMap(value) {
+            return isObjectLike(value) && getTag(value) == weakMapTag;
+          }
+          function isWeakSet(value) {
+            return isObjectLike(value) && baseGetTag(value) == weakSetTag;
+          }
+          var lt = createRelationalOperation(baseLt);
+          var lte = createRelationalOperation(function(value, other) {
+            return value <= other;
+          });
+          function toArray(value) {
+            if (!value) {
+              return [];
+            }
+            if (isArrayLike(value)) {
+              return isString(value) ? stringToArray(value) : copyArray(value);
+            }
+            if (symIterator && value[symIterator]) {
+              return iteratorToArray(value[symIterator]());
+            }
+            var tag = getTag(value), func = tag == mapTag ? mapToArray : tag == setTag ? setToArray : values;
+            return func(value);
+          }
+          function toFinite(value) {
+            if (!value) {
+              return value === 0 ? value : 0;
+            }
+            value = toNumber(value);
+            if (value === INFINITY || value === -INFINITY) {
+              var sign = value < 0 ? -1 : 1;
+              return sign * MAX_INTEGER;
+            }
+            return value === value ? value : 0;
+          }
+          function toInteger(value) {
+            var result2 = toFinite(value), remainder = result2 % 1;
+            return result2 === result2 ? remainder ? result2 - remainder : result2 : 0;
+          }
+          function toLength(value) {
+            return value ? baseClamp(toInteger(value), 0, MAX_ARRAY_LENGTH) : 0;
+          }
+          function toNumber(value) {
+            if (typeof value == "number") {
+              return value;
+            }
+            if (isSymbol(value)) {
+              return NAN;
+            }
+            if (isObject(value)) {
+              var other = typeof value.valueOf == "function" ? value.valueOf() : value;
+              value = isObject(other) ? other + "" : other;
+            }
+            if (typeof value != "string") {
+              return value === 0 ? value : +value;
+            }
+            value = baseTrim(value);
+            var isBinary = reIsBinary.test(value);
+            return isBinary || reIsOctal.test(value) ? freeParseInt(value.slice(2), isBinary ? 2 : 8) : reIsBadHex.test(value) ? NAN : +value;
+          }
+          function toPlainObject(value) {
+            return copyObject(value, keysIn(value));
+          }
+          function toSafeInteger(value) {
+            return value ? baseClamp(toInteger(value), -MAX_SAFE_INTEGER, MAX_SAFE_INTEGER) : value === 0 ? value : 0;
+          }
+          function toString(value) {
+            return value == null ? "" : baseToString(value);
+          }
+          var assign = createAssigner(function(object, source) {
+            if (isPrototype(source) || isArrayLike(source)) {
+              copyObject(source, keys(source), object);
+              return;
+            }
+            for (var key in source) {
+              if (hasOwnProperty.call(source, key)) {
+                assignValue(object, key, source[key]);
+              }
+            }
+          });
+          var assignIn = createAssigner(function(object, source) {
+            copyObject(source, keysIn(source), object);
+          });
+          var assignInWith = createAssigner(function(object, source, srcIndex, customizer) {
+            copyObject(source, keysIn(source), object, customizer);
+          });
+          var assignWith = createAssigner(function(object, source, srcIndex, customizer) {
+            copyObject(source, keys(source), object, customizer);
+          });
+          var at = flatRest(baseAt);
+          function create2(prototype, properties) {
+            var result2 = baseCreate(prototype);
+            return properties == null ? result2 : baseAssign(result2, properties);
+          }
+          var defaults = baseRest(function(object, sources) {
+            object = Object2(object);
+            var index2 = -1;
+            var length = sources.length;
+            var guard = length > 2 ? sources[2] : undefined2;
+            if (guard && isIterateeCall(sources[0], sources[1], guard)) {
+              length = 1;
+            }
+            while (++index2 < length) {
+              var source = sources[index2];
+              var props = keysIn(source);
+              var propsIndex = -1;
+              var propsLength = props.length;
+              while (++propsIndex < propsLength) {
+                var key = props[propsIndex];
+                var value = object[key];
+                if (value === undefined2 || eq(value, objectProto[key]) && !hasOwnProperty.call(object, key)) {
+                  object[key] = source[key];
+                }
+              }
+            }
+            return object;
+          });
+          var defaultsDeep = baseRest(function(args) {
+            args.push(undefined2, customDefaultsMerge);
+            return apply(mergeWith, undefined2, args);
+          });
+          function findKey(object, predicate) {
+            return baseFindKey(object, getIteratee(predicate, 3), baseForOwn);
+          }
+          function findLastKey(object, predicate) {
+            return baseFindKey(object, getIteratee(predicate, 3), baseForOwnRight);
+          }
+          function forIn(object, iteratee2) {
+            return object == null ? object : baseFor(object, getIteratee(iteratee2, 3), keysIn);
+          }
+          function forInRight(object, iteratee2) {
+            return object == null ? object : baseForRight(object, getIteratee(iteratee2, 3), keysIn);
+          }
+          function forOwn(object, iteratee2) {
+            return object && baseForOwn(object, getIteratee(iteratee2, 3));
+          }
+          function forOwnRight(object, iteratee2) {
+            return object && baseForOwnRight(object, getIteratee(iteratee2, 3));
+          }
+          function functions(object) {
+            return object == null ? [] : baseFunctions(object, keys(object));
+          }
+          function functionsIn(object) {
+            return object == null ? [] : baseFunctions(object, keysIn(object));
+          }
+          function get3(object, path2, defaultValue) {
+            var result2 = object == null ? undefined2 : baseGet(object, path2);
+            return result2 === undefined2 ? defaultValue : result2;
+          }
+          function has(object, path2) {
+            return object != null && hasPath(object, path2, baseHas);
+          }
+          function hasIn(object, path2) {
+            return object != null && hasPath(object, path2, baseHasIn);
+          }
+          var invert = createInverter(function(result2, value, key) {
+            if (value != null && typeof value.toString != "function") {
+              value = nativeObjectToString.call(value);
+            }
+            result2[value] = key;
+          }, constant(identity4));
+          var invertBy = createInverter(function(result2, value, key) {
+            if (value != null && typeof value.toString != "function") {
+              value = nativeObjectToString.call(value);
+            }
+            if (hasOwnProperty.call(result2, value)) {
+              result2[value].push(key);
+            } else {
+              result2[value] = [key];
+            }
+          }, getIteratee);
+          var invoke = baseRest(baseInvoke);
+          function keys(object) {
+            return isArrayLike(object) ? arrayLikeKeys(object) : baseKeys(object);
+          }
+          function keysIn(object) {
+            return isArrayLike(object) ? arrayLikeKeys(object, true) : baseKeysIn(object);
+          }
+          function mapKeys(object, iteratee2) {
+            var result2 = {};
+            iteratee2 = getIteratee(iteratee2, 3);
+            baseForOwn(object, function(value, key, object2) {
+              baseAssignValue(result2, iteratee2(value, key, object2), value);
+            });
+            return result2;
+          }
+          function mapValues(object, iteratee2) {
+            var result2 = {};
+            iteratee2 = getIteratee(iteratee2, 3);
+            baseForOwn(object, function(value, key, object2) {
+              baseAssignValue(result2, key, iteratee2(value, key, object2));
+            });
+            return result2;
+          }
+          var merge = createAssigner(function(object, source, srcIndex) {
+            baseMerge(object, source, srcIndex);
+          });
+          var mergeWith = createAssigner(function(object, source, srcIndex, customizer) {
+            baseMerge(object, source, srcIndex, customizer);
+          });
+          var omit = flatRest(function(object, paths) {
+            var result2 = {};
+            if (object == null) {
+              return result2;
+            }
+            var isDeep = false;
+            paths = arrayMap(paths, function(path2) {
+              path2 = castPath(path2, object);
+              isDeep || (isDeep = path2.length > 1);
+              return path2;
+            });
+            copyObject(object, getAllKeysIn(object), result2);
+            if (isDeep) {
+              result2 = baseClone(result2, CLONE_DEEP_FLAG | CLONE_FLAT_FLAG | CLONE_SYMBOLS_FLAG, customOmitClone);
+            }
+            var length = paths.length;
+            while (length--) {
+              baseUnset(result2, paths[length]);
+            }
+            return result2;
+          });
+          function omitBy(object, predicate) {
+            return pickBy(object, negate2(getIteratee(predicate)));
+          }
+          var pick = flatRest(function(object, paths) {
+            return object == null ? {} : basePick(object, paths);
+          });
+          function pickBy(object, predicate) {
+            if (object == null) {
+              return {};
+            }
+            var props = arrayMap(getAllKeysIn(object), function(prop) {
+              return [prop];
+            });
+            predicate = getIteratee(predicate);
+            return basePickBy(object, props, function(value, path2) {
+              return predicate(value, path2[0]);
+            });
+          }
+          function result(object, path2, defaultValue) {
+            path2 = castPath(path2, object);
+            var index2 = -1, length = path2.length;
+            if (!length) {
+              length = 1;
+              object = undefined2;
+            }
+            while (++index2 < length) {
+              var value = object == null ? undefined2 : object[toKey(path2[index2])];
+              if (value === undefined2) {
+                index2 = length;
+                value = defaultValue;
+              }
+              object = isFunction(value) ? value.call(object) : value;
+            }
+            return object;
+          }
+          function set3(object, path2, value) {
+            return object == null ? object : baseSet(object, path2, value);
+          }
+          function setWith(object, path2, value, customizer) {
+            customizer = typeof customizer == "function" ? customizer : undefined2;
+            return object == null ? object : baseSet(object, path2, value, customizer);
+          }
+          var toPairs = createToPairs(keys);
+          var toPairsIn = createToPairs(keysIn);
+          function transform2(object, iteratee2, accumulator) {
+            var isArr = isArray(object), isArrLike = isArr || isBuffer(object) || isTypedArray(object);
+            iteratee2 = getIteratee(iteratee2, 4);
+            if (accumulator == null) {
+              var Ctor = object && object.constructor;
+              if (isArrLike) {
+                accumulator = isArr ? new Ctor() : [];
+              } else if (isObject(object)) {
+                accumulator = isFunction(Ctor) ? baseCreate(getPrototype(object)) : {};
+              } else {
+                accumulator = {};
+              }
+            }
+            (isArrLike ? arrayEach : baseForOwn)(object, function(value, index2, object2) {
+              return iteratee2(accumulator, value, index2, object2);
+            });
+            return accumulator;
+          }
+          function unset(object, path2) {
+            return object == null ? true : baseUnset(object, path2);
+          }
+          function update(object, path2, updater) {
+            return object == null ? object : baseUpdate(object, path2, castFunction(updater));
+          }
+          function updateWith(object, path2, updater, customizer) {
+            customizer = typeof customizer == "function" ? customizer : undefined2;
+            return object == null ? object : baseUpdate(object, path2, castFunction(updater), customizer);
+          }
+          function values(object) {
+            return object == null ? [] : baseValues(object, keys(object));
+          }
+          function valuesIn(object) {
+            return object == null ? [] : baseValues(object, keysIn(object));
+          }
+          function clamp(number4, lower2, upper) {
+            if (upper === undefined2) {
+              upper = lower2;
+              lower2 = undefined2;
+            }
+            if (upper !== undefined2) {
+              upper = toNumber(upper);
+              upper = upper === upper ? upper : 0;
+            }
+            if (lower2 !== undefined2) {
+              lower2 = toNumber(lower2);
+              lower2 = lower2 === lower2 ? lower2 : 0;
+            }
+            return baseClamp(toNumber(number4), lower2, upper);
+          }
+          function inRange(number4, start2, end) {
+            start2 = toFinite(start2);
+            if (end === undefined2) {
+              end = start2;
+              start2 = 0;
+            } else {
+              end = toFinite(end);
+            }
+            number4 = toNumber(number4);
+            return baseInRange(number4, start2, end);
+          }
+          function random(lower2, upper, floating) {
+            if (floating && typeof floating != "boolean" && isIterateeCall(lower2, upper, floating)) {
+              upper = floating = undefined2;
+            }
+            if (floating === undefined2) {
+              if (typeof upper == "boolean") {
+                floating = upper;
+                upper = undefined2;
+              } else if (typeof lower2 == "boolean") {
+                floating = lower2;
+                lower2 = undefined2;
+              }
+            }
+            if (lower2 === undefined2 && upper === undefined2) {
+              lower2 = 0;
+              upper = 1;
+            } else {
+              lower2 = toFinite(lower2);
+              if (upper === undefined2) {
+                upper = lower2;
+                lower2 = 0;
+              } else {
+                upper = toFinite(upper);
+              }
+            }
+            if (lower2 > upper) {
+              var temp = lower2;
+              lower2 = upper;
+              upper = temp;
+            }
+            if (floating || lower2 % 1 || upper % 1) {
+              var rand = nativeRandom();
+              return nativeMin(lower2 + rand * (upper - lower2 + freeParseFloat("1e-" + ((rand + "").length - 1))), upper);
+            }
+            return baseRandom(lower2, upper);
+          }
+          var camelCase = createCompounder(function(result2, word, index2) {
+            word = word.toLowerCase();
+            return result2 + (index2 ? capitalize(word) : word);
+          });
+          function capitalize(string) {
+            return upperFirst(toString(string).toLowerCase());
+          }
+          function deburr(string) {
+            string = toString(string);
+            return string && string.replace(reLatin, deburrLetter).replace(reComboMark, "");
+          }
+          function endsWith(string, target, position) {
+            string = toString(string);
+            target = baseToString(target);
+            var length = string.length;
+            position = position === undefined2 ? length : baseClamp(toInteger(position), 0, length);
+            var end = position;
+            position -= target.length;
+            return position >= 0 && string.slice(position, end) == target;
+          }
+          function escape(string) {
+            string = toString(string);
+            return string && reHasUnescapedHtml.test(string) ? string.replace(reUnescapedHtml, escapeHtmlChar) : string;
+          }
+          function escapeRegExp(string) {
+            string = toString(string);
+            return string && reHasRegExpChar.test(string) ? string.replace(reRegExpChar, "\\$&") : string;
+          }
+          var kebabCase = createCompounder(function(result2, word, index2) {
+            return result2 + (index2 ? "-" : "") + word.toLowerCase();
+          });
+          var lowerCase = createCompounder(function(result2, word, index2) {
+            return result2 + (index2 ? " " : "") + word.toLowerCase();
+          });
+          var lowerFirst = createCaseFirst("toLowerCase");
+          function pad2(string, length, chars) {
+            string = toString(string);
+            length = toInteger(length);
+            var strLength = length ? stringSize(string) : 0;
+            if (!length || strLength >= length) {
+              return string;
+            }
+            var mid = (length - strLength) / 2;
+            return createPadding(nativeFloor(mid), chars) + string + createPadding(nativeCeil(mid), chars);
+          }
+          function padEnd(string, length, chars) {
+            string = toString(string);
+            length = toInteger(length);
+            var strLength = length ? stringSize(string) : 0;
+            return length && strLength < length ? string + createPadding(length - strLength, chars) : string;
+          }
+          function padStart(string, length, chars) {
+            string = toString(string);
+            length = toInteger(length);
+            var strLength = length ? stringSize(string) : 0;
+            return length && strLength < length ? createPadding(length - strLength, chars) + string : string;
+          }
+          function parseInt2(string, radix, guard) {
+            if (guard || radix == null) {
+              radix = 0;
+            } else if (radix) {
+              radix = +radix;
+            }
+            return nativeParseInt(toString(string).replace(reTrimStart, ""), radix || 0);
+          }
+          function repeat(string, n, guard) {
+            if (guard ? isIterateeCall(string, n, guard) : n === undefined2) {
+              n = 1;
+            } else {
+              n = toInteger(n);
+            }
+            return baseRepeat(toString(string), n);
+          }
+          function replace() {
+            var args = arguments, string = toString(args[0]);
+            return args.length < 3 ? string : string.replace(args[1], args[2]);
+          }
+          var snakeCase = createCompounder(function(result2, word, index2) {
+            return result2 + (index2 ? "_" : "") + word.toLowerCase();
+          });
+          function split(string, separator, limit) {
+            if (limit && typeof limit != "number" && isIterateeCall(string, separator, limit)) {
+              separator = limit = undefined2;
+            }
+            limit = limit === undefined2 ? MAX_ARRAY_LENGTH : limit >>> 0;
+            if (!limit) {
+              return [];
+            }
+            string = toString(string);
+            if (string && (typeof separator == "string" || separator != null && !isRegExp(separator))) {
+              separator = baseToString(separator);
+              if (!separator && hasUnicode(string)) {
+                return castSlice(stringToArray(string), 0, limit);
+              }
+            }
+            return string.split(separator, limit);
+          }
+          var startCase = createCompounder(function(result2, word, index2) {
+            return result2 + (index2 ? " " : "") + upperFirst(word);
+          });
+          function startsWith(string, target, position) {
+            string = toString(string);
+            position = position == null ? 0 : baseClamp(toInteger(position), 0, string.length);
+            target = baseToString(target);
+            return string.slice(position, position + target.length) == target;
+          }
+          function template(string, options, guard) {
+            var settings = lodash.templateSettings;
+            if (guard && isIterateeCall(string, options, guard)) {
+              options = undefined2;
+            }
+            string = toString(string);
+            options = assignInWith({}, options, settings, customDefaultsAssignIn);
+            var imports = assignInWith({}, options.imports, settings.imports, customDefaultsAssignIn), importsKeys = keys(imports), importsValues = baseValues(imports, importsKeys);
+            var isEscaping, isEvaluating, index2 = 0, interpolate = options.interpolate || reNoMatch, source = "__p += '";
+            var reDelimiters = RegExp2((options.escape || reNoMatch).source + "|" + interpolate.source + "|" + (interpolate === reInterpolate ? reEsTemplate : reNoMatch).source + "|" + (options.evaluate || reNoMatch).source + "|$", "g");
+            var sourceURL = "//# sourceURL=" + (hasOwnProperty.call(options, "sourceURL") ? (options.sourceURL + "").replace(/\s/g, " ") : "lodash.templateSources[" + ++templateCounter + "]") + "\n";
+            string.replace(reDelimiters, function(match, escapeValue, interpolateValue, esTemplateValue, evaluateValue, offset) {
+              interpolateValue || (interpolateValue = esTemplateValue);
+              source += string.slice(index2, offset).replace(reUnescapedString, escapeStringChar);
+              if (escapeValue) {
+                isEscaping = true;
+                source += "' +\n__e(" + escapeValue + ") +\n'";
+              }
+              if (evaluateValue) {
+                isEvaluating = true;
+                source += "';\n" + evaluateValue + ";\n__p += '";
+              }
+              if (interpolateValue) {
+                source += "' +\n((__t = (" + interpolateValue + ")) == null ? '' : __t) +\n'";
+              }
+              index2 = offset + match.length;
+              return match;
+            });
+            source += "';\n";
+            var variable = hasOwnProperty.call(options, "variable") && options.variable;
+            if (!variable) {
+              source = "with (obj) {\n" + source + "\n}\n";
+            } else if (reForbiddenIdentifierChars.test(variable)) {
+              throw new Error2(INVALID_TEMPL_VAR_ERROR_TEXT);
+            }
+            source = (isEvaluating ? source.replace(reEmptyStringLeading, "") : source).replace(reEmptyStringMiddle, "$1").replace(reEmptyStringTrailing, "$1;");
+            source = "function(" + (variable || "obj") + ") {\n" + (variable ? "" : "obj || (obj = {});\n") + "var __t, __p = ''" + (isEscaping ? ", __e = _.escape" : "") + (isEvaluating ? ", __j = Array.prototype.join;\nfunction print() { __p += __j.call(arguments, '') }\n" : ";\n") + source + "return __p\n}";
+            var result2 = attempt(function() {
+              return Function2(importsKeys, sourceURL + "return " + source).apply(undefined2, importsValues);
+            });
+            result2.source = source;
+            if (isError(result2)) {
+              throw result2;
+            }
+            return result2;
+          }
+          function toLower(value) {
+            return toString(value).toLowerCase();
+          }
+          function toUpper(value) {
+            return toString(value).toUpperCase();
+          }
+          function trim(string, chars, guard) {
+            string = toString(string);
+            if (string && (guard || chars === undefined2)) {
+              return baseTrim(string);
+            }
+            if (!string || !(chars = baseToString(chars))) {
+              return string;
+            }
+            var strSymbols = stringToArray(string), chrSymbols = stringToArray(chars), start2 = charsStartIndex(strSymbols, chrSymbols), end = charsEndIndex(strSymbols, chrSymbols) + 1;
+            return castSlice(strSymbols, start2, end).join("");
+          }
+          function trimEnd(string, chars, guard) {
+            string = toString(string);
+            if (string && (guard || chars === undefined2)) {
+              return string.slice(0, trimmedEndIndex(string) + 1);
+            }
+            if (!string || !(chars = baseToString(chars))) {
+              return string;
+            }
+            var strSymbols = stringToArray(string), end = charsEndIndex(strSymbols, stringToArray(chars)) + 1;
+            return castSlice(strSymbols, 0, end).join("");
+          }
+          function trimStart(string, chars, guard) {
+            string = toString(string);
+            if (string && (guard || chars === undefined2)) {
+              return string.replace(reTrimStart, "");
+            }
+            if (!string || !(chars = baseToString(chars))) {
+              return string;
+            }
+            var strSymbols = stringToArray(string), start2 = charsStartIndex(strSymbols, stringToArray(chars));
+            return castSlice(strSymbols, start2).join("");
+          }
+          function truncate(string, options) {
+            var length = DEFAULT_TRUNC_LENGTH, omission = DEFAULT_TRUNC_OMISSION;
+            if (isObject(options)) {
+              var separator = "separator" in options ? options.separator : separator;
+              length = "length" in options ? toInteger(options.length) : length;
+              omission = "omission" in options ? baseToString(options.omission) : omission;
+            }
+            string = toString(string);
+            var strLength = string.length;
+            if (hasUnicode(string)) {
+              var strSymbols = stringToArray(string);
+              strLength = strSymbols.length;
+            }
+            if (length >= strLength) {
+              return string;
+            }
+            var end = length - stringSize(omission);
+            if (end < 1) {
+              return omission;
+            }
+            var result2 = strSymbols ? castSlice(strSymbols, 0, end).join("") : string.slice(0, end);
+            if (separator === undefined2) {
+              return result2 + omission;
+            }
+            if (strSymbols) {
+              end += result2.length - end;
+            }
+            if (isRegExp(separator)) {
+              if (string.slice(end).search(separator)) {
+                var match, substring = result2;
+                if (!separator.global) {
+                  separator = RegExp2(separator.source, toString(reFlags.exec(separator)) + "g");
+                }
+                separator.lastIndex = 0;
+                while (match = separator.exec(substring)) {
+                  var newEnd = match.index;
+                }
+                result2 = result2.slice(0, newEnd === undefined2 ? end : newEnd);
+              }
+            } else if (string.indexOf(baseToString(separator), end) != end) {
+              var index2 = result2.lastIndexOf(separator);
+              if (index2 > -1) {
+                result2 = result2.slice(0, index2);
+              }
+            }
+            return result2 + omission;
+          }
+          function unescape(string) {
+            string = toString(string);
+            return string && reHasEscapedHtml.test(string) ? string.replace(reEscapedHtml, unescapeHtmlChar) : string;
+          }
+          var upperCase = createCompounder(function(result2, word, index2) {
+            return result2 + (index2 ? " " : "") + word.toUpperCase();
+          });
+          var upperFirst = createCaseFirst("toUpperCase");
+          function words(string, pattern, guard) {
+            string = toString(string);
+            pattern = guard ? undefined2 : pattern;
+            if (pattern === undefined2) {
+              return hasUnicodeWord(string) ? unicodeWords(string) : asciiWords(string);
+            }
+            return string.match(pattern) || [];
+          }
+          var attempt = baseRest(function(func, args) {
+            try {
+              return apply(func, undefined2, args);
+            } catch (e) {
+              return isError(e) ? e : new Error2(e);
+            }
+          });
+          var bindAll = flatRest(function(object, methodNames) {
+            arrayEach(methodNames, function(key) {
+              key = toKey(key);
+              baseAssignValue(object, key, bind(object[key], object));
+            });
+            return object;
+          });
+          function cond(pairs) {
+            var length = pairs == null ? 0 : pairs.length, toIteratee = getIteratee();
+            pairs = !length ? [] : arrayMap(pairs, function(pair) {
+              if (typeof pair[1] != "function") {
+                throw new TypeError2(FUNC_ERROR_TEXT);
+              }
+              return [toIteratee(pair[0]), pair[1]];
+            });
+            return baseRest(function(args) {
+              var index2 = -1;
+              while (++index2 < length) {
+                var pair = pairs[index2];
+                if (apply(pair[0], this, args)) {
+                  return apply(pair[1], this, args);
+                }
+              }
+            });
+          }
+          function conforms(source) {
+            return baseConforms(baseClone(source, CLONE_DEEP_FLAG));
+          }
+          function constant(value) {
+            return function() {
+              return value;
+            };
+          }
+          function defaultTo(value, defaultValue) {
+            return value == null || value !== value ? defaultValue : value;
+          }
+          var flow = createFlow();
+          var flowRight = createFlow(true);
+          function identity4(value) {
+            return value;
+          }
+          function iteratee(func) {
+            return baseIteratee(typeof func == "function" ? func : baseClone(func, CLONE_DEEP_FLAG));
+          }
+          function matches(source) {
+            return baseMatches(baseClone(source, CLONE_DEEP_FLAG));
+          }
+          function matchesProperty(path2, srcValue) {
+            return baseMatchesProperty(path2, baseClone(srcValue, CLONE_DEEP_FLAG));
+          }
+          var method = baseRest(function(path2, args) {
+            return function(object) {
+              return baseInvoke(object, path2, args);
+            };
+          });
+          var methodOf = baseRest(function(object, args) {
+            return function(path2) {
+              return baseInvoke(object, path2, args);
+            };
+          });
+          function mixin(object, source, options) {
+            var props = keys(source), methodNames = baseFunctions(source, props);
+            if (options == null && !(isObject(source) && (methodNames.length || !props.length))) {
+              options = source;
+              source = object;
+              object = this;
+              methodNames = baseFunctions(source, keys(source));
+            }
+            var chain2 = !(isObject(options) && "chain" in options) || !!options.chain, isFunc = isFunction(object);
+            arrayEach(methodNames, function(methodName) {
+              var func = source[methodName];
+              object[methodName] = func;
+              if (isFunc) {
+                object.prototype[methodName] = function() {
+                  var chainAll = this.__chain__;
+                  if (chain2 || chainAll) {
+                    var result2 = object(this.__wrapped__), actions = result2.__actions__ = copyArray(this.__actions__);
+                    actions.push({ "func": func, "args": arguments, "thisArg": object });
+                    result2.__chain__ = chainAll;
+                    return result2;
+                  }
+                  return func.apply(object, arrayPush([this.value()], arguments));
+                };
+              }
+            });
+            return object;
+          }
+          function noConflict() {
+            if (root2._ === this) {
+              root2._ = oldDash;
+            }
+            return this;
+          }
+          function noop2() {
+          }
+          function nthArg(n) {
+            n = toInteger(n);
+            return baseRest(function(args) {
+              return baseNth(args, n);
+            });
+          }
+          var over = createOver(arrayMap);
+          var overEvery = createOver(arrayEvery);
+          var overSome = createOver(arraySome);
+          function property(path2) {
+            return isKey(path2) ? baseProperty(toKey(path2)) : basePropertyDeep(path2);
+          }
+          function propertyOf(object) {
+            return function(path2) {
+              return object == null ? undefined2 : baseGet(object, path2);
+            };
+          }
+          var range2 = createRange();
+          var rangeRight = createRange(true);
+          function stubArray() {
+            return [];
+          }
+          function stubFalse() {
+            return false;
+          }
+          function stubObject() {
+            return {};
+          }
+          function stubString() {
+            return "";
+          }
+          function stubTrue() {
+            return true;
+          }
+          function times(n, iteratee2) {
+            n = toInteger(n);
+            if (n < 1 || n > MAX_SAFE_INTEGER) {
+              return [];
+            }
+            var index2 = MAX_ARRAY_LENGTH, length = nativeMin(n, MAX_ARRAY_LENGTH);
+            iteratee2 = getIteratee(iteratee2);
+            n -= MAX_ARRAY_LENGTH;
+            var result2 = baseTimes(length, iteratee2);
+            while (++index2 < n) {
+              iteratee2(index2);
+            }
+            return result2;
+          }
+          function toPath(value) {
+            if (isArray(value)) {
+              return arrayMap(value, toKey);
+            }
+            return isSymbol(value) ? [value] : copyArray(stringToPath(toString(value)));
+          }
+          function uniqueId(prefix) {
+            var id2 = ++idCounter;
+            return toString(prefix) + id2;
+          }
+          var add2 = createMathOperation(function(augend, addend) {
+            return augend + addend;
+          }, 0);
+          var ceil = createRound("ceil");
+          var divide = createMathOperation(function(dividend, divisor) {
+            return dividend / divisor;
+          }, 1);
+          var floor = createRound("floor");
+          function max3(array2) {
+            return array2 && array2.length ? baseExtremum(array2, identity4, baseGt) : undefined2;
+          }
+          function maxBy(array2, iteratee2) {
+            return array2 && array2.length ? baseExtremum(array2, getIteratee(iteratee2, 2), baseGt) : undefined2;
+          }
+          function mean(array2) {
+            return baseMean(array2, identity4);
+          }
+          function meanBy(array2, iteratee2) {
+            return baseMean(array2, getIteratee(iteratee2, 2));
+          }
+          function min3(array2) {
+            return array2 && array2.length ? baseExtremum(array2, identity4, baseLt) : undefined2;
+          }
+          function minBy(array2, iteratee2) {
+            return array2 && array2.length ? baseExtremum(array2, getIteratee(iteratee2, 2), baseLt) : undefined2;
+          }
+          var multiply = createMathOperation(function(multiplier, multiplicand) {
+            return multiplier * multiplicand;
+          }, 1);
+          var round = createRound("round");
+          var subtract = createMathOperation(function(minuend, subtrahend) {
+            return minuend - subtrahend;
+          }, 0);
+          function sum2(array2) {
+            return array2 && array2.length ? baseSum(array2, identity4) : 0;
+          }
+          function sumBy(array2, iteratee2) {
+            return array2 && array2.length ? baseSum(array2, getIteratee(iteratee2, 2)) : 0;
+          }
+          lodash.after = after;
+          lodash.ary = ary;
+          lodash.assign = assign;
+          lodash.assignIn = assignIn;
+          lodash.assignInWith = assignInWith;
+          lodash.assignWith = assignWith;
+          lodash.at = at;
+          lodash.before = before;
+          lodash.bind = bind;
+          lodash.bindAll = bindAll;
+          lodash.bindKey = bindKey2;
+          lodash.castArray = castArray;
+          lodash.chain = chain;
+          lodash.chunk = chunk;
+          lodash.compact = compact;
+          lodash.concat = concat;
+          lodash.cond = cond;
+          lodash.conforms = conforms;
+          lodash.constant = constant;
+          lodash.countBy = countBy;
+          lodash.create = create2;
+          lodash.curry = curry;
+          lodash.curryRight = curryRight;
+          lodash.debounce = debounce;
+          lodash.defaults = defaults;
+          lodash.defaultsDeep = defaultsDeep;
+          lodash.defer = defer;
+          lodash.delay = delay;
+          lodash.difference = difference;
+          lodash.differenceBy = differenceBy;
+          lodash.differenceWith = differenceWith;
+          lodash.drop = drop;
+          lodash.dropRight = dropRight;
+          lodash.dropRightWhile = dropRightWhile;
+          lodash.dropWhile = dropWhile;
+          lodash.fill = fill;
+          lodash.filter = filter2;
+          lodash.flatMap = flatMap;
+          lodash.flatMapDeep = flatMapDeep;
+          lodash.flatMapDepth = flatMapDepth;
+          lodash.flatten = flatten;
+          lodash.flattenDeep = flattenDeep;
+          lodash.flattenDepth = flattenDepth;
+          lodash.flip = flip;
+          lodash.flow = flow;
+          lodash.flowRight = flowRight;
+          lodash.fromPairs = fromPairs;
+          lodash.functions = functions;
+          lodash.functionsIn = functionsIn;
+          lodash.groupBy = groupBy;
+          lodash.initial = initial;
+          lodash.intersection = intersection;
+          lodash.intersectionBy = intersectionBy;
+          lodash.intersectionWith = intersectionWith;
+          lodash.invert = invert;
+          lodash.invertBy = invertBy;
+          lodash.invokeMap = invokeMap;
+          lodash.iteratee = iteratee;
+          lodash.keyBy = keyBy;
+          lodash.keys = keys;
+          lodash.keysIn = keysIn;
+          lodash.map = map2;
+          lodash.mapKeys = mapKeys;
+          lodash.mapValues = mapValues;
+          lodash.matches = matches;
+          lodash.matchesProperty = matchesProperty;
+          lodash.memoize = memoize;
+          lodash.merge = merge;
+          lodash.mergeWith = mergeWith;
+          lodash.method = method;
+          lodash.methodOf = methodOf;
+          lodash.mixin = mixin;
+          lodash.negate = negate2;
+          lodash.nthArg = nthArg;
+          lodash.omit = omit;
+          lodash.omitBy = omitBy;
+          lodash.once = once;
+          lodash.orderBy = orderBy;
+          lodash.over = over;
+          lodash.overArgs = overArgs;
+          lodash.overEvery = overEvery;
+          lodash.overSome = overSome;
+          lodash.partial = partial;
+          lodash.partialRight = partialRight;
+          lodash.partition = partition;
+          lodash.pick = pick;
+          lodash.pickBy = pickBy;
+          lodash.property = property;
+          lodash.propertyOf = propertyOf;
+          lodash.pull = pull;
+          lodash.pullAll = pullAll;
+          lodash.pullAllBy = pullAllBy;
+          lodash.pullAllWith = pullAllWith;
+          lodash.pullAt = pullAt;
+          lodash.range = range2;
+          lodash.rangeRight = rangeRight;
+          lodash.rearg = rearg;
+          lodash.reject = reject;
+          lodash.remove = remove2;
+          lodash.rest = rest;
+          lodash.reverse = reverse;
+          lodash.sampleSize = sampleSize;
+          lodash.set = set3;
+          lodash.setWith = setWith;
+          lodash.shuffle = shuffle;
+          lodash.slice = slice;
+          lodash.sortBy = sortBy;
+          lodash.sortedUniq = sortedUniq;
+          lodash.sortedUniqBy = sortedUniqBy;
+          lodash.split = split;
+          lodash.spread = spread;
+          lodash.tail = tail;
+          lodash.take = take;
+          lodash.takeRight = takeRight;
+          lodash.takeRightWhile = takeRightWhile;
+          lodash.takeWhile = takeWhile;
+          lodash.tap = tap;
+          lodash.throttle = throttle;
+          lodash.thru = thru;
+          lodash.toArray = toArray;
+          lodash.toPairs = toPairs;
+          lodash.toPairsIn = toPairsIn;
+          lodash.toPath = toPath;
+          lodash.toPlainObject = toPlainObject;
+          lodash.transform = transform2;
+          lodash.unary = unary;
+          lodash.union = union;
+          lodash.unionBy = unionBy;
+          lodash.unionWith = unionWith;
+          lodash.uniq = uniq;
+          lodash.uniqBy = uniqBy;
+          lodash.uniqWith = uniqWith;
+          lodash.unset = unset;
+          lodash.unzip = unzip;
+          lodash.unzipWith = unzipWith;
+          lodash.update = update;
+          lodash.updateWith = updateWith;
+          lodash.values = values;
+          lodash.valuesIn = valuesIn;
+          lodash.without = without;
+          lodash.words = words;
+          lodash.wrap = wrap;
+          lodash.xor = xor;
+          lodash.xorBy = xorBy;
+          lodash.xorWith = xorWith;
+          lodash.zip = zip;
+          lodash.zipObject = zipObject;
+          lodash.zipObjectDeep = zipObjectDeep;
+          lodash.zipWith = zipWith;
+          lodash.entries = toPairs;
+          lodash.entriesIn = toPairsIn;
+          lodash.extend = assignIn;
+          lodash.extendWith = assignInWith;
+          mixin(lodash, lodash);
+          lodash.add = add2;
+          lodash.attempt = attempt;
+          lodash.camelCase = camelCase;
+          lodash.capitalize = capitalize;
+          lodash.ceil = ceil;
+          lodash.clamp = clamp;
+          lodash.clone = clone;
+          lodash.cloneDeep = cloneDeep2;
+          lodash.cloneDeepWith = cloneDeepWith;
+          lodash.cloneWith = cloneWith;
+          lodash.conformsTo = conformsTo;
+          lodash.deburr = deburr;
+          lodash.defaultTo = defaultTo;
+          lodash.divide = divide;
+          lodash.endsWith = endsWith;
+          lodash.eq = eq;
+          lodash.escape = escape;
+          lodash.escapeRegExp = escapeRegExp;
+          lodash.every = every;
+          lodash.find = find3;
+          lodash.findIndex = findIndex;
+          lodash.findKey = findKey;
+          lodash.findLast = findLast;
+          lodash.findLastIndex = findLastIndex;
+          lodash.findLastKey = findLastKey;
+          lodash.floor = floor;
+          lodash.forEach = forEach;
+          lodash.forEachRight = forEachRight;
+          lodash.forIn = forIn;
+          lodash.forInRight = forInRight;
+          lodash.forOwn = forOwn;
+          lodash.forOwnRight = forOwnRight;
+          lodash.get = get3;
+          lodash.gt = gt;
+          lodash.gte = gte;
+          lodash.has = has;
+          lodash.hasIn = hasIn;
+          lodash.head = head;
+          lodash.identity = identity4;
+          lodash.includes = includes;
+          lodash.indexOf = indexOf;
+          lodash.inRange = inRange;
+          lodash.invoke = invoke;
+          lodash.isArguments = isArguments;
+          lodash.isArray = isArray;
+          lodash.isArrayBuffer = isArrayBuffer;
+          lodash.isArrayLike = isArrayLike;
+          lodash.isArrayLikeObject = isArrayLikeObject;
+          lodash.isBoolean = isBoolean;
+          lodash.isBuffer = isBuffer;
+          lodash.isDate = isDate;
+          lodash.isElement = isElement;
+          lodash.isEmpty = isEmpty;
+          lodash.isEqual = isEqual;
+          lodash.isEqualWith = isEqualWith;
+          lodash.isError = isError;
+          lodash.isFinite = isFinite2;
+          lodash.isFunction = isFunction;
+          lodash.isInteger = isInteger;
+          lodash.isLength = isLength;
+          lodash.isMap = isMap;
+          lodash.isMatch = isMatch;
+          lodash.isMatchWith = isMatchWith;
+          lodash.isNaN = isNaN2;
+          lodash.isNative = isNative;
+          lodash.isNil = isNil;
+          lodash.isNull = isNull;
+          lodash.isNumber = isNumber;
+          lodash.isObject = isObject;
+          lodash.isObjectLike = isObjectLike;
+          lodash.isPlainObject = isPlainObject;
+          lodash.isRegExp = isRegExp;
+          lodash.isSafeInteger = isSafeInteger;
+          lodash.isSet = isSet;
+          lodash.isString = isString;
+          lodash.isSymbol = isSymbol;
+          lodash.isTypedArray = isTypedArray;
+          lodash.isUndefined = isUndefined;
+          lodash.isWeakMap = isWeakMap;
+          lodash.isWeakSet = isWeakSet;
+          lodash.join = join;
+          lodash.kebabCase = kebabCase;
+          lodash.last = last;
+          lodash.lastIndexOf = lastIndexOf;
+          lodash.lowerCase = lowerCase;
+          lodash.lowerFirst = lowerFirst;
+          lodash.lt = lt;
+          lodash.lte = lte;
+          lodash.max = max3;
+          lodash.maxBy = maxBy;
+          lodash.mean = mean;
+          lodash.meanBy = meanBy;
+          lodash.min = min3;
+          lodash.minBy = minBy;
+          lodash.stubArray = stubArray;
+          lodash.stubFalse = stubFalse;
+          lodash.stubObject = stubObject;
+          lodash.stubString = stubString;
+          lodash.stubTrue = stubTrue;
+          lodash.multiply = multiply;
+          lodash.nth = nth;
+          lodash.noConflict = noConflict;
+          lodash.noop = noop2;
+          lodash.now = now2;
+          lodash.pad = pad2;
+          lodash.padEnd = padEnd;
+          lodash.padStart = padStart;
+          lodash.parseInt = parseInt2;
+          lodash.random = random;
+          lodash.reduce = reduce;
+          lodash.reduceRight = reduceRight;
+          lodash.repeat = repeat;
+          lodash.replace = replace;
+          lodash.result = result;
+          lodash.round = round;
+          lodash.runInContext = runInContext2;
+          lodash.sample = sample;
+          lodash.size = size;
+          lodash.snakeCase = snakeCase;
+          lodash.some = some;
+          lodash.sortedIndex = sortedIndex;
+          lodash.sortedIndexBy = sortedIndexBy;
+          lodash.sortedIndexOf = sortedIndexOf;
+          lodash.sortedLastIndex = sortedLastIndex;
+          lodash.sortedLastIndexBy = sortedLastIndexBy;
+          lodash.sortedLastIndexOf = sortedLastIndexOf;
+          lodash.startCase = startCase;
+          lodash.startsWith = startsWith;
+          lodash.subtract = subtract;
+          lodash.sum = sum2;
+          lodash.sumBy = sumBy;
+          lodash.template = template;
+          lodash.times = times;
+          lodash.toFinite = toFinite;
+          lodash.toInteger = toInteger;
+          lodash.toLength = toLength;
+          lodash.toLower = toLower;
+          lodash.toNumber = toNumber;
+          lodash.toSafeInteger = toSafeInteger;
+          lodash.toString = toString;
+          lodash.toUpper = toUpper;
+          lodash.trim = trim;
+          lodash.trimEnd = trimEnd;
+          lodash.trimStart = trimStart;
+          lodash.truncate = truncate;
+          lodash.unescape = unescape;
+          lodash.uniqueId = uniqueId;
+          lodash.upperCase = upperCase;
+          lodash.upperFirst = upperFirst;
+          lodash.each = forEach;
+          lodash.eachRight = forEachRight;
+          lodash.first = head;
+          mixin(lodash, function() {
+            var source = {};
+            baseForOwn(lodash, function(func, methodName) {
+              if (!hasOwnProperty.call(lodash.prototype, methodName)) {
+                source[methodName] = func;
+              }
+            });
+            return source;
+          }(), { "chain": false });
+          lodash.VERSION = VERSION;
+          arrayEach(["bind", "bindKey", "curry", "curryRight", "partial", "partialRight"], function(methodName) {
+            lodash[methodName].placeholder = lodash;
+          });
+          arrayEach(["drop", "take"], function(methodName, index2) {
+            LazyWrapper.prototype[methodName] = function(n) {
+              n = n === undefined2 ? 1 : nativeMax(toInteger(n), 0);
+              var result2 = this.__filtered__ && !index2 ? new LazyWrapper(this) : this.clone();
+              if (result2.__filtered__) {
+                result2.__takeCount__ = nativeMin(n, result2.__takeCount__);
+              } else {
+                result2.__views__.push({
+                  "size": nativeMin(n, MAX_ARRAY_LENGTH),
+                  "type": methodName + (result2.__dir__ < 0 ? "Right" : "")
+                });
+              }
+              return result2;
+            };
+            LazyWrapper.prototype[methodName + "Right"] = function(n) {
+              return this.reverse()[methodName](n).reverse();
+            };
+          });
+          arrayEach(["filter", "map", "takeWhile"], function(methodName, index2) {
+            var type2 = index2 + 1, isFilter = type2 == LAZY_FILTER_FLAG || type2 == LAZY_WHILE_FLAG;
+            LazyWrapper.prototype[methodName] = function(iteratee2) {
+              var result2 = this.clone();
+              result2.__iteratees__.push({
+                "iteratee": getIteratee(iteratee2, 3),
+                "type": type2
+              });
+              result2.__filtered__ = result2.__filtered__ || isFilter;
+              return result2;
+            };
+          });
+          arrayEach(["head", "last"], function(methodName, index2) {
+            var takeName = "take" + (index2 ? "Right" : "");
+            LazyWrapper.prototype[methodName] = function() {
+              return this[takeName](1).value()[0];
+            };
+          });
+          arrayEach(["initial", "tail"], function(methodName, index2) {
+            var dropName = "drop" + (index2 ? "" : "Right");
+            LazyWrapper.prototype[methodName] = function() {
+              return this.__filtered__ ? new LazyWrapper(this) : this[dropName](1);
+            };
+          });
+          LazyWrapper.prototype.compact = function() {
+            return this.filter(identity4);
+          };
+          LazyWrapper.prototype.find = function(predicate) {
+            return this.filter(predicate).head();
+          };
+          LazyWrapper.prototype.findLast = function(predicate) {
+            return this.reverse().find(predicate);
+          };
+          LazyWrapper.prototype.invokeMap = baseRest(function(path2, args) {
+            if (typeof path2 == "function") {
+              return new LazyWrapper(this);
+            }
+            return this.map(function(value) {
+              return baseInvoke(value, path2, args);
+            });
+          });
+          LazyWrapper.prototype.reject = function(predicate) {
+            return this.filter(negate2(getIteratee(predicate)));
+          };
+          LazyWrapper.prototype.slice = function(start2, end) {
+            start2 = toInteger(start2);
+            var result2 = this;
+            if (result2.__filtered__ && (start2 > 0 || end < 0)) {
+              return new LazyWrapper(result2);
+            }
+            if (start2 < 0) {
+              result2 = result2.takeRight(-start2);
+            } else if (start2) {
+              result2 = result2.drop(start2);
+            }
+            if (end !== undefined2) {
+              end = toInteger(end);
+              result2 = end < 0 ? result2.dropRight(-end) : result2.take(end - start2);
+            }
+            return result2;
+          };
+          LazyWrapper.prototype.takeRightWhile = function(predicate) {
+            return this.reverse().takeWhile(predicate).reverse();
+          };
+          LazyWrapper.prototype.toArray = function() {
+            return this.take(MAX_ARRAY_LENGTH);
+          };
+          baseForOwn(LazyWrapper.prototype, function(func, methodName) {
+            var checkIteratee = /^(?:filter|find|map|reject)|While$/.test(methodName), isTaker = /^(?:head|last)$/.test(methodName), lodashFunc = lodash[isTaker ? "take" + (methodName == "last" ? "Right" : "") : methodName], retUnwrapped = isTaker || /^find/.test(methodName);
+            if (!lodashFunc) {
+              return;
+            }
+            lodash.prototype[methodName] = function() {
+              var value = this.__wrapped__, args = isTaker ? [1] : arguments, isLazy = value instanceof LazyWrapper, iteratee2 = args[0], useLazy = isLazy || isArray(value);
+              var interceptor = function(value2) {
+                var result3 = lodashFunc.apply(lodash, arrayPush([value2], args));
+                return isTaker && chainAll ? result3[0] : result3;
+              };
+              if (useLazy && checkIteratee && typeof iteratee2 == "function" && iteratee2.length != 1) {
+                isLazy = useLazy = false;
+              }
+              var chainAll = this.__chain__, isHybrid = !!this.__actions__.length, isUnwrapped = retUnwrapped && !chainAll, onlyLazy = isLazy && !isHybrid;
+              if (!retUnwrapped && useLazy) {
+                value = onlyLazy ? value : new LazyWrapper(this);
+                var result2 = func.apply(value, args);
+                result2.__actions__.push({ "func": thru, "args": [interceptor], "thisArg": undefined2 });
+                return new LodashWrapper(result2, chainAll);
+              }
+              if (isUnwrapped && onlyLazy) {
+                return func.apply(this, args);
+              }
+              result2 = this.thru(interceptor);
+              return isUnwrapped ? isTaker ? result2.value()[0] : result2.value() : result2;
+            };
+          });
+          arrayEach(["pop", "push", "shift", "sort", "splice", "unshift"], function(methodName) {
+            var func = arrayProto[methodName], chainName = /^(?:push|sort|unshift)$/.test(methodName) ? "tap" : "thru", retUnwrapped = /^(?:pop|shift)$/.test(methodName);
+            lodash.prototype[methodName] = function() {
+              var args = arguments;
+              if (retUnwrapped && !this.__chain__) {
+                var value = this.value();
+                return func.apply(isArray(value) ? value : [], args);
+              }
+              return this[chainName](function(value2) {
+                return func.apply(isArray(value2) ? value2 : [], args);
+              });
+            };
+          });
+          baseForOwn(LazyWrapper.prototype, function(func, methodName) {
+            var lodashFunc = lodash[methodName];
+            if (lodashFunc) {
+              var key = lodashFunc.name + "";
+              if (!hasOwnProperty.call(realNames, key)) {
+                realNames[key] = [];
+              }
+              realNames[key].push({ "name": methodName, "func": lodashFunc });
+            }
+          });
+          realNames[createHybrid(undefined2, WRAP_BIND_KEY_FLAG).name] = [{
+            "name": "wrapper",
+            "func": undefined2
+          }];
+          LazyWrapper.prototype.clone = lazyClone;
+          LazyWrapper.prototype.reverse = lazyReverse;
+          LazyWrapper.prototype.value = lazyValue;
+          lodash.prototype.at = wrapperAt;
+          lodash.prototype.chain = wrapperChain;
+          lodash.prototype.commit = wrapperCommit;
+          lodash.prototype.next = wrapperNext;
+          lodash.prototype.plant = wrapperPlant;
+          lodash.prototype.reverse = wrapperReverse;
+          lodash.prototype.toJSON = lodash.prototype.valueOf = lodash.prototype.value = wrapperValue;
+          lodash.prototype.first = lodash.prototype.head;
+          if (symIterator) {
+            lodash.prototype[symIterator] = wrapperToIterator;
+          }
+          return lodash;
+        };
+        var _ = runInContext();
+        if (typeof define == "function" && typeof define.amd == "object" && define.amd) {
+          root2._ = _;
+          define(function() {
+            return _;
+          });
+        } else if (freeModule) {
+          (freeModule.exports = _)._ = _;
+          freeExports._ = _;
+        } else {
+          root2._ = _;
+        }
+      }).call(exports);
     }
   });
 
@@ -14380,8 +19788,7 @@ ${indentData}`);
 
   // federjs/FederView/BaseView.js
   var BaseView = class {
-    constructor({ dom, viewParams, getVectorById }) {
-      this.dom = dom;
+    constructor({ viewParams, getVectorById }) {
       this.viewParams = viewParams;
       const { width, height, canvasScale, mediaType, mediaCallback } = viewParams;
       this.clientWidth = width;
@@ -14393,86 +19800,72 @@ ${indentData}`);
       this.mediaType = mediaType;
       this.mediaCallback = mediaCallback;
     }
-    initCanvas() {
-      renderLoading(this.dom, this.viewParams.width, this.viewParams.height);
-      const dom = select_default2(this.dom);
-      dom.selectAll("canvas").remove();
-      const canvas = dom.append("canvas").attr("width", this.clientWidth).attr("height", this.clientHeight);
-      const ctx = canvas.node().getContext("2d");
-      ctx.scale(1 / this.canvasScale, 1 / this.canvasScale);
-      this.ctx = ctx;
-      this.canvas = canvas.node();
-    }
-    overviewHandler() {
+    initInfoPanel() {
     }
     renderOverview() {
     }
     renderSearchView() {
     }
-    setOverviewListenerHandlers() {
+    searchViewHandler() {
     }
-    setSearchViewListenerHandlers() {
+    getOverviewEventHandler() {
     }
-    overview() {
+    getSearchViewEventHandler() {
+    }
+    overview(dom) {
       return __async(this, null, function* () {
-        this.viewType = VIEW_TYPE.overview;
-        this.initCanvas();
-        this.clickedNode = null;
-        this.hoveredNode = null;
-        this.overviewInitPromise && (yield this.overviewInitPromise);
-        finishLoading(this.dom);
-        this.renderOverview();
-        this.addMouseListener();
-        this.setOverviewListenerHandlers();
+        const canvas = initCanvas(dom, this.clientWidth, this.clientHeight, this.canvasScale);
+        const ctx = canvas.getContext("2d");
+        const infoPanel = this.initInfoPanel(dom);
+        this.overviewLayoutPromise && (yield this.overviewLayoutPromise);
+        finishLoading(dom);
+        this.renderOverview(ctx, infoPanel);
+        const eventHandlers = this.getOverviewEventHandler(ctx, infoPanel);
+        addMouseListener(canvas, this.canvasScale, eventHandlers);
       });
     }
-    search(_0) {
-      return __async(this, arguments, function* ({ searchRes, targetMediaUrl }) {
-        this.viewType = VIEW_TYPE.search;
-        this.targetMediaUrl = targetMediaUrl;
-        this.initCanvas();
-        this.clickedNode = null;
-        this.hoveredNode = null;
-        yield this.searchViewHandler({ searchRes });
-        finishLoading(this.dom);
-        this.renderSearchView();
-        this.addMouseListener();
-        this.setSearchViewListenerHandlers();
-      });
-    }
-    addMouseListener() {
-      const canvas = this.canvas;
-      const canvasScale = this.canvasScale;
-      canvas.addEventListener("mousemove", (e) => {
-        const { offsetX, offsetY } = e;
-        const x3 = offsetX * canvasScale;
-        const y4 = offsetY * canvasScale;
-        this.mouseMoveHandler && this.mouseMoveHandler({ x: x3, y: y4 });
-      });
-      canvas.addEventListener("click", (e) => {
-        const { offsetX, offsetY } = e;
-        const x3 = offsetX * canvasScale;
-        const y4 = offsetY * canvasScale;
-        this.mouseClickHandler && this.mouseClickHandler({ x: x3, y: y4 });
-      });
-      canvas.addEventListener("mouseleave", () => {
-        this.mouse = null;
-        this.mouseLeaveHandler && this.mouseLeaveHandler();
+    search(_0, _1) {
+      return __async(this, arguments, function* (dom, { searchRes, targetMediaUrl }) {
+        const canvas = initCanvas(dom, this.clientWidth, this.clientHeight, this.canvasScale);
+        const ctx = canvas.getContext("2d");
+        const infoPanel = this.initInfoPanel(dom);
+        const searchViewLayoutData = yield this.searchViewHandler(searchRes);
+        finishLoading(dom);
+        this.renderSearchView(ctx, infoPanel, searchViewLayoutData, targetMediaUrl, dom);
+        const eventHandlers = this.getSearchViewEventHandler(ctx, searchViewLayoutData, infoPanel);
+        addMouseListener(canvas, this.canvasScale, eventHandlers);
       });
     }
   };
+  var addMouseListener = (element, canvasScale, { mouseMoveHandler, mouseClickHandler, mouseLeaveHandler } = {}) => {
+    element.addEventListener("mousemove", (e) => {
+      const { offsetX, offsetY } = e;
+      const x3 = offsetX * canvasScale;
+      const y4 = offsetY * canvasScale;
+      mouseMoveHandler && mouseMoveHandler({ x: x3, y: y4 });
+    });
+    element.addEventListener("click", (e) => {
+      const { offsetX, offsetY } = e;
+      const x3 = offsetX * canvasScale;
+      const y4 = offsetY * canvasScale;
+      mouseClickHandler && mouseClickHandler({ x: x3, y: y4 });
+    });
+    element.addEventListener("mouseleave", () => {
+      mouseLeaveHandler && mouseLeaveHandler();
+    });
+  };
+  var initCanvas = (dom, clientWidth, clientHeight, canvasScale) => {
+    renderLoading(dom, clientWidth, clientHeight);
+    const domD3 = select_default2(dom);
+    domD3.selectAll("canvas").remove();
+    const canvas = domD3.append("canvas").attr("width", clientWidth).attr("height", clientHeight);
+    const ctx = canvas.node().getContext("2d");
+    ctx.scale(1 / canvasScale, 1 / canvasScale);
+    return canvas.node();
+  };
 
   // federjs/FederView/HnswView/layout/transformHandler.js
-  var transformHandler = ({
-    nodes,
-    levelCount,
-    width,
-    height,
-    padding,
-    xBias = 0.65,
-    yBias = 0.4,
-    yOver = 0.1
-  }) => {
+  var transformHandler = (nodes, { levelCount, width, height, padding, xBias = 0.65, yBias = 0.4, yOver = 0.1 }) => {
     const layerWidth = width - padding[1] - padding[3];
     const layerHeight = (height - padding[0] - padding[2]) / (levelCount - (levelCount - 1) * yOver);
     const xRange = extent(nodes, (node) => node.x);
@@ -14524,8 +19917,7 @@ ${indentData}`);
         overviewNodesLevels[level] = nodes;
         overviewLinksLevels[level] = links;
       }
-      const { layerPosLevels: overviewLayerPosLevels, transformFunc } = transformHandler_default({
-        nodes: overviewNodes,
+      const { layerPosLevels: overviewLayerPosLevels, transformFunc } = transformHandler_default(overviewNodes, {
         levelCount: overviewLevelCount,
         width,
         height,
@@ -14571,14 +19963,7 @@ ${indentData}`);
   };
 
   // federjs/FederView/HnswView/layout/mouse2node.js
-  function mouse2node({
-    mouse,
-    mouse2nodeBias,
-    canvasScale,
-    layerPosLevels,
-    nodesLevels,
-    posAttr
-  }) {
+  function mouse2node({ mouse, layerPosLevels, nodesLevels, posAttr }, { mouse2nodeBias, canvasScale }) {
     const mouseLevel = layerPosLevels.findIndex((points) => contains_default(points, mouse));
     let mouseNode;
     if (mouseLevel >= 0) {
@@ -14797,7 +20182,7 @@ ${indentData}`);
   };
 
   // federjs/FederView/HnswView/render/renderBackground.js
-  function renderBackground({ ctx, width, height }) {
+  function renderBackground(ctx, { width, height }) {
     drawRect({
       ctx,
       width,
@@ -14808,12 +20193,7 @@ ${indentData}`);
   }
 
   // federjs/FederView/HnswView/render/renderlevelLayer.js
-  function renderlevelLayer({
-    ctx,
-    canvasScale,
-    layerDotNum,
-    points
-  }) {
+  function renderlevelLayer(ctx, points, { canvasScale, layerDotNum }) {
     drawPath({
       ctx,
       points,
@@ -14856,14 +20236,7 @@ ${indentData}`);
   }
 
   // federjs/FederView/HnswView/render/renderLinks.js
-  function renderLinks({
-    ctx,
-    shortenLineD,
-    overviewLinkLineWidth,
-    canvasScale,
-    links,
-    level
-  }) {
+  function renderLinks(ctx, links, level, { shortenLineD, overviewLinkLineWidth, canvasScale }) {
     const pointsList = links.map((link) => shortenLine(link.source.overviewPosLevels[level], link.target.overviewPosLevels[level], shortenLineD * canvasScale));
     drawLinesWithLinearGradient({
       ctx,
@@ -14877,14 +20250,7 @@ ${indentData}`);
   }
 
   // federjs/FederView/HnswView/render/renderNodes.js
-  function renderNodes({
-    ctx,
-    canvasScale,
-    ellipseRation,
-    shadowBlur,
-    nodes,
-    level
-  }) {
+  function renderNodes(ctx, nodes, level, { canvasScale, ellipseRation, shadowBlur }) {
     drawEllipse({
       ctx,
       circles: nodes.map((node) => [
@@ -14900,19 +20266,14 @@ ${indentData}`);
   }
 
   // federjs/FederView/HnswView/render/renderReachable.js
-  function renderReachableData({
-    reachableLevel,
-    reachableNodes,
-    reachableLinks,
-    ctx,
+  function renderReachableData(ctx, level, { reachableLevel, reachableNodes, reachableLinks }, {
     shortenLineD,
     canvasScale,
     reachableLineWidth,
     ellipseRation,
     shadowBlur,
     highlightRadiusExt,
-    posAttr,
-    level
+    posAttr = "overviewPosLevels"
   }) {
     if (level != reachableLevel)
       return;
@@ -14941,18 +20302,14 @@ ${indentData}`);
   }
 
   // federjs/FederView/HnswView/render/renderShortestPath.js
-  function renderShortestPath({
-    SPLinksLevels,
-    SPNodesLevels,
-    ctx,
+  function renderShortestPath(ctx, level, { SPLinksLevels, SPNodesLevels }, {
     shortenLineD,
     canvasScale,
     shortestPathLineWidth,
     highlightRadiusExt,
     shadowBlur,
     ellipseRation,
-    level,
-    posAttr
+    posAttr = "overviewPosLevels"
   }) {
     const pointsList = (SPLinksLevels ? SPLinksLevels[level] : []).map((link) => link.source === link.target ? !!link.source[posAttr][level + 1] ? [link.source[posAttr][level + 1], link.target[posAttr][level]] : null : [link.source[posAttr][level], link.target[posAttr][level]]).filter((a2) => a2).map((points) => shortenLine(...points, shortenLineD * canvasScale));
     drawLinesWithLinearGradient({
@@ -14979,30 +20336,29 @@ ${indentData}`);
   }
 
   // federjs/FederView/HnswView/render/renderOverview.js
-  function renderOverview() {
-    renderBackground(this);
-    for (let level = 0; level < this.overviewLevelCount; level++) {
-      renderlevelLayer(__spreadProps(__spreadValues({}, this), {
-        points: this.overviewLayerPosLevels[level]
-      }));
-      const nodes = this.overviewNodesLevels[level];
-      const links = this.overviewLinksLevels[level];
-      level > 0 && renderLinks(__spreadProps(__spreadValues({}, this), { links, level }));
-      renderNodes(__spreadProps(__spreadValues({}, this), { nodes, level }));
-      const isActive = this.clickedNode || this.hoveredNode;
-      isActive && renderReachableData(__spreadProps(__spreadValues({}, this), { level, posAttr: "overviewPosLevels" }));
-      isActive && renderShortestPath(__spreadProps(__spreadValues({}, this), { level, posAttr: "overviewPosLevels" }));
+  function renderOverview(ctx, federView, overviewHighlightData) {
+    const {
+      overviewLevelCount,
+      overviewNodesLevels,
+      overviewLinksLevels,
+      overviewLayerPosLevels
+    } = federView;
+    renderBackground(ctx, federView);
+    for (let level = 0; level < overviewLevelCount; level++) {
+      renderlevelLayer(ctx, overviewLayerPosLevels[level], federView);
+      const nodes = overviewNodesLevels[level];
+      const links = overviewLinksLevels[level];
+      level > 0 && renderLinks(ctx, links, level, federView);
+      renderNodes(ctx, nodes, level, federView);
+      if (overviewHighlightData) {
+        renderReachableData(ctx, level, overviewHighlightData, federView);
+        renderShortestPath(ctx, level, overviewHighlightData, federView);
+      }
     }
   }
 
   // federjs/FederView/HnswView/layout/overviewShortestPath.js
-  function getOverviewShortestPathData({
-    keyNode,
-    keyLevel,
-    overviewNodesLevels,
-    internalId2overviewNode,
-    overviewLevelCount
-  }) {
+  function getOverviewShortestPathData(keyNode, keyLevel, { overviewNodesLevels, internalId2overviewNode, overviewLevelCount }) {
     let SPLinksLevels = overviewNodesLevels.map((_) => []);
     let SPNodesLevels = overviewNodesLevels.map((_) => []);
     let reachableNodes = [];
@@ -15052,7 +20408,13 @@ ${indentData}`);
         target
       }));
     }
-    return { SPLinksLevels, SPNodesLevels, reachableLevel, reachableNodes, reachableLinks };
+    return {
+      SPLinksLevels,
+      SPNodesLevels,
+      reachableLevel,
+      reachableNodes,
+      reachableLinks
+    };
   }
 
   // federjs/FederView/HnswView/layout/parseVisRecords.js
@@ -15242,51 +20604,41 @@ ${indentData}`);
   var computeSearchViewTransition_default = computeSearchViewTransition;
 
   // federjs/FederView/HnswView/layout/searchViewLayout.js
-  function searchViewLayoutHandler(_0) {
-    return __async(this, arguments, function* ({ searchRes }) {
-      let visData = [];
-      let id2forcePos = {};
-      if (searchRes !== this.searchRes) {
-        this.searchRes = searchRes;
-        visData = parseVisRecords_default(searchRes);
-        this.visData = visData;
-        id2forcePos = yield forceSearchView_default(this.visData, this.targetOrigin, this.forceIterations);
-        this.id2forcePos = id2forcePos;
-      } else {
-        visData = this.visData;
-        id2forcePos = this.id2forcePos;
-      }
+  function searchViewLayoutHandler(searchRes, federView) {
+    return __async(this, null, function* () {
+      const {
+        targetR,
+        canvasScale,
+        targetOrigin,
+        searchViewNodeBasicR,
+        searchInterLevelTime,
+        searchIntraLevelTime,
+        forceIterations
+      } = federView;
+      const visData = parseVisRecords_default(searchRes);
+      const id2forcePos = yield forceSearchView_default(visData, targetOrigin, forceIterations);
       const searchNodesLevels = visData.map((levelData) => levelData.nodes);
       searchNodesLevels.forEach((levelData) => levelData.forEach((node) => {
         node.forcePos = id2forcePos[node.id];
         node.x = node.forcePos[0];
         node.y = node.forcePos[1];
       }));
-      const { layerPosLevels, transformFunc } = transformHandler_default({
-        nodes: searchNodesLevels.reduce((acc, node) => acc.concat(node), []),
-        levelCount: this.levelCount,
-        width: this.width,
-        height: this.height,
-        padding: this.padding
-      });
-      this.targetOrigin = [0, 0];
-      this.searchTarget = {
+      const { layerPosLevels, transformFunc } = transformHandler_default(searchNodesLevels.reduce((acc, node) => acc.concat(node), []), federView);
+      searchTarget = {
         id: "target",
-        r: this.targetR * this.canvasScale,
-        searchViewPosLevels: range(visData.length).map((i) => transformFunc(...this.targetOrigin, i))
+        r: targetR * canvasScale,
+        searchViewPosLevels: range(visData.length).map((i) => transformFunc(...targetOrigin, i))
       };
-      this.searchLayerPosLevels = layerPosLevels;
       searchNodesLevels.forEach((nodes, level) => {
         nodes.forEach((node) => {
           node.searchViewPosLevels = range(level + 1).map((i) => transformFunc(...node.forcePos, i));
-          node.r = (this.searchViewNodeBasicR + node.type * 0.5) * this.canvasScale;
+          node.r = (searchViewNodeBasicR + node.type * 0.5) * canvasScale;
         });
       });
-      this.searchNodesLevels = searchNodesLevels;
       const id2searchNode = {};
       searchNodesLevels.forEach((levelData) => levelData.forEach((node) => id2searchNode[node.id] = node));
       const searchLinksLevels = parseVisRecords_default(searchRes).map((levelData) => levelData.links.filter((link) => link.type !== HNSW_LINK_TYPE.None));
-      searchLinksLevels.forEach((levelData, level) => levelData.forEach((link) => {
+      searchLinksLevels.forEach((levelData) => levelData.forEach((link) => {
         const sourceId = link.source;
         const targetId = link.target;
         const sourceNode = id2searchNode[sourceId];
@@ -15294,18 +20646,27 @@ ${indentData}`);
         link.source = sourceNode;
         link.target = targetNode;
       }));
-      this.searchLinksLevels = searchLinksLevels;
-      this.entryNodesLevels = visData.map((levelData) => levelData.entryIds.map((id2) => id2searchNode[id2]));
+      const entryNodesLevels = visData.map((levelData) => levelData.entryIds.map((id2) => id2searchNode[id2]));
       const { targetShowTime, nodeShowTime, linkShowTime, duration } = computeSearchViewTransition_default({
-        linksLevels: this.searchLinksLevels,
-        entryNodesLevels: this.entryNodesLevels,
-        interLevelGap: this.searchInterLevelTime,
-        intraLevelGap: this.searchIntraLevelTime
+        linksLevels: searchLinksLevels,
+        entryNodesLevels,
+        interLevelGap: searchInterLevelTime,
+        intraLevelGap: searchIntraLevelTime
       });
-      this.searchTargetShowTime = targetShowTime;
-      this.searchNodeShowTime = nodeShowTime;
-      this.searchLinkShowTime = linkShowTime;
-      this.searchTransitionDuration = duration;
+      return {
+        visData,
+        id2forcePos,
+        searchTarget,
+        entryNodesLevels,
+        searchNodesLevels,
+        searchLinksLevels,
+        searchLayerPosLevels: layerPosLevels,
+        searchTargetShowTime: targetShowTime,
+        searchNodeShowTime: nodeShowTime,
+        searchLinkShowTime: linkShowTime,
+        searchTransitionDuration: duration,
+        searchParams: searchRes.searchParams
+      };
     });
   }
 
@@ -15464,15 +20825,52 @@ ${indentData}`);
     }
   };
 
+  // federjs/FederView/HnswView/render/renderHoverLine.js
+  var renderHoverLine = (ctx, { hoveredNode, hoveredLevel, clickedNode, clickedLevel }, {
+    width,
+    padding,
+    hoveredPanelLineWidth,
+    HoveredPanelLine_1_x,
+    HoveredPanelLine_1_y,
+    HoveredPanelLine_2_x,
+    canvasScale
+  }) => {
+    let isLeft = true;
+    let endX = 0;
+    let endY = 0;
+    if (!!hoveredNode) {
+      const [x3, y4] = hoveredNode.overviewPosLevels[hoveredLevel];
+      const originX = (width - padding[1] - padding[3]) / 2 + padding[3];
+      isLeft = !clickedNode ? originX > x3 : clickedNode.overviewPosLevels[clickedLevel][0] > x3;
+      const k = isLeft ? -1 : 1;
+      endX = x3 + HoveredPanelLine_1_x * canvasScale * k + HoveredPanelLine_2_x * canvasScale * k;
+      endY = y4 + HoveredPanelLine_1_y * canvasScale * k;
+      const points = [
+        [x3, y4],
+        [
+          x3 + HoveredPanelLine_1_x * canvasScale * k,
+          y4 + HoveredPanelLine_1_y * canvasScale * k
+        ],
+        [
+          x3 + HoveredPanelLine_1_x * canvasScale * k + HoveredPanelLine_2_x * canvasScale * k,
+          y4 + HoveredPanelLine_1_y * canvasScale * k
+        ]
+      ];
+      drawPath({
+        ctx,
+        points,
+        withZ: false,
+        hasStroke: true,
+        strokeStyle: hexWithOpacity(ZYellow, 1),
+        lineWidth: hoveredPanelLineWidth * canvasScale
+      });
+    }
+    return { isLeft, endX, endY };
+  };
+  var renderHoverLine_default = renderHoverLine;
+
   // federjs/FederView/HnswView/render/renderSearchViewLinks.js
-  function renderSearchViewLinks({
-    ctx,
-    shortenLineD,
-    canvasScale,
-    links,
-    inProcessLinks,
-    level
-  }) {
+  function renderSearchViewLinks(ctx, { links, inProcessLinks, level }, { shortenLineD, canvasScale }) {
     let pointsList = [];
     let inprocessPointsList = [];
     pointsList = links.filter((link) => link.type === HNSW_LINK_TYPE.Visited).map((link) => shortenLine(link.source.searchViewPosLevels[level], link.target.searchViewPosLevels[level], shortenLineD * canvasScale));
@@ -15558,15 +20956,7 @@ ${indentData}`);
   }
 
   // federjs/FederView/HnswView/render/renderSearchViewInterLevelLinks.js
-  function renderSearchViewInterLevelLinks({
-    ctx,
-    entryNodes,
-    inprocessEntryNodes,
-    shortenLineD,
-    canvasScale,
-    searchTarget,
-    level
-  }) {
+  function renderSearchViewInterLevelLinks(ctx, { entryNodes, inprocessEntryNodes, searchTarget: searchTarget2, level }, { shortenLineD, canvasScale }) {
     const pointsList = entryNodes.map((node) => shortenLine(node.searchViewPosLevels[level + 1], node.searchViewPosLevels[level], shortenLineD * canvasScale));
     drawLinesWithLinearGradient({
       ctx,
@@ -15578,7 +20968,7 @@ ${indentData}`);
       lineCap: "round"
     });
     const targetPointsList = pointsList.length === 0 ? [] : [
-      shortenLine(searchTarget.searchViewPosLevels[level + 1], searchTarget.searchViewPosLevels[level], shortenLineD)
+      shortenLine(searchTarget2.searchViewPosLevels[level + 1], searchTarget2.searchViewPosLevels[level], shortenLineD)
     ];
     drawLinesWithLinearGradient({
       ctx,
@@ -15600,7 +20990,7 @@ ${indentData}`);
       lineCap: "round"
     });
     const inprocessTargetPointsList = inprocessPointsList.length === 0 ? [] : [
-      shortenLine(searchTarget.searchViewPosLevels[level + 1], getInprocessPos(searchTarget.searchViewPosLevels[level + 1], searchTarget.searchViewPosLevels[level], inprocessEntryNodes[0].t), shortenLineD)
+      shortenLine(searchTarget2.searchViewPosLevels[level + 1], getInprocessPos(searchTarget2.searchViewPosLevels[level + 1], searchTarget2.searchViewPosLevels[level], inprocessEntryNodes[0].t), shortenLineD)
     ];
     drawLinesWithLinearGradient({
       ctx,
@@ -15614,14 +21004,7 @@ ${indentData}`);
   }
 
   // federjs/FederView/HnswView/render/renderSearchViewNodes.js
-  function renderSearchViewNodes({
-    ctx,
-    ellipseRation,
-    canvasScale,
-    nodes,
-    level,
-    shadowBlur = 4
-  }) {
+  function renderSearchViewNodes(ctx, { nodes, level }, { ellipseRation, shadowBlur }) {
     let _nodes = [];
     _nodes = nodes.filter((node) => node.type === HNSW_NODE_TYPE.Coarse);
     drawEllipse({
@@ -15668,12 +21051,7 @@ ${indentData}`);
   }
 
   // federjs/FederView/HnswView/render/renderSearchViewTarget.js
-  function renderSearchViewTarget({
-    ctx,
-    ellipseRation,
-    node,
-    level
-  }) {
+  function renderSearchViewTarget(ctx, { node, level }, { ellipseRation }) {
     drawEllipse({
       ctx,
       circles: [
@@ -15687,7 +21065,7 @@ ${indentData}`);
   }
 
   // federjs/FederView/HnswView/render/renderSelectedNode.js
-  function renderSelectedNode({ ctx, ellipseRation, pos, r }) {
+  function renderSelectedNode(ctx, { pos, r }, { ellipseRation }) {
     drawEllipse({
       ctx,
       circles: [[...pos, r * ellipseRation, r]],
@@ -15698,11 +21076,7 @@ ${indentData}`);
   }
 
   // federjs/FederView/HnswView/render/renderHoveredPanelLine.js
-  function renderHoveredPanelLine({
-    ctx,
-    x: x3,
-    y: y4,
-    isLeft,
+  function renderHoveredPanelLine(ctx, { x: x3, y: y4, isLeft }, {
     hoveredPanelLineWidth,
     HoveredPanelLine_1_x,
     HoveredPanelLine_1_y,
@@ -15732,44 +21106,61 @@ ${indentData}`);
   }
 
   // federjs/FederView/HnswView/render/renderSearchViewTransition.js
-  function renderSearchViewTransition({ t, p }) {
-    renderBackground(this);
-    for (let level = 0; level < this.searchNodesLevels.length; level++) {
-      renderlevelLayer(__spreadProps(__spreadValues({}, this), {
-        points: this.searchLayerPosLevels[level]
-      }));
-      const nodes = this.searchNodesLevels[level].filter((node) => this.searchNodeShowTime[getNodeIdWithLevel(node.id, level)] < t);
-      const links = this.searchLinksLevels[level].filter((link) => this.searchLinkShowTime[getLinkIdWithLevel(link.source.id, link.target.id, level)] + this.searchIntraLevelTime < t);
-      const inProcessLinks = this.searchLinksLevels[level].filter((link) => this.searchLinkShowTime[getLinkIdWithLevel(link.source.id, link.target.id, level)] < t && this.searchLinkShowTime[getLinkIdWithLevel(link.source.id, link.target.id, level)] + this.searchIntraLevelTime >= t).map((link) => ({
-        t: (t - this.searchLinkShowTime[getLinkIdWithLevel(link.source.id, link.target.id, level)]) / this.searchIntraLevelTime,
+  function renderSearchViewTransition(ctx, {
+    searchNodesLevels,
+    searchLinksLevels,
+    searchLayerPosLevels,
+    searchNodeShowTime,
+    searchLinkShowTime,
+    searchTarget: searchTarget2,
+    searchTargetShowTime,
+    entryNodesLevels,
+    clickedLevel,
+    clickedNode,
+    hoveredLevel,
+    hoveredNode
+  }, federView, { t, p }) {
+    const {
+      searchIntraLevelTime,
+      searchInterLevelTime,
+      width,
+      padding,
+      canvasScale
+    } = federView;
+    renderBackground(ctx, federView);
+    for (let level = 0; level < searchNodesLevels.length; level++) {
+      renderlevelLayer(ctx, searchLayerPosLevels[level], federView);
+      const nodes = searchNodesLevels[level].filter((node) => searchNodeShowTime[getNodeIdWithLevel(node.id, level)] < t);
+      const links = searchLinksLevels[level].filter((link) => searchLinkShowTime[getLinkIdWithLevel(link.source.id, link.target.id, level)] + searchIntraLevelTime < t);
+      const inProcessLinks = searchLinksLevels[level].filter((link) => searchLinkShowTime[getLinkIdWithLevel(link.source.id, link.target.id, level)] < t && searchLinkShowTime[getLinkIdWithLevel(link.source.id, link.target.id, level)] + searchIntraLevelTime >= t).map((link) => ({
+        t: (t - searchLinkShowTime[getLinkIdWithLevel(link.source.id, link.target.id, level)]) / searchIntraLevelTime,
         link
       }));
-      const entryNodes = level === this.entryNodesLevels.length - 1 ? [] : this.entryNodesLevels[level].filter((entryNode) => this.searchLinkShowTime[getEntryLinkIdWithLevel(entryNode.id, level)] + this.searchInterLevelTime < t);
-      const inprocessEntryNodes = level === this.entryNodesLevels.length - 1 ? [] : this.entryNodesLevels[level].filter((entryNode) => this.searchLinkShowTime[getEntryLinkIdWithLevel(entryNode.id, level)] < t && this.searchLinkShowTime[getEntryLinkIdWithLevel(entryNode.id, level)] + this.searchInterLevelTime >= t).map((node) => ({
+      const entryNodes = level === entryNodesLevels.length - 1 ? [] : entryNodesLevels[level].filter((entryNode) => searchLinkShowTime[getEntryLinkIdWithLevel(entryNode.id, level)] + searchInterLevelTime < t);
+      const inprocessEntryNodes = level === entryNodesLevels.length - 1 ? [] : entryNodesLevels[level].filter((entryNode) => searchLinkShowTime[getEntryLinkIdWithLevel(entryNode.id, level)] < t && searchLinkShowTime[getEntryLinkIdWithLevel(entryNode.id, level)] + searchInterLevelTime >= t).map((node) => ({
         node,
-        t: (t - this.searchLinkShowTime[getEntryLinkIdWithLevel(node.id, level)]) / this.searchInterLevelTime
+        t: (t - searchLinkShowTime[getEntryLinkIdWithLevel(node.id, level)]) / searchInterLevelTime
       }));
-      const searchTarget = this.searchTarget;
-      renderSearchViewLinks(__spreadProps(__spreadValues({}, this), { links, inProcessLinks, level }));
-      renderSearchViewInterLevelLinks(__spreadProps(__spreadValues({}, this), {
+      renderSearchViewLinks(ctx, { links, inProcessLinks, level }, federView);
+      renderSearchViewInterLevelLinks(ctx, {
         entryNodes,
         inprocessEntryNodes,
-        searchTarget,
+        searchTarget: searchTarget2,
         level
-      }));
-      renderSearchViewNodes(__spreadProps(__spreadValues({}, this), { nodes, level }));
-      this.searchTargetShowTime[level] < t && renderSearchViewTarget(__spreadProps(__spreadValues({}, this), { node: this.searchTarget, level }));
-      if (!!this.hoveredNode) {
-        const [x3, y4] = this.hoveredNode.searchViewPosLevels[this.hoveredLevel];
-        const originX = (this.width - this.padding[1] - this.padding[3]) / 2 + this.padding[3];
+      }, federView);
+      renderSearchViewNodes(ctx, { nodes, level }, federView);
+      searchTargetShowTime[level] < t && renderSearchViewTarget(ctx, { node: searchTarget2, level }, federView);
+      if (!!hoveredNode) {
+        const [x3, y4] = hoveredNode.searchViewPosLevels[hoveredLevel];
+        const originX = (width - padding[1] - padding[3]) / 2 + padding[3];
         const isLeft = originX > x3;
-        renderHoveredPanelLine(__spreadProps(__spreadValues({}, this), { x: x3, y: y4, isLeft }));
+        renderHoveredPanelLine(ctx, { x: x3, y: y4, isLeft }, federView);
       }
-      if (!!this.clickedNode) {
-        renderSelectedNode(__spreadProps(__spreadValues({}, this), {
-          pos: this.clickedNode.searchViewPosLevels[this.clickedLevel],
-          r: this.clickedNode.r + 2 * this.canvasScale
-        }));
+      if (!!clickedNode) {
+        renderSelectedNode(ctx, {
+          pos: clickedNode.searchViewPosLevels[clickedLevel],
+          r: clickedNode.r + 2 * canvasScale
+        }, federView);
       }
     }
   }
@@ -15903,7 +21294,7 @@ ${indentData}`);
         panel.style("color", color2);
         if (isLeft) {
           panel.style("left", null);
-          panel.style("right", (this.width - x3) / canvasScale + "px");
+          panel.style("right", this.width - x3 / canvasScale + "px");
           panel.style("flex-direction", "row-reverse");
         } else {
           panel.style("left", x3 / canvasScale + "px");
@@ -15970,14 +21361,7 @@ ${indentData}`);
       }
       this.renderOverviewPanel(overviewInfo, whiteColor);
     }
-    updateOverviewClickedInfo({
-      node,
-      level,
-      indexMeta,
-      mediaType,
-      mediaCallback,
-      getVectorById
-    }) {
+    updateOverviewClickedInfo(node, level, { indexMeta, mediaType, mediaCallback, getVectorById }) {
       const itemList = [];
       if (node) {
         itemList.push({
@@ -16005,48 +21389,8 @@ ${indentData}`);
       }
       this.renderSelectedPanel(itemList, ZYellow);
     }
-    updateOverviewHoveredInfo({
-      ctx,
-      hoveredNode,
-      hoveredLevel,
-      clickedNode,
-      clickedLevel,
-      width,
-      padding,
-      mediaType,
-      mediaCallback,
-      hoveredPanelLineWidth,
-      HoveredPanelLine_1_x,
-      HoveredPanelLine_1_y,
-      HoveredPanelLine_2_x,
-      canvasScale
-    }) {
+    updateOverviewHoveredInfo(hoveredNode, { isLeft, endX, endY }, { mediaType, mediaCallback, canvasScale }) {
       if (!!hoveredNode) {
-        const [x3, y4] = hoveredNode.overviewPosLevels[hoveredLevel];
-        const originX = (width - padding[1] - padding[3]) / 2 + padding[3];
-        const isLeft = !clickedNode ? originX > x3 : clickedNode.overviewPosLevels[clickedLevel][0] > x3;
-        const k = isLeft ? -1 : 1;
-        const endX = x3 + HoveredPanelLine_1_x * canvasScale * k + HoveredPanelLine_2_x * canvasScale * k;
-        const endY = y4 + HoveredPanelLine_1_y * canvasScale * k;
-        const points = [
-          [x3, y4],
-          [
-            x3 + HoveredPanelLine_1_x * canvasScale * k,
-            y4 + HoveredPanelLine_1_y * canvasScale * k
-          ],
-          [
-            x3 + HoveredPanelLine_1_x * canvasScale * k + HoveredPanelLine_2_x * canvasScale * k,
-            y4 + HoveredPanelLine_1_y * canvasScale * k
-          ]
-        ];
-        drawPath({
-          ctx,
-          points,
-          withZ: false,
-          hasStroke: true,
-          strokeStyle: hexWithOpacity(ZYellow, 1),
-          lineWidth: hoveredPanelLineWidth * canvasScale
-        });
         const itemList = [];
         itemList.push({
           text: `No. ${hoveredNode.id}`,
@@ -16071,12 +21415,11 @@ ${indentData}`);
     }
     updateSearchViewOverviewInfo({
       targetMediaUrl,
-      indexMeta,
-      searchRes,
       id2forcePos,
       searchNodesLevels,
-      searchLinksLevels
-    }) {
+      searchLinksLevels,
+      searchParams
+    }, { indexMeta }) {
       const overviewInfo = [
         {
           title: "HNSW - Search"
@@ -16089,7 +21432,7 @@ ${indentData}`);
           title: `M = ${indexMeta.M}, ef_construction = ${indexMeta.ef_construction}.`
         },
         {
-          title: `k = ${searchRes.searchParams.k}, ef_search = ${searchRes.searchParams.ef}.`
+          title: `k = ${searchParams.k}, ef_search = ${searchParams.ef}.`
         },
         {
           title: `${indexMeta.ntotal} vectors, including ${indexMeta.levelCount} levels.`
@@ -16110,15 +21453,11 @@ ${indentData}`);
       }
       this.renderOverviewPanel(overviewInfo, whiteColor);
     }
-    updateSearchViewHoveredInfo({
-      ctx,
-      hoveredNode,
-      hoveredLevel,
+    updateSearchViewHoveredInfo({ hoveredNode, hoveredLevel }, {
       mediaType,
       mediaCallback,
       width,
       padding,
-      hoveredPanelLineWidth,
       HoveredPanelLine_1_x,
       HoveredPanelLine_1_y,
       HoveredPanelLine_2_x,
@@ -16153,13 +21492,7 @@ ${indentData}`);
         });
       }
     }
-    updateSearchViewClickedInfo({
-      clickedNode,
-      clickedLevel,
-      mediaType,
-      mediaCallback,
-      getVectorById
-    }) {
+    updateSearchViewClickedInfo({ clickedNode, clickedLevel }, { mediaType, mediaCallback, getVectorById }) {
       const itemList = [];
       if (!clickedNode) {
         this.renderSelectedPanel([], ZYellow);
@@ -16207,13 +21540,13 @@ ${indentData}`);
     HoveredPanelLine_1_y: -25,
     HoveredPanelLine_2_x: 30,
     hoveredPanelLineWidth: 2,
-    forceIterations: 100
+    forceIterations: 100,
+    targetOrigin: [0, 0]
   };
   var HnswView = class extends BaseView {
-    constructor({ indexMeta, dom, viewParams, getVectorById }) {
+    constructor({ indexMeta, viewParams, getVectorById }) {
       super({
         indexMeta,
-        dom,
         viewParams,
         getVectorById
       });
@@ -16221,27 +21554,24 @@ ${indentData}`);
         this[key] = key in viewParams ? viewParams[key] : defaultHnswViewParams[key];
       }
       this.padding = this.padding.map((num) => num * this.canvasScale);
+      this.overviewHandler(indexMeta);
+    }
+    initInfoPanel(dom) {
       const infoPanel = new InfoPanel({
         dom,
-        width: this.width,
-        height: this.height
+        width: this.viewParams.width,
+        height: this.viewParams.height
       });
-      this.infoPanel = infoPanel;
-      this.updateOverviewOverviewInfo = (info) => infoPanel.updateOverviewOverviewInfo(info);
-      this.updateOverviewHoveredInfo = (info) => infoPanel.updateOverviewHoveredInfo(__spreadValues(__spreadValues({}, this), info));
-      this.updateOverviewClickedInfo = (info) => infoPanel.updateOverviewClickedInfo(__spreadValues(__spreadValues({}, this), info));
-      this.updateSearchViewOverviewInfo = (info) => infoPanel.updateSearchViewOverviewInfo(__spreadValues(__spreadValues({}, this), info));
-      this.updateSearchViewHoveredInfo = (info) => infoPanel.updateSearchViewHoveredInfo(__spreadValues(__spreadValues({}, this), info));
-      this.updateSearchViewClickedInfo = (info) => infoPanel.updateSearchViewClickedInfo(__spreadValues(__spreadValues({}, this), info));
-      this.overviewHandler({ indexMeta });
+      return infoPanel;
     }
-    overviewHandler({ indexMeta }) {
+    overviewHandler(indexMeta) {
+      console.log(indexMeta);
       this.indexMeta = indexMeta;
       Object.assign(this, indexMeta);
       const internalId2overviewNode = {};
       this.overviewNodes.forEach((node) => internalId2overviewNode[node.internalId] = node);
       this.internalId2overviewNode = internalId2overviewNode;
-      this.overviewInitPromise = overviewLayout_default(this).then(({
+      this.overviewLayoutPromise = overviewLayout_default(this).then(({
         overviewLayerPosLevels,
         overviewNodesLevels,
         overviewLinksLevels
@@ -16251,139 +21581,134 @@ ${indentData}`);
         this.overviewLinksLevels = overviewLinksLevels;
       });
     }
-    renderOverview() {
+    renderOverview(ctx, infoPanel) {
       const indexMeta = this.indexMeta;
       const nodesCount = this.overviewNodesLevels.map((nodesLevel) => nodesLevel.length);
       const linksCount = this.overviewLinksLevels.map((linksLevel) => linksLevel.length);
       const overviewInfo = { indexMeta, nodesCount, linksCount };
-      this.updateOverviewOverviewInfo(overviewInfo);
-      this.searchTransitionTimer && this.searchTransitionTimer.stop();
-      renderOverview.call(this);
+      infoPanel.updateOverviewOverviewInfo(overviewInfo);
+      renderOverview(ctx, this);
     }
-    searchViewHandler(_0) {
-      return __async(this, arguments, function* ({ searchRes }) {
-        yield searchViewLayoutHandler.call(this, { searchRes });
-        this.updateSearchViewOverviewInfo({});
-      });
+    getOverviewEventHandler(ctx, infoPanel) {
+      let clickedNode = null;
+      let clickedLevel = null;
+      let hoveredNode = null;
+      let hoveredLevel = null;
+      let overviewHighlightData = null;
+      const mouseMoveHandler = ({ x: x3, y: y4 }) => {
+        const mouse = [x3, y4];
+        const { mouseLevel, mouseNode } = mouse2node({
+          mouse,
+          layerPosLevels: this.overviewLayerPosLevels,
+          nodesLevels: this.overviewNodesLevels,
+          posAttr: "overviewPosLevels"
+        }, this);
+        const hoveredNodeChanged = hoveredLevel !== mouseLevel || hoveredNode !== mouseNode;
+        hoveredNode = mouseNode;
+        hoveredLevel = mouseLevel;
+        if (hoveredNodeChanged) {
+          if (!clickedNode) {
+            overviewHighlightData = getOverviewShortestPathData(mouseNode, mouseLevel, this);
+          }
+          renderOverview(ctx, this, overviewHighlightData);
+          const hoveredPanelPos = renderHoverLine_default(ctx, {
+            hoveredNode,
+            hoveredLevel,
+            clickedNode,
+            clickedLevel
+          }, this);
+          infoPanel.updateOverviewHoveredInfo(mouseNode, hoveredPanelPos, this);
+        }
+      };
+      const mouseClickHandler = ({ x: x3, y: y4 }) => {
+        const mouse = [x3, y4];
+        const { mouseLevel, mouseNode } = mouse2node({
+          mouse,
+          layerPosLevels: this.overviewLayerPosLevels,
+          nodesLevels: this.overviewNodesLevels,
+          posAttr: "overviewPosLevels"
+        }, this);
+        const clickedNodeChanged = clickedLevel !== mouseLevel || clickedNode !== mouseNode;
+        clickedNode = mouseNode;
+        clickedLevel = mouseLevel;
+        if (clickedNodeChanged) {
+          overviewHighlightData = getOverviewShortestPathData(mouseNode, mouseLevel, this);
+          renderOverview(ctx, this, overviewHighlightData);
+          infoPanel.updateOverviewClickedInfo(mouseNode, mouseLevel, this);
+        }
+      };
+      return { mouseMoveHandler, mouseClickHandler };
     }
-    renderSearchView() {
-      const timeControllerView = new TimeControllerView_default(this.dom);
+    searchViewHandler(searchRes) {
+      return searchViewLayoutHandler(searchRes, this);
+    }
+    renderSearchView(ctx, infoPanel, searchViewLayoutData, targetMediaUrl, dom) {
+      searchViewLayoutData.targetMediaUrl = targetMediaUrl;
+      infoPanel.updateSearchViewOverviewInfo(searchViewLayoutData, this);
+      const timeControllerView = new TimeControllerView_default(dom);
       const callback = ({ t, p }) => {
-        renderSearchViewTransition.call(this, { t, p });
+        renderSearchViewTransition(ctx, searchViewLayoutData, this, {
+          t,
+          p
+        });
         timeControllerView.moveSilderBar(p);
       };
       const timer2 = new TimerController({
-        duration: this.searchTransitionDuration,
+        duration: searchViewLayoutData.searchTransitionDuration,
         callback,
         playCallback: () => timeControllerView.play(),
         pauseCallback: () => timeControllerView.pause()
       });
       timeControllerView.setTimer(timer2);
       timer2.start();
-      this.searchTransitionTimer = timer2;
+      searchViewLayoutData.searchTransitionTimer = timer2;
     }
-    setOverviewListenerHandlers() {
-      this.mouseLeaveHandler = null;
-      this.mouseMoveHandler = ({ x: x3, y: y4 }) => {
+    getSearchViewEventHandler(ctx, searchViewLayoutData, infoPanel) {
+      searchViewLayoutData.clickedLevel = null;
+      searchViewLayoutData.clickedNode = null;
+      searchViewLayoutData.hoveredLevel = null;
+      searchViewLayoutData.hoveredNode = null;
+      const mouseMoveHandler = ({ x: x3, y: y4 }) => {
         const mouse = [x3, y4];
-        const { mouseLevel, mouseNode } = mouse2node(__spreadProps(__spreadValues({}, this), {
+        const { mouseLevel, mouseNode } = mouse2node({
           mouse,
-          layerPosLevels: this.overviewLayerPosLevels,
-          nodesLevels: this.overviewNodesLevels,
-          posAttr: "overviewPosLevels"
-        }));
-        this.hoveredNodeChanged = this.hoveredLevel !== mouseLevel || this.hoveredNode !== mouseNode;
-        this.hoveredNode = mouseNode;
-        this.hoveredLevel = mouseLevel;
-        if (this.hoveredNodeChanged && !this.clickedNode) {
-          Object.assign(this, getOverviewShortestPathData(__spreadProps(__spreadValues({}, this), {
-            keyNode: mouseNode,
-            keyLevel: mouseLevel
-          })));
-          this.renderOverview();
-          this.updateOverviewClickedInfo({
-            x: x3,
-            y: y4,
-            node: mouseNode,
-            level: mouseLevel
-          });
-        }
-        if (this.hoveredNodeChanged) {
-          this.renderOverview();
-          this.updateOverviewHoveredInfo({
-            x: x3,
-            y: y4,
-            node: mouseNode,
-            level: mouseLevel
-          });
-        }
-      };
-      this.mouseClickHandler = ({ x: x3, y: y4 }) => {
-        const mouse = [x3, y4];
-        const { mouseLevel, mouseNode } = mouse2node(__spreadProps(__spreadValues({}, this), {
-          mouse,
-          layerPosLevels: this.overviewLayerPosLevels,
-          nodesLevels: this.overviewNodesLevels,
-          posAttr: "overviewPosLevels"
-        }));
-        this.clickedNodeChanged = this.clickedLevel !== mouseLevel || this.clickedNode !== mouseNode;
-        this.clickedNode = mouseNode;
-        this.clickedLevel = mouseLevel;
-        if (this.clickedNodeChanged) {
-          Object.assign(this, getOverviewShortestPathData(__spreadProps(__spreadValues({}, this), {
-            keyNode: mouseNode,
-            keyLevel: mouseLevel
-          })));
-          this.updateOverviewClickedInfo({
-            x: x3,
-            y: y4,
-            node: mouseNode,
-            level: mouseLevel
-          });
-          this.renderOverview();
-        }
-      };
-    }
-    setSearchViewListenerHandlers() {
-      this.mouseLeaveHandler = null;
-      this.mouseMoveHandler = ({ x: x3, y: y4 }) => {
-        const mouse = [x3, y4];
-        const { mouseLevel, mouseNode } = mouse2node(__spreadProps(__spreadValues({}, this), {
-          mouse,
-          layerPosLevels: this.searchLayerPosLevels,
-          nodesLevels: this.searchNodesLevels,
+          layerPosLevels: searchViewLayoutData.searchLayerPosLevels,
+          nodesLevels: searchViewLayoutData.searchNodesLevels,
           posAttr: "searchViewPosLevels"
-        }));
-        this.hoveredNodeChanged = this.hoveredLevel !== mouseLevel || this.hoveredNode !== mouseNode;
-        this.hoveredNode = mouseNode;
-        this.hoveredLevel = mouseLevel;
-        if (this.hoveredNodeChanged) {
-          this.updateSearchViewHoveredInfo({});
-          if (!this.searchTransitionTimer.isPlaying) {
-            renderSearchViewTransition.call(this, {
-              t: this.searchTransitionTimer.tAlready
+        }, this);
+        const hoveredNodeChanged = searchViewLayoutData.hoveredLevel !== mouseLevel || searchViewLayoutData.hoveredNode !== mouseNode;
+        searchViewLayoutData.hoveredNode = mouseNode;
+        searchViewLayoutData.hoveredLevel = mouseLevel;
+        if (hoveredNodeChanged) {
+          infoPanel.updateSearchViewHoveredInfo(searchViewLayoutData, this);
+          if (!searchViewLayoutData.searchTransitionTimer.isPlaying) {
+            renderSearchViewTransition(ctx, searchViewLayoutData, this, {
+              t: searchViewLayoutData.searchTransitionTimer.tAlready
             });
           }
         }
       };
-      this.mouseClickHandler = ({ x: x3, y: y4 }) => {
+      const mouseClickHandler = ({ x: x3, y: y4 }) => {
         const mouse = [x3, y4];
-        const { mouseLevel, mouseNode } = mouse2node(__spreadProps(__spreadValues({}, this), {
+        const { mouseLevel, mouseNode } = mouse2node({
           mouse,
-          layerPosLevels: this.searchLayerPosLevels,
-          nodesLevels: this.searchNodesLevels,
+          layerPosLevels: searchViewLayoutData.searchLayerPosLevels,
+          nodesLevels: searchViewLayoutData.searchNodesLevels,
           posAttr: "searchViewPosLevels"
-        }));
-        this.clickedNodeChanged = this.clickedLevel !== mouseLevel || this.clickedNode !== mouseNode;
-        this.clickedNode = mouseNode;
-        this.clickedLevel = mouseLevel;
-        if (this.clickedNodeChanged) {
-          renderSearchViewTransition.call(this, {
-            t: this.searchTransitionTimer.currentT
-          });
-          this.updateSearchViewClickedInfo({});
+        }, this);
+        const clickedNodeChanged = searchViewLayoutData.clickedLevel !== mouseLevel || searchViewLayoutData.clickedNode !== mouseNode;
+        searchViewLayoutData.clickedNode = mouseNode;
+        searchViewLayoutData.clickedLevel = mouseLevel;
+        if (clickedNodeChanged) {
+          infoPanel.updateSearchViewClickedInfo(searchViewLayoutData, this);
+          if (!searchViewLayoutData.searchTransitionTimer.isPlaying) {
+            renderSearchViewTransition(ctx, searchViewLayoutData, this, {
+              t: searchViewLayoutData.searchTransitionTimer.tAlready
+            });
+          }
         }
       };
+      return { mouseMoveHandler, mouseClickHandler };
     }
   };
 
@@ -16395,10 +21720,15 @@ ${indentData}`);
   }
 
   // federjs/FederView/IvfflatView/layout/overviewLayout.js
-  function overviewLayoutHandler2({ indexMeta }) {
+  function overviewLayoutHandler2({
+    indexMeta,
+    width,
+    height,
+    canvasScale,
+    minVoronoiRadius,
+    forceIterations
+  }) {
     return new Promise((resolve) => {
-      const width = this.width;
-      const height = this.height;
       const allArea = width * height;
       const { ntotal, listCentroidProjections = null, listSizes } = indexMeta;
       const clusters = listSizes.map((listSize, i) => ({
@@ -16413,9 +21743,9 @@ ${indentData}`);
       clusters.forEach((cluster) => {
         cluster.x = x3(cluster.oriProjection[0]);
         cluster.y = y4(cluster.oriProjection[1]);
-        cluster.r = Math.max(this.minVoronoiRadius * this.canvasScale, Math.sqrt(cluster.countArea / Math.PI));
+        cluster.r = Math.max(minVoronoiRadius * canvasScale, Math.sqrt(cluster.countArea / Math.PI));
       });
-      const simulation = simulation_default(clusters).alphaDecay(1 - Math.pow(1e-3, 1 / this.forceIterations)).force("collision", collide_default().radius((cluster) => cluster.r)).force("center", center_default(width / 2, height / 2)).on("tick", () => {
+      const simulation = simulation_default(clusters).alphaDecay(1 - Math.pow(1e-3, 1 / forceIterations)).force("collision", collide_default().radius((cluster) => cluster.r)).force("center", center_default(width / 2, height / 2)).on("tick", () => {
         clusters.forEach((cluster) => {
           cluster.x = Math.max(cluster.r, Math.min(width - cluster.r, cluster.x));
           cluster.y = Math.max(cluster.r, Math.min(height - cluster.r, cluster.y));
@@ -16437,8 +21767,7 @@ ${indentData}`);
   }
 
   // federjs/FederView/IvfflatView/render/renderBackground.js
-  function renderBackground2({
-    ctx,
+  function renderBackground2(ctx, {
     width,
     height
   }) {
@@ -16452,14 +21781,7 @@ ${indentData}`);
   }
 
   // federjs/FederView/IvfflatView/render/renderNormalVoronoi.js
-  function renderNormalVoronoi({
-    ctx,
-    clusters,
-    nonNprobeClusters,
-    viewType,
-    voronoiStrokeWidth,
-    canvasScale
-  }) {
+  function renderNormalVoronoi(ctx, viewType, { clusters, nonNprobeClusters }, { voronoiStrokeWidth, canvasScale }) {
     const pointsList = viewType === VIEW_TYPE.overview ? clusters.map((cluster) => cluster.OVPolyPoints) : nonNprobeClusters.map((cluster) => cluster.SVPolyPoints);
     drawVoronoi({
       ctx,
@@ -16473,12 +21795,7 @@ ${indentData}`);
   }
 
   // federjs/FederView/IvfflatView/render/renderHighlightVoronoi.js
-  function renderHighlightVoronoi({
-    ctx,
-    nprobeClusters,
-    voronoiStrokeWidth,
-    canvasScale
-  }) {
+  function renderHighlightVoronoi(ctx, { nprobeClusters }, { voronoiStrokeWidth, canvasScale }) {
     const pointsList = nprobeClusters.map((cluster) => cluster.SVPolyPoints);
     drawVoronoi({
       ctx,
@@ -16492,10 +21809,7 @@ ${indentData}`);
   }
 
   // federjs/FederView/IvfflatView/render/renderSelectedVoronoi.js
-  function renderNormalVoronoi2({
-    ctx,
-    hoveredCluster,
-    viewType,
+  function renderNormalVoronoi2(ctx, viewType, hoveredCluster, {
     voronoiStrokeWidth,
     canvasScale
   }) {
@@ -16512,14 +21826,7 @@ ${indentData}`);
   }
 
   // federjs/FederView/IvfflatView/render/renderTarget.js
-  function renderTarget({
-    ctx,
-    targetNode,
-    targetNodeR,
-    canvasScale,
-    targetNodeStrokeWidth,
-    searchViewType
-  }) {
+  function renderTarget(ctx, searchViewType, { targetNode }, { targetNodeR, canvasScale, targetNodeStrokeWidth }) {
     if (searchViewType === SEARCH_VIEW_TYPE.project)
       return;
     const circle = searchViewType === SEARCH_VIEW_TYPE.voronoi ? [...targetNode.SVPos, targetNodeR * canvasScale] : [...targetNode.polarPos, targetNodeR * canvasScale];
@@ -16533,24 +21840,16 @@ ${indentData}`);
   }
 
   // federjs/FederView/IvfflatView/render/renderVoronoiView.js
-  function renderVoronoiView() {
-    renderBackground2(this);
-    renderNormalVoronoi(this);
-    this.viewType === VIEW_TYPE.search && renderHighlightVoronoi(this);
-    !!this.hoveredCluster && renderNormalVoronoi2(this);
-    this.viewType === VIEW_TYPE.search && renderTarget(this);
+  function renderVoronoiView(ctx, viewType, layoutData, federView, hoveredCluster = null) {
+    renderBackground2(ctx, federView);
+    renderNormalVoronoi(ctx, viewType, layoutData, federView);
+    viewType === VIEW_TYPE.search && renderHighlightVoronoi(ctx, layoutData, federView);
+    !!hoveredCluster && renderNormalVoronoi2(ctx, viewType, hoveredCluster, federView);
+    viewType === VIEW_TYPE.search && renderTarget(ctx, SEARCH_VIEW_TYPE.voronoi, layoutData, federView);
   }
 
   // federjs/FederView/IvfflatView/render/renderPolarAxis.js
-  function renderPolarAxis({
-    ctx,
-    axisTickCount,
-    polarOrigin,
-    polarMaxR,
-    polarAxisStrokeWidth,
-    canvasScale,
-    polarAxisOpacity
-  }) {
+  function renderPolarAxis(ctx, { polarOrigin, polarMaxR }, { axisTickCount, polarAxisStrokeWidth, canvasScale, polarAxisOpacity }) {
     const circles = range(axisTickCount).map((i) => [...polarOrigin, (i + 0.7) / axisTickCount * polarMaxR]);
     drawCircle({
       ctx,
@@ -16562,16 +21861,7 @@ ${indentData}`);
   }
 
   // federjs/FederView/IvfflatView/render/renderNormalNodes.js
-  function renderNormalNodes({
-    ctx,
-    colorScheme: colorScheme2,
-    nonTopKNodes,
-    searchViewType,
-    nonTopKNodeR,
-    canvasScale,
-    nprobe,
-    nonTopKNodeOpacity
-  }) {
+  function renderNormalNodes(ctx, { colorScheme: colorScheme2, nonTopKNodes, nprobe }, { nonTopKNodeR, canvasScale, nonTopKNodeOpacity }, searchViewType) {
     const allCircles = searchViewType === SEARCH_VIEW_TYPE.polar ? nonTopKNodes.map((node) => [
       ...node.polarPos,
       nonTopKNodeR * canvasScale,
@@ -16593,17 +21883,7 @@ ${indentData}`);
   }
 
   // federjs/FederView/IvfflatView/render/renderHighLightNodes.js
-  function renderHighLightNodes({
-    ctx,
-    colorScheme: colorScheme2,
-    topKNodes,
-    searchViewType,
-    topKNodeR,
-    canvasScale,
-    nprobe,
-    topKNodeOpacity,
-    topKNodeStrokeWidth
-  }) {
+  function renderHighLightNodes(ctx, { colorScheme: colorScheme2, topKNodes, nprobe }, { topKNodeR, canvasScale, topKNodeOpacity, topKNodeStrokeWidth }, searchViewType) {
     const allCircles = searchViewType === SEARCH_VIEW_TYPE.polar ? topKNodes.map((node) => [
       ...node.polarPos,
       topKNodeR * canvasScale,
@@ -16628,16 +21908,7 @@ ${indentData}`);
   }
 
   // federjs/FederView/IvfflatView/render/renderSelectedNode.js
-  function renderSelectedNode2({
-    ctx,
-    colorScheme: colorScheme2,
-    hoveredNode,
-    searchViewType,
-    hoveredNodeR,
-    canvasScale,
-    hoveredNodeOpacity,
-    hoveredNodeStrokeWidth
-  }) {
+  function renderSelectedNode2(ctx, { colorScheme: colorScheme2 }, { hoveredNodeR, canvasScale, hoveredNodeOpacity, hoveredNodeStrokeWidth }, searchViewType, hoveredNode) {
     const circle = searchViewType === SEARCH_VIEW_TYPE.polar ? [
       ...hoveredNode.polarPos,
       hoveredNodeR * canvasScale,
@@ -16659,13 +21930,13 @@ ${indentData}`);
   }
 
   // federjs/FederView/IvfflatView/render/renderNodeView.js
-  function renderNodeView() {
-    renderBackground2(this);
-    this.searchViewType === SEARCH_VIEW_TYPE.polar && renderPolarAxis(this);
-    renderNormalNodes(this);
-    renderHighLightNodes(this);
-    !!this.hoveredNode && renderSelectedNode2(this);
-    renderTarget(this);
+  function renderNodeView(ctx, searchViewLayoutData, federView, searchViewType = SEARCH_VIEW_TYPE.polar, hoveredNode = null) {
+    renderBackground2(ctx, federView);
+    searchViewType === SEARCH_VIEW_TYPE.polar && renderPolarAxis(ctx, searchViewLayoutData, federView);
+    renderNormalNodes(ctx, searchViewLayoutData, federView, searchViewType);
+    renderHighLightNodes(ctx, searchViewLayoutData, federView, searchViewType);
+    !!hoveredNode && renderSelectedNode2(ctx, searchViewLayoutData, federView, searchViewType, hoveredNode);
+    renderTarget(ctx, searchViewType, searchViewLayoutData, federView);
   }
 
   // federjs/FederView/IvfflatView/layout/mouse2voronoi.js
@@ -16680,13 +21951,12 @@ ${indentData}`);
   }
 
   // federjs/FederView/IvfflatView/layout/SVCoarseVoronoiHandler.js
-  function SVCoarseVoronoiHandler() {
+  function SVCoarseVoronoiHandler(searchRes, searchViewLayoutData, federView) {
     return new Promise((resolve) => {
-      const width = this.width;
-      const height = this.height;
-      const clusters = this.clusters;
-      const fineClusterOrder = vecSort(this.nprobeClusters, "OVPolyCentroid", "clusterId");
-      const targetClusterId = this.searchRes.coarse[0].id;
+      const { clusters, nprobeClusters, nprobe } = searchViewLayoutData;
+      const { width, height, forceIterations, polarOriginBias } = federView;
+      const fineClusterOrder = vecSort(nprobeClusters, "OVPolyCentroid", "clusterId");
+      const targetClusterId = searchRes.coarse[0].id;
       const targetCluster = clusters.find((cluster) => cluster.clusterId === targetClusterId);
       const otherFineClustersId = fineClusterOrder.filter((clusterId) => clusterId !== targetClusterId);
       const links = otherFineClustersId.map((clusterId) => ({
@@ -16697,18 +21967,18 @@ ${indentData}`);
         cluster.x = cluster.forceProjection[0];
         cluster.y = cluster.forceProjection[1];
       });
-      const targetClusterX = this.nprobeClusters.reduce((acc, cluster) => acc + cluster.x, 0) / this.nprobe;
-      const targetClusterY = this.nprobeClusters.reduce((acc, cluster) => acc + cluster.y, 0) / this.nprobe;
+      const targetClusterX = nprobeClusters.reduce((acc, cluster) => acc + cluster.x, 0) / nprobe;
+      const targetClusterY = nprobeClusters.reduce((acc, cluster) => acc + cluster.y, 0) / nprobe;
       targetCluster.x = targetClusterX;
       targetCluster.y = targetClusterY;
-      const otherFineCluster = otherFineClustersId.map((clusterId) => this.nprobeClusters.find((cluster) => cluster.clusterId === clusterId));
-      const angleStep = 2 * Math.PI / (this.nprobe - 1);
+      const otherFineCluster = otherFineClustersId.map((clusterId) => nprobeClusters.find((cluster) => cluster.clusterId === clusterId));
+      const angleStep = 2 * Math.PI / (nprobe - 1);
       const biasR = targetCluster.r * 0.5;
       otherFineCluster.forEach((cluster, i) => {
         cluster.x = targetClusterX + biasR * Math.sin(angleStep * i);
         cluster.y = targetClusterY + biasR * Math.cos(angleStep * i);
       });
-      const simulation = simulation_default(clusters).alphaDecay(1 - Math.pow(1e-3, 1 / this.forceIterations)).force("links", link_default(links).id((cluster) => cluster.clusterId).strength((_) => 0.25)).force("collision", collide_default().radius((cluster) => cluster.r).strength(0.1)).force("center", center_default(width / 2, height / 2)).on("tick", () => {
+      const simulation = simulation_default(clusters).alphaDecay(1 - Math.pow(1e-3, 1 / forceIterations)).force("links", link_default(links).id((cluster) => cluster.clusterId).strength((_) => 0.25)).force("collision", collide_default().radius((cluster) => cluster.r).strength(0.1)).force("center", center_default(width / 2, height / 2)).on("tick", () => {
         clusters.forEach((cluster) => {
           cluster.x = Math.max(cluster.r, Math.min(width - cluster.r, cluster.x));
           cluster.y = Math.max(cluster.r, Math.min(height - cluster.r, cluster.y));
@@ -16724,10 +21994,10 @@ ${indentData}`);
           cluster.SVPolyPoints = points;
           cluster.SVPolyCentroid = centroid_default(points);
         });
-        this.SVVoronoi = voronoi;
+        searchViewLayoutData.SVVoronoi = voronoi;
         const targetCluster2 = clusters.find((cluster) => cluster.clusterId === targetClusterId);
-        const centoid_fineClusters_x = this.nprobeClusters.reduce((acc, cluster) => acc + cluster.SVPolyCentroid[0], 0) / this.nprobeClusters.length;
-        const centroid_fineClusters_y = this.nprobeClusters.reduce((acc, cluster) => acc + cluster.SVPolyCentroid[1], 0) / this.nprobeClusters.length;
+        const centoid_fineClusters_x = nprobeClusters.reduce((acc, cluster) => acc + cluster.SVPolyCentroid[0], 0) / nprobe;
+        const centroid_fineClusters_y = nprobeClusters.reduce((acc, cluster) => acc + cluster.SVPolyCentroid[1], 0) / nprobe;
         const _x = centoid_fineClusters_x - targetCluster2.SVPos[0];
         const _y = centroid_fineClusters_y - targetCluster2.SVPos[1];
         const biasR2 = Math.sqrt(_x * _x + _y * _y);
@@ -16737,18 +22007,18 @@ ${indentData}`);
             targetCluster2.SVPos[1] + targetCluster2.r * 0.4 * (_y / biasR2)
           ]
         };
-        targetNode.isLeft_coarseLevel = targetNode.SVPos[0] < this.width / 2;
-        this.targetNode = targetNode;
+        targetNode.isLeft_coarseLevel = targetNode.SVPos[0] < width / 2;
+        searchViewLayoutData.targetNode = targetNode;
         const polarOrigin = [
-          width / 2 + (targetNode.isLeft_coarseLevel ? -1 : 1) * this.polarOriginBias * width,
+          width / 2 + (targetNode.isLeft_coarseLevel ? -1 : 1) * polarOriginBias * width,
           height / 2
         ];
-        this.polarOrigin = polarOrigin;
+        searchViewLayoutData.polarOrigin = polarOrigin;
         targetNode.polarPos = polarOrigin;
         const polarMaxR = Math.min(width, height) * 0.5 - 5;
-        this.polarMaxR = polarMaxR;
+        searchViewLayoutData.polarMaxR = polarMaxR;
         const angleStep2 = Math.PI * 2 / fineClusterOrder.length;
-        this.nprobeClusters.forEach((cluster) => {
+        nprobeClusters.forEach((cluster) => {
           const order = fineClusterOrder.indexOf(cluster.clusterId);
           cluster.polarOrder = order;
           cluster.SVNextLevelPos = [
@@ -16761,83 +22031,75 @@ ${indentData}`);
           ];
         });
         const clusterId2cluster = {};
-        this.nprobeClusters.forEach((cluster) => {
+        nprobeClusters.forEach((cluster) => {
           clusterId2cluster[cluster.clusterId] = cluster;
         });
-        this.clusterId2cluster = clusterId2cluster;
+        searchViewLayoutData.clusterId2cluster = clusterId2cluster;
         resolve();
       });
     });
   }
 
   // federjs/FederView/IvfflatView/layout/SVFinePolarHandler.js
-  function SVFinePolarHandler() {
+  function SVFinePolarHandler(searchRes, searchViewLayoutData, federView) {
     return new Promise((resolve) => {
-      const nodes = this.searchRes.fine;
-      const polarMaxR = this.polarMaxR;
-      const polarOrigin = this.polarOrigin;
+      const { polarMaxR, polarOrigin, clusterId2cluster } = searchViewLayoutData;
+      const { forceIterations, nonTopKNodeR, canvasScale } = federView;
+      const nodes = searchRes.fine;
       const distances = nodes.map((node) => node.dis).filter((a2) => a2 > 0).sort();
       const minDis = distances.length > 0 ? distances[0] : 0;
       const maxDis = distances.length > 0 ? distances[Math.round((distances.length - 1) * 0.98)] : 0;
       const r = linear2().domain([minDis, maxDis]).range([polarMaxR * 0.2, polarMaxR]).clamp(true);
       nodes.forEach((node) => {
-        const cluster = this.clusterId2cluster[node.listId];
+        const cluster = clusterId2cluster[node.listId];
         const { polarOrder, SVNextLevelPos } = cluster;
         node.polarOrder = polarOrder;
-        let randAngle = Math.random() * Math.PI * 2;
-        let randBias = [Math.sin, Math.cos].map((f) => cluster.r * Math.random() * 0.7 * f(randAngle));
+        const randAngle = Math.random() * Math.PI * 2;
+        const randBias = [Math.sin, Math.cos].map((f) => cluster.r * Math.random() * 0.7 * f(randAngle));
         node.voronoiPos = SVNextLevelPos.map((d, i) => d + randBias[i]);
         node.x = node.voronoiPos[0];
         node.y = node.voronoiPos[1];
         node.r = r(node.dis);
       });
-      const simulation = simulation_default(nodes).alphaDecay(1 - Math.pow(1e-3, 1 / this.forceIterations / 2)).force("collide", collide_default().radius((_) => this.nonTopKNodeR * this.canvasScale).strength(0.4)).force("r", radial_default((node) => node.r, ...polarOrigin).strength(1)).on("end", () => {
+      const simulation = simulation_default(nodes).alphaDecay(1 - Math.pow(1e-3, 1 / forceIterations * 2)).force("collide", collide_default().radius((_) => nonTopKNodeR * canvasScale).strength(0.4)).force("r", radial_default((node) => node.r, ...polarOrigin).strength(1)).on("end", () => {
         nodes.forEach((node) => {
           node.polarPos = [node.x, node.y];
         });
-        this.nodes = nodes;
-        this.topKNodes = this.nodes.filter((node) => this.searchRes.fsResIds.find((id2) => id2 == node.id));
-        this.nonTopKNodes = this.nodes.filter((node) => !this.searchRes.fsResIds.find((id2) => id2 == node.id));
+        searchViewLayoutData.nodes = nodes;
+        searchViewLayoutData.topKNodes = nodes.filter((node) => searchRes.fsResIds.find((id2) => id2 == node.id));
+        searchViewLayoutData.nonTopKNodes = nodes.filter((node) => !searchRes.fsResIds.find((id2) => id2 == node.id));
         resolve();
       });
     });
   }
 
   // federjs/FederView/IvfflatView/layout/SVFineProjectHandler.js
-  function SVFineProjectHandler() {
-    const nodes = this.nodes;
+  function SVFineProjectHandler(searchRes, searchViewLayoutData, federView) {
+    const { nodes, targetNode } = searchViewLayoutData;
+    const { projectPadding, width, height } = federView;
     if (!nodes[0].projection) {
       console.log('No Projection Data. Should use "fineWithProjection".');
       nodes.forEach((node) => {
         node.projection = [Math.random(), Math.random()];
       });
     }
-    const xRange = this.targetNode.isLeft_coarseLevel ? [this.projectPadding[1], this.width - this.projectPadding[3]] : [this.projectPadding[3], this.width - this.projectPadding[1]];
+    const xRange = targetNode.isLeft_coarseLevel ? [projectPadding[1], width - projectPadding[3]] : [projectPadding[3], width - projectPadding[1]];
     const x3 = linear2().domain(extent(nodes, (node) => node.projection[0])).range(xRange);
-    const y4 = linear2().domain(extent(nodes, (node) => node.projection[1])).range([this.projectPadding[0], this.height - this.projectPadding[2]]);
+    const y4 = linear2().domain(extent(nodes, (node) => node.projection[1])).range([projectPadding[0], height - projectPadding[2]]);
     nodes.forEach((node) => {
       node.projectPos = [x3(node.projection[0]), y4(node.projection[1])];
     });
   }
 
   // federjs/FederView/IvfflatView/layout/searchViewLayout.js
-  function searchViewLayoutHandler2({ searchRes }) {
-    const SVCoarsePromise = new Promise((resolve) => __async(this, null, function* () {
-      this.searchRes = searchRes;
-      searchRes.coarse.forEach(({ id: id2, dis }) => this.clusters[id2].dis = dis);
-      this.nprobeClusters = this.clusters.filter((cluster) => this.searchRes.csResIds.indexOf(cluster.clusterId) >= 0);
-      this.nonNprobeClusters = this.clusters.filter((cluster) => this.searchRes.csResIds.indexOf(cluster.clusterId) < 0);
-      yield SVCoarseVoronoiHandler.call(this);
+  function searchViewLayoutHandler2(searchRes, searchViewLayoutData, federView) {
+    return new Promise((resolve) => __async(this, null, function* () {
+      searchRes.coarse.forEach(({ id: id2, dis }) => searchViewLayoutData.clusters[id2].dis = dis);
+      yield SVCoarseVoronoiHandler(searchRes, searchViewLayoutData, federView);
+      yield SVFinePolarHandler(searchRes, searchViewLayoutData, federView);
+      SVFineProjectHandler(searchRes, searchViewLayoutData, federView);
       resolve();
     }));
-    SVCoarsePromise.then(() => __async(this, null, function* () {
-      this.SVFinePromise = new Promise((resolve) => __async(this, null, function* () {
-        yield SVFinePolarHandler.call(this);
-        SVFineProjectHandler.call(this);
-        resolve();
-      }));
-    }));
-    return SVCoarsePromise;
   }
 
   // federjs/FederView/IvfflatView/render/animateNonNprobeClusters.js
@@ -16846,12 +22108,12 @@ ${indentData}`);
     elapsed,
     duration,
     delay,
-    ease,
-    nonNprobeClusters,
-    voronoiStrokeWidth,
-    canvasScale,
-    animationType
+    animationType,
+    searchViewLayoutData,
+    federView
   }) {
+    const { ease, voronoiStrokeWidth, canvasScale } = federView;
+    const { nonNprobeClusters } = searchViewLayoutData;
     let t = ease((elapsed - delay) / duration);
     if (t > 1 || t < 0)
       return;
@@ -16871,15 +22133,15 @@ ${indentData}`);
   // federjs/FederView/IvfflatView/render/animateNprobeClustersTrans.js
   function animateNprobeClustersTrans({
     ctx,
+    searchViewLayoutData,
+    federView,
     elapsed,
     duration,
     delay,
-    ease,
-    nprobeClusters,
-    voronoiStrokeWidth,
-    canvasScale,
     animationType
   }) {
+    const { nprobeClusters } = searchViewLayoutData;
+    const { ease, voronoiStrokeWidth, canvasScale } = federView;
     let t = ease((elapsed - delay) / duration);
     if (t > 1 || t < 0)
       return;
@@ -16902,17 +22164,16 @@ ${indentData}`);
   // federjs/FederView/IvfflatView/render/animateTargetNode.js
   function animateTargetNode({
     ctx,
+    searchViewLayoutData,
+    federView,
     elapsed,
     duration,
     delay,
-    ease,
-    targetNode,
-    targetNodeR,
-    canvasScale,
-    targetNodeStrokeWidth,
     animationType,
     newSearchViewType
   }) {
+    const { targetNode } = searchViewLayoutData;
+    const { ease, targetNodeR, canvasScale, targetNodeStrokeWidth } = federView;
     let t = ease((elapsed - delay) / duration);
     if (newSearchViewType === SEARCH_VIEW_TYPE.project) {
       if (t < 0 || t > 1)
@@ -16937,15 +22198,15 @@ ${indentData}`);
   // federjs/FederView/IvfflatView/render/animateNprobeClustersOpacity.js
   function animateNonNprobeClusters2({
     ctx,
+    searchViewLayoutData,
+    federView,
     elapsed,
     duration,
     delay,
-    ease,
-    nprobeClusters,
-    voronoiStrokeWidth,
-    canvasScale,
     animationType
   }) {
+    const { nprobeClusters } = searchViewLayoutData;
+    const { ease, voronoiStrokeWidth, canvasScale } = federView;
     let t = ease((elapsed - delay) / duration);
     if (t > 1 || t < 0)
       return;
@@ -16969,24 +22230,25 @@ ${indentData}`);
   // federjs/FederView/IvfflatView/render/animateNodesOpacityAndTrans.js
   function animateNodesOpacityAndTrans({
     ctx,
-    colorScheme: colorScheme2,
+    searchViewLayoutData,
+    federView,
     elapsed,
     duration,
     delay,
-    nprobe,
-    ease,
-    topKNodes,
-    topKNodeR,
-    topKNodeOpacity,
-    topKNodeStrokeWidth,
-    nonTopKNodes,
-    nonTopKNodeR,
-    nonTopKNodeOpacity,
-    canvasScale,
     animationType,
     newSearchViewType,
     oldSearchViewType
   }) {
+    const { colorScheme: colorScheme2, nprobe, topKNodes, nonTopKNodes } = searchViewLayoutData;
+    const {
+      ease,
+      topKNodeR,
+      topKNodeOpacity,
+      topKNodeStrokeWidth,
+      nonTopKNodeR,
+      nonTopKNodeOpacity,
+      canvasScale
+    } = federView;
     let t = ease((elapsed - delay) / duration);
     if (t > 1 || t < 0)
       return;
@@ -17038,101 +22300,127 @@ ${indentData}`);
   }
 
   // federjs/FederView/IvfflatView/render/animateCoarse2Fine.js
-  function animateCoarse2Fine({
-    oldSearchViewType,
-    newSearchViewType
+  function animateCoarse2Fine(oldSearchViewType, newSearchViewType, ctx, searchViewLayoutData, federView, endCallback = () => {
   }) {
-    const stepAllTime = this.animateExitTime + this.animateEnterTime;
+    const { animateExitTime, animateEnterTime } = federView;
+    const stepAllTime = animateExitTime + animateEnterTime;
     const timer2 = timer((elapsed) => {
-      renderBackground2(this);
-      animateNonNprobeClusters(__spreadProps(__spreadValues({}, this), {
+      renderBackground2(ctx, federView);
+      animateNonNprobeClusters({
+        ctx,
+        searchViewLayoutData,
+        federView,
         elapsed,
         delay: 0,
-        duration: this.animateExitTime,
+        duration: animateExitTime,
         animationType: ANIMATION_TYPE.exit
-      }));
-      animateNprobeClustersTrans(__spreadProps(__spreadValues({}, this), {
+      });
+      animateNprobeClustersTrans({
+        ctx,
+        searchViewLayoutData,
+        federView,
         elapsed,
         delay: 0,
-        duration: this.animateExitTime,
+        duration: animateExitTime,
         animationType: ANIMATION_TYPE.exit
-      }));
-      animateTargetNode(__spreadProps(__spreadValues({}, this), {
+      });
+      animateTargetNode({
+        ctx,
+        searchViewLayoutData,
+        federView,
         elapsed,
         delay: 0,
-        duration: this.animateExitTime,
+        duration: animateExitTime,
         animationType: ANIMATION_TYPE.exit,
         newSearchViewType
-      }));
-      animateNonNprobeClusters2(__spreadProps(__spreadValues({}, this), {
+      });
+      animateNonNprobeClusters2({
+        ctx,
+        searchViewLayoutData,
+        federView,
         elapsed,
-        delay: this.animateExitTime,
-        duration: this.animateEnterTime,
+        delay: animateExitTime,
+        duration: animateEnterTime,
         animationType: ANIMATION_TYPE.exit
-      }));
-      animateNodesOpacityAndTrans(__spreadProps(__spreadValues({}, this), {
+      });
+      animateNodesOpacityAndTrans({
+        ctx,
+        searchViewLayoutData,
+        federView,
         elapsed,
-        delay: this.animateExitTime,
-        duration: this.animateEnterTime,
+        delay: animateExitTime,
+        duration: animateEnterTime,
         animationType: ANIMATION_TYPE.enter,
         oldSearchViewType,
         newSearchViewType
-      }));
+      });
       if (elapsed >= stepAllTime) {
         console.log("Coarse => Fine [OK]");
         timer2.stop();
-        this.searchViewType = newSearchViewType;
-        this.renderFineSearch(newSearchViewType);
+        endCallback();
       }
     });
   }
 
   // federjs/FederView/IvfflatView/render/animateFine2Coarse.js
-  function animateFine2Coarse({
-    oldSearchViewType,
-    newSearchViewType
+  function animateFine2Coarse(oldSearchViewType, newSearchViewType, ctx, searchViewLayoutData, federView, endCallback = () => {
   }) {
-    const stepAllTime = this.animateExitTime + this.animateEnterTime;
+    const { animateExitTime, animateEnterTime } = federView;
+    const stepAllTime = animateExitTime + animateEnterTime;
     const timer2 = timer((elapsed) => {
-      renderBackground2(this);
-      animateNodesOpacityAndTrans(__spreadProps(__spreadValues({}, this), {
+      renderBackground2(ctx, federView);
+      animateNodesOpacityAndTrans({
+        ctx,
+        searchViewLayoutData,
+        federView,
         elapsed,
         delay: 0,
-        duration: this.animateExitTime,
+        duration: animateExitTime,
         animationType: ANIMATION_TYPE.exit,
         oldSearchViewType,
         newSearchViewType
-      }));
-      animateNonNprobeClusters2(__spreadProps(__spreadValues({}, this), {
+      });
+      animateNonNprobeClusters2({
+        ctx,
+        searchViewLayoutData,
+        federView,
         elapsed,
         delay: 0,
-        duration: this.animateExitTime,
+        duration: animateExitTime,
         animationType: ANIMATION_TYPE.enter
-      }));
-      animateNonNprobeClusters(__spreadProps(__spreadValues({}, this), {
+      });
+      animateNonNprobeClusters({
+        ctx,
+        searchViewLayoutData,
+        federView,
         elapsed,
-        delay: this.animateExitTime,
-        duration: this.animateEnterTime,
+        delay: animateExitTime,
+        duration: animateEnterTime,
         animationType: ANIMATION_TYPE.enter
-      }));
-      animateNprobeClustersTrans(__spreadProps(__spreadValues({}, this), {
+      });
+      animateNprobeClustersTrans({
+        ctx,
+        searchViewLayoutData,
+        federView,
         elapsed,
-        delay: this.animateExitTime,
-        duration: this.animateEnterTime,
+        delay: animateExitTime,
+        duration: animateEnterTime,
         animationType: ANIMATION_TYPE.enter
-      }));
-      animateTargetNode(__spreadProps(__spreadValues({}, this), {
+      });
+      animateTargetNode({
+        ctx,
+        searchViewLayoutData,
+        federView,
         elapsed,
-        delay: this.animateExitTime,
-        duration: this.animateEnterTime,
+        delay: animateExitTime,
+        duration: animateEnterTime,
         animationType: ANIMATION_TYPE.enter,
         newSearchViewType
-      }));
+      });
       if (elapsed >= stepAllTime) {
         console.log("Fine => Coarse [OK]");
         timer2.stop();
-        this.searchViewType = newSearchViewType;
-        this.renderCoarseSearch();
+        endCallback();
       }
     });
   }
@@ -17140,22 +22428,23 @@ ${indentData}`);
   // federjs/FederView/IvfflatView/render/animateNodesTrans.js
   function animateNodesTrans({
     ctx,
-    colorScheme: colorScheme2,
-    ease,
+    searchViewLayoutData,
+    federView,
     elapsed,
     duration,
     delay,
-    newSearchViewType,
-    nonTopKNodes,
-    nonTopKNodeR,
-    canvasScale,
-    topKNodes,
-    topKNodeR,
-    topKNodeStrokeWidth,
-    nprobe,
-    nonTopKNodeOpacity,
-    topKNodeOpacity
+    newSearchViewType
   }) {
+    const { colorScheme: colorScheme2, nonTopKNodes, topKNodes, nprobe } = searchViewLayoutData;
+    const {
+      ease,
+      nonTopKNodeR,
+      canvasScale,
+      topKNodeR,
+      topKNodeStrokeWidth,
+      nonTopKNodeOpacity,
+      topKNodeOpacity
+    } = federView;
     let t = ease((elapsed - delay) / duration);
     if (t > 1 || t < 0)
       return;
@@ -17196,22 +22485,23 @@ ${indentData}`);
   }
 
   // federjs/FederView/IvfflatView/render/animateFine2Fine.js
-  function animateFine2Fine({
-    oldSearchViewType,
-    newSearchViewType
-  }) {
+  function animateFine2Fine(oldSearchViewType, newSearchViewType, ctx, searchViewLayoutData, federView, endCallback) {
+    const { fineSearchNodeTransTime } = federView;
     const timer2 = timer((elapsed) => {
-      renderBackground2(this);
-      animateNodesTrans(__spreadProps(__spreadValues({}, this), {
+      renderBackground2(ctx, federView);
+      animateNodesTrans({
+        ctx,
+        searchViewLayoutData,
+        federView,
         elapsed,
-        duration: this.fineSearchNodeTransTime,
+        duration: fineSearchNodeTransTime,
         delay: 0,
         newSearchViewType
-      }));
-      if (elapsed >= this.fineSearchNodeTransTime) {
+      });
+      if (elapsed >= fineSearchNodeTransTime) {
         console.log(`${oldSearchViewType} To ${newSearchViewType} OK!`);
         timer2.stop();
-        this.renderFineSearch(newSearchViewType);
+        endCallback();
       }
     });
   }
@@ -17258,7 +22548,8 @@ ${indentData}`);
       };
       Object.assign(overviewPanel.style, overviewPanelStyle);
     }
-    updateOverviewOverviewInfo({ ntotal, nlist, listSizes }) {
+    updateOverviewOverviewInfo({ indexMeta }) {
+      const { ntotal, nlist, listSizes } = indexMeta;
       const items = [
         {
           title: "IVF_Flat"
@@ -17272,16 +22563,17 @@ ${indentData}`);
       ];
       this.renderOverviewPanel(items, whiteColor);
     }
-    updateSearchViewCoarseOverviewInfo(federView) {
+    updateSearchViewCoarseOverviewInfo(searchViewLayoutData, federView) {
       const {
-        ntotal,
-        nlist,
         nprobe,
-        searchRes,
         clusters,
         targetMediaUrl,
-        listSizes
-      } = federView;
+        nprobeClusters,
+        switchSearchViewHandlers
+      } = searchViewLayoutData;
+      const { indexMeta } = federView;
+      const { ntotal, nlist, listSizes } = indexMeta;
+      const { switchVoronoi, switchPolar, switchProject } = switchSearchViewHandlers;
       const items = [
         {
           title: "IVF_Flat - Search"
@@ -17294,19 +22586,19 @@ ${indentData}`);
           isOption: true,
           isActive: true,
           label: "Coarse Search",
-          callback: () => federView.switchSearchView("voronoi")
+          callback: switchVoronoi
         },
         {
           isOption: true,
           isActive: false,
           label: "Fine Search (Distance)",
-          callback: () => federView.switchSearchView("polar")
+          callback: switchPolar
         },
         {
           isOption: true,
           isActive: false,
           label: "Fine Search (Project)",
-          callback: () => federView.switchSearchView("project")
+          callback: switchProject
         },
         {
           text: `${ntotal} vectors, divided into ${nlist} clusters.`
@@ -17314,16 +22606,25 @@ ${indentData}`);
         {
           title: `Find the ${nprobe} (nprobe=${nprobe}) closest clusters.`
         },
-        ...searchRes.csResIds.map((clusterId) => ({
+        ...nprobeClusters.map(({ clusterId }) => ({
           text: `cluster-${clusterId} (${listSizes[clusterId]} vectors) dist: ${clusters[clusterId].dis.toFixed(3)}.`
         }))
       ];
       this.renderOverviewPanel(items, whiteColor);
     }
-    updateSearchViewFinePolarOverviewInfo(federView) {
-      const { k, nprobe, searchRes, targetMediaUrl, mediaCallback } = federView;
-      const fineAllVectorsCount = searchRes.fine.length;
-      const showImages = searchRes.fsResIds.map((id2) => mediaCallback(id2)).filter((a2) => a2);
+    updateSearchViewFinePolarOverviewInfo(searchViewLayoutData, federView) {
+      const {
+        k,
+        nprobe,
+        nodes,
+        topKNodes,
+        switchSearchViewHandlers,
+        targetMediaUrl
+      } = searchViewLayoutData;
+      const { switchVoronoi, switchPolar, switchProject } = switchSearchViewHandlers;
+      const { mediaCallback } = federView;
+      const fineAllVectorsCount = nodes.length;
+      const showImages = topKNodes.map(({ id: id2 }) => mediaCallback(id2)).filter((a2) => a2);
       const items = [
         {
           title: "IVF_Flat - Search"
@@ -17336,19 +22637,19 @@ ${indentData}`);
           isOption: true,
           isActive: false,
           label: "Coarse Search",
-          callback: () => federView.switchSearchView("voronoi")
+          callback: switchVoronoi
         },
         {
           isOption: true,
           isActive: true,
           label: "Fine Search (Distance)",
-          callback: () => federView.switchSearchView("polar")
+          callback: switchPolar
         },
         {
           isOption: true,
           isActive: false,
           label: "Fine Search (Project)",
-          callback: () => federView.switchSearchView("project")
+          callback: switchProject
         },
         {
           text: `Find the ${k} (k=${k}) vectors closest to the target from these ${nprobe} (nprobe=${nprobe}) clusters, ${fineAllVectorsCount} vectors in total.`
@@ -17359,10 +22660,18 @@ ${indentData}`);
       ];
       this.renderOverviewPanel(items, whiteColor);
     }
-    updateSearchViewFineProjectOverviewInfo(federView) {
-      const { k, nprobe, searchRes, targetMediaUrl, mediaCallback, viewParams } = federView;
-      const fineAllVectorsCount = searchRes.fine.length;
-      const showImages = searchRes.fsResIds.map((id2) => mediaCallback(id2)).filter((a2) => a2);
+    updateSearchViewFineProjectOverviewInfo(searchViewLayoutData, federView) {
+      const {
+        nprobe,
+        nodes,
+        topKNodes,
+        targetMediaUrl,
+        switchSearchViewHandlers
+      } = searchViewLayoutData;
+      const { switchVoronoi, switchPolar, switchProject } = switchSearchViewHandlers;
+      const { mediaCallback, viewParams } = federView;
+      const fineAllVectorsCount = nodes.length;
+      const showImages = topKNodes.map(({ id: id2 }) => mediaCallback(id2)).filter((a2) => a2);
       const items = [
         {
           title: "IVF_Flat - Search"
@@ -17375,19 +22684,19 @@ ${indentData}`);
           isOption: true,
           isActive: false,
           label: "Coarse Search",
-          callback: () => federView.switchSearchView("voronoi")
+          callback: switchVoronoi
         },
         {
           isOption: true,
           isActive: false,
           label: "Fine Search (Distance)",
-          callback: () => federView.switchSearchView("polar")
+          callback: switchPolar
         },
         {
           isOption: true,
           isActive: true,
           label: "Fine Search (Project)",
-          callback: () => federView.switchSearchView("project")
+          callback: switchProject
         },
         {
           text: `Projection of all ${fineAllVectorsCount} vectors in the ${nprobe} (nprobe=${nprobe}) clusters using ${viewParams.projectMethod || "random"}.`
@@ -17555,6 +22864,7 @@ ${indentData}`);
       display: flex;
       align-items: center;
       cursor: pointer;
+      // pointer-events: auto;
     }
     .panel-item-option-icon {
       width: 6px;
@@ -17658,6 +22968,7 @@ ${indentData}`);
   };
 
   // federjs/FederView/IvfflatView/index.js
+  var import_lodash = __toESM(require_lodash(), 1);
   var defaultIvfflatViewParams = {
     minVoronoiRadius: 4,
     backgroundColor: "red",
@@ -17684,170 +22995,183 @@ ${indentData}`);
     forceIterations: 100
   };
   var IvfflatView = class extends BaseView {
-    constructor({ indexMeta, dom, viewParams }) {
+    constructor({ indexMeta, viewParams, getVectorById }) {
       super({
-        indexMeta,
-        dom,
-        viewParams
+        viewParams,
+        getVectorById
       });
       for (let key in defaultIvfflatViewParams) {
         this[key] = key in viewParams ? viewParams[key] : defaultIvfflatViewParams[key];
       }
       this.projectPadding = this.projectPadding.map((num) => num * this.canvasScale);
-      this.overviewHandler({ indexMeta });
-      this.infoPanel = new InfoPanel2({
+      this.indexMeta = indexMeta;
+      this.overviewLayoutHandler();
+    }
+    initInfoPanel(dom) {
+      const infoPanel = new InfoPanel2({
         dom,
-        width: viewParams.width,
-        height: viewParams.height
+        width: this.clientWidth,
+        height: this.clientHeight
+      });
+      return infoPanel;
+    }
+    overviewLayoutHandler() {
+      this.overviewLayoutPromise = overviewLayoutHandler2(this).then(({ clusters, voronoi }) => {
+        this.overviewLayoutData = { clusters, OVVoronoi: voronoi };
       });
     }
-    overviewHandler({ indexMeta }) {
-      Object.assign(this, indexMeta);
-      this.overviewInitPromise = overviewLayoutHandler2.call(this, { indexMeta }).then(({ clusters, voronoi }) => {
-        this.clusters = clusters;
-        this.OVVoronoi = voronoi;
-      });
+    renderOverview(ctx, infoPanel) {
+      infoPanel.updateOverviewOverviewInfo(this);
+      renderVoronoiView(ctx, VIEW_TYPE.overview, this.overviewLayoutData, this);
     }
-    renderOverview() {
-      return __async(this, null, function* () {
-        this.viewType === VIEW_TYPE.overview && this.overviewInitPromise && (yield this.overviewInitPromise);
-        this.viewType === VIEW_TYPE.search && this.searchViewInitPromise && (yield this.searchViewInitPromise);
-        this.viewType === VIEW_TYPE.overview && this.infoPanel.updateOverviewOverviewInfo(this);
-        this.viewType === VIEW_TYPE.search && this.infoPanel.updateSearchViewCoarseOverviewInfo(this);
-        renderVoronoiView.call(this);
-      });
-    }
-    searchViewHandler(_0) {
-      return __async(this, arguments, function* ({ searchRes }) {
-        this.overviewInitPromise && (yield this.overviewInitPromise);
-        this.nprobe = searchRes.csResIds.length;
-        this.k = searchRes.fsResIds.length;
-        this.colorScheme = range(this.nprobe).map((i) => hsl(360 * i / this.nprobe, 1, 0.5).hex());
-        this.searchViewInitPromise = searchViewLayoutHandler2.call(this, {
-          searchRes
-        }).then(() => {
-        });
-        yield this.searchViewInitPromise;
-        console.log("searchView Layout finished");
-      });
-    }
-    renderSearchView() {
-      this.renderCoarseSearch();
-    }
-    renderCoarseSearch() {
-      this.infoPanel.setOverviewPanelPos(!this.targetNode.isLeft_coarseLevel);
-      this.infoPanel.updateSearchViewCoarseOverviewInfo(this);
-      this.searchViewType = SEARCH_VIEW_TYPE.voronoi;
-      renderVoronoiView.call(this);
-    }
-    renderFineSearch() {
-      return __async(this, arguments, function* (searchViewType = SEARCH_VIEW_TYPE.polar) {
-        this.SVFinePromise && (yield this.SVFinePromise);
-        this.searchViewType = searchViewType;
-        searchViewType === SEARCH_VIEW_TYPE.polar && this.infoPanel.updateSearchViewFinePolarOverviewInfo(this);
-        searchViewType === SEARCH_VIEW_TYPE.project && this.infoPanel.updateSearchViewFineProjectOverviewInfo(this);
-        renderNodeView.call(this);
-      });
-    }
-    switchSearchView(searchViewType) {
-      return __async(this, null, function* () {
-        if (this.viewType !== VIEW_TYPE.search) {
-          console.error("Only when searching can switch steps.");
-          return;
-        }
-        if (searchViewType == this.searchViewType)
-          return;
-        this.SVFinePromise && (yield this.SVFinePromise);
-        const oldSearchViewType = this.searchViewType;
-        const newSearchViewType = searchViewType;
-        if (oldSearchViewType === SEARCH_VIEW_TYPE.voronoi) {
-          console.log("coarse => fine [start]");
-          animateCoarse2Fine.call(this, { oldSearchViewType, newSearchViewType });
-        }
-        if (newSearchViewType === SEARCH_VIEW_TYPE.voronoi) {
-          console.log("fine => coarse [start]");
-          animateFine2Coarse.call(this, { oldSearchViewType, newSearchViewType });
-        }
-        if (newSearchViewType !== SEARCH_VIEW_TYPE.voronoi && oldSearchViewType !== SEARCH_VIEW_TYPE.voronoi) {
-          console.log("fine - intra [start]");
-          animateFine2Fine.call(this, { oldSearchViewType, newSearchViewType });
-        }
-      });
-    }
-    setOverviewListenerHandlers() {
-      this.mouseLeaveHandler = () => {
-        this.hoveredCluster = null;
-        renderVoronoiView.call(this);
-        this.infoPanel.updateOverviewHoveredInfo();
+    getOverviewEventHandler(ctx, infoPanel) {
+      let hoveredClusterId = null;
+      const mouseLeaveHandler = () => {
+        hoveredClusterId = null;
+        renderVoronoiView(ctx, VIEW_TYPE.overview, this.overviewLayoutData, this);
+        infoPanel.updateOverviewHoveredInfo();
       };
-      this.mouseMoveHandler = ({ x: x3, y: y4 }) => {
-        const hoveredClusterId = mouse2node2({
-          voronoi: this.OVVoronoi,
+      const mouseMoveHandler = ({ x: x3, y: y4 }) => {
+        const currentHoveredClusterId = mouse2node2({
+          voronoi: this.overviewLayoutData.OVVoronoi,
           x: x3,
           y: y4
         });
-        if (hoveredClusterId !== this.hoveredClusterId) {
-          this.hoveredClusterId = hoveredClusterId;
-          this.hoveredCluster = this.clusters.find((cluster) => cluster.clusterId == hoveredClusterId);
-          renderVoronoiView.call(this);
-          if (!!this.hoveredCluster) {
-            this.infoPanel.updateOverviewHoveredInfo({
-              hoveredCluster: this.hoveredCluster,
-              listIds: this.listIds[hoveredClusterId],
-              images: this.listIds[hoveredClusterId].map((listId) => this.mediaCallback(listId)),
-              x: this.hoveredCluster.OVPolyCentroid[0] / this.canvasScale,
-              y: this.hoveredCluster.OVPolyCentroid[1] / this.canvasScale
+        if (hoveredClusterId !== currentHoveredClusterId) {
+          hoveredClusterId = currentHoveredClusterId;
+          const hoveredCluster = this.overviewLayoutData.clusters.find((cluster) => cluster.clusterId == hoveredClusterId);
+          if (!!hoveredCluster) {
+            renderVoronoiView(ctx, VIEW_TYPE.overview, this.overviewLayoutData, this, hoveredCluster);
+            infoPanel.updateOverviewHoveredInfo({
+              hoveredCluster,
+              listIds: this.indexMeta.listIds[hoveredClusterId],
+              images: this.indexMeta.listIds[hoveredClusterId].map((listId) => this.mediaCallback(listId)),
+              x: hoveredCluster.OVPolyCentroid[0] / this.canvasScale,
+              y: hoveredCluster.OVPolyCentroid[1] / this.canvasScale
             });
           }
         }
       };
+      return { mouseLeaveHandler, mouseMoveHandler };
     }
-    setSearchViewListenerHandlers() {
-      this.mouseLeaveHandler = () => {
-        this.hoveredCluster = null;
-        this.searchViewType === SEARCH_VIEW_TYPE.voronoi && renderVoronoiView.call(this);
-        this.hoveredNode = null;
-        this.searchViewType === SEARCH_VIEW_TYPE.voronoi && this.infoPanel.updateSearchViewHoveredInfo();
-        this.searchViewType !== SEARCH_VIEW_TYPE.voronoi && this.infoPanel.updateSearchViewHoveredNodeInfo();
+    searchViewHandler(searchRes) {
+      return __async(this, null, function* () {
+        this.overviewLayoutPromise && (yield this.overviewLayoutPromise);
+        const searchViewLayoutData = {
+          nprobe: searchRes.csResIds.length,
+          k: searchRes.fsResIds.length,
+          clusters: (0, import_lodash.cloneDeep)(this.overviewLayoutData.clusters)
+        };
+        searchViewLayoutData.nprobeClusters = searchViewLayoutData.clusters.filter((cluster) => searchRes.csResIds.indexOf(cluster.clusterId) >= 0);
+        searchViewLayoutData.nonNprobeClusters = searchViewLayoutData.clusters.filter((cluster) => searchRes.csResIds.indexOf(cluster.clusterId) < 0);
+        searchViewLayoutData.colorScheme = range(searchViewLayoutData.nprobe).map((i) => hsl(360 * i / searchViewLayoutData.nprobe, 1, 0.5).formatHex());
+        yield searchViewLayoutHandler2(searchRes, searchViewLayoutData, this);
+        return searchViewLayoutData;
+      });
+    }
+    renderSearchView(ctx, infoPanel, searchViewLayoutData, targetMediaUrl) {
+      searchViewLayoutData.targetMediaUrl = targetMediaUrl;
+      searchViewLayoutData.switchSearchViewHandlers = {
+        switchVoronoi: () => this.switchSearchView(SEARCH_VIEW_TYPE.voronoi, ctx, infoPanel, searchViewLayoutData),
+        switchPolar: () => this.switchSearchView(SEARCH_VIEW_TYPE.polar, ctx, infoPanel, searchViewLayoutData),
+        switchProject: () => this.switchSearchView(SEARCH_VIEW_TYPE.project, ctx, infoPanel, searchViewLayoutData)
       };
-      this.mouseMoveHandler = ({ x: x3, y: y4 }) => {
-        if (this.searchViewType === SEARCH_VIEW_TYPE.voronoi) {
-          const hoveredClusterId = mouse2node2({
-            voronoi: this.SVVoronoi,
+      searchViewLayoutData.searchViewType = SEARCH_VIEW_TYPE.voronoi;
+      this.renderCoarseSearch(ctx, infoPanel, searchViewLayoutData);
+    }
+    renderCoarseSearch(ctx, infoPanel, searchViewLayoutData) {
+      infoPanel.setOverviewPanelPos(!searchViewLayoutData.targetNode.isLeft_coarseLevel);
+      infoPanel.updateSearchViewCoarseOverviewInfo(searchViewLayoutData, this);
+      renderVoronoiView(ctx, VIEW_TYPE.search, searchViewLayoutData, this);
+    }
+    renderFineSearch(ctx, infoPanel, searchViewLayoutData, searchViewType = SEARCH_VIEW_TYPE.polar) {
+      searchViewType === SEARCH_VIEW_TYPE.polar && infoPanel.updateSearchViewFinePolarOverviewInfo(searchViewLayoutData, this);
+      searchViewType === SEARCH_VIEW_TYPE.project && infoPanel.updateSearchViewFineProjectOverviewInfo(searchViewLayoutData, this);
+      renderNodeView(ctx, searchViewLayoutData, this, searchViewType);
+    }
+    switchSearchView(searchViewType, ctx, infoPanel, searchViewLayoutData) {
+      if (searchViewType == searchViewLayoutData.searchViewType)
+        return;
+      const oldSearchViewType = searchViewLayoutData.searchViewType;
+      const newSearchViewType = searchViewType;
+      if (oldSearchViewType === SEARCH_VIEW_TYPE.voronoi) {
+        console.log("coarse => fine [start]");
+        const endCallback = () => {
+          searchViewLayoutData.searchViewType = newSearchViewType;
+          this.renderFineSearch(ctx, infoPanel, searchViewLayoutData, newSearchViewType);
+        };
+        animateCoarse2Fine(oldSearchViewType, newSearchViewType, ctx, searchViewLayoutData, this, endCallback);
+      }
+      if (newSearchViewType === SEARCH_VIEW_TYPE.voronoi) {
+        console.log("fine => coarse [start]");
+        const endCallback = () => {
+          searchViewLayoutData.searchViewType = newSearchViewType;
+          this.renderCoarseSearch(ctx, infoPanel, searchViewLayoutData);
+        };
+        animateFine2Coarse(oldSearchViewType, newSearchViewType, ctx, searchViewLayoutData, this, endCallback);
+      }
+      if (newSearchViewType !== SEARCH_VIEW_TYPE.voronoi && oldSearchViewType !== SEARCH_VIEW_TYPE.voronoi) {
+        console.log("fine - intra [start]");
+        const endCallback = () => {
+          searchViewLayoutData.searchViewType = newSearchViewType;
+          this.renderFineSearch(ctx, infoPanel, searchViewLayoutData, newSearchViewType);
+        };
+        animateFine2Fine(oldSearchViewType, newSearchViewType, ctx, searchViewLayoutData, this, endCallback);
+      }
+    }
+    getSearchViewEventHandler(ctx, searchViewLayoutData, infoPanel) {
+      let hoveredClusterId = null;
+      let hoveredNode = null;
+      const mouseLeaveHandler = () => {
+        hoveredClusterId = null;
+        hoveredNode = null;
+        const { searchViewType } = searchViewLayoutData;
+        if (searchViewType === SEARCH_VIEW_TYPE.voronoi) {
+          renderVoronoiView(ctx, VIEW_TYPE.search, searchViewLayoutData, this);
+          infoPanel.updateSearchViewHoveredInfo();
+        } else {
+          infoPanel.updateSearchViewHoveredNodeInfo();
+        }
+      };
+      const mouseMoveHandler = ({ x: x3, y: y4 }) => {
+        const { searchViewType, clusters, nodes } = searchViewLayoutData;
+        if (searchViewType === SEARCH_VIEW_TYPE.voronoi) {
+          const currentHoveredClusterId = mouse2node2({
+            voronoi: searchViewLayoutData.SVVoronoi,
             x: x3,
             y: y4
           });
-          if (hoveredClusterId !== this.hoveredClusterId) {
-            this.hoveredClusterId = hoveredClusterId;
-            this.hoveredCluster = this.clusters.find((cluster) => cluster.clusterId == hoveredClusterId);
-            renderVoronoiView.call(this);
-            if (!!this.hoveredCluster) {
-              this.infoPanel.updateSearchViewHoveredInfo({
-                hoveredCluster: this.hoveredCluster,
-                listIds: this.listIds[hoveredClusterId],
-                images: this.listIds[hoveredClusterId].map((listId) => this.mediaCallback(listId)),
-                x: this.hoveredCluster.SVPolyCentroid[0] / this.canvasScale,
-                y: this.hoveredCluster.SVPolyCentroid[1] / this.canvasScale
+          if (hoveredClusterId !== currentHoveredClusterId) {
+            hoveredClusterId = currentHoveredClusterId;
+            const hoveredCluster = clusters.find((cluster) => cluster.clusterId == hoveredClusterId);
+            renderVoronoiView(ctx, VIEW_TYPE.search, searchViewLayoutData, this, hoveredCluster);
+            if (!!hoveredCluster) {
+              infoPanel.updateSearchViewHoveredInfo({
+                hoveredCluster,
+                listIds: this.indexMeta.listIds[hoveredClusterId],
+                images: this.indexMeta.listIds[hoveredClusterId].map((listId) => this.mediaCallback(listId)),
+                x: hoveredCluster.SVPolyCentroid[0] / this.canvasScale,
+                y: hoveredCluster.SVPolyCentroid[1] / this.canvasScale
               });
             }
           }
         } else {
-          if (!this.nodes)
+          if (!nodes)
             return;
-          const nodesPos = this.searchViewType === SEARCH_VIEW_TYPE.polar ? this.nodes.map((node) => node.polarPos) : this.nodes.map((node) => node.projectPos);
+          const nodesPos = searchViewType === SEARCH_VIEW_TYPE.polar ? nodes.map((node) => node.polarPos) : nodes.map((node) => node.projectPos);
           const hoveredNodeIndex = mouse2node3({
             nodesPos,
             x: x3,
             y: y4,
             bias: (this.hoveredNodeR + 2) * this.canvasScale
           });
-          const hoveredNode = hoveredNodeIndex >= 0 ? this.nodes[hoveredNodeIndex] : null;
-          if (hoveredNode !== this.hoveredNode) {
-            this.hoveredNode = hoveredNode;
-            this.renderFineSearch(this.searchViewType);
+          const currentHoveredNode = hoveredNodeIndex >= 0 ? nodes[hoveredNodeIndex] : null;
+          if (hoveredNode !== currentHoveredNode) {
+            hoveredNode = currentHoveredNode;
+            this.renderFineSearch(ctx, infoPanel, searchViewLayoutData, searchViewType, hoveredNode);
           }
           const img = hoveredNode ? this.mediaCallback(hoveredNode.id) : "";
-          this.infoPanel.updateSearchViewHoveredNodeInfo({
+          infoPanel.updateSearchViewHoveredNodeInfo({
             hoveredNode,
             img,
             x: x3 / this.canvasScale,
@@ -17855,6 +23179,7 @@ ${indentData}`);
           });
         }
       };
+      return { mouseLeaveHandler, mouseMoveHandler };
     }
   };
 
@@ -17873,11 +23198,11 @@ ${indentData}`);
       this.domSelector = domSelector2;
       this.viewParams = Object.assign({}, defaultViewParams, viewParams);
       this.viewHandler = null;
-      this.initDom();
+      initLoadingStyle();
     }
     initDom() {
       const dom = document.createElement("div");
-      this.dom = dom;
+      dom.id = `feder-dom-${Math.floor(Math.random() * 1e5)}`;
       const { width, height } = this.viewParams;
       const domStyle = {
         position: "relative",
@@ -17885,29 +23210,51 @@ ${indentData}`);
         height: `${height}px`
       };
       Object.assign(dom.style, domStyle);
-      initLoadingStyle();
-      renderLoading(this.dom, width, height);
+      renderLoading(dom, width, height);
       if (this.domSelector) {
         const domContainer = document.querySelector(this.domSelector);
+        domContainer.innerHTML = "";
         domContainer.appendChild(dom);
       }
+      return dom;
     }
     initView({ indexType, indexMeta, getVectorById }) {
       if (indexType in viewHandlerMap) {
         this.view = new viewHandlerMap[indexType]({
           indexMeta,
-          dom: this.dom,
           viewParams: this.viewParams,
           getVectorById
         });
       } else
         throw `No view handler for ${indexType}`;
     }
-    overview() {
-      this.view.overview();
+    overview(initCoreAndViewPromise) {
+      const dom = this.initDom();
+      initCoreAndViewPromise.then(() => {
+        this.view.overview(dom);
+      });
+      return dom;
     }
-    search({ searchRes, targetMediaUrl }) {
-      this.view.search({ searchRes, targetMediaUrl });
+    search({
+      searchRes = null,
+      targetMediaUrl = null,
+      searchResPromise = null
+    } = {}) {
+      const dom = this.initDom();
+      if (searchResPromise) {
+        searchResPromise.then(({ searchRes: searchRes2, targetMediaUrl: targetMediaUrl2 }) => {
+          this.view.search(dom, {
+            searchRes: searchRes2,
+            targetMediaUrl: targetMediaUrl2
+          });
+        });
+      } else {
+        this.view.search(dom, {
+          searchRes,
+          targetMediaUrl
+        });
+      }
+      return dom;
     }
     switchSearchView(searchViewType) {
       try {
@@ -17930,7 +23277,7 @@ ${indentData}`);
       this.federView = new FederView({ domSelector: domSelector2, viewParams });
       this.viewParams = viewParams;
       if (!core) {
-        this.initCorePromise = fetch(filePath).then((res) => res.arrayBuffer()).then((data) => {
+        this.initCoreAndViewPromise = fetch(filePath).then((res) => res.arrayBuffer()).then((data) => {
           core = new FederCore({ data, source, viewParams });
           this.core = core;
           const indexType = core.indexType;
@@ -17945,61 +23292,62 @@ ${indentData}`);
       } else {
       }
     }
-    get node() {
-      return this.federView.dom;
-    }
     overview() {
-      return __async(this, null, function* () {
-        this.initCorePromise && (yield this.initCorePromise);
-        this.federView.overview();
-      });
+      return this.federView.overview(this.initCoreAndViewPromise);
     }
     search(target = null, targetMediaUrl = null) {
-      return __async(this, null, function* () {
-        this.initCorePromise && (yield this.initCorePromise);
-        if (target) {
+      if (target) {
+        const searchResPromise = this.initCoreAndViewPromise.then(() => {
           const searchRes = this.core.search(target);
           console.log(searchRes);
           this.searchRes = searchRes;
-          this.federView.search({ searchRes, targetMediaUrl });
-        } else {
-          if (!this.searchRes) {
-            console.error("No target");
-            return;
-          }
-          const searchRes = this.searchRes;
-          const targetMediaUrl2 = this.targetMediaUrl;
-          this.federView.search({ searchRes, targetMediaUrl: targetMediaUrl2 });
+          this.targetMediaUrl = targetMediaUrl;
+          return { searchRes, targetMediaUrl };
+        });
+        return this.federView.search({ searchResPromise });
+      } else {
+        if (!this.searchRes) {
+          console.error("No target");
+          return;
         }
-      });
+        const searchRes = this.searchRes;
+        const targetMediaUrl2 = this.targetMediaUrl;
+        return this.federView.search({ searchRes, targetMediaUrl: targetMediaUrl2 });
+      }
     }
-    searchById(testId = null) {
-      return __async(this, null, function* () {
-        this.initCorePromise && (yield this.initCorePromise);
+    searchById(testId) {
+      const searchResPromise = this.initCoreAndViewPromise.then(() => {
         if (!(testId in this.core.id2vector)) {
-          console.log("Invalid Id");
+          console.error("Invalid Id");
         } else {
           const testVec = this.core.id2vector[testId];
           const targetMediaUrl = this.viewParams && this.viewParams.mediaCallback ? this.viewParams.mediaCallback(testId) : null;
-          this.search(testVec, targetMediaUrl);
+          const searchRes = this.core.search(testVec);
+          console.log(searchRes);
+          this.searchRes = searchRes;
+          return { searchRes, targetMediaUrl };
         }
       });
+      return this.federView.search({ searchResPromise });
     }
     searchRandTestVec() {
-      return __async(this, null, function* () {
-        this.initCorePromise && (yield this.initCorePromise);
-        let [testId, testVec] = yield this.core.getTestIdAndVec();
+      const searchResPromise = this.initCoreAndViewPromise.then(() => {
+        let [testId, testVec] = this.core.getTestIdAndVec();
         while (isNaN(testId)) {
-          [testId, testVec] = yield this.core.getTestIdAndVec();
+          [testId, testVec] = this.core.getTestIdAndVec();
         }
         console.log("random test vector:", testId, testVec);
         const targetMediaUrl = this.viewParams && this.viewParams.mediaCallback ? this.viewParams.mediaCallback(testId) : null;
-        this.search(testVec, targetMediaUrl);
+        const searchRes = this.core.search(testVec);
+        console.log(searchRes);
+        this.searchRes = searchRes;
+        return { searchRes, targetMediaUrl };
       });
+      return this.federView.search({ searchResPromise });
     }
     setSearchParams(params) {
       return __async(this, null, function* () {
-        this.initCorePromise && (yield this.initCorePromise);
+        this.initCoreAndViewPromise && (yield this.initCoreAndViewPromise);
         if (!this.core) {
           console.error("No feder-core");
         } else {
@@ -18023,8 +23371,8 @@ ${indentData}`);
     const feder = new Feder({
       filePath,
       source: "faiss",
-      domSelector,
       viewParams: {
+        height: 300,
         mediaType: "img",
         mediaCallback,
         projectSeed: 1235,
@@ -18041,6 +23389,20 @@ ${indentData}`);
       nprobe: 8,
       ef: 10
     });
-    feder.searchRandTestVec();
+    document.querySelector(domSelector).appendChild(feder.overview());
+    document.querySelector(domSelector).appendChild(feder.searchRandTestVec());
+    feder.setSearchParams({ k: 4, nprobe: 6, ef: 6 });
+    document.querySelector(domSelector).appendChild(feder.searchById(4365));
+    feder.setSearchParams({ k: 6, nprobe: 10, ef: 8 });
+    document.querySelector(domSelector).appendChild(feder.searchRandTestVec());
+    document.querySelector(domSelector).appendChild(feder.overview());
   }));
 })();
+/**
+ * @license
+ * Lodash <https://lodash.com/>
+ * Copyright OpenJS Foundation and other contributors <https://openjsf.org/>
+ * Released under MIT license <https://lodash.com/license>
+ * Based on Underscore.js 1.8.3 <http://underscorejs.org/LICENSE>
+ * Copyright Jeremy Ashkenas, DocumentCloud and Investigative Reporters & Editors
+ */

@@ -9,12 +9,11 @@ import {
 } from 'Utils/renderUtils';
 import { dist } from 'Utils';
 
-export default function renderlevelLayer({
+export default function renderlevelLayer(
   ctx,
-  canvasScale,
-  layerDotNum,
   points,
-}) {
+  { canvasScale, layerDotNum }
+) {
   drawPath({
     ctx,
     points,

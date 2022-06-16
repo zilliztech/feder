@@ -35,8 +35,7 @@ export const overviewLayoutHandler = ({
     }
 
     const { layerPosLevels: overviewLayerPosLevels, transformFunc } =
-      transformHandler({
-        nodes: overviewNodes,
+      transformHandler(overviewNodes, {
         levelCount: overviewLevelCount,
         width,
         height,
@@ -64,7 +63,7 @@ export const forceLevel = ({ nodes, links, forceIterations }) => {
   return new Promise((resolve) => {
     const simulation = d3
       .forceSimulation(nodes)
-      .alphaDecay(1 - Math.pow(0.001, 1 / forceIterations * 2))
+      .alphaDecay(1 - Math.pow(0.001, (1 / forceIterations) * 2))
       .force(
         'link',
         d3

@@ -7,10 +7,7 @@ import {
   blackColor,
 } from 'Utils/renderUtils';
 
-export default function renderNormalVoronoi({
-  ctx,
-  hoveredCluster,
-  viewType,
+export default function renderNormalVoronoi(ctx, viewType, hoveredCluster, {
   voronoiStrokeWidth,
   canvasScale,
 }) {

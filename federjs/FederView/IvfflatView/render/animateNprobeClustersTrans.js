@@ -9,15 +9,15 @@ import { ANIMATION_TYPE } from 'Types';
 
 export default function animateNprobeClustersTrans({
   ctx,
+  searchViewLayoutData,
+  federView,
   elapsed,
   duration,
   delay,
-  ease,
-  nprobeClusters,
-  voronoiStrokeWidth,
-  canvasScale,
   animationType,
 }) {
+  const { nprobeClusters } = searchViewLayoutData;
+  const { ease, voronoiStrokeWidth, canvasScale } = federView;
   let t = ease((elapsed - delay) / duration);
   if (t > 1 || t < 0) return;
   t = animationType === ANIMATION_TYPE.enter ? 1 - t : t;

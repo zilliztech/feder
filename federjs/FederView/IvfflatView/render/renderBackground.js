@@ -1,7 +1,6 @@
 import { drawRect, blackColor } from 'Utils/renderUtils';
 
-export default function renderBackground({
-  ctx,
+export default function renderBackground(ctx, {
   width,
   height,
 }) {

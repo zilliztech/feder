@@ -1,13 +1,15 @@
-import { drawLinesWithLinearGradient, normalGradientStopColors } from 'Utils/renderUtils';
+import {
+  drawLinesWithLinearGradient,
+  normalGradientStopColors,
+} from 'Utils/renderUtils';
 import { shortenLine } from 'Utils';
 
-export default function renderLinks({
+export default function renderLinks(
   ctx,
-  shortenLineD,overviewLinkLineWidth,
-  canvasScale,
   links,
   level,
-}) {
+  { shortenLineD, overviewLinkLineWidth, canvasScale }
+) {
   const pointsList = links.map((link) =>
     shortenLine(
       link.source.overviewPosLevels[level],

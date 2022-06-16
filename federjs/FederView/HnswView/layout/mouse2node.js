@@ -1,14 +1,10 @@
 import * as d3 from 'd3';
 import { dist2 } from 'Utils';
 
-export default function mouse2node({
-  mouse,
-  mouse2nodeBias,
-  canvasScale,
-  layerPosLevels,
-  nodesLevels,
-  posAttr,
-}) {
+export default function mouse2node(
+  { mouse, layerPosLevels, nodesLevels, posAttr },
+  { mouse2nodeBias, canvasScale }
+) {
   const mouseLevel = layerPosLevels.findIndex((points) =>
     d3.polygonContains(points, mouse)
   );

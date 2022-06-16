@@ -3,17 +3,16 @@ import { ANIMATION_TYPE, SEARCH_VIEW_TYPE } from 'Types';
 
 export default function animateTargetNode({
   ctx,
+  searchViewLayoutData,
+  federView,
   elapsed,
   duration,
   delay,
-  ease,
-  targetNode,
-  targetNodeR,
-  canvasScale,
-  targetNodeStrokeWidth,
   animationType,
   newSearchViewType,
 }) {
+  const { targetNode } = searchViewLayoutData;
+  const { ease, targetNodeR, canvasScale, targetNodeStrokeWidth } = federView;
   let t = ease((elapsed - delay) / duration);
   if (newSearchViewType === SEARCH_VIEW_TYPE.project) {
     if (t < 0 || t > 1) return;

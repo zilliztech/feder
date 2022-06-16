@@ -42,6 +42,7 @@ export default class InfoPanel {
       overflow: 'auto',
       borderColor: whiteColor,
       backgroundColor: panelBackgroundColor,
+      // pointerEvents: 'none',
     };
     Object.assign(overviewPanel.style, overviewPanelStyle);
     dom.appendChild(overviewPanel);
@@ -60,7 +61,8 @@ export default class InfoPanel {
     Object.assign(overviewPanel.style, overviewPanelStyle);
   }
 
-  updateOverviewOverviewInfo({ ntotal, nlist, listSizes }) {
+  updateOverviewOverviewInfo({ indexMeta }) {
+    const { ntotal, nlist, listSizes } = indexMeta;
     const items = [
       {
         title: 'IVF_Flat',
@@ -80,16 +82,18 @@ export default class InfoPanel {
     this.renderOverviewPanel(items, whiteColor);
   }
 
-  updateSearchViewCoarseOverviewInfo(federView) {
+  updateSearchViewCoarseOverviewInfo(searchViewLayoutData, federView) {
     const {
-      ntotal,
-      nlist,
       nprobe,
-      searchRes,
       clusters,
       targetMediaUrl,
-      listSizes,
-    } = federView;
+      nprobeClusters,
+      switchSearchViewHandlers,
+    } = searchViewLayoutData;
+    const { indexMeta } = federView;
+    const { ntotal, nlist, listSizes } = indexMeta;
+    const { switchVoronoi, switchPolar, switchProject } =
+      switchSearchViewHandlers;
     const items = [
       {
         title: 'IVF_Flat - Search',
@@ -102,19 +106,19 @@ export default class InfoPanel {
         isOption: true,
         isActive: true,
         label: 'Coarse Search',
-        callback: () => federView.switchSearchView('voronoi'),
+        callback: switchVoronoi,
       },
       {
         isOption: true,
         isActive: false,
         label: 'Fine Search (Distance)',
-        callback: () => federView.switchSearchView('polar'),
+        callback: switchPolar,
       },
       {
         isOption: true,
         isActive: false,
         label: 'Fine Search (Project)',
-        callback: () => federView.switchSearchView('project'),
+        callback: switchProject,
       },
       {
         text: `${ntotal} vectors, divided into ${nlist} clusters.`,
@@ -122,7 +126,7 @@ export default class InfoPanel {
       {
         title: `Find the ${nprobe} (nprobe=${nprobe}) closest clusters.`,
       },
-      ...searchRes.csResIds.map((clusterId) => ({
+      ...nprobeClusters.map(({ clusterId }) => ({
         text: `cluster-${clusterId} (${
           listSizes[clusterId]
         } vectors) dist: ${clusters[clusterId].dis.toFixed(3)}.`,
@@ -132,11 +136,21 @@ export default class InfoPanel {
     this.renderOverviewPanel(items, whiteColor);
   }
 
-  updateSearchViewFinePolarOverviewInfo(federView) {
-    const { k, nprobe, searchRes, targetMediaUrl, mediaCallback } = federView;
-    const fineAllVectorsCount = searchRes.fine.length;
-    const showImages = searchRes.fsResIds
-      .map((id) => mediaCallback(id))
+  updateSearchViewFinePolarOverviewInfo(searchViewLayoutData, federView) {
+    const {
+      k,
+      nprobe,
+      nodes,
+      topKNodes,
+      switchSearchViewHandlers,
+      targetMediaUrl,
+    } = searchViewLayoutData;
+    const { switchVoronoi, switchPolar, switchProject } =
+      switchSearchViewHandlers;
+    const { mediaCallback } = federView;
+    const fineAllVectorsCount = nodes.length;
+    const showImages = topKNodes
+      .map(({ id }) => mediaCallback(id))
       .filter((a) => a);
     const items = [
       {
@@ -150,19 +164,19 @@ export default class InfoPanel {
         isOption: true,
         isActive: false,
         label: 'Coarse Search',
-        callback: () => federView.switchSearchView('voronoi'),
+        callback: switchVoronoi,
       },
       {
         isOption: true,
         isActive: true,
         label: 'Fine Search (Distance)',
-        callback: () => federView.switchSearchView('polar'),
+        callback: switchPolar,
       },
       {
         isOption: true,
         isActive: false,
         label: 'Fine Search (Project)',
-        callback: () => federView.switchSearchView('project'),
+        callback: switchProject,
       },
       {
         text: `Find the ${k} (k=${k}) vectors closest to the target from these ${nprobe} (nprobe=${nprobe}) clusters, ${fineAllVectorsCount} vectors in total.`,
@@ -175,12 +189,20 @@ export default class InfoPanel {
     this.renderOverviewPanel(items, whiteColor);
   }
 
-  updateSearchViewFineProjectOverviewInfo(federView) {
-    const { k, nprobe, searchRes, targetMediaUrl, mediaCallback, viewParams } =
-      federView;
-    const fineAllVectorsCount = searchRes.fine.length;
-    const showImages = searchRes.fsResIds
-      .map((id) => mediaCallback(id))
+  updateSearchViewFineProjectOverviewInfo(searchViewLayoutData, federView) {
+    const {
+      nprobe,
+      nodes,
+      topKNodes,
+      targetMediaUrl,
+      switchSearchViewHandlers,
+    } = searchViewLayoutData;
+    const { switchVoronoi, switchPolar, switchProject } =
+      switchSearchViewHandlers;
+    const { mediaCallback, viewParams } = federView;
+    const fineAllVectorsCount = nodes.length;
+    const showImages = topKNodes
+      .map(({ id }) => mediaCallback(id))
       .filter((a) => a);
     const items = [
       {
@@ -194,19 +216,19 @@ export default class InfoPanel {
         isOption: true,
         isActive: false,
         label: 'Coarse Search',
-        callback: () => federView.switchSearchView('voronoi'),
+        callback: switchVoronoi,
       },
       {
         isOption: true,
         isActive: false,
         label: 'Fine Search (Distance)',
-        callback: () => federView.switchSearchView('polar'),
+        callback: switchPolar,
       },
       {
         isOption: true,
         isActive: true,
         label: 'Fine Search (Project)',
-        callback: () => federView.switchSearchView('project'),
+        callback: switchProject,
       },
       {
         text: `Projection of all ${fineAllVectorsCount} vectors in the ${nprobe} (nprobe=${nprobe}) clusters using ${
@@ -398,6 +420,7 @@ export default class InfoPanel {
       display: flex;
       align-items: center;
       cursor: pointer;
+      // pointer-events: auto;
     }
     .panel-item-option-icon {
       width: 6px;
