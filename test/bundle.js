@@ -23382,7 +23382,7 @@ ${indentData}`);
     return feder;
   });
   window.addEventListener("DOMContentLoaded", () => __async(void 0, null, function* () {
-    const feder = yield testIVFFlatWithImages("./data/faiss_ivf_flat_voc_17k.index");
+    const feder = yield testIVFFlatWithImages("https://assets.zilliz.com/faiss_ivf_flat_voc_17k_ab112eec72.index");
     console.log(feder);
     feder.setSearchParams({
       k: 12,

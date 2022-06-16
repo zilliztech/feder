@@ -95,12 +95,12 @@ window.addEventListener('DOMContentLoaded', async () => {
   //   'https://assets.zilliz.com/hnswlib_hnsw_voc_17k_1f1dfd63a9.index'
   // );
   // const feder = await testHNSWWithImages('./data/hnswlib_hnsw_voc_17k.index');
-  // const feder = await testIVFFlatWithImages(
-  //   'https://assets.zilliz.com/faiss_ivf_flat_voc_17k_ab112eec72.index'
-  // );
   const feder = await testIVFFlatWithImages(
-    './data/faiss_ivf_flat_voc_17k.index'
+    'https://assets.zilliz.com/faiss_ivf_flat_voc_17k_ab112eec72.index'
   );
+  // const feder = await testIVFFlatWithImages(
+  //   './data/faiss_ivf_flat_voc_17k.index'
+  // );
 
   console.log(feder);
   // feder.overview();
