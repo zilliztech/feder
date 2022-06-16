@@ -1,6 +1,6 @@
 import { drawEllipse, hexWithOpacity, ZYellow } from 'Utils/renderUtils';
 
-export default function renderSelectedNode({ ctx, ellipseRation, pos, r }) {
+export default function renderSelectedNode(ctx, { pos, r }, { ellipseRation }) {
   drawEllipse({
     ctx,
     circles: [[...pos, r * ellipseRation, r]],

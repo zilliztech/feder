@@ -1,9 +1,7 @@
 (() => {
   var __create = Object.create;
   var __defProp = Object.defineProperty;
-  var __defProps = Object.defineProperties;
   var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
-  var __getOwnPropDescs = Object.getOwnPropertyDescriptors;
   var __getOwnPropNames = Object.getOwnPropertyNames;
   var __getOwnPropSymbols = Object.getOwnPropertySymbols;
   var __getProtoOf = Object.getPrototypeOf;
@@ -21,7 +19,6 @@
       }
     return a2;
   };
-  var __spreadProps = (a2, b) => __defProps(a2, __getOwnPropDescs(b));
   var __objRest = (source, exclude) => {
     var target = {};
     for (var prop in source)
@@ -19834,7 +19831,7 @@ ${indentData}`);
         const infoPanel = this.initInfoPanel(dom);
         const searchViewLayoutData = yield this.searchViewHandler(searchRes);
         finishLoading(dom);
-        this.renderSearchView(ctx, infoPanel, searchViewLayoutData, targetMediaUrl);
+        this.renderSearchView(ctx, infoPanel, searchViewLayoutData, targetMediaUrl, dom);
         const eventHandlers = this.getSearchViewEventHandler(ctx, searchViewLayoutData, infoPanel);
         addMouseListener(canvas, this.canvasScale, eventHandlers);
       });
@@ -19868,16 +19865,7 @@ ${indentData}`);
   };
 
   // federjs/FederView/HnswView/layout/transformHandler.js
-  var transformHandler = ({
-    nodes,
-    levelCount,
-    width,
-    height,
-    padding,
-    xBias = 0.65,
-    yBias = 0.4,
-    yOver = 0.1
-  }) => {
+  var transformHandler = (nodes, { levelCount, width, height, padding, xBias = 0.65, yBias = 0.4, yOver = 0.1 }) => {
     const layerWidth = width - padding[1] - padding[3];
     const layerHeight = (height - padding[0] - padding[2]) / (levelCount - (levelCount - 1) * yOver);
     const xRange = extent(nodes, (node) => node.x);
@@ -19929,8 +19917,7 @@ ${indentData}`);
         overviewNodesLevels[level] = nodes;
         overviewLinksLevels[level] = links;
       }
-      const { layerPosLevels: overviewLayerPosLevels, transformFunc } = transformHandler_default({
-        nodes: overviewNodes,
+      const { layerPosLevels: overviewLayerPosLevels, transformFunc } = transformHandler_default(overviewNodes, {
         levelCount: overviewLevelCount,
         width,
         height,
@@ -20617,51 +20604,41 @@ ${indentData}`);
   var computeSearchViewTransition_default = computeSearchViewTransition;
 
   // federjs/FederView/HnswView/layout/searchViewLayout.js
-  function searchViewLayoutHandler(_0) {
-    return __async(this, arguments, function* ({ searchRes }) {
-      let visData = [];
-      let id2forcePos = {};
-      if (searchRes !== this.searchRes) {
-        this.searchRes = searchRes;
-        visData = parseVisRecords_default(searchRes);
-        this.visData = visData;
-        id2forcePos = yield forceSearchView_default(this.visData, this.targetOrigin, this.forceIterations);
-        this.id2forcePos = id2forcePos;
-      } else {
-        visData = this.visData;
-        id2forcePos = this.id2forcePos;
-      }
+  function searchViewLayoutHandler(searchRes, federView) {
+    return __async(this, null, function* () {
+      const {
+        targetR,
+        canvasScale,
+        targetOrigin,
+        searchViewNodeBasicR,
+        searchInterLevelTime,
+        searchIntraLevelTime,
+        forceIterations
+      } = federView;
+      const visData = parseVisRecords_default(searchRes);
+      const id2forcePos = yield forceSearchView_default(visData, targetOrigin, forceIterations);
       const searchNodesLevels = visData.map((levelData) => levelData.nodes);
       searchNodesLevels.forEach((levelData) => levelData.forEach((node) => {
         node.forcePos = id2forcePos[node.id];
         node.x = node.forcePos[0];
         node.y = node.forcePos[1];
       }));
-      const { layerPosLevels, transformFunc } = transformHandler_default({
-        nodes: searchNodesLevels.reduce((acc, node) => acc.concat(node), []),
-        levelCount: this.levelCount,
-        width: this.width,
-        height: this.height,
-        padding: this.padding
-      });
-      this.targetOrigin = [0, 0];
-      this.searchTarget = {
+      const { layerPosLevels, transformFunc } = transformHandler_default(searchNodesLevels.reduce((acc, node) => acc.concat(node), []), federView);
+      searchTarget = {
         id: "target",
-        r: this.targetR * this.canvasScale,
-        searchViewPosLevels: range(visData.length).map((i) => transformFunc(...this.targetOrigin, i))
+        r: targetR * canvasScale,
+        searchViewPosLevels: range(visData.length).map((i) => transformFunc(...targetOrigin, i))
       };
-      this.searchLayerPosLevels = layerPosLevels;
       searchNodesLevels.forEach((nodes, level) => {
         nodes.forEach((node) => {
           node.searchViewPosLevels = range(level + 1).map((i) => transformFunc(...node.forcePos, i));
-          node.r = (this.searchViewNodeBasicR + node.type * 0.5) * this.canvasScale;
+          node.r = (searchViewNodeBasicR + node.type * 0.5) * canvasScale;
         });
       });
-      this.searchNodesLevels = searchNodesLevels;
       const id2searchNode = {};
       searchNodesLevels.forEach((levelData) => levelData.forEach((node) => id2searchNode[node.id] = node));
       const searchLinksLevels = parseVisRecords_default(searchRes).map((levelData) => levelData.links.filter((link) => link.type !== HNSW_LINK_TYPE.None));
-      searchLinksLevels.forEach((levelData, level) => levelData.forEach((link) => {
+      searchLinksLevels.forEach((levelData) => levelData.forEach((link) => {
         const sourceId = link.source;
         const targetId = link.target;
         const sourceNode = id2searchNode[sourceId];
@@ -20669,18 +20646,27 @@ ${indentData}`);
         link.source = sourceNode;
         link.target = targetNode;
       }));
-      this.searchLinksLevels = searchLinksLevels;
-      this.entryNodesLevels = visData.map((levelData) => levelData.entryIds.map((id2) => id2searchNode[id2]));
+      const entryNodesLevels = visData.map((levelData) => levelData.entryIds.map((id2) => id2searchNode[id2]));
       const { targetShowTime, nodeShowTime, linkShowTime, duration } = computeSearchViewTransition_default({
-        linksLevels: this.searchLinksLevels,
-        entryNodesLevels: this.entryNodesLevels,
-        interLevelGap: this.searchInterLevelTime,
-        intraLevelGap: this.searchIntraLevelTime
+        linksLevels: searchLinksLevels,
+        entryNodesLevels,
+        interLevelGap: searchInterLevelTime,
+        intraLevelGap: searchIntraLevelTime
       });
-      this.searchTargetShowTime = targetShowTime;
-      this.searchNodeShowTime = nodeShowTime;
-      this.searchLinkShowTime = linkShowTime;
-      this.searchTransitionDuration = duration;
+      return {
+        visData,
+        id2forcePos,
+        searchTarget,
+        entryNodesLevels,
+        searchNodesLevels,
+        searchLinksLevels,
+        searchLayerPosLevels: layerPosLevels,
+        searchTargetShowTime: targetShowTime,
+        searchNodeShowTime: nodeShowTime,
+        searchLinkShowTime: linkShowTime,
+        searchTransitionDuration: duration,
+        searchParams: searchRes.searchParams
+      };
     });
   }
 
@@ -20884,14 +20870,7 @@ ${indentData}`);
   var renderHoverLine_default = renderHoverLine;
 
   // federjs/FederView/HnswView/render/renderSearchViewLinks.js
-  function renderSearchViewLinks({
-    ctx,
-    shortenLineD,
-    canvasScale,
-    links,
-    inProcessLinks,
-    level
-  }) {
+  function renderSearchViewLinks(ctx, { links, inProcessLinks, level }, { shortenLineD, canvasScale }) {
     let pointsList = [];
     let inprocessPointsList = [];
     pointsList = links.filter((link) => link.type === HNSW_LINK_TYPE.Visited).map((link) => shortenLine(link.source.searchViewPosLevels[level], link.target.searchViewPosLevels[level], shortenLineD * canvasScale));
@@ -20977,15 +20956,7 @@ ${indentData}`);
   }
 
   // federjs/FederView/HnswView/render/renderSearchViewInterLevelLinks.js
-  function renderSearchViewInterLevelLinks({
-    ctx,
-    entryNodes,
-    inprocessEntryNodes,
-    shortenLineD,
-    canvasScale,
-    searchTarget,
-    level
-  }) {
+  function renderSearchViewInterLevelLinks(ctx, { entryNodes, inprocessEntryNodes, searchTarget: searchTarget2, level }, { shortenLineD, canvasScale }) {
     const pointsList = entryNodes.map((node) => shortenLine(node.searchViewPosLevels[level + 1], node.searchViewPosLevels[level], shortenLineD * canvasScale));
     drawLinesWithLinearGradient({
       ctx,
@@ -20997,7 +20968,7 @@ ${indentData}`);
       lineCap: "round"
     });
     const targetPointsList = pointsList.length === 0 ? [] : [
-      shortenLine(searchTarget.searchViewPosLevels[level + 1], searchTarget.searchViewPosLevels[level], shortenLineD)
+      shortenLine(searchTarget2.searchViewPosLevels[level + 1], searchTarget2.searchViewPosLevels[level], shortenLineD)
     ];
     drawLinesWithLinearGradient({
       ctx,
@@ -21019,7 +20990,7 @@ ${indentData}`);
       lineCap: "round"
     });
     const inprocessTargetPointsList = inprocessPointsList.length === 0 ? [] : [
-      shortenLine(searchTarget.searchViewPosLevels[level + 1], getInprocessPos(searchTarget.searchViewPosLevels[level + 1], searchTarget.searchViewPosLevels[level], inprocessEntryNodes[0].t), shortenLineD)
+      shortenLine(searchTarget2.searchViewPosLevels[level + 1], getInprocessPos(searchTarget2.searchViewPosLevels[level + 1], searchTarget2.searchViewPosLevels[level], inprocessEntryNodes[0].t), shortenLineD)
     ];
     drawLinesWithLinearGradient({
       ctx,
@@ -21033,14 +21004,7 @@ ${indentData}`);
   }
 
   // federjs/FederView/HnswView/render/renderSearchViewNodes.js
-  function renderSearchViewNodes({
-    ctx,
-    ellipseRation,
-    canvasScale,
-    nodes,
-    level,
-    shadowBlur = 4
-  }) {
+  function renderSearchViewNodes(ctx, { nodes, level }, { ellipseRation, shadowBlur }) {
     let _nodes = [];
     _nodes = nodes.filter((node) => node.type === HNSW_NODE_TYPE.Coarse);
     drawEllipse({
@@ -21087,12 +21051,7 @@ ${indentData}`);
   }
 
   // federjs/FederView/HnswView/render/renderSearchViewTarget.js
-  function renderSearchViewTarget({
-    ctx,
-    ellipseRation,
-    node,
-    level
-  }) {
+  function renderSearchViewTarget(ctx, { node, level }, { ellipseRation }) {
     drawEllipse({
       ctx,
       circles: [
@@ -21106,7 +21065,7 @@ ${indentData}`);
   }
 
   // federjs/FederView/HnswView/render/renderSelectedNode.js
-  function renderSelectedNode({ ctx, ellipseRation, pos, r }) {
+  function renderSelectedNode(ctx, { pos, r }, { ellipseRation }) {
     drawEllipse({
       ctx,
       circles: [[...pos, r * ellipseRation, r]],
@@ -21117,11 +21076,7 @@ ${indentData}`);
   }
 
   // federjs/FederView/HnswView/render/renderHoveredPanelLine.js
-  function renderHoveredPanelLine({
-    ctx,
-    x: x3,
-    y: y4,
-    isLeft,
+  function renderHoveredPanelLine(ctx, { x: x3, y: y4, isLeft }, {
     hoveredPanelLineWidth,
     HoveredPanelLine_1_x,
     HoveredPanelLine_1_y,
@@ -21151,44 +21106,61 @@ ${indentData}`);
   }
 
   // federjs/FederView/HnswView/render/renderSearchViewTransition.js
-  function renderSearchViewTransition({ t, p }) {
-    renderBackground(this);
-    for (let level = 0; level < this.searchNodesLevels.length; level++) {
-      renderlevelLayer(__spreadProps(__spreadValues({}, this), {
-        points: this.searchLayerPosLevels[level]
-      }));
-      const nodes = this.searchNodesLevels[level].filter((node) => this.searchNodeShowTime[getNodeIdWithLevel(node.id, level)] < t);
-      const links = this.searchLinksLevels[level].filter((link) => this.searchLinkShowTime[getLinkIdWithLevel(link.source.id, link.target.id, level)] + this.searchIntraLevelTime < t);
-      const inProcessLinks = this.searchLinksLevels[level].filter((link) => this.searchLinkShowTime[getLinkIdWithLevel(link.source.id, link.target.id, level)] < t && this.searchLinkShowTime[getLinkIdWithLevel(link.source.id, link.target.id, level)] + this.searchIntraLevelTime >= t).map((link) => ({
-        t: (t - this.searchLinkShowTime[getLinkIdWithLevel(link.source.id, link.target.id, level)]) / this.searchIntraLevelTime,
+  function renderSearchViewTransition(ctx, {
+    searchNodesLevels,
+    searchLinksLevels,
+    searchLayerPosLevels,
+    searchNodeShowTime,
+    searchLinkShowTime,
+    searchTarget: searchTarget2,
+    searchTargetShowTime,
+    entryNodesLevels,
+    clickedLevel,
+    clickedNode,
+    hoveredLevel,
+    hoveredNode
+  }, federView, { t, p }) {
+    const {
+      searchIntraLevelTime,
+      searchInterLevelTime,
+      width,
+      padding,
+      canvasScale
+    } = federView;
+    renderBackground(ctx, federView);
+    for (let level = 0; level < searchNodesLevels.length; level++) {
+      renderlevelLayer(ctx, searchLayerPosLevels[level], federView);
+      const nodes = searchNodesLevels[level].filter((node) => searchNodeShowTime[getNodeIdWithLevel(node.id, level)] < t);
+      const links = searchLinksLevels[level].filter((link) => searchLinkShowTime[getLinkIdWithLevel(link.source.id, link.target.id, level)] + searchIntraLevelTime < t);
+      const inProcessLinks = searchLinksLevels[level].filter((link) => searchLinkShowTime[getLinkIdWithLevel(link.source.id, link.target.id, level)] < t && searchLinkShowTime[getLinkIdWithLevel(link.source.id, link.target.id, level)] + searchIntraLevelTime >= t).map((link) => ({
+        t: (t - searchLinkShowTime[getLinkIdWithLevel(link.source.id, link.target.id, level)]) / searchIntraLevelTime,
         link
       }));
-      const entryNodes = level === this.entryNodesLevels.length - 1 ? [] : this.entryNodesLevels[level].filter((entryNode) => this.searchLinkShowTime[getEntryLinkIdWithLevel(entryNode.id, level)] + this.searchInterLevelTime < t);
-      const inprocessEntryNodes = level === this.entryNodesLevels.length - 1 ? [] : this.entryNodesLevels[level].filter((entryNode) => this.searchLinkShowTime[getEntryLinkIdWithLevel(entryNode.id, level)] < t && this.searchLinkShowTime[getEntryLinkIdWithLevel(entryNode.id, level)] + this.searchInterLevelTime >= t).map((node) => ({
+      const entryNodes = level === entryNodesLevels.length - 1 ? [] : entryNodesLevels[level].filter((entryNode) => searchLinkShowTime[getEntryLinkIdWithLevel(entryNode.id, level)] + searchInterLevelTime < t);
+      const inprocessEntryNodes = level === entryNodesLevels.length - 1 ? [] : entryNodesLevels[level].filter((entryNode) => searchLinkShowTime[getEntryLinkIdWithLevel(entryNode.id, level)] < t && searchLinkShowTime[getEntryLinkIdWithLevel(entryNode.id, level)] + searchInterLevelTime >= t).map((node) => ({
         node,
-        t: (t - this.searchLinkShowTime[getEntryLinkIdWithLevel(node.id, level)]) / this.searchInterLevelTime
+        t: (t - searchLinkShowTime[getEntryLinkIdWithLevel(node.id, level)]) / searchInterLevelTime
       }));
-      const searchTarget = this.searchTarget;
-      renderSearchViewLinks(__spreadProps(__spreadValues({}, this), { links, inProcessLinks, level }));
-      renderSearchViewInterLevelLinks(__spreadProps(__spreadValues({}, this), {
+      renderSearchViewLinks(ctx, { links, inProcessLinks, level }, federView);
+      renderSearchViewInterLevelLinks(ctx, {
         entryNodes,
         inprocessEntryNodes,
-        searchTarget,
+        searchTarget: searchTarget2,
         level
-      }));
-      renderSearchViewNodes(__spreadProps(__spreadValues({}, this), { nodes, level }));
-      this.searchTargetShowTime[level] < t && renderSearchViewTarget(__spreadProps(__spreadValues({}, this), { node: this.searchTarget, level }));
-      if (!!this.hoveredNode) {
-        const [x3, y4] = this.hoveredNode.searchViewPosLevels[this.hoveredLevel];
-        const originX = (this.width - this.padding[1] - this.padding[3]) / 2 + this.padding[3];
+      }, federView);
+      renderSearchViewNodes(ctx, { nodes, level }, federView);
+      searchTargetShowTime[level] < t && renderSearchViewTarget(ctx, { node: searchTarget2, level }, federView);
+      if (!!hoveredNode) {
+        const [x3, y4] = hoveredNode.searchViewPosLevels[hoveredLevel];
+        const originX = (width - padding[1] - padding[3]) / 2 + padding[3];
         const isLeft = originX > x3;
-        renderHoveredPanelLine(__spreadProps(__spreadValues({}, this), { x: x3, y: y4, isLeft }));
+        renderHoveredPanelLine(ctx, { x: x3, y: y4, isLeft }, federView);
       }
-      if (!!this.clickedNode) {
-        renderSelectedNode(__spreadProps(__spreadValues({}, this), {
-          pos: this.clickedNode.searchViewPosLevels[this.clickedLevel],
-          r: this.clickedNode.r + 2 * this.canvasScale
-        }));
+      if (!!clickedNode) {
+        renderSelectedNode(ctx, {
+          pos: clickedNode.searchViewPosLevels[clickedLevel],
+          r: clickedNode.r + 2 * canvasScale
+        }, federView);
       }
     }
   }
@@ -21443,12 +21415,11 @@ ${indentData}`);
     }
     updateSearchViewOverviewInfo({
       targetMediaUrl,
-      indexMeta,
-      searchRes,
       id2forcePos,
       searchNodesLevels,
-      searchLinksLevels
-    }) {
+      searchLinksLevels,
+      searchParams
+    }, { indexMeta }) {
       const overviewInfo = [
         {
           title: "HNSW - Search"
@@ -21461,7 +21432,7 @@ ${indentData}`);
           title: `M = ${indexMeta.M}, ef_construction = ${indexMeta.ef_construction}.`
         },
         {
-          title: `k = ${searchRes.searchParams.k}, ef_search = ${searchRes.searchParams.ef}.`
+          title: `k = ${searchParams.k}, ef_search = ${searchParams.ef}.`
         },
         {
           title: `${indexMeta.ntotal} vectors, including ${indexMeta.levelCount} levels.`
@@ -21482,15 +21453,11 @@ ${indentData}`);
       }
       this.renderOverviewPanel(overviewInfo, whiteColor);
     }
-    updateSearchViewHoveredInfo({
-      ctx,
-      hoveredNode,
-      hoveredLevel,
+    updateSearchViewHoveredInfo({ hoveredNode, hoveredLevel }, {
       mediaType,
       mediaCallback,
       width,
       padding,
-      hoveredPanelLineWidth,
       HoveredPanelLine_1_x,
       HoveredPanelLine_1_y,
       HoveredPanelLine_2_x,
@@ -21525,13 +21492,7 @@ ${indentData}`);
         });
       }
     }
-    updateSearchViewClickedInfo({
-      clickedNode,
-      clickedLevel,
-      mediaType,
-      mediaCallback,
-      getVectorById
-    }) {
+    updateSearchViewClickedInfo({ clickedNode, clickedLevel }, { mediaType, mediaCallback, getVectorById }) {
       const itemList = [];
       if (!clickedNode) {
         this.renderSelectedPanel([], ZYellow);
@@ -21579,7 +21540,8 @@ ${indentData}`);
     HoveredPanelLine_1_y: -25,
     HoveredPanelLine_2_x: 30,
     hoveredPanelLineWidth: 2,
-    forceIterations: 100
+    forceIterations: 100,
+    targetOrigin: [0, 0]
   };
   var HnswView = class extends BaseView {
     constructor({ indexMeta, viewParams, getVectorById }) {
@@ -21644,8 +21606,6 @@ ${indentData}`);
         const hoveredNodeChanged = hoveredLevel !== mouseLevel || hoveredNode !== mouseNode;
         hoveredNode = mouseNode;
         hoveredLevel = mouseLevel;
-        if (hoveredNodeChanged && !clickedNode) {
-        }
         if (hoveredNodeChanged) {
           if (!clickedNode) {
             overviewHighlightData = getOverviewShortestPathData(mouseNode, mouseLevel, this);
@@ -21679,68 +21639,76 @@ ${indentData}`);
       };
       return { mouseMoveHandler, mouseClickHandler };
     }
-    searchViewHandler(_0) {
-      return __async(this, arguments, function* ({ searchRes }) {
-        yield searchViewLayoutHandler.call(this, { searchRes });
-        this.updateSearchViewOverviewInfo({});
-      });
+    searchViewHandler(searchRes) {
+      return searchViewLayoutHandler(searchRes, this);
     }
-    renderSearchView() {
-      const timeControllerView = new TimeControllerView_default(this.dom);
+    renderSearchView(ctx, infoPanel, searchViewLayoutData, targetMediaUrl, dom) {
+      searchViewLayoutData.targetMediaUrl = targetMediaUrl;
+      infoPanel.updateSearchViewOverviewInfo(searchViewLayoutData, this);
+      const timeControllerView = new TimeControllerView_default(dom);
       const callback = ({ t, p }) => {
-        renderSearchViewTransition.call(this, { t, p });
+        renderSearchViewTransition(ctx, searchViewLayoutData, this, {
+          t,
+          p
+        });
         timeControllerView.moveSilderBar(p);
       };
       const timer2 = new TimerController({
-        duration: this.searchTransitionDuration,
+        duration: searchViewLayoutData.searchTransitionDuration,
         callback,
         playCallback: () => timeControllerView.play(),
         pauseCallback: () => timeControllerView.pause()
       });
       timeControllerView.setTimer(timer2);
       timer2.start();
-      this.searchTransitionTimer = timer2;
+      searchViewLayoutData.searchTransitionTimer = timer2;
     }
-    setSearchViewListenerHandlers() {
-      this.mouseLeaveHandler = null;
-      this.mouseMoveHandler = ({ x: x3, y: y4 }) => {
+    getSearchViewEventHandler(ctx, searchViewLayoutData, infoPanel) {
+      searchViewLayoutData.clickedLevel = null;
+      searchViewLayoutData.clickedNode = null;
+      searchViewLayoutData.hoveredLevel = null;
+      searchViewLayoutData.hoveredNode = null;
+      const mouseMoveHandler = ({ x: x3, y: y4 }) => {
         const mouse = [x3, y4];
-        const { mouseLevel, mouseNode } = mouse2node(__spreadProps(__spreadValues({}, this), {
+        const { mouseLevel, mouseNode } = mouse2node({
           mouse,
-          layerPosLevels: this.searchLayerPosLevels,
-          nodesLevels: this.searchNodesLevels,
+          layerPosLevels: searchViewLayoutData.searchLayerPosLevels,
+          nodesLevels: searchViewLayoutData.searchNodesLevels,
           posAttr: "searchViewPosLevels"
-        }));
-        this.hoveredNodeChanged = this.hoveredLevel !== mouseLevel || this.hoveredNode !== mouseNode;
-        this.hoveredNode = mouseNode;
-        this.hoveredLevel = mouseLevel;
-        if (this.hoveredNodeChanged) {
-          this.updateSearchViewHoveredInfo({});
-          if (!this.searchTransitionTimer.isPlaying) {
-            renderSearchViewTransition.call(this, {
-              t: this.searchTransitionTimer.tAlready
+        }, this);
+        const hoveredNodeChanged = searchViewLayoutData.hoveredLevel !== mouseLevel || searchViewLayoutData.hoveredNode !== mouseNode;
+        searchViewLayoutData.hoveredNode = mouseNode;
+        searchViewLayoutData.hoveredLevel = mouseLevel;
+        if (hoveredNodeChanged) {
+          infoPanel.updateSearchViewHoveredInfo(searchViewLayoutData, this);
+          if (!searchViewLayoutData.searchTransitionTimer.isPlaying) {
+            renderSearchViewTransition(ctx, searchViewLayoutData, this, {
+              t: searchViewLayoutData.searchTransitionTimer.tAlready
             });
           }
         }
       };
-      this.mouseClickHandler = ({ x: x3, y: y4 }) => {
+      const mouseClickHandler = ({ x: x3, y: y4 }) => {
         const mouse = [x3, y4];
-        const { mouseLevel, mouseNode } = mouse2node(__spreadProps(__spreadValues({}, this), {
+        const { mouseLevel, mouseNode } = mouse2node({
           mouse,
-          layerPosLevels: this.searchLayerPosLevels,
-          nodesLevels: this.searchNodesLevels,
+          layerPosLevels: searchViewLayoutData.searchLayerPosLevels,
+          nodesLevels: searchViewLayoutData.searchNodesLevels,
           posAttr: "searchViewPosLevels"
-        }));
-        this.clickedNodeChanged = this.clickedLevel !== mouseLevel || this.clickedNode !== mouseNode;
-        this.clickedNode = mouseNode;
-        this.clickedLevel = mouseLevel;
-        if (this.clickedNodeChanged) {
-          renderSearchViewTransition.call(this, {
-            t: this.searchTransitionTimer.currentT
-          });
-          this.updateSearchViewClickedInfo({});
+        }, this);
+        const clickedNodeChanged = searchViewLayoutData.clickedLevel !== mouseLevel || searchViewLayoutData.clickedNode !== mouseNode;
+        searchViewLayoutData.clickedNode = mouseNode;
+        searchViewLayoutData.clickedLevel = mouseLevel;
+        if (clickedNodeChanged) {
+          infoPanel.updateSearchViewClickedInfo(searchViewLayoutData, this);
+          if (!searchViewLayoutData.searchTransitionTimer.isPlaying) {
+            renderSearchViewTransition(ctx, searchViewLayoutData, this, {
+              t: searchViewLayoutData.searchTransitionTimer.tAlready
+            });
+          }
         }
       };
+      return { mouseMoveHandler, mouseClickHandler };
     }
   };
 
@@ -23243,7 +23211,6 @@ ${indentData}`);
       };
       Object.assign(dom.style, domStyle);
       renderLoading(dom, width, height);
-      this.dom = dom;
       if (this.domSelector) {
         const domContainer = document.querySelector(this.domSelector);
         domContainer.innerHTML = "";
@@ -23325,9 +23292,6 @@ ${indentData}`);
       } else {
       }
     }
-    get node() {
-      return this.federView.dom;
-    }
     overview() {
       return this.federView.overview(this.initCoreAndViewPromise);
     }
@@ -23364,8 +23328,7 @@ ${indentData}`);
           return { searchRes, targetMediaUrl };
         }
       });
-      this.federView.search({ searchResPromise });
-      return this.node;
+      return this.federView.search({ searchResPromise });
     }
     searchRandTestVec() {
       const searchResPromise = this.initCoreAndViewPromise.then(() => {
@@ -23380,8 +23343,7 @@ ${indentData}`);
         this.searchRes = searchRes;
         return { searchRes, targetMediaUrl };
       });
-      this.federView.search({ searchResPromise });
-      return this.node;
+      return this.federView.search({ searchResPromise });
     }
     setSearchParams(params) {
       return __async(this, null, function* () {
@@ -23403,28 +23365,36 @@ ${indentData}`);
     data.forEach((d, i) => rowId2name[i] = d.name);
     return rowId2name;
   });
-  var testHNSWWithImages = (filePath) => __async(void 0, null, function* () {
+  var testIVFFlatWithImages = (filePath) => __async(void 0, null, function* () {
     const rowId2name = yield getId2name();
     const mediaCallback = (rowId) => rowId in rowId2name ? `https://assets.zilliz.com/voc2012/JPEGImages/${rowId2name[rowId]}` : null;
     const feder = new Feder({
       filePath,
-      source: "hnswlib",
+      source: "faiss",
       viewParams: {
-        height: 400,
+        height: 300,
         mediaType: "img",
-        mediaCallback
+        mediaCallback,
+        projectSeed: 1235,
+        projectMethod: "umap"
       }
     });
     return feder;
   });
   window.addEventListener("DOMContentLoaded", () => __async(void 0, null, function* () {
-    const feder = yield testHNSWWithImages("./data/hnswlib_hnsw_voc_17k.index");
+    const feder = yield testIVFFlatWithImages("./data/faiss_ivf_flat_voc_17k.index");
     console.log(feder);
     feder.setSearchParams({
       k: 12,
       nprobe: 8,
       ef: 10
     });
+    document.querySelector(domSelector).appendChild(feder.overview());
+    document.querySelector(domSelector).appendChild(feder.searchRandTestVec());
+    feder.setSearchParams({ k: 4, nprobe: 6, ef: 6 });
+    document.querySelector(domSelector).appendChild(feder.searchById(4365));
+    feder.setSearchParams({ k: 6, nprobe: 10, ef: 8 });
+    document.querySelector(domSelector).appendChild(feder.searchRandTestVec());
     document.querySelector(domSelector).appendChild(feder.overview());
   }));
 })();

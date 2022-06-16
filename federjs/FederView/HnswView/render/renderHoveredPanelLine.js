@@ -1,16 +1,16 @@
 import { drawPath, hexWithOpacity, ZYellow } from 'Utils/renderUtils';
 
-export default function renderHoveredPanelLine({
+export default function renderHoveredPanelLine(
   ctx,
-  x,
-  y,
-  isLeft,
-  hoveredPanelLineWidth,
-  HoveredPanelLine_1_x,
-  HoveredPanelLine_1_y,
-  HoveredPanelLine_2_x,
-  canvasScale,
-}) {
+  { x, y, isLeft },
+  {
+    hoveredPanelLineWidth,
+    HoveredPanelLine_1_x,
+    HoveredPanelLine_1_y,
+    HoveredPanelLine_2_x,
+    canvasScale,
+  }
+) {
   const k = isLeft ? -1 : 1;
   const points = [
     [x, y],

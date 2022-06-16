@@ -31,9 +31,6 @@ export default class Feder {
     }
   }
 
-  get node() {
-    return this.federView.dom;
-  }
   overview() {
     return this.federView.overview(this.initCoreAndViewPromise);
   }
@@ -73,9 +70,7 @@ export default class Feder {
         return { searchRes, targetMediaUrl };
       }
     });
-    this.federView.search({ searchResPromise });
-
-    return this.node;
+    return this.federView.search({ searchResPromise });
   }
   searchRandTestVec() {
     const searchResPromise = this.initCoreAndViewPromise.then(() => {
@@ -94,9 +89,7 @@ export default class Feder {
       return { searchRes, targetMediaUrl };
     });
 
-    this.federView.search({ searchResPromise });
-
-    return this.node;
+    return this.federView.search({ searchResPromise });
   }
 
   async setSearchParams(params) {

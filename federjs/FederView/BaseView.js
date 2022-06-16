@@ -54,7 +54,13 @@ export default class BaseView {
 
     const searchViewLayoutData = await this.searchViewHandler(searchRes);
     finishLoading(dom);
-    this.renderSearchView(ctx, infoPanel, searchViewLayoutData, targetMediaUrl);
+    this.renderSearchView(
+      ctx,
+      infoPanel,
+      searchViewLayoutData,
+      targetMediaUrl,
+      dom
+    );
     const eventHandlers = this.getSearchViewEventHandler(
       ctx,
       searchViewLayoutData,

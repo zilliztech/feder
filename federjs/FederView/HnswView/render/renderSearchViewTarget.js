@@ -1,11 +1,10 @@
 import { drawEllipse, hexWithOpacity, whiteColor } from 'Utils/renderUtils';
 
-export default function renderSearchViewTarget({
+export default function renderSearchViewTarget(
   ctx,
-  ellipseRation,
-  node,
-  level,
-}) {
+  { node, level },
+  { ellipseRation }
+) {
   drawEllipse({
     ctx,
     circles: [

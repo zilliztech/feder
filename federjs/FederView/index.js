@@ -38,8 +38,6 @@ export default class FederView {
     Object.assign(dom.style, domStyle);
     renderLoading(dom, width, height);
 
-    this.dom = dom;
-
     if (this.domSelector) {
       const domContainer = document.querySelector(this.domSelector);
       domContainer.innerHTML = '';

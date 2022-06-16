@@ -3,20 +3,13 @@ import {
   highLightGradientStopColors,
   targetLevelGradientStopColors,
 } from 'Utils/renderUtils';
-import {
-  shortenLine,
-  getInprocessPos,
-} from 'Utils';
+import { shortenLine, getInprocessPos } from 'Utils';
 
-export default function renderSearchViewInterLevelLinks({
+export default function renderSearchViewInterLevelLinks(
   ctx,
-  entryNodes,
-  inprocessEntryNodes,
-  shortenLineD,
-  canvasScale,
-  searchTarget,
-  level,
-}) {
+  { entryNodes, inprocessEntryNodes, searchTarget, level },
+  { shortenLineD, canvasScale }
+) {
   const pointsList = entryNodes.map((node) =>
     shortenLine(
       node.searchViewPosLevels[level + 1],
