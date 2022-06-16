@@ -120,7 +120,7 @@
       }
       exports.empty = empty2;
       function range2(n) {
-        return empty2(n).map(function(_, i) {
+        return empty2(n).map(function(_2, i) {
           return i;
         });
       }
@@ -140,7 +140,7 @@
       }
       exports.ones = ones;
       function linear3(a2, b, len) {
-        return empty2(len).map(function(_, i) {
+        return empty2(len).map(function(_2, i) {
           return a2 + i * ((b - a2) / (len - 1));
         });
       }
@@ -649,7 +649,7 @@
             zeroIndices.add(i);
           }
         }
-        var removeByZeroIndex = function(_, index2) {
+        var removeByZeroIndex = function(_2, index2) {
           return !zeroIndices.has(index2);
         };
         var nextValues = values.filter(removeByZeroIndex);
@@ -665,7 +665,7 @@
         var e_1, _a2;
         var normFn = normFns[normType];
         var colsByRow = /* @__PURE__ */ new Map();
-        m2.forEach(function(_, row2, col) {
+        m2.forEach(function(_2, row2, col) {
           var cols = colsByRow.get(row2) || [];
           cols.push(col);
           colsByRow.set(row2, cols);
@@ -859,7 +859,7 @@
       exports.FlatTree = FlatTree;
       function makeForest(data, nNeighbors, nTrees, random) {
         var leafSize = Math.max(10, nNeighbors);
-        var trees = utils.range(nTrees).map(function(_, i) {
+        var trees = utils.range(nTrees).map(function(_2, i) {
           return makeTree(data, leafSize, i, random);
         });
         var forest = trees.map(function(tree) {
@@ -5957,7 +5957,7 @@ ${indentData}`);
         });
       };
       var __generator = exports && exports.__generator || function(thisArg, body) {
-        var _ = { label: 0, sent: function() {
+        var _2 = { label: 0, sent: function() {
           if (t[0] & 1)
             throw t[1];
           return t[1];
@@ -5973,7 +5973,7 @@ ${indentData}`);
         function step(op) {
           if (f)
             throw new TypeError("Generator is already executing.");
-          while (_)
+          while (_2)
             try {
               if (f = 1, y4 && (t = op[0] & 2 ? y4["return"] : op[0] ? y4["throw"] || ((t = y4["return"]) && t.call(y4), 0) : y4.next) && !(t = t.call(y4, op[1])).done)
                 return t;
@@ -5985,42 +5985,42 @@ ${indentData}`);
                   t = op;
                   break;
                 case 4:
-                  _.label++;
+                  _2.label++;
                   return { value: op[1], done: false };
                 case 5:
-                  _.label++;
+                  _2.label++;
                   y4 = op[1];
                   op = [0];
                   continue;
                 case 7:
-                  op = _.ops.pop();
-                  _.trys.pop();
+                  op = _2.ops.pop();
+                  _2.trys.pop();
                   continue;
                 default:
-                  if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) {
-                    _ = 0;
+                  if (!(t = _2.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) {
+                    _2 = 0;
                     continue;
                   }
                   if (op[0] === 3 && (!t || op[1] > t[0] && op[1] < t[3])) {
-                    _.label = op[1];
+                    _2.label = op[1];
                     break;
                   }
-                  if (op[0] === 6 && _.label < t[1]) {
-                    _.label = t[1];
+                  if (op[0] === 6 && _2.label < t[1]) {
+                    _2.label = t[1];
                     t = op;
                     break;
                   }
-                  if (t && _.label < t[2]) {
-                    _.label = t[2];
-                    _.ops.push(op);
+                  if (t && _2.label < t[2]) {
+                    _2.label = t[2];
+                    _2.ops.push(op);
                     break;
                   }
                   if (t[2])
-                    _.ops.pop();
-                  _.trys.pop();
+                    _2.ops.pop();
+                  _2.trys.pop();
                   continue;
               }
-              op = body.call(thisArg, _);
+              op = body.call(thisArg, _2);
             } catch (e) {
               op = [6, e];
               y4 = 0;
@@ -8143,7 +8143,7 @@ ${indentData}`);
           return string.match(reUnicodeWord) || [];
         }
         var runInContext = function runInContext2(context) {
-          context = context == null ? root2 : _.defaults(root2.Object(), context, _.pick(root2, contextProps));
+          context = context == null ? root2 : _2.defaults(root2.Object(), context, _2.pick(root2, contextProps));
           var Array2 = context.Array, Date2 = context.Date, Error2 = context.Error, Function2 = context.Function, Math2 = context.Math, Object2 = context.Object, RegExp2 = context.RegExp, String2 = context.String, TypeError2 = context.TypeError;
           var arrayProto = Array2.prototype, funcProto = Function2.prototype, objectProto = Object2.prototype;
           var coreJsData = context["__core-js_shared__"];
@@ -12850,17 +12850,17 @@ ${indentData}`);
           }
           return lodash;
         };
-        var _ = runInContext();
+        var _2 = runInContext();
         if (typeof define == "function" && typeof define.amd == "object" && define.amd) {
-          root2._ = _;
+          root2._ = _2;
           define(function() {
-            return _;
+            return _2;
           });
         } else if (freeModule) {
-          (freeModule.exports = _)._ = _;
-          freeExports._ = _;
+          (freeModule.exports = _2)._ = _2;
+          freeExports._ = _2;
         } else {
-          root2._ = _;
+          root2._ = _2;
         }
       }).call(exports);
     }
@@ -13164,15 +13164,15 @@ ${indentData}`);
   var noop = { value: () => {
   } };
   function dispatch() {
-    for (var i = 0, n = arguments.length, _ = {}, t; i < n; ++i) {
-      if (!(t = arguments[i] + "") || t in _ || /[\s.]/.test(t))
+    for (var i = 0, n = arguments.length, _2 = {}, t; i < n; ++i) {
+      if (!(t = arguments[i] + "") || t in _2 || /[\s.]/.test(t))
         throw new Error("illegal type: " + t);
-      _[t] = [];
+      _2[t] = [];
     }
-    return new Dispatch(_);
+    return new Dispatch(_2);
   }
-  function Dispatch(_) {
-    this._ = _;
+  function Dispatch(_2) {
+    this._ = _2;
   }
   function parseTypenames(typenames, types) {
     return typenames.trim().split(/^|\s+/).map(function(t) {
@@ -13187,10 +13187,10 @@ ${indentData}`);
   Dispatch.prototype = dispatch.prototype = {
     constructor: Dispatch,
     on: function(typename, callback) {
-      var _ = this._, T = parseTypenames(typename + "", _), t, i = -1, n = T.length;
+      var _2 = this._, T = parseTypenames(typename + "", _2), t, i = -1, n = T.length;
       if (arguments.length < 2) {
         while (++i < n)
-          if ((t = (typename = T[i]).type) && (t = get(_[t], typename.name)))
+          if ((t = (typename = T[i]).type) && (t = get(_2[t], typename.name)))
             return t;
         return;
       }
@@ -13198,17 +13198,17 @@ ${indentData}`);
         throw new Error("invalid callback: " + callback);
       while (++i < n) {
         if (t = (typename = T[i]).type)
-          _[t] = set(_[t], typename.name, callback);
+          _2[t] = set(_2[t], typename.name, callback);
         else if (callback == null)
-          for (t in _)
-            _[t] = set(_[t], typename.name, null);
+          for (t in _2)
+            _2[t] = set(_2[t], typename.name, null);
       }
       return this;
     },
     copy: function() {
-      var copy2 = {}, _ = this._;
-      for (var t in _)
-        copy2[t] = _[t].slice();
+      var copy2 = {}, _2 = this._;
+      for (var t in _2)
+        copy2[t] = _2[t].slice();
       return new Dispatch(copy2);
     },
     call: function(type2, that) {
@@ -14304,24 +14304,24 @@ ${indentData}`);
         }), d);
       };
     }
-    drag.filter = function(_) {
-      return arguments.length ? (filter2 = typeof _ === "function" ? _ : constant_default2(!!_), drag) : filter2;
+    drag.filter = function(_2) {
+      return arguments.length ? (filter2 = typeof _2 === "function" ? _2 : constant_default2(!!_2), drag) : filter2;
     };
-    drag.container = function(_) {
-      return arguments.length ? (container = typeof _ === "function" ? _ : constant_default2(_), drag) : container;
+    drag.container = function(_2) {
+      return arguments.length ? (container = typeof _2 === "function" ? _2 : constant_default2(_2), drag) : container;
     };
-    drag.subject = function(_) {
-      return arguments.length ? (subject = typeof _ === "function" ? _ : constant_default2(_), drag) : subject;
+    drag.subject = function(_2) {
+      return arguments.length ? (subject = typeof _2 === "function" ? _2 : constant_default2(_2), drag) : subject;
     };
-    drag.touchable = function(_) {
-      return arguments.length ? (touchable = typeof _ === "function" ? _ : constant_default2(!!_), drag) : touchable;
+    drag.touchable = function(_2) {
+      return arguments.length ? (touchable = typeof _2 === "function" ? _2 : constant_default2(!!_2), drag) : touchable;
     };
     drag.on = function() {
       var value = listeners.on.apply(listeners, arguments);
       return value === listeners ? drag : value;
     };
-    drag.clickDistance = function(_) {
-      return arguments.length ? (clickDistance2 = (_ = +_) * _, drag) : Math.sqrt(clickDistance2);
+    drag.clickDistance = function(_2) {
+      return arguments.length ? (clickDistance2 = (_2 = +_2) * _2, drag) : Math.sqrt(clickDistance2);
     };
     return drag;
   }
@@ -17095,7 +17095,7 @@ ${indentData}`);
     _init() {
       const d = this._delaunator, points = this.points;
       if (d.hull && d.hull.length > 2 && collinear(d)) {
-        this.collinear = Int32Array.from({ length: points.length / 2 }, (_, i) => i).sort((i, j) => points[2 * i] - points[2 * j] || points[2 * i + 1] - points[2 * j + 1]);
+        this.collinear = Int32Array.from({ length: points.length / 2 }, (_2, i) => i).sort((i, j) => points[2 * i] - points[2 * j] || points[2 * i + 1] - points[2 * j + 1]);
         const e = this.collinear[0], f = this.collinear[this.collinear.length - 1], bounds = [points[2 * e], points[2 * e + 1], points[2 * f], points[2 * f + 1]], r = 1e-8 * Math.hypot(bounds[3] - bounds[1], bounds[2] - bounds[0]);
         for (let i = 0, n = points.length / 2; i < n; ++i) {
           const p = jitter(points[2 * i], points[2 * i + 1], r);
@@ -17482,17 +17482,17 @@ ${indentData}`);
         node = nodes[i], node.x -= sx, node.y -= sy;
       }
     }
-    force.initialize = function(_) {
-      nodes = _;
+    force.initialize = function(_2) {
+      nodes = _2;
     };
-    force.x = function(_) {
-      return arguments.length ? (x3 = +_, force) : x3;
+    force.x = function(_2) {
+      return arguments.length ? (x3 = +_2, force) : x3;
     };
-    force.y = function(_) {
-      return arguments.length ? (y4 = +_, force) : y4;
+    force.y = function(_2) {
+      return arguments.length ? (y4 = +_2, force) : y4;
     };
-    force.strength = function(_) {
-      return arguments.length ? (strength = +_, force) : strength;
+    force.strength = function(_2) {
+      return arguments.length ? (strength = +_2, force) : strength;
     };
     return force;
   }
@@ -17613,8 +17613,8 @@ ${indentData}`);
   }
 
   // node_modules/d3-quadtree/src/extent.js
-  function extent_default(_) {
-    return arguments.length ? this.cover(+_[0][0], +_[0][1]).cover(+_[1][0], +_[1][1]) : isNaN(this._x0) ? void 0 : [[this._x0, this._y0], [this._x1, this._y1]];
+  function extent_default(_2) {
+    return arguments.length ? this.cover(+_2[0][0], +_2[0][1]).cover(+_2[1][0], +_2[1][1]) : isNaN(this._x0) ? void 0 : [[this._x0, this._y0], [this._x1, this._y1]];
   }
 
   // node_modules/d3-quadtree/src/quad.js
@@ -17778,16 +17778,16 @@ ${indentData}`);
   function defaultX(d) {
     return d[0];
   }
-  function x_default(_) {
-    return arguments.length ? (this._x = _, this) : this._x;
+  function x_default(_2) {
+    return arguments.length ? (this._x = _2, this) : this._x;
   }
 
   // node_modules/d3-quadtree/src/y.js
   function defaultY(d) {
     return d[1];
   }
-  function y_default(_) {
-    return arguments.length ? (this._y = _, this) : this._y;
+  function y_default(_2) {
+    return arguments.length ? (this._y = _2, this) : this._y;
   }
 
   // node_modules/d3-quadtree/src/quadtree.js
@@ -17924,14 +17924,14 @@ ${indentData}`);
       random = _random;
       initialize();
     };
-    force.iterations = function(_) {
-      return arguments.length ? (iterations = +_, force) : iterations;
+    force.iterations = function(_2) {
+      return arguments.length ? (iterations = +_2, force) : iterations;
     };
-    force.strength = function(_) {
-      return arguments.length ? (strength = +_, force) : strength;
+    force.strength = function(_2) {
+      return arguments.length ? (strength = +_2, force) : strength;
     };
-    force.radius = function(_) {
-      return arguments.length ? (radius = typeof _ === "function" ? _ : constant_default5(+_), initialize(), force) : radius;
+    force.radius = function(_2) {
+      return arguments.length ? (radius = typeof _2 === "function" ? _2 : constant_default5(+_2), initialize(), force) : radius;
     };
     return force;
   }
@@ -18007,20 +18007,20 @@ ${indentData}`);
       random = _random;
       initialize();
     };
-    force.links = function(_) {
-      return arguments.length ? (links = _, initialize(), force) : links;
+    force.links = function(_2) {
+      return arguments.length ? (links = _2, initialize(), force) : links;
     };
-    force.id = function(_) {
-      return arguments.length ? (id2 = _, force) : id2;
+    force.id = function(_2) {
+      return arguments.length ? (id2 = _2, force) : id2;
     };
-    force.iterations = function(_) {
-      return arguments.length ? (iterations = +_, force) : iterations;
+    force.iterations = function(_2) {
+      return arguments.length ? (iterations = +_2, force) : iterations;
     };
-    force.strength = function(_) {
-      return arguments.length ? (strength = typeof _ === "function" ? _ : constant_default5(+_), initializeStrength(), force) : strength;
+    force.strength = function(_2) {
+      return arguments.length ? (strength = typeof _2 === "function" ? _2 : constant_default5(+_2), initializeStrength(), force) : strength;
     };
-    force.distance = function(_) {
-      return arguments.length ? (distance = typeof _ === "function" ? _ : constant_default5(+_), initializeDistance(), force) : distance;
+    force.distance = function(_2) {
+      return arguments.length ? (distance = typeof _2 === "function" ? _2 : constant_default5(+_2), initializeDistance(), force) : distance;
     };
     return force;
   }
@@ -18109,29 +18109,29 @@ ${indentData}`);
       stop: function() {
         return stepper.stop(), simulation;
       },
-      nodes: function(_) {
-        return arguments.length ? (nodes = _, initializeNodes(), forces.forEach(initializeForce), simulation) : nodes;
+      nodes: function(_2) {
+        return arguments.length ? (nodes = _2, initializeNodes(), forces.forEach(initializeForce), simulation) : nodes;
       },
-      alpha: function(_) {
-        return arguments.length ? (alpha = +_, simulation) : alpha;
+      alpha: function(_2) {
+        return arguments.length ? (alpha = +_2, simulation) : alpha;
       },
-      alphaMin: function(_) {
-        return arguments.length ? (alphaMin = +_, simulation) : alphaMin;
+      alphaMin: function(_2) {
+        return arguments.length ? (alphaMin = +_2, simulation) : alphaMin;
       },
-      alphaDecay: function(_) {
-        return arguments.length ? (alphaDecay = +_, simulation) : +alphaDecay;
+      alphaDecay: function(_2) {
+        return arguments.length ? (alphaDecay = +_2, simulation) : +alphaDecay;
       },
-      alphaTarget: function(_) {
-        return arguments.length ? (alphaTarget = +_, simulation) : alphaTarget;
+      alphaTarget: function(_2) {
+        return arguments.length ? (alphaTarget = +_2, simulation) : alphaTarget;
       },
-      velocityDecay: function(_) {
-        return arguments.length ? (velocityDecay = 1 - _, simulation) : 1 - velocityDecay;
+      velocityDecay: function(_2) {
+        return arguments.length ? (velocityDecay = 1 - _2, simulation) : 1 - velocityDecay;
       },
-      randomSource: function(_) {
-        return arguments.length ? (random = _, forces.forEach(initializeForce), simulation) : random;
+      randomSource: function(_2) {
+        return arguments.length ? (random = _2, forces.forEach(initializeForce), simulation) : random;
       },
-      force: function(name, _) {
-        return arguments.length > 1 ? (_ == null ? forces.delete(name) : forces.set(name, initializeForce(_)), simulation) : forces.get(name);
+      force: function(name, _2) {
+        return arguments.length > 1 ? (_2 == null ? forces.delete(name) : forces.set(name, initializeForce(_2)), simulation) : forces.get(name);
       },
       find: function(x3, y4, radius) {
         var i = 0, n = nodes.length, dx, dy, d2, node, closest;
@@ -18149,8 +18149,8 @@ ${indentData}`);
         }
         return closest;
       },
-      on: function(name, _) {
-        return arguments.length > 1 ? (event.on(name, _), simulation) : event.on(name);
+      on: function(name, _2) {
+        return arguments.length > 1 ? (event.on(name, _2), simulation) : event.on(name);
       }
     };
   }
@@ -18158,9 +18158,9 @@ ${indentData}`);
   // node_modules/d3-force/src/manyBody.js
   function manyBody_default() {
     var nodes, node, random, alpha, strength = constant_default5(-30), strengths, distanceMin2 = 1, distanceMax2 = Infinity, theta2 = 0.81;
-    function force(_) {
+    function force(_2) {
       var i, n = nodes.length, tree = quadtree(nodes, x2, y3).visitAfter(accumulate);
-      for (alpha = _, i = 0; i < n; ++i)
+      for (alpha = _2, i = 0; i < n; ++i)
         node = nodes[i], tree.visit(apply);
     }
     function initialize() {
@@ -18191,7 +18191,7 @@ ${indentData}`);
       }
       quad.value = strength2;
     }
-    function apply(quad, x1, _, x22) {
+    function apply(quad, x1, _2, x22) {
       if (!quad.value)
         return true;
       var x3 = quad.x - node.x, y4 = quad.y - node.y, w = x22 - x1, l = x3 * x3 + y4 * y4;
@@ -18230,17 +18230,17 @@ ${indentData}`);
       random = _random;
       initialize();
     };
-    force.strength = function(_) {
-      return arguments.length ? (strength = typeof _ === "function" ? _ : constant_default5(+_), initialize(), force) : strength;
+    force.strength = function(_2) {
+      return arguments.length ? (strength = typeof _2 === "function" ? _2 : constant_default5(+_2), initialize(), force) : strength;
     };
-    force.distanceMin = function(_) {
-      return arguments.length ? (distanceMin2 = _ * _, force) : Math.sqrt(distanceMin2);
+    force.distanceMin = function(_2) {
+      return arguments.length ? (distanceMin2 = _2 * _2, force) : Math.sqrt(distanceMin2);
     };
-    force.distanceMax = function(_) {
-      return arguments.length ? (distanceMax2 = _ * _, force) : Math.sqrt(distanceMax2);
+    force.distanceMax = function(_2) {
+      return arguments.length ? (distanceMax2 = _2 * _2, force) : Math.sqrt(distanceMax2);
     };
-    force.theta = function(_) {
-      return arguments.length ? (theta2 = _ * _, force) : Math.sqrt(theta2);
+    force.theta = function(_2) {
+      return arguments.length ? (theta2 = _2 * _2, force) : Math.sqrt(theta2);
     };
     return force;
   }
@@ -18272,20 +18272,20 @@ ${indentData}`);
         strengths[i] = isNaN(radiuses[i]) ? 0 : +strength(nodes[i], i, nodes);
       }
     }
-    force.initialize = function(_) {
-      nodes = _, initialize();
+    force.initialize = function(_2) {
+      nodes = _2, initialize();
     };
-    force.strength = function(_) {
-      return arguments.length ? (strength = typeof _ === "function" ? _ : constant_default5(+_), initialize(), force) : strength;
+    force.strength = function(_2) {
+      return arguments.length ? (strength = typeof _2 === "function" ? _2 : constant_default5(+_2), initialize(), force) : strength;
     };
-    force.radius = function(_) {
-      return arguments.length ? (radius = typeof _ === "function" ? _ : constant_default5(+_), initialize(), force) : radius;
+    force.radius = function(_2) {
+      return arguments.length ? (radius = typeof _2 === "function" ? _2 : constant_default5(+_2), initialize(), force) : radius;
     };
-    force.x = function(_) {
-      return arguments.length ? (x3 = +_, force) : x3;
+    force.x = function(_2) {
+      return arguments.length ? (x3 = +_2, force) : x3;
     };
-    force.y = function(_) {
-      return arguments.length ? (y4 = +_, force) : y4;
+    force.y = function(_2) {
+      return arguments.length ? (y4 = +_2, force) : y4;
     };
     return force;
   }
@@ -18662,23 +18662,23 @@ ${indentData}`);
     scale2.invert = function(y4) {
       return clamp(untransform((input || (input = piecewise(range2, domain.map(transform2), number_default)))(y4)));
     };
-    scale2.domain = function(_) {
-      return arguments.length ? (domain = Array.from(_, number3), rescale()) : domain.slice();
+    scale2.domain = function(_2) {
+      return arguments.length ? (domain = Array.from(_2, number3), rescale()) : domain.slice();
     };
-    scale2.range = function(_) {
-      return arguments.length ? (range2 = Array.from(_), rescale()) : range2.slice();
+    scale2.range = function(_2) {
+      return arguments.length ? (range2 = Array.from(_2), rescale()) : range2.slice();
     };
-    scale2.rangeRound = function(_) {
-      return range2 = Array.from(_), interpolate = round_default, rescale();
+    scale2.rangeRound = function(_2) {
+      return range2 = Array.from(_2), interpolate = round_default, rescale();
     };
-    scale2.clamp = function(_) {
-      return arguments.length ? (clamp = _ ? true : identity2, rescale()) : clamp !== identity2;
+    scale2.clamp = function(_2) {
+      return arguments.length ? (clamp = _2 ? true : identity2, rescale()) : clamp !== identity2;
     };
-    scale2.interpolate = function(_) {
-      return arguments.length ? (interpolate = _, rescale()) : interpolate;
+    scale2.interpolate = function(_2) {
+      return arguments.length ? (interpolate = _2, rescale()) : interpolate;
     };
-    scale2.unknown = function(_) {
-      return arguments.length ? (unknown = _, scale2) : unknown;
+    scale2.unknown = function(_2) {
+      return arguments.length ? (unknown = _2, scale2) : unknown;
     };
     return function(t, u4) {
       transform2 = t, untransform = u4;
@@ -18997,7 +18997,7 @@ ${indentData}`);
       return this.readFloat64();
     }
     readUint32Array(n) {
-      const res = generateArray(n).map((_) => this.readUint32());
+      const res = generateArray(n).map((_2) => this.readUint32());
       return res;
     }
     readFloat32Array(n) {
@@ -19006,7 +19006,7 @@ ${indentData}`);
       return res;
     }
     readUint64Array(n) {
-      const res = generateArray(n).map((_) => this.readUint64());
+      const res = generateArray(n).map((_2) => this.readUint64());
       return res;
     }
   };
@@ -19059,7 +19059,7 @@ ${indentData}`);
         linkLists_[i] = [];
       } else {
         const levelCount = linkListSize / 4 / (index2.maxM_ + 1);
-        linkLists_[i] = generateArray(levelCount).map((_) => reader.readUint32Array(index2.maxM_ + 1)).map((linkLists) => linkLists.slice(1, linkLists[0] + 1));
+        linkLists_[i] = generateArray(levelCount).map((_2) => reader.readUint32Array(index2.maxM_ + 1)).map((linkLists) => linkLists.slice(1, linkLists[0] + 1));
       }
     }
     index2.linkListSizes = linkListSizes;
@@ -19110,7 +19110,7 @@ ${indentData}`);
       super(arrayBuffer);
     }
     readH() {
-      const uint8Array = generateArray(4).map((_) => this.readUint8());
+      const uint8Array = generateArray(4).map((_2) => this.readUint8());
       const h = uint8toChars(uint8Array);
       return h;
     }
@@ -19135,10 +19135,10 @@ ${indentData}`);
     invlists.listType = reader.readH();
     checkInvListType(invlists.listType);
     invlists.listSizesSize = reader.readUint64();
-    invlists.listSizes = generateArray(invlists.listSizesSize).map((_) => reader.readUint64());
+    invlists.listSizes = generateArray(invlists.listSizesSize).map((_2) => reader.readUint64());
     const data = [];
-    generateArray(invlists.listSizesSize).forEach((_, i) => {
-      const vectors = generateArray(invlists.listSizes[i]).map((_2) => reader.readFloat32Array(invlists.codeSize / 4));
+    generateArray(invlists.listSizesSize).forEach((_2, i) => {
+      const vectors = generateArray(invlists.listSizes[i]).map((_3) => reader.readFloat32Array(invlists.codeSize / 4));
       const ids = reader.readUint64Array(invlists.listSizes[i]);
       data.push({ ids, vectors });
     });
@@ -19215,7 +19215,7 @@ ${indentData}`);
   };
   var readXbVectors = (reader, index2) => {
     index2.codeSize = reader.readUint64();
-    index2.vectors = generateArray(index2.ntotal).map((_) => reader.readFloat32Array(index2.d));
+    index2.vectors = generateArray(index2.ntotal).map((_2) => reader.readFloat32Array(index2.d));
   };
   var readIndex = (reader) => {
     const index2 = {};
@@ -19884,7 +19884,7 @@ ${indentData}`);
       [layerWidth * (1 - xBias), layerHeight],
       [0, layerHeight * yBias]
     ];
-    const layerPosLevels = generateArray(levelCount).map((_, level) => layerPos.map((coord) => [
+    const layerPosLevels = generateArray(levelCount).map((_2, level) => layerPos.map((coord) => [
       coord[0] + padding[3],
       coord[1] + padding[0] + layerHeight * (1 - yOver) * (levelCount - 1 - level)
     ]));
@@ -19924,7 +19924,7 @@ ${indentData}`);
         padding
       });
       overviewNodes.forEach((node) => {
-        node.overviewPosLevels = node.linksLevels.map((_, level) => transformFunc(node.x, node.y, level));
+        node.overviewPosLevels = node.linksLevels.map((_2, level) => transformFunc(node.x, node.y, level));
         node.r = node.linksLevels.length * 0.8 + 1;
       });
       resolve({
@@ -20359,8 +20359,8 @@ ${indentData}`);
 
   // federjs/FederView/HnswView/layout/overviewShortestPath.js
   function getOverviewShortestPathData(keyNode, keyLevel, { overviewNodesLevels, internalId2overviewNode, overviewLevelCount }) {
-    let SPLinksLevels = overviewNodesLevels.map((_) => []);
-    let SPNodesLevels = overviewNodesLevels.map((_) => []);
+    let SPLinksLevels = overviewNodesLevels.map((_2) => []);
+    let SPNodesLevels = overviewNodesLevels.map((_2) => []);
     let reachableNodes = [];
     let reachableLinks = [];
     let reachableLevel = null;
@@ -20624,7 +20624,7 @@ ${indentData}`);
         node.y = node.forcePos[1];
       }));
       const { layerPosLevels, transformFunc } = transformHandler_default(searchNodesLevels.reduce((acc, node) => acc.concat(node), []), federView);
-      searchTarget = {
+      const searchTarget = {
         id: "target",
         r: targetR * canvasScale,
         searchViewPosLevels: range(visData.length).map((i) => transformFunc(...targetOrigin, i))
@@ -20704,7 +20704,7 @@ ${indentData}`);
     renderPauseIcon() {
       const playPauseIconG = this.playPauseIconG;
       playPauseIconG.selectAll("*").remove();
-      playPauseIconG.selectAll("rect").data([, ,]).join("rect").attr("x", (_, i) => pauseIconX + i * (pauseIconGap + pauseIconWidth)).attr("y", (rectW - pauseIconHeight) / 2).attr("rx", pauseIconWidth / 2).attr("ry", pauseIconWidth / 2).attr("width", pauseIconWidth).attr("height", pauseIconHeight).attr("fill", "#000");
+      playPauseIconG.selectAll("rect").data([, ,]).join("rect").attr("x", (_2, i) => pauseIconX + i * (pauseIconGap + pauseIconWidth)).attr("y", (rectW - pauseIconHeight) / 2).attr("rx", pauseIconWidth / 2).attr("ry", pauseIconWidth / 2).attr("width", pauseIconWidth).attr("height", pauseIconHeight).attr("fill", "#000");
     }
     render(domSelector2) {
       const _dom = select_default2(domSelector2);
@@ -20956,7 +20956,7 @@ ${indentData}`);
   }
 
   // federjs/FederView/HnswView/render/renderSearchViewInterLevelLinks.js
-  function renderSearchViewInterLevelLinks(ctx, { entryNodes, inprocessEntryNodes, searchTarget: searchTarget2, level }, { shortenLineD, canvasScale }) {
+  function renderSearchViewInterLevelLinks(ctx, { entryNodes, inprocessEntryNodes, searchTarget, level }, { shortenLineD, canvasScale }) {
     const pointsList = entryNodes.map((node) => shortenLine(node.searchViewPosLevels[level + 1], node.searchViewPosLevels[level], shortenLineD * canvasScale));
     drawLinesWithLinearGradient({
       ctx,
@@ -20968,7 +20968,7 @@ ${indentData}`);
       lineCap: "round"
     });
     const targetPointsList = pointsList.length === 0 ? [] : [
-      shortenLine(searchTarget2.searchViewPosLevels[level + 1], searchTarget2.searchViewPosLevels[level], shortenLineD)
+      shortenLine(searchTarget.searchViewPosLevels[level + 1], searchTarget.searchViewPosLevels[level], shortenLineD)
     ];
     drawLinesWithLinearGradient({
       ctx,
@@ -20990,7 +20990,7 @@ ${indentData}`);
       lineCap: "round"
     });
     const inprocessTargetPointsList = inprocessPointsList.length === 0 ? [] : [
-      shortenLine(searchTarget2.searchViewPosLevels[level + 1], getInprocessPos(searchTarget2.searchViewPosLevels[level + 1], searchTarget2.searchViewPosLevels[level], inprocessEntryNodes[0].t), shortenLineD)
+      shortenLine(searchTarget.searchViewPosLevels[level + 1], getInprocessPos(searchTarget.searchViewPosLevels[level + 1], searchTarget.searchViewPosLevels[level], inprocessEntryNodes[0].t), shortenLineD)
     ];
     drawLinesWithLinearGradient({
       ctx,
@@ -21112,7 +21112,7 @@ ${indentData}`);
     searchLayerPosLevels,
     searchNodeShowTime,
     searchLinkShowTime,
-    searchTarget: searchTarget2,
+    searchTarget,
     searchTargetShowTime,
     entryNodesLevels,
     clickedLevel,
@@ -21145,11 +21145,11 @@ ${indentData}`);
       renderSearchViewInterLevelLinks(ctx, {
         entryNodes,
         inprocessEntryNodes,
-        searchTarget: searchTarget2,
+        searchTarget,
         level
       }, federView);
       renderSearchViewNodes(ctx, { nodes, level }, federView);
-      searchTargetShowTime[level] < t && renderSearchViewTarget(ctx, { node: searchTarget2, level }, federView);
+      searchTargetShowTime[level] < t && renderSearchViewTarget(ctx, { node: searchTarget, level }, federView);
       if (!!hoveredNode) {
         const [x3, y4] = hoveredNode.searchViewPosLevels[hoveredLevel];
         const originX = (width - padding[1] - padding[3]) / 2 + padding[3];
@@ -21978,7 +21978,7 @@ ${indentData}`);
         cluster.x = targetClusterX + biasR * Math.sin(angleStep * i);
         cluster.y = targetClusterY + biasR * Math.cos(angleStep * i);
       });
-      const simulation = simulation_default(clusters).alphaDecay(1 - Math.pow(1e-3, 1 / forceIterations)).force("links", link_default(links).id((cluster) => cluster.clusterId).strength((_) => 0.25)).force("collision", collide_default().radius((cluster) => cluster.r).strength(0.1)).force("center", center_default(width / 2, height / 2)).on("tick", () => {
+      const simulation = simulation_default(clusters).alphaDecay(1 - Math.pow(1e-3, 1 / forceIterations)).force("links", link_default(links).id((cluster) => cluster.clusterId).strength((_2) => 0.25)).force("collision", collide_default().radius((cluster) => cluster.r).strength(0.1)).force("center", center_default(width / 2, height / 2)).on("tick", () => {
         clusters.forEach((cluster) => {
           cluster.x = Math.max(cluster.r, Math.min(width - cluster.r, cluster.x));
           cluster.y = Math.max(cluster.r, Math.min(height - cluster.r, cluster.y));
@@ -22061,7 +22061,7 @@ ${indentData}`);
         node.y = node.voronoiPos[1];
         node.r = r(node.dis);
       });
-      const simulation = simulation_default(nodes).alphaDecay(1 - Math.pow(1e-3, 1 / forceIterations * 2)).force("collide", collide_default().radius((_) => nonTopKNodeR * canvasScale).strength(0.4)).force("r", radial_default((node) => node.r, ...polarOrigin).strength(1)).on("end", () => {
+      const simulation = simulation_default(nodes).alphaDecay(1 - Math.pow(1e-3, 1 / forceIterations * 2)).force("collide", collide_default().radius((_2) => nonTopKNodeR * canvasScale).strength(0.4)).force("r", radial_default((node) => node.r, ...polarOrigin).strength(1)).on("end", () => {
         nodes.forEach((node) => {
           node.polarPos = [node.x, node.y];
         });
@@ -22968,7 +22968,7 @@ ${indentData}`);
   };
 
   // federjs/FederView/IvfflatView/index.js
-  var import_lodash = __toESM(require_lodash(), 1);
+  var _ = __toESM(require_lodash(), 1);
   var defaultIvfflatViewParams = {
     minVoronoiRadius: 4,
     backgroundColor: "red",
@@ -23060,7 +23060,7 @@ ${indentData}`);
         const searchViewLayoutData = {
           nprobe: searchRes.csResIds.length,
           k: searchRes.fsResIds.length,
-          clusters: (0, import_lodash.cloneDeep)(this.overviewLayoutData.clusters)
+          clusters: _.cloneDeep(this.overviewLayoutData.clusters)
         };
         searchViewLayoutData.nprobeClusters = searchViewLayoutData.clusters.filter((cluster) => searchRes.csResIds.indexOf(cluster.clusterId) >= 0);
         searchViewLayoutData.nonNprobeClusters = searchViewLayoutData.clusters.filter((cluster) => searchRes.csResIds.indexOf(cluster.clusterId) < 0);
