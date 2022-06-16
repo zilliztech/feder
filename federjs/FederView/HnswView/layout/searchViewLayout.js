@@ -5,24 +5,24 @@ import transformHandler from './transformHandler';
 import computeSearchViewTransition from './computeSearchViewTransition';
 import { HNSW_LINK_TYPE, HNSW_NODE_TYPE } from 'Types';
 
-export default async function searchViewLayoutHandler({ searchRes }) {
-  let visData = [];
-  let id2forcePos = {};
-  if (searchRes !== this.searchRes) {
-    this.searchRes = searchRes;
-    visData = parseVisRecords(searchRes);
-    this.visData = visData;
+export default async function searchViewLayoutHandler(searchRes, federView) {
+  const {
+    targetR,
+    canvasScale,
+    targetOrigin,
+    searchViewNodeBasicR,
+    searchInterLevelTime,
+    searchIntraLevelTime,
+    forceIterations,
+  } = federView;
 
-    id2forcePos = await forceSearchView(
-      this.visData,
-      this.targetOrigin,
-      this.forceIterations
-    );
-    this.id2forcePos = id2forcePos;
-  } else {
-    visData = this.visData;
-    id2forcePos = this.id2forcePos;
-  }
+  const visData = parseVisRecords(searchRes);
+
+  const id2forcePos = await forceSearchView(
+    visData,
+    targetOrigin,
+    forceIterations
+  );
 
   const searchNodesLevels = visData.map((levelData) => levelData.nodes);
   searchNodesLevels.forEach((levelData) =>
@@ -32,35 +32,27 @@ export default async function searchViewLayoutHandler({ searchRes }) {
       node.y = node.forcePos[1];
     })
   );
+  const { layerPosLevels, transformFunc } = transformHandler(
+    searchNodesLevels.reduce((acc, node) => acc.concat(node), []),
+    federView
+  );
 
-  const { layerPosLevels, transformFunc } = transformHandler({
-    nodes: searchNodesLevels.reduce((acc, node) => acc.concat(node), []),
-    levelCount: this.levelCount,
-    width: this.width,
-    height: this.height,
-    padding: this.padding,
-  });
-
-  this.targetOrigin = [0, 0];
-  this.searchTarget = {
+  searchTarget = {
     id: 'target',
-    r: this.targetR * this.canvasScale,
+    r: targetR * canvasScale,
     searchViewPosLevels: d3
       .range(visData.length)
-      .map((i) => transformFunc(...this.targetOrigin, i)),
+      .map((i) => transformFunc(...targetOrigin, i)),
   };
 
-  this.searchLayerPosLevels = layerPosLevels;
   searchNodesLevels.forEach((nodes, level) => {
     nodes.forEach((node) => {
       node.searchViewPosLevels = d3
         .range(level + 1)
         .map((i) => transformFunc(...node.forcePos, i));
-      node.r = (this.searchViewNodeBasicR + node.type * 0.5) * this.canvasScale;
+      node.r = (searchViewNodeBasicR + node.type * 0.5) * canvasScale;
     });
   });
-
-  this.searchNodesLevels = searchNodesLevels;
 
   const id2searchNode = {};
   searchNodesLevels.forEach((levelData) =>
@@ -70,7 +62,7 @@ export default async function searchViewLayoutHandler({ searchRes }) {
   const searchLinksLevels = parseVisRecords(searchRes).map((levelData) =>
     levelData.links.filter((link) => link.type !== HNSW_LINK_TYPE.None)
   );
-  searchLinksLevels.forEach((levelData, level) =>
+  searchLinksLevels.forEach((levelData) =>
     levelData.forEach((link) => {
       const sourceId = link.source;
       const targetId = link.target;
@@ -80,22 +72,31 @@ export default async function searchViewLayoutHandler({ searchRes }) {
       link.target = targetNode;
     })
   );
-  this.searchLinksLevels = searchLinksLevels;
-  // console.log('searchLinksLevels', this.searchLinksLevels);
 
-  this.entryNodesLevels = visData.map((levelData) =>
+  const entryNodesLevels = visData.map((levelData) =>
     levelData.entryIds.map((id) => id2searchNode[id])
   );
 
   const { targetShowTime, nodeShowTime, linkShowTime, duration } =
     computeSearchViewTransition({
-      linksLevels: this.searchLinksLevels,
-      entryNodesLevels: this.entryNodesLevels,
-      interLevelGap: this.searchInterLevelTime,
-      intraLevelGap: this.searchIntraLevelTime,
+      linksLevels: searchLinksLevels,
+      entryNodesLevels,
+      interLevelGap: searchInterLevelTime,
+      intraLevelGap: searchIntraLevelTime,
     });
-  this.searchTargetShowTime = targetShowTime;
-  this.searchNodeShowTime = nodeShowTime;
-  this.searchLinkShowTime = linkShowTime;
-  this.searchTransitionDuration = duration;
+
+  return {
+    visData,
+    id2forcePos,
+    searchTarget,
+    entryNodesLevels,
+    searchNodesLevels,
+    searchLinksLevels,
+    searchLayerPosLevels: layerPosLevels,
+    searchTargetShowTime: targetShowTime,
+    searchNodeShowTime: nodeShowTime,
+    searchLinkShowTime: linkShowTime,
+    searchTransitionDuration: duration,
+    searchParams: searchRes.searchParams,
+  };
 }

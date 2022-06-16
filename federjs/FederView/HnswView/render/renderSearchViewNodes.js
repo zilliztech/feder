@@ -9,14 +9,11 @@ import {
 
 import { HNSW_NODE_TYPE } from 'Types';
 
-export default function renderSearchViewNodes({
+export default function renderSearchViewNodes(
   ctx,
-  ellipseRation,
-  canvasScale,
-  nodes,
-  level,
-  shadowBlur = 4,
-}) {
+  { nodes, level },
+  { ellipseRation, shadowBlur }
+) {
   let _nodes = [];
 
   // coarse

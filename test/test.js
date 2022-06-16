@@ -94,15 +94,13 @@ window.addEventListener('DOMContentLoaded', async () => {
   // const feder = await testHNSWWithImages(
   //   'https://assets.zilliz.com/hnswlib_hnsw_voc_17k_1f1dfd63a9.index'
   // );
-  const feder = await testHNSWWithImages(
-    './data/hnswlib_hnsw_voc_17k.index'
-  )
+  // const feder = await testHNSWWithImages('./data/hnswlib_hnsw_voc_17k.index');
   // const feder = await testIVFFlatWithImages(
   //   'https://assets.zilliz.com/faiss_ivf_flat_voc_17k_ab112eec72.index'
   // );
-  // const feder = await testIVFFlatWithImages(
-  //   './data/faiss_ivf_flat_voc_17k.index'
-  // );
+  const feder = await testIVFFlatWithImages(
+    './data/faiss_ivf_flat_voc_17k.index'
+  );
 
   console.log(feder);
   // feder.overview();
@@ -115,10 +113,10 @@ window.addEventListener('DOMContentLoaded', async () => {
   // feder.searchById(4365);
 
   document.querySelector(domSelector).appendChild(feder.overview());
-  // document.querySelector(domSelector).appendChild(feder.overview());
-  // document.querySelector(domSelector).appendChild(feder.searchRandTestVec());
-  // feder.setSearchParams({ k: 6, nprobe: 10 });
-  // document.querySelector(domSelector).appendChild(feder.searchRandTestVec());
-  // feder.setSearchParams({ k: 6, nprobe: 6 });
-  // document.querySelector(domSelector).appendChild(feder.searchRandTestVec());
+  document.querySelector(domSelector).appendChild(feder.searchRandTestVec());
+  feder.setSearchParams({ k: 4, nprobe: 6, ef: 6 });
+  document.querySelector(domSelector).appendChild(feder.searchById(4365));
+  feder.setSearchParams({ k: 6, nprobe: 10, ef: 8 });
+  document.querySelector(domSelector).appendChild(feder.searchRandTestVec());
+  document.querySelector(domSelector).appendChild(feder.overview());
 });
