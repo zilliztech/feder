@@ -1,7 +1,7 @@
 {
   "name": "@zilliz/feder",
   "author": "ued@zilliz.com",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "visualization packages for vector space",
   "main": "dist/index.js",
   "files": [

@@ -37,7 +37,7 @@ export default async function searchViewLayoutHandler(searchRes, federView) {
     federView
   );
 
-  searchTarget = {
+  const searchTarget = {
     id: 'target',
     r: targetR * canvasScale,
     searchViewPosLevels: d3
