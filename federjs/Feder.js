@@ -29,6 +29,8 @@ export default class Feder {
     } else {
       // todo
     }
+
+    this.setSearchParamsPromise = null;
   }
 
   overview() {
@@ -36,7 +38,10 @@ export default class Feder {
   }
   search(target = null, targetMediaUrl = null) {
     if (target) {
-      const searchResPromise = this.initCoreAndViewPromise.then(() => {
+      const searchResPromise = Promise.all([
+        this.initCoreAndViewPromise,
+        this.setSearchParamsPromise,
+      ]).then(() => {
         const searchRes = this.core.search(target);
         console.log(searchRes);
         this.searchRes = searchRes;
@@ -92,12 +97,16 @@ export default class Feder {
     return this.federView.search({ searchResPromise });
   }
 
-  async setSearchParams(params) {
-    this.initCoreAndViewPromise && (await this.initCoreAndViewPromise);
-    if (!this.core) {
-      console.error('No feder-core');
-    } else {
-      this.core.setSearchParams(params);
-    }
+  setSearchParams(params) {
+    this.setSearchParamsPromise = new Promise(async (resolve) => {
+      this.initCoreAndViewPromise && (await this.initCoreAndViewPromise);
+      if (!this.core) {
+        console.error('No feder-core');
+      } else {
+        this.core.setSearchParams(params);
+      }
+      resolve();
+    });
+    return this;
   }
 }

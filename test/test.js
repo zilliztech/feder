@@ -114,9 +114,16 @@ window.addEventListener('DOMContentLoaded', async () => {
 
   document.querySelector(domSelector).appendChild(feder.overview());
   document.querySelector(domSelector).appendChild(feder.searchRandTestVec());
-  feder.setSearchParams({ k: 4, nprobe: 6, ef: 6 });
-  document.querySelector(domSelector).appendChild(feder.searchById(4365));
-  feder.setSearchParams({ k: 6, nprobe: 10, ef: 8 });
-  document.querySelector(domSelector).appendChild(feder.searchRandTestVec());
+
+  document
+    .querySelector(domSelector)
+    .appendChild(
+      feder.setSearchParams({ k: 4, nprobe: 6, ef: 6 }).searchById(4365)
+    );
+  document
+    .querySelector(domSelector)
+    .appendChild(
+      feder.setSearchParams({ k: 6, nprobe: 10, ef: 8 }).searchRandTestVec()
+    );
   document.querySelector(domSelector).appendChild(feder.overview());
 });
