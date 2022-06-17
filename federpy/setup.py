@@ -5,7 +5,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
 
 setuptools.setup(
     name="federpy",
-    version="0.7.0",
+    version="0.8.0",
     author="min.tian@zilliz",
     author_email="min.tian@zilliz.com",
     description="Feder for python",
