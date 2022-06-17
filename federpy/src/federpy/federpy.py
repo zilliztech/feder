@@ -71,6 +71,7 @@ const feder = new Feder({
 
     def setSearchParams(self, searchParams):
         self.searchParams = searchParams
+        return self
 
     def getJs(self):
         return """
