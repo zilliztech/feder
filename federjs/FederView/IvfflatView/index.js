@@ -110,9 +110,11 @@ export default class IvfflatView extends BaseView {
           infoPanel.updateOverviewHoveredInfo({
             hoveredCluster,
             listIds: this.indexMeta.listIds[hoveredClusterId],
-            images: this.indexMeta.listIds[hoveredClusterId].map((listId) =>
-              this.mediaCallback(listId)
-            ),
+            images: this.mediaCallback
+              ? this.indexMeta.listIds[hoveredClusterId].map((listId) =>
+                  this.mediaCallback(listId)
+                )
+              : [],
             x: hoveredCluster.OVPolyCentroid[0] / this.canvasScale,
             y: hoveredCluster.OVPolyCentroid[1] / this.canvasScale,
           });
@@ -310,9 +312,11 @@ export default class IvfflatView extends BaseView {
             infoPanel.updateSearchViewHoveredInfo({
               hoveredCluster,
               listIds: this.indexMeta.listIds[hoveredClusterId],
-              images: this.indexMeta.listIds[hoveredClusterId].map((listId) =>
-                this.mediaCallback(listId)
-              ),
+              images: this.mediaCallback
+                ? this.indexMeta.listIds[hoveredClusterId].map((listId) =>
+                    this.mediaCallback(listId)
+                  )
+                : [],
               x: hoveredCluster.SVPolyCentroid[0] / this.canvasScale,
               y: hoveredCluster.SVPolyCentroid[1] / this.canvasScale,
             });
@@ -343,7 +347,10 @@ export default class IvfflatView extends BaseView {
           );
         }
 
-        const img = hoveredNode ? this.mediaCallback(hoveredNode.id) : '';
+        const img =
+          hoveredNode && this.mediaCallback
+            ? this.mediaCallback(hoveredNode.id)
+            : '';
         infoPanel.updateSearchViewHoveredNodeInfo({
           hoveredNode,
           img,
