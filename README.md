@@ -13,9 +13,9 @@ Feder is written in **javascript**, and we also provide a python library **feder
 - In IPython environment, it supports users to generate the corresponding visualization directly.
 - In other environments, it supports outputting visualizations as html files, which can be opened by the user through the browser with web service enabled.
 
-### Usage
+### Wiki
 
-- [wiki](https://github.com/zilliztech/feder/wiki)
+- [Usage](https://github.com/zilliztech/feder/wiki)
 
 ### Online Demos
 
