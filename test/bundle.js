@@ -17633,7 +17633,7 @@ ${indentData}`);
             infoPanel.updateOverviewHoveredInfo({
               hoveredCluster,
               listIds: this.indexMeta.listIds[hoveredClusterId],
-              images: this.indexMeta.listIds[hoveredClusterId].map((listId) => this.mediaCallback(listId)),
+              images: this.mediaCallback ? this.indexMeta.listIds[hoveredClusterId].map((listId) => this.mediaCallback(listId)) : [],
               x: hoveredCluster.OVPolyCentroid[0] / this.canvasScale,
               y: hoveredCluster.OVPolyCentroid[1] / this.canvasScale
             });
@@ -17737,7 +17737,7 @@ ${indentData}`);
               infoPanel.updateSearchViewHoveredInfo({
                 hoveredCluster,
                 listIds: this.indexMeta.listIds[hoveredClusterId],
-                images: this.indexMeta.listIds[hoveredClusterId].map((listId) => this.mediaCallback(listId)),
+                images: this.mediaCallback ? this.indexMeta.listIds[hoveredClusterId].map((listId) => this.mediaCallback(listId)) : [],
                 x: hoveredCluster.SVPolyCentroid[0] / this.canvasScale,
                 y: hoveredCluster.SVPolyCentroid[1] / this.canvasScale
               });
@@ -17758,7 +17758,7 @@ ${indentData}`);
             hoveredNode = currentHoveredNode;
             this.renderFineSearch(ctx, infoPanel, searchViewLayoutData, searchViewType, hoveredNode);
           }
-          const img = hoveredNode ? this.mediaCallback(hoveredNode.id) : "";
+          const img = hoveredNode && this.mediaCallback ? this.mediaCallback(hoveredNode.id) : "";
           infoPanel.updateSearchViewHoveredNodeInfo({
             hoveredNode,
             img,
@@ -17951,42 +17951,60 @@ ${indentData}`);
     }
   };
 
-  // test/test.js
-  var domSelector = "#container";
-  var getId2name = () => __async(void 0, null, function* () {
-    const data = yield csv2("https://assets.zilliz.com/voc_names_4cee9440b1.csv");
-    const rowId2name = {};
-    data.forEach((d, i) => rowId2name[i] = d.name);
+  // test/config.js
+  var hnswSource = "hnswlib";
+  var hnswIndexFilePath = "https://assets.zilliz.com/hnswlib_hnsw_voc_17k_1f1dfd63a9.index";
+  var ivfflatSource = "faiss";
+  var ivfflatIndexFilePath = "https://assets.zilliz.com/faiss_ivf_flat_voc_17k_ab112eec72.index";
+  var imgNamesFilePath = "https://assets.zilliz.com/voc_names_4cee9440b1.csv";
+  var getRowId2name = () => __async(void 0, null, function* () {
+    const data = yield csv2(imgNamesFilePath);
+    const rowId2name = (rowId) => data[rowId].name;
     return rowId2name;
   });
-  var testIVFFlatWithImages = (filePath) => __async(void 0, null, function* () {
-    const rowId2name = yield getId2name();
-    const mediaCallback = (rowId) => rowId in rowId2name ? `https://assets.zilliz.com/voc2012/JPEGImages/${rowId2name[rowId]}` : null;
+  var name2imgUrl = (name) => `https://assets.zilliz.com/voc2012/JPEGImages/${name}`;
+  var getRowId2imgUrl = () => __async(void 0, null, function* () {
+    const rowId2name = yield getRowId2name();
+    const rowId2imgUrl = (rowId) => name2imgUrl(rowId2name(rowId));
+    return rowId2imgUrl;
+  });
+
+  // test/testHnsw.js
+  var getFederHnsw = () => __async(void 0, null, function* () {
+    const rowId2imgUrl = yield getRowId2imgUrl();
     const feder = new Feder({
-      filePath,
-      source: "faiss",
+      source: hnswSource,
+      filePath: hnswIndexFilePath,
       viewParams: {
-        height: 300,
         mediaType: "img",
-        mediaCallback,
-        projectSeed: 1235,
-        projectMethod: "umap"
+        mediaCallback: rowId2imgUrl
       }
     });
     return feder;
   });
-  window.addEventListener("DOMContentLoaded", () => __async(void 0, null, function* () {
-    const feder = yield testIVFFlatWithImages("https://assets.zilliz.com/faiss_ivf_flat_voc_17k_ab112eec72.index");
-    console.log(feder);
-    feder.setSearchParams({
-      k: 12,
-      nprobe: 8,
-      ef: 10
+
+  // test/testIvfflat.js
+  var getFederIvfflat = () => __async(void 0, null, function* () {
+    const rowId2imgUrl = yield getRowId2imgUrl();
+    const feder = new Feder({
+      source: ivfflatSource,
+      filePath: ivfflatIndexFilePath,
+      viewParams: {
+        mediaType: "img",
+        mediaCallback: rowId2imgUrl
+      }
     });
-    document.querySelector(domSelector).appendChild(feder.overview());
-    document.querySelector(domSelector).appendChild(feder.searchRandTestVec());
-    document.querySelector(domSelector).appendChild(feder.setSearchParams({ k: 4, nprobe: 6, ef: 6 }).searchById(4365));
-    document.querySelector(domSelector).appendChild(feder.setSearchParams({ k: 6, nprobe: 10, ef: 8 }).searchRandTestVec());
-    document.querySelector(domSelector).appendChild(feder.overview());
+    return feder;
+  });
+
+  // test/test.js
+  var domSelector = "#container";
+  window.addEventListener("DOMContentLoaded", () => __async(void 0, null, function* () {
+    const hnsw_feder = yield getFederHnsw();
+    document.querySelector(domSelector).appendChild(hnsw_feder.overview());
+    document.querySelector(domSelector).appendChild(hnsw_feder.setSearchParams({ k: 6, nprobe: 8, ef: 9 }).searchRandTestVec());
+    const ivfflat_feder = yield getFederIvfflat();
+    document.querySelector(domSelector).appendChild(ivfflat_feder.overview());
+    document.querySelector(domSelector).appendChild(ivfflat_feder.setSearchParams({ k: 4, nprobe: 6, ef: 6 }).searchById(4365));
   }));
 })();
