@@ -1,4 +1,4 @@
-# feder
+# Feder
 
 ## What is feder
 
@@ -13,10 +13,14 @@ Feder is written in **javascript**, and we also provide a python library **feder
 - In IPython environment, it supports users to generate the corresponding visualization directly.
 - In other environments, it supports outputting visualizations as html files, which can be opened by the user through the browser with web service enabled.
 
-### Examples
+### Wiki
 
-- [Javascript example](https://observablehq.com/@min-tian/feder)
-- [Jupternotebook example](https://colab.research.google.com/drive/12L_oJPR-yFDlORpPondsqGNTPVsSsUwi#scrollTo=N3qqBAYxYcbt)
+- [Usage](https://github.com/zilliztech/feder/wiki)
+
+### Online Demos
+
+- [Javascript example (Observable)](https://observablehq.com/@min-tian/feder)
+- [Jupternotebook example (Colab)](https://colab.research.google.com/drive/12L_oJPR-yFDlORpPondsqGNTPVsSsUwi#scrollTo=N3qqBAYxYcbt)
 
 ### HNSW visualization screenshots
 
@@ -28,12 +32,13 @@ Feder is written in **javascript**, and we also provide a python library **feder
 ![image](./fig/ivfflat_fine_polar.png)
 ![image](./fig/ivfflat_fine_project.png)
 
-## Installation
+## Quick Start
+
+### Installation
 
 Use npm or yarn.
 
 ```shell
-#install
 yarn install @zilliz/feder
 ```
 
@@ -58,7 +63,8 @@ const feder = new Feder({
 
 ### Visualize the index structure.
 
-- HNSW - Feder will show the top-3 levels of the hnsw-tree
+- HNSW - Feder will show the top-3 levels of the hnsw-tree.
+- IVF_Flat - Feder will show all the clusters.
 
 ```js
 feder.overview();
@@ -69,48 +75,19 @@ feder.overview();
 Set search parameters (optional) and Specify the query vector.
 
 ```js
-feder.setSearchParams({ k: 8, ef_search: 100 }); // hnsw
-feder.setSearchParams({ k: 8, nprobe: 8 }); // ivf_flat
-feder.search(target_vector);
+feder
+  .setSearchParams({
+    k: 8, // hnsw, ivf_flat
+    ef: 100, // hnsw (ef_search)
+    nprobe: 8, // ivf_flat
+  })
+  .search(target_vector);
 ```
-
-### Advanced
-
-Use **viewParams** to adjust the details of the view.
-
-```js
-const feder = new Feder({
-  filePath,
-  source: 'hnswlib',
-  domSelector,
-  viewParams: {
-    width: 1000,
-    height: 600,
-    padding: [80, 200, 60, 220],
-    mediaType: 'img',
-    mediaCallback: (rowId) => url,
-  },
-});
-```
-
-#### view style
-
-Specify the visual style of the view.
-
-- width - canvas width
-- height - canvas height
-- padding - the main view padding
-
-#### media supports
-
-Support mapping from Row No. to media files. (current support img)
-
-- mediaType - null | img
-- mediaCallback - func: rowId => url,
 
 ## Examples
 
-We prepare a simple case, which is an overview of an hnsw with 17,000+ vectors.
+We prepare a simple case, which is the visualizations of the `hnsw` and `ivf_flat` with 17,000+ vectors that embedded from [VOC 2012](http://host.robots.ox.ac.uk/pascal/VOC/voc2012/VOCtrainval_11-May-2012.tar)).
+
 Only need enable a web service.
 
 ```shell
@@ -121,41 +98,13 @@ python -m http.server
 
 Then open http://localhost:8000/
 
-- If you want to explore the search process of hnsw, you can modify **test/test.js**.
+It will show 4 visualizations:
+- `hnsw` overview
+- `hnsw` search view
+- `ivf_flat` overview
+- `ivf_flat` search view
 
-  **searchRandTestVec** will randomly select a vector from the index file as the target vector.
-
-  ```js
-  window.addEventListener('DOMContentLoaded', async () => {
-    ...
-    // feder.overview();
-    feder.searchRandTestVec();
-    ...
-  });
-  ```
-
-  then open a new cmdline,
-
-  ```shell
-  yarn dev
-  ```
-
-  It makes the new changes to test.js take effect.
-
-- If you want to display the image during the interaction, you can modify **test/test.js**, and use the **testHNSWWithImages** function.
-
-  ```js
-  window.addEventListener('DOMContentLoaded', async () => {
-    ...
-    // const feder = await testHNSW('https://assets.zilliz.com/hnswlib_hnsw_voc_17k_1f1dfd63a9.index');
-    const feder = await testHNSWWithImages('https://assets.zilliz.com/hnswlib_hnsw_voc_17k_1f1dfd63a9.index');
-    ...
-  });
-  ```
-
-- If you want to use a new dataset, the following process will help you.
-
-## Explore a new data
+## Pipeline - explore a new dataset with feder
 
 ### Step 1. Dataset preparation
 
@@ -175,7 +124,7 @@ You can use [faiss](https://github.com/facebookresearch/faiss) or [hnswlib](http
 
 (\*Detailed procedures please refer to their tutorials.)
 
-Referring to **test/data/gen*hnswlib_index*\*.py** or **test/data/gen*faiss_index*\*.py**
+Referring to **test/data/gen_hnswlib_index_\*.py** or **test/data/gen_faiss_index_\*.py**
 
 Or we have the [index file](https://assets.zilliz.com/hnswlib_hnsw_voc_17k_1f1dfd63a9.index) ready for you.
 
@@ -244,9 +193,8 @@ More cases refer to the **test/test.js**
 - [Visualize Your Approximate Nearest Neighbor Search with Feder](https://zilliz.com/blog/Visualize-Your-Approximate-Nearest-Neighbor-Search-with-Feder)
 - [Visualize Reverse Image Search with Feder](https://zilliz.com/blog/Visualize-Reverse-Image-Search-with-Feder)
 
-
-
 ## Roadmap
+
 We're still in the early stages, we will support more types of anns index, and more unstructured data viewer, stay tuned.
 
 ## Acknowledgments
