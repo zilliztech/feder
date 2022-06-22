@@ -174,17 +174,33 @@ export default class IvfflatView extends BaseView {
         ),
     };
     searchViewLayoutData.searchViewType = SEARCH_VIEW_TYPE.voronoi;
-    this.renderCoarseSearch(ctx, infoPanel, searchViewLayoutData);
+    this.updateCoarseSearchInfoPanel(infoPanel, searchViewLayoutData);
+    this.renderCoarseSearch(ctx, searchViewLayoutData);
   }
-  renderCoarseSearch(ctx, infoPanel, searchViewLayoutData) {
+  renderCoarseSearch(ctx, searchViewLayoutData) {
+    renderVoronoiView(ctx, VIEW_TYPE.search, searchViewLayoutData, this);
+  }
+  updateCoarseSearchInfoPanel(infoPanel, searchViewLayoutData) {
     infoPanel.setOverviewPanelPos(
       !searchViewLayoutData.targetNode.isLeft_coarseLevel
     );
     infoPanel.updateSearchViewCoarseOverviewInfo(searchViewLayoutData, this);
-    renderVoronoiView(ctx, VIEW_TYPE.search, searchViewLayoutData, this);
   }
   renderFineSearch(
     ctx,
+    searchViewLayoutData,
+    searchViewType = SEARCH_VIEW_TYPE.polar,
+    hoveredNode
+  ) {
+    renderNodeView(
+      ctx,
+      searchViewLayoutData,
+      this,
+      searchViewType,
+      hoveredNode
+    );
+  }
+  updateFineSearchInfoPanel(
     infoPanel,
     searchViewLayoutData,
     searchViewType = SEARCH_VIEW_TYPE.polar
@@ -199,8 +215,6 @@ export default class IvfflatView extends BaseView {
         searchViewLayoutData,
         this
       );
-
-    renderNodeView(ctx, searchViewLayoutData, this, searchViewType);
   }
   switchSearchView(searchViewType, ctx, infoPanel, searchViewLayoutData) {
     if (searchViewType == searchViewLayoutData.searchViewType) return;
@@ -211,15 +225,15 @@ export default class IvfflatView extends BaseView {
     // coarse => fine
 
     if (oldSearchViewType === SEARCH_VIEW_TYPE.voronoi) {
-      console.log('coarse => fine [start]');
+      // console.log('coarse => fine [start]');
+      this.updateFineSearchInfoPanel(
+        infoPanel,
+        searchViewLayoutData,
+        newSearchViewType
+      );
       const endCallback = () => {
         searchViewLayoutData.searchViewType = newSearchViewType;
-        this.renderFineSearch(
-          ctx,
-          infoPanel,
-          searchViewLayoutData,
-          newSearchViewType
-        );
+        this.renderFineSearch(ctx, searchViewLayoutData, newSearchViewType);
       };
       animateCoarse2Fine(
         oldSearchViewType,
@@ -233,10 +247,11 @@ export default class IvfflatView extends BaseView {
 
     // fine => coarse
     if (newSearchViewType === SEARCH_VIEW_TYPE.voronoi) {
-      console.log('fine => coarse [start]');
+      // console.log('fine => coarse [start]');
+      this.updateCoarseSearchInfoPanel(infoPanel, searchViewLayoutData);
       const endCallback = () => {
         searchViewLayoutData.searchViewType = newSearchViewType;
-        this.renderCoarseSearch(ctx, infoPanel, searchViewLayoutData);
+        this.renderCoarseSearch(ctx, searchViewLayoutData);
       };
       animateFine2Coarse(
         oldSearchViewType,
@@ -253,15 +268,15 @@ export default class IvfflatView extends BaseView {
       newSearchViewType !== SEARCH_VIEW_TYPE.voronoi &&
       oldSearchViewType !== SEARCH_VIEW_TYPE.voronoi
     ) {
-      console.log('fine - intra [start]');
+      this.updateFineSearchInfoPanel(
+        infoPanel,
+        searchViewLayoutData,
+        newSearchViewType
+      );
+      // console.log('fine - intra [start]');
       const endCallback = () => {
         searchViewLayoutData.searchViewType = newSearchViewType;
-        this.renderFineSearch(
-          ctx,
-          infoPanel,
-          searchViewLayoutData,
-          newSearchViewType
-        );
+        this.renderFineSearch(ctx, searchViewLayoutData, newSearchViewType);
       };
       animateFine2Fine(
         oldSearchViewType,
@@ -340,7 +355,6 @@ export default class IvfflatView extends BaseView {
           hoveredNode = currentHoveredNode;
           this.renderFineSearch(
             ctx,
-            infoPanel,
             searchViewLayoutData,
             searchViewType,
             hoveredNode
