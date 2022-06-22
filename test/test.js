@@ -20,7 +20,7 @@ window.addEventListener('DOMContentLoaded', async () => {
   const ivfflat_feder = await getFederIvfflat();
 
   document.querySelector(domSelector).appendChild(ivfflat_feder.overview());
-  // select the No.4365 vector as the target
+  // select the specified vector as the target
   document
     .querySelector(domSelector)
     .appendChild(
