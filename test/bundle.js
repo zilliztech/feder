@@ -17665,17 +17665,22 @@ ${indentData}`);
         switchProject: () => this.switchSearchView(SEARCH_VIEW_TYPE.project, ctx, infoPanel, searchViewLayoutData)
       };
       searchViewLayoutData.searchViewType = SEARCH_VIEW_TYPE.voronoi;
-      this.renderCoarseSearch(ctx, infoPanel, searchViewLayoutData);
+      this.updateCoarseSearchInfoPanel(infoPanel, searchViewLayoutData);
+      this.renderCoarseSearch(ctx, searchViewLayoutData);
     }
-    renderCoarseSearch(ctx, infoPanel, searchViewLayoutData) {
-      infoPanel.setOverviewPanelPos(!searchViewLayoutData.targetNode.isLeft_coarseLevel);
-      infoPanel.updateSearchViewCoarseOverviewInfo(searchViewLayoutData, this);
+    renderCoarseSearch(ctx, searchViewLayoutData) {
       renderVoronoiView(ctx, VIEW_TYPE.search, searchViewLayoutData, this);
     }
-    renderFineSearch(ctx, infoPanel, searchViewLayoutData, searchViewType = SEARCH_VIEW_TYPE.polar) {
+    updateCoarseSearchInfoPanel(infoPanel, searchViewLayoutData) {
+      infoPanel.setOverviewPanelPos(!searchViewLayoutData.targetNode.isLeft_coarseLevel);
+      infoPanel.updateSearchViewCoarseOverviewInfo(searchViewLayoutData, this);
+    }
+    renderFineSearch(ctx, searchViewLayoutData, searchViewType = SEARCH_VIEW_TYPE.polar, hoveredNode) {
+      renderNodeView(ctx, searchViewLayoutData, this, searchViewType, hoveredNode);
+    }
+    updateFineSearchInfoPanel(infoPanel, searchViewLayoutData, searchViewType = SEARCH_VIEW_TYPE.polar) {
       searchViewType === SEARCH_VIEW_TYPE.polar && infoPanel.updateSearchViewFinePolarOverviewInfo(searchViewLayoutData, this);
       searchViewType === SEARCH_VIEW_TYPE.project && infoPanel.updateSearchViewFineProjectOverviewInfo(searchViewLayoutData, this);
-      renderNodeView(ctx, searchViewLayoutData, this, searchViewType);
     }
     switchSearchView(searchViewType, ctx, infoPanel, searchViewLayoutData) {
       if (searchViewType == searchViewLayoutData.searchViewType)
@@ -17683,26 +17688,26 @@ ${indentData}`);
       const oldSearchViewType = searchViewLayoutData.searchViewType;
       const newSearchViewType = searchViewType;
       if (oldSearchViewType === SEARCH_VIEW_TYPE.voronoi) {
-        console.log("coarse => fine [start]");
+        this.updateFineSearchInfoPanel(infoPanel, searchViewLayoutData, newSearchViewType);
         const endCallback = () => {
           searchViewLayoutData.searchViewType = newSearchViewType;
-          this.renderFineSearch(ctx, infoPanel, searchViewLayoutData, newSearchViewType);
+          this.renderFineSearch(ctx, searchViewLayoutData, newSearchViewType);
         };
         animateCoarse2Fine(oldSearchViewType, newSearchViewType, ctx, searchViewLayoutData, this, endCallback);
       }
       if (newSearchViewType === SEARCH_VIEW_TYPE.voronoi) {
-        console.log("fine => coarse [start]");
+        this.updateCoarseSearchInfoPanel(infoPanel, searchViewLayoutData);
         const endCallback = () => {
           searchViewLayoutData.searchViewType = newSearchViewType;
-          this.renderCoarseSearch(ctx, infoPanel, searchViewLayoutData);
+          this.renderCoarseSearch(ctx, searchViewLayoutData);
         };
         animateFine2Coarse(oldSearchViewType, newSearchViewType, ctx, searchViewLayoutData, this, endCallback);
       }
       if (newSearchViewType !== SEARCH_VIEW_TYPE.voronoi && oldSearchViewType !== SEARCH_VIEW_TYPE.voronoi) {
-        console.log("fine - intra [start]");
+        this.updateFineSearchInfoPanel(infoPanel, searchViewLayoutData, newSearchViewType);
         const endCallback = () => {
           searchViewLayoutData.searchViewType = newSearchViewType;
-          this.renderFineSearch(ctx, infoPanel, searchViewLayoutData, newSearchViewType);
+          this.renderFineSearch(ctx, searchViewLayoutData, newSearchViewType);
         };
         animateFine2Fine(oldSearchViewType, newSearchViewType, ctx, searchViewLayoutData, this, endCallback);
       }
@@ -17756,7 +17761,7 @@ ${indentData}`);
           const currentHoveredNode = hoveredNodeIndex >= 0 ? nodes[hoveredNodeIndex] : null;
           if (hoveredNode !== currentHoveredNode) {
             hoveredNode = currentHoveredNode;
-            this.renderFineSearch(ctx, infoPanel, searchViewLayoutData, searchViewType, hoveredNode);
+            this.renderFineSearch(ctx, searchViewLayoutData, searchViewType, hoveredNode);
           }
           const img = hoveredNode && this.mediaCallback ? this.mediaCallback(hoveredNode.id) : "";
           infoPanel.updateSearchViewHoveredNodeInfo({
@@ -18005,6 +18010,6 @@ ${indentData}`);
     document.querySelector(domSelector).appendChild(hnsw_feder.setSearchParams({ k: 6, nprobe: 8, ef: 9 }).searchRandTestVec());
     const ivfflat_feder = yield getFederIvfflat();
     document.querySelector(domSelector).appendChild(ivfflat_feder.overview());
-    document.querySelector(domSelector).appendChild(ivfflat_feder.setSearchParams({ k: 4, nprobe: 6, ef: 6 }).searchById(4365));
+    document.querySelector(domSelector).appendChild(ivfflat_feder.setSearchParams({ k: 9, nprobe: 8, ef: 6 }).searchById(14383));
   }));
 })();
