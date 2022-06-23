@@ -2,7 +2,7 @@
 
 ## What is feder
 
-Feder is an javascript tool that built for visualizing anns index files, so that we can have a better understanding of anns and high dimensional vectors.
+Feder is an javascript tool that built for understanding your embedding vectors, feder visualizes anns index files, so that we can have a better understanding of anns and high dimensional vectors.
 
 So far, we are focusing on the index from Faiss (only ivf_flat) and HNSWlib (hnsw), we will cover more index types later. which index do you prefer?
 
