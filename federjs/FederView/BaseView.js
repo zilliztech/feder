@@ -35,14 +35,14 @@ export default class BaseView {
       this.clientHeight,
       this.canvasScale
     );
-    // const ctx = canvas.getContext('2d');
-    // const infoPanel = this.initInfoPanel(dom);
+    const ctx = canvas.getContext('2d');
+    const infoPanel = this.initInfoPanel(dom);
 
     this.overviewLayoutPromise && (await this.overviewLayoutPromise);
     finishLoading(dom);
-    // this.renderOverview(ctx, infoPanel);
-    // const eventHandlers = this.getOverviewEventHandler(ctx, infoPanel);
-    // addMouseListener(canvas, this.canvasScale, eventHandlers);
+    this.renderOverview(ctx, infoPanel);
+    const eventHandlers = this.getOverviewEventHandler(ctx, infoPanel);
+    addMouseListener(canvas, this.canvasScale, eventHandlers);
   }
 
   async search(dom, { searchRes, targetMediaUrl }) {
@@ -94,7 +94,7 @@ export default class BaseView {
       // add the mesh esto the scene
       const setupMeshes = () => {
         let z0 = 0;
-        for (let i = 0; i < searchViewLayoutData.visData.length; i++) {
+        for (let i = searchViewLayoutData.visData.length - 1; i >= 0; i--) {
           const { entryIds, fineIds, links, nodes } =
             searchViewLayoutData.visData[i];
           const { id2forcePos } = searchViewLayoutData;
@@ -102,19 +102,21 @@ export default class BaseView {
           for (let j = 0; j < nodes.length; j++) {
             const node = nodes[j];
             const { id, x, y, type } = node;
-            let color = new THREE.Color(0xffffff);
-            if (type === HNSW_NODE_TYPE.Candidate) {
-              color.setRGB(0, 0, 1);
-            } else if (type === HNSW_NODE_TYPE.Entry) {
-              color.setRGB(1, 0, 0);
+            let color = new THREE.Color(),opacity=1;
+            if (type === HNSW_NODE_TYPE.Entry) {
+              color.setHex(0x156cdd);
+            } else if (type === HNSW_NODE_TYPE.Candidate) {
+              color.setHex(0x8a98ff);
             } else if (type === HNSW_NODE_TYPE.Fine) {
-              color.setRGB(0, 1, 0);
-            }else if (type === HNSW_NODE_TYPE.Neighbor) {
-              color.setRGB(0, 1, 1);
+              color.setHex(0x80BC7A);
+            } else if (type === HNSW_NODE_TYPE.Target) {
+              color.setHex(0xEE8484)
             }
             const geometry = new THREE.SphereGeometry(10, 32, 32);
             const material = new THREE.MeshPhongMaterial({
               color,
+              transparent,
+              opacity,
               flatShading: true,
             });
             const sphere = new THREE.Mesh(geometry, material);
@@ -133,18 +135,27 @@ export default class BaseView {
             const lineGeometry = new THREE.BufferGeometry().setFromPoints(
               points
             );
-            let color = new THREE.Color(0xaaaaaa);
-            if (link.type === HNSW_LINK_TYPE.Searched) {
-              color.setRGB(1, 1, 0.2);
+            let color = new THREE.Color(),
+              opacity = 1.0;
+
+            if (link.type === HNSW_LINK_TYPE.Fine) {
+              color = color.setHex(0xee8484);
+            } else if (link.type === HNSW_LINK_TYPE.Searched) {
+              color.setHex(0x80bc7a);
+            } else if (link.type === HNSW_LINK_TYPE.Extended) {
+              color.setHex(0x86a9c2);
+              opacity=0;
+            } else if (link.type === HNSW_LINK_TYPE.Visited) {
+              color.setHex(0x000000);
+              opacity=0;
             }
-            // }else if(link.type===HNSW_LINK_TYPE.Visited){
-            //     color.setRGB(0.2,1,0.2);
-            // }
 
             //create a new material
             const material = new THREE.LineBasicMaterial({
               color,
+              opacity,
               linewidth: 2,
+              transparent: true,
             });
             //create a new line
             const line = new THREE.Line(lineGeometry, material);
