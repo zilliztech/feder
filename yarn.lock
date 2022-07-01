@@ -1204,6 +1204,11 @@ test-exclude@^6.0.0:
     glob "^7.1.4"
     minimatch "^3.0.4"
 
+three.meshline@^1.4.0:
+  version "1.4.0"
+  resolved "https://registry.npmmirror.com/three.meshline/-/three.meshline-1.4.0.tgz#2a483cbd99cd5f74cf6ee5c253a9a4b4a8169178"
+  integrity sha512-A8IsiMrWP8zmHisGDAJ76ZD7t/dOF/oCe/FUKNE6Bu01ZYEx8N6IlU/1Plb2aOZtAuWM2A8s8qS3hvY0OFuvOw==
+
 three@^0.141.0:
   version "0.141.0"
   resolved "https://registry.npmmirror.com/three/-/three-0.141.0.tgz#16677a12b9dd0c3e1568ebad0fd09de15d5a8216"

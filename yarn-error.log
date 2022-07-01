@@ -1,8 +1,8 @@
 Arguments: 
-  C:\Program Files\nodejs\node.exe C:\Users\jihaina\AppData\Roaming\npm\node_modules\yarn\bin\yarn.js add three
+  C:\Program Files\nodejs\node.exe C:\Users\jihaina\AppData\Roaming\npm\node_modules\yarn\bin\yarn.js add three.meshline
 
 PATH: 
-  C:\Users\jihaina\bin;C:\Program Files\Git\mingw64\bin;C:\Program Files\Git\usr\local\bin;C:\Program Files\Git\usr\bin;C:\Program Files\Git\usr\bin;C:\Program Files\Git\mingw64\bin;C:\Program Files\Git\usr\bin;C:\Users\jihaina\bin;C:\Program Files\Python310\Scripts;C:\Program Files\Python310;C:\Program Files (x86)\Common Files\Intel\Shared Libraries\redist\intel64\compiler;C:\WINDOWS\system32;C:\WINDOWS;C:\WINDOWS\System32\Wbem;C:\WINDOWS\System32\WindowsPowerShell\v1.0;C:\WINDOWS\System32\OpenSSH;E:\Mingw64\mingw64\bin;C:\Program Files\Git\cmd;C:\Program Files\Android\Android Studio\jre\bin;C:\Program Files\MongoDB\Server\4.2\bin;C:\Program Files\Microsoft SQL Server\130\Tools\Binn;C:\Program Files\Microsoft SQL Server\120\Tools\Binn;C:\Users\jihaina\AppData\Roaming\npm;C:\Users\jihaina\Downloads\ffmpeg-2022-04-21-git-83e1a1de88-essentials_build\bin;C:\Program Files\nodejs;C:\Users\jihaina\AppData\Local\Microsoft\WindowsApps;C:\Users\jihaina\AppData\Roaming\npm;C:\Users\jihaina\AppData\Local\Programs\Microsoft VS Code\bin;C:\Program Files\Git\usr\bin\vendor_perl;C:\Program Files\Git\usr\bin\core_perl
+  C:\Program Files\Python310\Scripts\;C:\Program Files\Python310\;C:\Program Files (x86)\Common Files\Intel\Shared Libraries\redist\intel64\compiler;C:\WINDOWS\system32;C:\WINDOWS;C:\WINDOWS\System32\Wbem;C:\WINDOWS\System32\WindowsPowerShell\v1.0\;C:\WINDOWS\System32\OpenSSH\;E:\Mingw64\mingw64\bin;C:\Program Files\Git\cmd;C:\Program Files\Android\Android Studio\jre\bin;C:\Program Files\MongoDB\Server\4.2\bin;C:\Program Files\Microsoft SQL Server\130\Tools\Binn\;C:\Program Files\Microsoft SQL Server\120\Tools\Binn\;C:\Users\jihaina\AppData\Roaming\npm;C:\Users\jihaina\Downloads\ffmpeg-2022-04-21-git-83e1a1de88-essentials_build\bin;C:\Program Files\nodejs\;C:\Users\jihaina\AppData\Local\Microsoft\WindowsApps;;C:\Users\jihaina\AppData\Roaming\npm;C:\Users\jihaina\AppData\Local\Programs\Microsoft VS Code\bin
 
 Yarn version: 
   1.22.11
@@ -74,6 +74,7 @@ npm manifest:
       "d3": "^7.4.4",
       "d3-fetch": "^3.0.1",
       "seedrandom": "^3.0.5",
+      "three": "^0.141.0",
       "tsne-js": "^1.0.3",
       "umap-js": "^1.3.3"
     },
@@ -1291,6 +1292,11 @@ Lockfile:
       "@istanbuljs/schema" "^0.1.2"
       glob "^7.1.4"
       minimatch "^3.0.4"
+  
+  three@^0.141.0:
+    version "0.141.0"
+    resolved "https://registry.npmmirror.com/three/-/three-0.141.0.tgz#16677a12b9dd0c3e1568ebad0fd09de15d5a8216"
+    integrity sha512-JaSDAPWuk4RTzG5BYRQm8YZbERUxTfTDVouWgHMisS2to4E5fotMS9F2zPFNOIJyEFTTQDDKPpsgZVThKU3pXA==
   
   through2@~0.4.1:
     version "0.4.2"

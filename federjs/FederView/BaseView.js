@@ -3,6 +3,7 @@ import { renderLoading, finishLoading } from './loading';
 import * as THREE from 'three';
 import { OrbitControls } from './OrbitControls';
 import { HNSW_LINK_TYPE, HNSW_NODE_TYPE } from 'Types';
+import { MeshLine, MeshLineMaterial, MeshLineRaycast } from 'three.meshline';
 // import { VIEW_TYPE } from 'Types';
 
 export default class BaseView {
@@ -55,10 +56,10 @@ export default class BaseView {
     // canvas.getContext("webgl2");
     // const ctx = canvas.getContext('2d');
 
-    const infoPanel = this.initInfoPanel(dom);
+    // const infoPanel = this.initInfoPanel(dom);
 
-    const searchViewLayoutData = await this.searchViewHandler(searchRes);
-    console.log(searchViewLayoutData.visData, searchViewLayoutData.id2forcePos);
+    // const searchViewLayoutData = await this.searchViewHandler(searchRes);
+    // console.log(searchViewLayoutData.visData, searchViewLayoutData.id2forcePos);
 
     const setup3d = () => {
       const scene = new THREE.Scene();
@@ -73,8 +74,6 @@ export default class BaseView {
         2000
       );
       camera.position.set(0, 0, -25);
-      // camera.lookAt(0, 0, 0);
-      // camera.zoom = 1.5;
 
       //setup the renderer
       const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
@@ -90,6 +89,10 @@ export default class BaseView {
         scene.add(ambientLight);
       };
       setupLights();
+      console.log(searchViewLayoutData.entryNodesLevels);
+
+
+      const pts = [];
 
       // add the mesh esto the scene
       const setupMeshes = () => {
@@ -98,24 +101,30 @@ export default class BaseView {
           const { entryIds, fineIds, links, nodes } =
             searchViewLayoutData.visData[i];
           const { id2forcePos } = searchViewLayoutData;
-          console.log(entryIds, fineIds, links, nodes);
+          pts.push(
+            id2forcePos[entryIds[0]][0],
+            id2forcePos[entryIds[0]][1],
+            z0
+          );
+
           for (let j = 0; j < nodes.length; j++) {
             const node = nodes[j];
             const { id, x, y, type } = node;
-            let color = new THREE.Color(),opacity=1;
+            let color = new THREE.Color(),
+              opacity = 1;
             if (type === HNSW_NODE_TYPE.Entry) {
               color.setHex(0x156cdd);
             } else if (type === HNSW_NODE_TYPE.Candidate) {
               color.setHex(0x8a98ff);
             } else if (type === HNSW_NODE_TYPE.Fine) {
-              color.setHex(0x80BC7A);
+              color.setHex(0x80bc7a);
             } else if (type === HNSW_NODE_TYPE.Target) {
-              color.setHex(0xEE8484)
+              color.setHex(0xee8484);
             }
             const geometry = new THREE.SphereGeometry(10, 32, 32);
             const material = new THREE.MeshPhongMaterial({
               color,
-              transparent,
+              transparent: true,
               opacity,
               flatShading: true,
             });
@@ -126,8 +135,7 @@ export default class BaseView {
           for (let j = 0; j < links.length; j++) {
             const link = links[j];
             const { source, target } = link;
-            //create buffer geometry
-            const geometry = new THREE.BufferGeometry();
+
             //create points array
             const points = [];
             points.push(new THREE.Vector3(source.x, source.y, z0));
@@ -144,10 +152,10 @@ export default class BaseView {
               color.setHex(0x80bc7a);
             } else if (link.type === HNSW_LINK_TYPE.Extended) {
               color.setHex(0x86a9c2);
-              opacity=0;
+              opacity = 0;
             } else if (link.type === HNSW_LINK_TYPE.Visited) {
               color.setHex(0x000000);
-              opacity=0;
+              opacity = 0;
             }
 
             //create a new material
@@ -162,38 +170,24 @@ export default class BaseView {
 
             scene.add(line);
           }
-
           z0 += 400;
         }
-        // for (let i = 0; i < circles.length; i++) {
-        //   const circle = circles[i];
-        //   //circle is a <circle> element
-        //   //get the fill color of the circle
-        //   const color = circle.attributes.fill.value;
-        //   //parse the color string to a THREE.Color
-        //   const c = new THREE.Color(color);
-
-        //   console.debug(circle.cx.baseVal.value, color);
-        //   //create sphere
-        //   const sphere = new THREE.SphereGeometry(
-        //     circle.r.baseVal.value,
-        //     16,
-        //     16
-        //   );
-        //   const material = new THREE.MeshPhongMaterial({
-        //     color: c,
-        //     flatShading: true,
-        //   });
-        //   const mesh = new THREE.Mesh(sphere, material);
-        //   mesh.position.set(
-        //     -circle.cx.baseVal.value,
-        //     -circle.cy.baseVal.value,
-        //     0
-        //   );
-        //   scene.add(mesh);
-        // }
       };
-      setupMeshes();
+      // setupMeshes();
+      console.log(pts);
+      const lineMaterial = new MeshLineMaterial({
+        color: 0xffe666,
+        lineWidth: 10,
+        dashArray: 0.05, // always has to be the double of the line
+        dashOffset: 0, // start the dash at zero
+        dashRatio: 0.5, // visible length range min: 0.99, max: 0.5
+      });
+      // lineGeometry.setFromPoints(pts);
+      const lineMesh = new MeshLine();
+      lineMesh.setPoints([100,10,0,0,0,0]);
+      const line = new THREE.Mesh(lineMesh, lineMaterial);
+      scene.add(line);
+
       //adjust the display
       function adjustDisplay() {
         renderer.setSize(
@@ -210,6 +204,15 @@ export default class BaseView {
       const controls = new OrbitControls(camera, renderer.domElement);
 
       const render = () => {
+        // Check if the dash is out to stop animate it.
+        console.log(line.material.uniforms.dashOffset);
+        // Check if the dash is out to stop animate it.
+        // if (line.material.uniforms.dashOffset.value < -2) {
+        //   line.material.uniforms.dashOffset.value=0
+        // };
+
+        // // Decrement the dashOffset value to animate the path with the dash.
+        line.material.uniforms.dashOffset.value += 0.001;
         //adjust the display
         adjustDisplay();
         //update the controls
