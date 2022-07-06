@@ -58,7 +58,7 @@ export default class BaseView {
 
     // const infoPanel = this.initInfoPanel(dom);
 
-    // const searchViewLayoutData = await this.searchViewHandler(searchRes);
+    const searchViewLayoutData = await this.searchViewHandler(searchRes);
     // console.log(searchViewLayoutData.visData, searchViewLayoutData.id2forcePos);
 
     const setup3d = () => {
@@ -77,7 +77,7 @@ export default class BaseView {
 
       //setup the renderer
       const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
-      renderer.setClearColor(0xffffff, 1);
+      // renderer.setClearColor(0xffffff, 1);
 
       const setupLights = () => {
         //setup the directional light
@@ -89,23 +89,20 @@ export default class BaseView {
         scene.add(ambientLight);
       };
       setupLights();
-      console.log(searchViewLayoutData.entryNodesLevels);
+      // console.log(searchViewLayoutData.entryNodesLevels);
 
-
-      const pts = [];
-
-      // add the mesh esto the scene
-      const setupMeshes = () => {
+      // add the nodes to the scene
+      const setupNodes = () => {
         let z0 = 0;
         for (let i = searchViewLayoutData.visData.length - 1; i >= 0; i--) {
           const { entryIds, fineIds, links, nodes } =
             searchViewLayoutData.visData[i];
           const { id2forcePos } = searchViewLayoutData;
-          pts.push(
-            id2forcePos[entryIds[0]][0],
-            id2forcePos[entryIds[0]][1],
-            z0
-          );
+          // pts.push(
+          //   id2forcePos[entryIds[0]][0],
+          //   id2forcePos[entryIds[0]][1],
+          //   z0
+          // );
 
           for (let j = 0; j < nodes.length; j++) {
             const node = nodes[j];
@@ -132,6 +129,21 @@ export default class BaseView {
             sphere.position.set(x, y, z0);
             scene.add(sphere);
           }
+
+          z0 += 400;
+        }
+      };
+      setupNodes();
+
+      const setupLinks = () => {
+        let z0 = 0;
+        let lines=[];
+        let lastFinePt=new THREE.Vector3();
+        for (let i = searchViewLayoutData.visData.length - 1; i >= 0; i--) {
+          const { entryIds, fineIds, links, nodes } =
+            searchViewLayoutData.visData[i];
+          const { id2forcePos } = searchViewLayoutData;
+          
           for (let j = 0; j < links.length; j++) {
             const link = links[j];
             const { source, target } = link;
@@ -167,27 +179,14 @@ export default class BaseView {
             });
             //create a new line
             const line = new THREE.Line(lineGeometry, material);
-
-            scene.add(line);
+            if (opacity > 0) lines.add(line);
           }
+          const {x,y}=links[links.length-1].target;
+          lastFinePt=new THREE.Vector3(x,y,z0);
           z0 += 400;
         }
       };
-      // setupMeshes();
-      console.log(pts);
-      const lineMaterial = new MeshLineMaterial({
-        color: 0xffe666,
-        lineWidth: 10,
-        dashArray: 0.05, // always has to be the double of the line
-        dashOffset: 0, // start the dash at zero
-        dashRatio: 0.5, // visible length range min: 0.99, max: 0.5
-      });
-      // lineGeometry.setFromPoints(pts);
-      const lineMesh = new MeshLine();
-      lineMesh.setPoints([100,10,0,0,0,0]);
-      const line = new THREE.Mesh(lineMesh, lineMaterial);
-      scene.add(line);
-
+      setupLinks();
       //adjust the display
       function adjustDisplay() {
         renderer.setSize(
@@ -204,15 +203,6 @@ export default class BaseView {
       const controls = new OrbitControls(camera, renderer.domElement);
 
       const render = () => {
-        // Check if the dash is out to stop animate it.
-        console.log(line.material.uniforms.dashOffset);
-        // Check if the dash is out to stop animate it.
-        // if (line.material.uniforms.dashOffset.value < -2) {
-        //   line.material.uniforms.dashOffset.value=0
-        // };
-
-        // // Decrement the dashOffset value to animate the path with the dash.
-        line.material.uniforms.dashOffset.value += 0.001;
         //adjust the display
         adjustDisplay();
         //update the controls

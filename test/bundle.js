@@ -62115,15 +62115,12 @@ ${indentData}`);
     search(_0, _1) {
       return __async(this, arguments, function* (dom, { searchRes, targetMediaUrl }) {
         const canvas = initCanvas(dom, this.clientWidth, this.clientHeight, this.canvasScale);
-        const infoPanel = this.initInfoPanel(dom);
         const searchViewLayoutData = yield this.searchViewHandler(searchRes);
-        console.log(searchViewLayoutData.visData, searchViewLayoutData.id2forcePos);
         const setup3d = () => {
           const scene = new Scene();
           const camera = new OrthographicCamera(canvas.clientWidth, canvas.clientWidth * -1, canvas.clientHeight, canvas.clientHeight * -1, -2e3, 2e3);
           camera.position.set(0, 0, -25);
           const renderer = new WebGLRenderer({ canvas, antialias: true });
-          renderer.setClearColor(16777215, 1);
           const setupLights = () => {
             const light = new DirectionalLight(16777215, 1);
             light.position.set(1, 1, 1);
@@ -62132,14 +62129,11 @@ ${indentData}`);
             scene.add(ambientLight);
           };
           setupLights();
-          console.log(searchViewLayoutData.entryNodesLevels);
-          const pts = [];
-          const setupMeshes = () => {
+          const setupNodes = () => {
             let z0 = 0;
             for (let i = searchViewLayoutData.visData.length - 1; i >= 0; i--) {
               const { entryIds, fineIds, links, nodes } = searchViewLayoutData.visData[i];
               const { id2forcePos } = searchViewLayoutData;
-              pts.push(id2forcePos[entryIds[0]][0], id2forcePos[entryIds[0]][1], z0);
               for (let j = 0; j < nodes.length; j++) {
                 const node = nodes[j];
                 const { id: id2, x: x3, y: y4, type: type2 } = node;
@@ -62164,6 +62158,17 @@ ${indentData}`);
                 sphere.position.set(x3, y4, z0);
                 scene.add(sphere);
               }
+              z0 += 400;
+            }
+          };
+          setupNodes();
+          const setupLinks = () => {
+            let z0 = 0;
+            let lines = [];
+            let lastFinePt = new Vector3();
+            for (let i = searchViewLayoutData.visData.length - 1; i >= 0; i--) {
+              const { entryIds, fineIds, links, nodes } = searchViewLayoutData.visData[i];
+              const { id2forcePos } = searchViewLayoutData;
               for (let j = 0; j < links.length; j++) {
                 const link = links[j];
                 const { source, target } = link;
@@ -62189,24 +62194,16 @@ ${indentData}`);
                   linewidth: 2,
                   transparent: true
                 });
-                const line2 = new Line(lineGeometry, material);
-                scene.add(line2);
+                const line = new Line(lineGeometry, material);
+                if (opacity > 0)
+                  lines.add(line);
               }
+              const { x: x3, y: y4 } = links[links.length - 1].target;
+              lastFinePt = new Vector3(x3, y4, z0);
               z0 += 400;
             }
           };
-          console.log(pts);
-          const lineMaterial = new import_three2.MeshLineMaterial({
-            color: 16770662,
-            lineWidth: 10,
-            dashArray: 0.05,
-            dashOffset: 0,
-            dashRatio: 0.5
-          });
-          const lineMesh = new import_three2.MeshLine();
-          lineMesh.setPoints([100, 10, 0, 0, 0, 0]);
-          const line = new Mesh(lineMesh, lineMaterial);
-          scene.add(line);
+          setupLinks();
           function adjustDisplay() {
             renderer.setSize(renderer.domElement.clientWidth, renderer.domElement.clientHeight);
             camera.left = canvas.clientWidth * -1;
@@ -62217,8 +62214,6 @@ ${indentData}`);
           }
           const controls = new OrbitControls(camera, renderer.domElement);
           const render = () => {
-            console.log(line.material.uniforms.dashOffset);
-            line.material.uniforms.dashOffset.value += 1e-3;
             adjustDisplay();
             controls.update();
             renderer.render(scene, camera);
