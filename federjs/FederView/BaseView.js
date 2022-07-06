@@ -73,7 +73,7 @@ export default class BaseView {
         -2000,
         2000
       );
-      camera.position.set(0, 0, -25);
+      // camera.position.set(0, 0,0);
 
       //setup the renderer
       const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
@@ -91,6 +91,8 @@ export default class BaseView {
       setupLights();
       // console.log(searchViewLayoutData.entryNodesLevels);
 
+      let entryPts = [],
+        finePts = [];
       // add the nodes to the scene
       const setupNodes = () => {
         let z0 = 0;
@@ -98,11 +100,20 @@ export default class BaseView {
           const { entryIds, fineIds, links, nodes } =
             searchViewLayoutData.visData[i];
           const { id2forcePos } = searchViewLayoutData;
-          // pts.push(
-          //   id2forcePos[entryIds[0]][0],
-          //   id2forcePos[entryIds[0]][1],
-          //   z0
-          // );
+          entryPts.unshift(
+            new THREE.Vector3(
+              id2forcePos[entryIds[0]][0],
+              z0,
+              id2forcePos[entryIds[0]][1]
+            )
+          );
+          finePts.unshift(
+            new THREE.Vector3(
+              id2forcePos[fineIds[0]][0],
+              z0,
+              id2forcePos[fineIds[0]][1]
+            )
+          );
 
           for (let j = 0; j < nodes.length; j++) {
             const node = nodes[j];
@@ -110,13 +121,13 @@ export default class BaseView {
             let color = new THREE.Color(),
               opacity = 1;
             if (type === HNSW_NODE_TYPE.Entry) {
-              color.setHex(0x156cdd);
+              color.setHex(0x0000dd);
             } else if (type === HNSW_NODE_TYPE.Candidate) {
-              color.setHex(0x8a98ff);
+              color.setHex(0xaa00ff);
             } else if (type === HNSW_NODE_TYPE.Fine) {
-              color.setHex(0x80bc7a);
+              color.setHex(0x00bc00);
             } else if (type === HNSW_NODE_TYPE.Target) {
-              color.setHex(0xee8484);
+              color.setHex(0xee0000);
             }
             const geometry = new THREE.SphereGeometry(10, 32, 32);
             const material = new THREE.MeshPhongMaterial({
@@ -126,7 +137,7 @@ export default class BaseView {
               flatShading: true,
             });
             const sphere = new THREE.Mesh(geometry, material);
-            sphere.position.set(x, y, z0);
+            sphere.position.set(x, z0, y);
             scene.add(sphere);
           }
 
@@ -135,23 +146,19 @@ export default class BaseView {
       };
       setupNodes();
 
-      const setupLinks = () => {
+      const setupLinks = async () => {
         let z0 = 0;
-        let lines=[];
-        let lastFinePt=new THREE.Vector3();
+        let lines = [];
         for (let i = searchViewLayoutData.visData.length - 1; i >= 0; i--) {
-          const { entryIds, fineIds, links, nodes } =
-            searchViewLayoutData.visData[i];
-          const { id2forcePos } = searchViewLayoutData;
-          
+          const { links } = searchViewLayoutData.visData[i];
           for (let j = 0; j < links.length; j++) {
             const link = links[j];
             const { source, target } = link;
 
             //create points array
             const points = [];
-            points.push(new THREE.Vector3(source.x, source.y, z0));
-            points.push(new THREE.Vector3(target.x, target.y, z0));
+            points.push(new THREE.Vector3(source.x, z0, source.y));
+            points.push(new THREE.Vector3(target.x, z0, target.y));
             const lineGeometry = new THREE.BufferGeometry().setFromPoints(
               points
             );
@@ -163,8 +170,8 @@ export default class BaseView {
             } else if (link.type === HNSW_LINK_TYPE.Searched) {
               color.setHex(0x80bc7a);
             } else if (link.type === HNSW_LINK_TYPE.Extended) {
-              color.setHex(0x86a9c2);
-              opacity = 0;
+              color.setHex(0x4477ff);
+              // opacity = 0;
             } else if (link.type === HNSW_LINK_TYPE.Visited) {
               color.setHex(0x000000);
               opacity = 0;
@@ -179,14 +186,33 @@ export default class BaseView {
             });
             //create a new line
             const line = new THREE.Line(lineGeometry, material);
-            if (opacity > 0) lines.add(line);
+            if (opacity > 0) lines.push(line);
           }
-          const {x,y}=links[links.length-1].target;
-          lastFinePt=new THREE.Vector3(x,y,z0);
+          if (i > 0) {
+            const finePt = finePts[i];
+            const entryPt = entryPts[i - 1];
+            const lineGeometry = new THREE.BufferGeometry().setFromPoints([
+              entryPt,
+              finePt,
+            ]);
+            const material = new THREE.LineBasicMaterial({
+              color: new THREE.Color(0xeeee00),
+            });
+            const line = new THREE.Line(lineGeometry, material);
+            lines.push(line);
+          }
           z0 += 400;
+        }
+        // delay
+        const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
+        for (let i = 0; i < lines.length; i++) {
+          // scene.add(lines[i]);
+          await delay(500);
         }
       };
       setupLinks();
+
       //adjust the display
       function adjustDisplay() {
         renderer.setSize(

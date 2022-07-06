@@ -62119,7 +62119,6 @@ ${indentData}`);
         const setup3d = () => {
           const scene = new Scene();
           const camera = new OrthographicCamera(canvas.clientWidth, canvas.clientWidth * -1, canvas.clientHeight, canvas.clientHeight * -1, -2e3, 2e3);
-          camera.position.set(0, 0, -25);
           const renderer = new WebGLRenderer({ canvas, antialias: true });
           const setupLights = () => {
             const light = new DirectionalLight(16777215, 1);
@@ -62129,23 +62128,26 @@ ${indentData}`);
             scene.add(ambientLight);
           };
           setupLights();
+          let entryPts = [], finePts = [];
           const setupNodes = () => {
             let z0 = 0;
             for (let i = searchViewLayoutData.visData.length - 1; i >= 0; i--) {
               const { entryIds, fineIds, links, nodes } = searchViewLayoutData.visData[i];
               const { id2forcePos } = searchViewLayoutData;
+              entryPts.unshift(new Vector3(id2forcePos[entryIds[0]][0], z0, id2forcePos[entryIds[0]][1]));
+              finePts.unshift(new Vector3(id2forcePos[fineIds[0]][0], z0, id2forcePos[fineIds[0]][1]));
               for (let j = 0; j < nodes.length; j++) {
                 const node = nodes[j];
                 const { id: id2, x: x3, y: y4, type: type2 } = node;
                 let color2 = new Color2(), opacity = 1;
                 if (type2 === HNSW_NODE_TYPE.Entry) {
-                  color2.setHex(1404125);
+                  color2.setHex(221);
                 } else if (type2 === HNSW_NODE_TYPE.Candidate) {
-                  color2.setHex(9083135);
+                  color2.setHex(11141375);
                 } else if (type2 === HNSW_NODE_TYPE.Fine) {
-                  color2.setHex(8436858);
+                  color2.setHex(48128);
                 } else if (type2 === HNSW_NODE_TYPE.Target) {
-                  color2.setHex(15631492);
+                  color2.setHex(15597568);
                 }
                 const geometry = new SphereGeometry(10, 32, 32);
                 const material = new MeshPhongMaterial({
@@ -62155,26 +62157,24 @@ ${indentData}`);
                   flatShading: true
                 });
                 const sphere = new Mesh(geometry, material);
-                sphere.position.set(x3, y4, z0);
+                sphere.position.set(x3, z0, y4);
                 scene.add(sphere);
               }
               z0 += 400;
             }
           };
           setupNodes();
-          const setupLinks = () => {
+          const setupLinks = () => __async(this, null, function* () {
             let z0 = 0;
             let lines = [];
-            let lastFinePt = new Vector3();
             for (let i = searchViewLayoutData.visData.length - 1; i >= 0; i--) {
-              const { entryIds, fineIds, links, nodes } = searchViewLayoutData.visData[i];
-              const { id2forcePos } = searchViewLayoutData;
+              const { links } = searchViewLayoutData.visData[i];
               for (let j = 0; j < links.length; j++) {
                 const link = links[j];
                 const { source, target } = link;
                 const points = [];
-                points.push(new Vector3(source.x, source.y, z0));
-                points.push(new Vector3(target.x, target.y, z0));
+                points.push(new Vector3(source.x, z0, source.y));
+                points.push(new Vector3(target.x, z0, target.y));
                 const lineGeometry = new BufferGeometry().setFromPoints(points);
                 let color2 = new Color2(), opacity = 1;
                 if (link.type === HNSW_LINK_TYPE.Fine) {
@@ -62182,8 +62182,7 @@ ${indentData}`);
                 } else if (link.type === HNSW_LINK_TYPE.Searched) {
                   color2.setHex(8436858);
                 } else if (link.type === HNSW_LINK_TYPE.Extended) {
-                  color2.setHex(8825282);
-                  opacity = 0;
+                  color2.setHex(4487167);
                 } else if (link.type === HNSW_LINK_TYPE.Visited) {
                   color2.setHex(0);
                   opacity = 0;
@@ -62196,13 +62195,28 @@ ${indentData}`);
                 });
                 const line = new Line(lineGeometry, material);
                 if (opacity > 0)
-                  lines.add(line);
+                  lines.push(line);
               }
-              const { x: x3, y: y4 } = links[links.length - 1].target;
-              lastFinePt = new Vector3(x3, y4, z0);
+              if (i > 0) {
+                const finePt = finePts[i];
+                const entryPt = entryPts[i - 1];
+                const lineGeometry = new BufferGeometry().setFromPoints([
+                  entryPt,
+                  finePt
+                ]);
+                const material = new LineBasicMaterial({
+                  color: new Color2(15658496)
+                });
+                const line = new Line(lineGeometry, material);
+                lines.push(line);
+              }
               z0 += 400;
             }
-          };
+            const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+            for (let i = 0; i < lines.length; i++) {
+              yield delay(500);
+            }
+          });
           setupLinks();
           function adjustDisplay() {
             renderer.setSize(renderer.domElement.clientWidth, renderer.domElement.clientHeight);
