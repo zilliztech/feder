@@ -62119,6 +62119,7 @@ ${indentData}`);
         const setup3d = () => {
           const scene = new Scene();
           const camera = new OrthographicCamera(canvas.clientWidth, canvas.clientWidth * -1, canvas.clientHeight, canvas.clientHeight * -1, -2e3, 2e3);
+          camera.position.set(0, 0, -25);
           const renderer = new WebGLRenderer({ canvas, antialias: true });
           const setupLights = () => {
             const light = new DirectionalLight(16777215, 1);
@@ -62149,7 +62150,7 @@ ${indentData}`);
                 } else if (type2 === HNSW_NODE_TYPE.Target) {
                   color2.setHex(15597568);
                 }
-                const geometry = new SphereGeometry(10, 32, 32);
+                const geometry = new SphereGeometry(20, 32, 32);
                 const material = new MeshPhongMaterial({
                   color: color2,
                   transparent: true,
@@ -62183,6 +62184,7 @@ ${indentData}`);
                   color2.setHex(8436858);
                 } else if (link.type === HNSW_LINK_TYPE.Extended) {
                   color2.setHex(4487167);
+                  opacity = 0.5;
                 } else if (link.type === HNSW_LINK_TYPE.Visited) {
                   color2.setHex(0);
                   opacity = 0;
@@ -62214,6 +62216,7 @@ ${indentData}`);
             }
             const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
             for (let i = 0; i < lines.length; i++) {
+              scene.add(lines[i]);
               yield delay(500);
             }
           });

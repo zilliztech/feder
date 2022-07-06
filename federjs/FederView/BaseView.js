@@ -73,7 +73,7 @@ export default class BaseView {
         -2000,
         2000
       );
-      // camera.position.set(0, 0,0);
+      camera.position.set(0, 0, -25);
 
       //setup the renderer
       const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
@@ -129,7 +129,7 @@ export default class BaseView {
             } else if (type === HNSW_NODE_TYPE.Target) {
               color.setHex(0xee0000);
             }
-            const geometry = new THREE.SphereGeometry(10, 32, 32);
+            const geometry = new THREE.SphereGeometry(20, 32, 32);
             const material = new THREE.MeshPhongMaterial({
               color,
               transparent: true,
@@ -171,7 +171,7 @@ export default class BaseView {
               color.setHex(0x80bc7a);
             } else if (link.type === HNSW_LINK_TYPE.Extended) {
               color.setHex(0x4477ff);
-              // opacity = 0;
+              opacity = 0.5;
             } else if (link.type === HNSW_LINK_TYPE.Visited) {
               color.setHex(0x000000);
               opacity = 0;
@@ -207,7 +207,7 @@ export default class BaseView {
         const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
         for (let i = 0; i < lines.length; i++) {
-          // scene.add(lines[i]);
+          scene.add(lines[i]);
           await delay(500);
         }
       };
