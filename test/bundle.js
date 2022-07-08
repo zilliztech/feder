@@ -9665,9 +9665,9 @@ ${indentData}`);
     }
   }
   function poke() {
-    var now2 = clock.now(), delay = now2 - clockLast;
+    var now3 = clock.now(), delay = now3 - clockLast;
     if (delay > pokeDelay)
-      clockSkew -= delay, clockLast = now2;
+      clockSkew -= delay, clockLast = now3;
   }
   function nap() {
     var t0, t1 = taskHead, t2, time = Infinity;
@@ -32465,6 +32465,47 @@ ${indentData}`);
       this.type = "AmbientLight";
     }
   };
+  var Clock = class {
+    constructor(autoStart = true) {
+      this.autoStart = autoStart;
+      this.startTime = 0;
+      this.oldTime = 0;
+      this.elapsedTime = 0;
+      this.running = false;
+    }
+    start() {
+      this.startTime = now2();
+      this.oldTime = this.startTime;
+      this.elapsedTime = 0;
+      this.running = true;
+    }
+    stop() {
+      this.getElapsedTime();
+      this.running = false;
+      this.autoStart = false;
+    }
+    getElapsedTime() {
+      this.getDelta();
+      return this.elapsedTime;
+    }
+    getDelta() {
+      let diff = 0;
+      if (this.autoStart && !this.running) {
+        this.start();
+        return 0;
+      }
+      if (this.running) {
+        const newTime = now2();
+        diff = (newTime - this.oldTime) / 1e3;
+        this.oldTime = newTime;
+        this.elapsedTime += diff;
+      }
+      return diff;
+    }
+  };
+  function now2() {
+    return (typeof performance === "undefined" ? Date : performance).now();
+  }
   var _RESERVED_CHARS_RE = "\\[\\]\\.:\\/";
   var _reservedRe = new RegExp("[" + _RESERVED_CHARS_RE + "]", "g");
   var _wordChar = "[^" + _RESERVED_CHARS_RE + "]";
@@ -35066,6 +35107,50 @@ ${indentData}`);
     }
   };
 
+  // federjs/FederView/jsm/postprocessing/RenderPass.js
+  var RenderPass = class extends Pass {
+    constructor(scene, camera, overrideMaterial, clearColor, clearAlpha) {
+      super();
+      this.scene = scene;
+      this.camera = camera;
+      this.overrideMaterial = overrideMaterial;
+      this.clearColor = clearColor;
+      this.clearAlpha = clearAlpha !== void 0 ? clearAlpha : 0;
+      this.clear = true;
+      this.clearDepth = false;
+      this.needsSwap = false;
+      this._oldClearColor = new Color2();
+    }
+    render(renderer, writeBuffer, readBuffer) {
+      const oldAutoClear = renderer.autoClear;
+      renderer.autoClear = false;
+      let oldClearAlpha, oldOverrideMaterial;
+      if (this.overrideMaterial !== void 0) {
+        oldOverrideMaterial = this.scene.overrideMaterial;
+        this.scene.overrideMaterial = this.overrideMaterial;
+      }
+      if (this.clearColor) {
+        renderer.getClearColor(this._oldClearColor);
+        oldClearAlpha = renderer.getClearAlpha();
+        renderer.setClearColor(this.clearColor, this.clearAlpha);
+      }
+      if (this.clearDepth) {
+        renderer.clearDepth();
+      }
+      renderer.setRenderTarget(this.renderToScreen ? null : readBuffer);
+      if (this.clear)
+        renderer.clear(renderer.autoClearColor, renderer.autoClearDepth, renderer.autoClearStencil);
+      renderer.render(this.scene, this.camera);
+      if (this.clearColor) {
+        renderer.setClearColor(this._oldClearColor, oldClearAlpha);
+      }
+      if (this.overrideMaterial !== void 0) {
+        this.scene.overrideMaterial = oldOverrideMaterial;
+      }
+      renderer.autoClear = oldAutoClear;
+    }
+  };
+
   // federjs/FederView/jsm/shaders/CopyShader.js
   var CopyShader = {
     uniforms: {
@@ -35099,7 +35184,222 @@ ${indentData}`);
 		}`
   };
 
+  // federjs/FederView/jsm/postprocessing/ShaderPass.js
+  var ShaderPass = class extends Pass {
+    constructor(shader, textureID) {
+      super();
+      this.textureID = textureID !== void 0 ? textureID : "tDiffuse";
+      if (shader instanceof ShaderMaterial) {
+        this.uniforms = shader.uniforms;
+        this.material = shader;
+      } else if (shader) {
+        this.uniforms = UniformsUtils.clone(shader.uniforms);
+        this.material = new ShaderMaterial({
+          defines: Object.assign({}, shader.defines),
+          uniforms: this.uniforms,
+          vertexShader: shader.vertexShader,
+          fragmentShader: shader.fragmentShader
+        });
+      }
+      this.fsQuad = new FullScreenQuad(this.material);
+    }
+    render(renderer, writeBuffer, readBuffer) {
+      if (this.uniforms[this.textureID]) {
+        this.uniforms[this.textureID].value = readBuffer.texture;
+      }
+      this.fsQuad.material = this.material;
+      if (this.renderToScreen) {
+        renderer.setRenderTarget(null);
+        this.fsQuad.render(renderer);
+      } else {
+        renderer.setRenderTarget(writeBuffer);
+        if (this.clear)
+          renderer.clear(renderer.autoClearColor, renderer.autoClearDepth, renderer.autoClearStencil);
+        this.fsQuad.render(renderer);
+      }
+    }
+  };
+
+  // federjs/FederView/jsm/postprocessing/MaskPass.js
+  var MaskPass = class extends Pass {
+    constructor(scene, camera) {
+      super();
+      this.scene = scene;
+      this.camera = camera;
+      this.clear = true;
+      this.needsSwap = false;
+      this.inverse = false;
+    }
+    render(renderer, writeBuffer, readBuffer) {
+      const context = renderer.getContext();
+      const state = renderer.state;
+      state.buffers.color.setMask(false);
+      state.buffers.depth.setMask(false);
+      state.buffers.color.setLocked(true);
+      state.buffers.depth.setLocked(true);
+      let writeValue, clearValue;
+      if (this.inverse) {
+        writeValue = 0;
+        clearValue = 1;
+      } else {
+        writeValue = 1;
+        clearValue = 0;
+      }
+      state.buffers.stencil.setTest(true);
+      state.buffers.stencil.setOp(context.REPLACE, context.REPLACE, context.REPLACE);
+      state.buffers.stencil.setFunc(context.ALWAYS, writeValue, 4294967295);
+      state.buffers.stencil.setClear(clearValue);
+      state.buffers.stencil.setLocked(true);
+      renderer.setRenderTarget(readBuffer);
+      if (this.clear)
+        renderer.clear();
+      renderer.render(this.scene, this.camera);
+      renderer.setRenderTarget(writeBuffer);
+      if (this.clear)
+        renderer.clear();
+      renderer.render(this.scene, this.camera);
+      state.buffers.color.setLocked(false);
+      state.buffers.depth.setLocked(false);
+      state.buffers.stencil.setLocked(false);
+      state.buffers.stencil.setFunc(context.EQUAL, 1, 4294967295);
+      state.buffers.stencil.setOp(context.KEEP, context.KEEP, context.KEEP);
+      state.buffers.stencil.setLocked(true);
+    }
+  };
+  var ClearMaskPass = class extends Pass {
+    constructor() {
+      super();
+      this.needsSwap = false;
+    }
+    render(renderer) {
+      renderer.state.buffers.stencil.setLocked(false);
+      renderer.state.buffers.stencil.setTest(false);
+    }
+  };
+
   // federjs/FederView/jsm/postprocessing/EffectComposer.js
+  var EffectComposer = class {
+    constructor(renderer, renderTarget2) {
+      this.renderer = renderer;
+      if (renderTarget2 === void 0) {
+        const size = renderer.getSize(new Vector2());
+        this._pixelRatio = renderer.getPixelRatio();
+        this._width = size.width;
+        this._height = size.height;
+        renderTarget2 = new WebGLRenderTarget(this._width * this._pixelRatio, this._height * this._pixelRatio);
+        renderTarget2.texture.name = "EffectComposer.rt1";
+      } else {
+        this._pixelRatio = 1;
+        this._width = renderTarget2.width;
+        this._height = renderTarget2.height;
+      }
+      this.renderTarget1 = renderTarget2;
+      this.renderTarget2 = renderTarget2.clone();
+      this.renderTarget2.texture.name = "EffectComposer.rt2";
+      this.writeBuffer = this.renderTarget1;
+      this.readBuffer = this.renderTarget2;
+      this.renderToScreen = true;
+      this.passes = [];
+      if (CopyShader === void 0) {
+        console.error("THREE.EffectComposer relies on CopyShader");
+      }
+      if (ShaderPass === void 0) {
+        console.error("THREE.EffectComposer relies on ShaderPass");
+      }
+      this.copyPass = new ShaderPass(CopyShader);
+      this.clock = new Clock();
+    }
+    swapBuffers() {
+      const tmp2 = this.readBuffer;
+      this.readBuffer = this.writeBuffer;
+      this.writeBuffer = tmp2;
+    }
+    addPass(pass) {
+      this.passes.push(pass);
+      pass.setSize(this._width * this._pixelRatio, this._height * this._pixelRatio);
+    }
+    insertPass(pass, index2) {
+      this.passes.splice(index2, 0, pass);
+      pass.setSize(this._width * this._pixelRatio, this._height * this._pixelRatio);
+    }
+    removePass(pass) {
+      const index2 = this.passes.indexOf(pass);
+      if (index2 !== -1) {
+        this.passes.splice(index2, 1);
+      }
+    }
+    isLastEnabledPass(passIndex) {
+      for (let i = passIndex + 1; i < this.passes.length; i++) {
+        if (this.passes[i].enabled) {
+          return false;
+        }
+      }
+      return true;
+    }
+    render(deltaTime) {
+      if (deltaTime === void 0) {
+        deltaTime = this.clock.getDelta();
+      }
+      const currentRenderTarget = this.renderer.getRenderTarget();
+      let maskActive = false;
+      for (let i = 0, il = this.passes.length; i < il; i++) {
+        const pass = this.passes[i];
+        if (pass.enabled === false)
+          continue;
+        pass.renderToScreen = this.renderToScreen && this.isLastEnabledPass(i);
+        pass.render(this.renderer, this.writeBuffer, this.readBuffer, deltaTime, maskActive);
+        if (pass.needsSwap) {
+          if (maskActive) {
+            const context = this.renderer.getContext();
+            const stencil = this.renderer.state.buffers.stencil;
+            stencil.setFunc(context.NOTEQUAL, 1, 4294967295);
+            this.copyPass.render(this.renderer, this.writeBuffer, this.readBuffer, deltaTime);
+            stencil.setFunc(context.EQUAL, 1, 4294967295);
+          }
+          this.swapBuffers();
+        }
+        if (MaskPass !== void 0) {
+          if (pass instanceof MaskPass) {
+            maskActive = true;
+          } else if (pass instanceof ClearMaskPass) {
+            maskActive = false;
+          }
+        }
+      }
+      this.renderer.setRenderTarget(currentRenderTarget);
+    }
+    reset(renderTarget2) {
+      if (renderTarget2 === void 0) {
+        const size = this.renderer.getSize(new Vector2());
+        this._pixelRatio = this.renderer.getPixelRatio();
+        this._width = size.width;
+        this._height = size.height;
+        renderTarget2 = this.renderTarget1.clone();
+        renderTarget2.setSize(this._width * this._pixelRatio, this._height * this._pixelRatio);
+      }
+      this.renderTarget1.dispose();
+      this.renderTarget2.dispose();
+      this.renderTarget1 = renderTarget2;
+      this.renderTarget2 = renderTarget2.clone();
+      this.writeBuffer = this.renderTarget1;
+      this.readBuffer = this.renderTarget2;
+    }
+    setSize(width, height) {
+      this._width = width;
+      this._height = height;
+      const effectiveWidth = this._width * this._pixelRatio;
+      const effectiveHeight = this._height * this._pixelRatio;
+      this.renderTarget1.setSize(effectiveWidth, effectiveHeight);
+      this.renderTarget2.setSize(effectiveWidth, effectiveHeight);
+      for (let i = 0; i < this.passes.length; i++) {
+        this.passes[i].setSize(effectiveWidth, effectiveHeight);
+      }
+    }
+    setPixelRatio(pixelRatio) {
+      this._pixelRatio = pixelRatio;
+      this.setSize(this._width, this._height);
+    }
+  };
   var _camera2 = new OrthographicCamera(-1, 1, 1, -1, 0, 1);
   var _geometry2 = new BufferGeometry();
   _geometry2.setAttribute("position", new Float32BufferAttribute([-1, 3, 0, -1, -1, 0, 3, -1, 0], 3));
@@ -35410,6 +35710,166 @@ ${indentData}`);
   UnrealBloomPass.BlurDirectionX = new Vector2(1, 0);
   UnrealBloomPass.BlurDirectionY = new Vector2(0, 1);
 
+  // federjs/FederView/jsm/shaders/ConvolutionShader.js
+  var ConvolutionShader = {
+    defines: {
+      "KERNEL_SIZE_FLOAT": "25.0",
+      "KERNEL_SIZE_INT": "25"
+    },
+    uniforms: {
+      "tDiffuse": { value: null },
+      "uImageIncrement": { value: new Vector2(1953125e-9, 0) },
+      "cKernel": { value: [] }
+    },
+    vertexShader: `
+
+		uniform vec2 uImageIncrement;
+
+		varying vec2 vUv;
+
+		void main() {
+
+			vUv = uv - ( ( KERNEL_SIZE_FLOAT - 1.0 ) / 2.0 ) * uImageIncrement;
+			gl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0 );
+
+		}`,
+    fragmentShader: `
+
+		uniform float cKernel[ KERNEL_SIZE_INT ];
+
+		uniform sampler2D tDiffuse;
+		uniform vec2 uImageIncrement;
+
+		varying vec2 vUv;
+
+		void main() {
+
+			vec2 imageCoord = vUv;
+			vec4 sum = vec4( 0.0, 0.0, 0.0, 0.0 );
+
+			for( int i = 0; i < KERNEL_SIZE_INT; i ++ ) {
+
+				sum += texture2D( tDiffuse, imageCoord ) * cKernel[ i ];
+				imageCoord += uImageIncrement;
+
+			}
+
+			gl_FragColor = sum;
+
+		}`,
+    buildKernel: function(sigma) {
+      const kMaxKernelSize = 25;
+      let kernelSize = 2 * Math.ceil(sigma * 3) + 1;
+      if (kernelSize > kMaxKernelSize)
+        kernelSize = kMaxKernelSize;
+      const halfWidth = (kernelSize - 1) * 0.5;
+      const values = new Array(kernelSize);
+      let sum2 = 0;
+      for (let i = 0; i < kernelSize; ++i) {
+        values[i] = gauss(i - halfWidth, sigma);
+        sum2 += values[i];
+      }
+      for (let i = 0; i < kernelSize; ++i)
+        values[i] /= sum2;
+      return values;
+    }
+  };
+  function gauss(x3, sigma) {
+    return Math.exp(-(x3 * x3) / (2 * sigma * sigma));
+  }
+
+  // federjs/FederView/jsm/postprocessing/BloomPass.js
+  var BloomPass = class extends Pass {
+    constructor(strength = 1, kernelSize = 25, sigma = 4, resolution = 256) {
+      super();
+      this.renderTargetX = new WebGLRenderTarget(resolution, resolution);
+      this.renderTargetX.texture.name = "BloomPass.x";
+      this.renderTargetY = new WebGLRenderTarget(resolution, resolution);
+      this.renderTargetY.texture.name = "BloomPass.y";
+      this.combineUniforms = UniformsUtils.clone(CombineShader.uniforms);
+      this.combineUniforms["strength"].value = strength;
+      this.materialCombine = new ShaderMaterial({
+        uniforms: this.combineUniforms,
+        vertexShader: CombineShader.vertexShader,
+        fragmentShader: CombineShader.fragmentShader,
+        blending: AdditiveBlending,
+        transparent: true
+      });
+      if (ConvolutionShader === void 0)
+        console.error("THREE.BloomPass relies on ConvolutionShader");
+      const convolutionShader = ConvolutionShader;
+      this.convolutionUniforms = UniformsUtils.clone(convolutionShader.uniforms);
+      this.convolutionUniforms["uImageIncrement"].value = BloomPass.blurX;
+      this.convolutionUniforms["cKernel"].value = ConvolutionShader.buildKernel(sigma);
+      this.materialConvolution = new ShaderMaterial({
+        uniforms: this.convolutionUniforms,
+        vertexShader: convolutionShader.vertexShader,
+        fragmentShader: convolutionShader.fragmentShader,
+        defines: {
+          "KERNEL_SIZE_FLOAT": kernelSize.toFixed(1),
+          "KERNEL_SIZE_INT": kernelSize.toFixed(0)
+        }
+      });
+      this.needsSwap = false;
+      this.fsQuad = new FullScreenQuad(null);
+    }
+    render(renderer, writeBuffer, readBuffer, deltaTime, maskActive) {
+      if (maskActive)
+        renderer.state.buffers.stencil.setTest(false);
+      this.fsQuad.material = this.materialConvolution;
+      this.convolutionUniforms["tDiffuse"].value = readBuffer.texture;
+      this.convolutionUniforms["uImageIncrement"].value = BloomPass.blurX;
+      renderer.setRenderTarget(this.renderTargetX);
+      renderer.clear();
+      this.fsQuad.render(renderer);
+      this.convolutionUniforms["tDiffuse"].value = this.renderTargetX.texture;
+      this.convolutionUniforms["uImageIncrement"].value = BloomPass.blurY;
+      renderer.setRenderTarget(this.renderTargetY);
+      renderer.clear();
+      this.fsQuad.render(renderer);
+      this.fsQuad.material = this.materialCombine;
+      this.combineUniforms["tDiffuse"].value = this.renderTargetY.texture;
+      if (maskActive)
+        renderer.state.buffers.stencil.setTest(true);
+      renderer.setRenderTarget(readBuffer);
+      if (this.clear)
+        renderer.clear();
+      this.fsQuad.render(renderer);
+    }
+  };
+  var CombineShader = {
+    uniforms: {
+      "tDiffuse": { value: null },
+      "strength": { value: 1 }
+    },
+    vertexShader: `
+
+		varying vec2 vUv;
+
+		void main() {
+
+			vUv = uv;
+			gl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0 );
+
+		}`,
+    fragmentShader: `
+
+		uniform float strength;
+
+		uniform sampler2D tDiffuse;
+
+		varying vec2 vUv;
+
+		void main() {
+
+			vec4 texel = texture2D( tDiffuse, vUv );
+			gl_FragColor = strength * texel;
+
+		}`
+  };
+  BloomPass.blurX = new Vector2(1953125e-9, 0);
+  BloomPass.blurY = new Vector2(0, 1953125e-9);
+
   // federjs/FederView/BaseView.js
   var BaseView = class {
     constructor({ viewParams, getVectorById }) {
@@ -35616,20 +36076,32 @@ ${indentData}`);
             camera.bottom = canvas.clientHeight * -1;
             camera.updateProjectionMatrix();
           }
+          const composer = new EffectComposer(renderer);
+          const setupPostProcessing = () => {
+            const renderPass = new RenderPass(scene, camera);
+            renderPass.clearColor = new Color2(0);
+            composer.addPass(renderPass);
+            const bloomPass = new UnrealBloomPass(new Vector2(canvas.clientWidth, canvas.clientHeight), 1.5, 0.7, 0.85);
+            composer.addPass(bloomPass);
+          };
+          setupPostProcessing();
           const controls = new OrbitControls(camera, renderer.domElement);
-          let lastObject = null;
-          const render = () => {
+          let lastObject = null, then = 0;
+          const render = (now3) => {
+            now3 *= 1e-3;
+            const deltaTime = now3 - then;
+            then = now3;
             controls.update();
             const id2 = pick();
             const object = spheres[id2];
             if (object) {
-              object.material.emissive.setHex(16759552);
+              object.material.emissive.setHex(11162880);
             }
             if (lastObject !== object && lastObject) {
               lastObject.material.emissive.setHex(0);
             }
             lastObject = object;
-            renderer.render(scene, camera);
+            composer.render(deltaTime);
             requestAnimationFrame(render);
           };
           render();

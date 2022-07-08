@@ -9,7 +9,7 @@ import { RenderPass } from './jsm/postprocessing/RenderPass';
 import { EffectComposer } from './jsm/postprocessing/EffectComposer';
 import { ShaderPass } from './jsm/postprocessing/ShaderPass';
 import { UnrealBloomPass } from './jsm/postprocessing/UnrealBloomPass';
-
+import { BloomPass } from './jsm/postprocessing/BloomPass';
 // import { VIEW_TYPE } from 'Types';
 
 export default class BaseView {
@@ -255,6 +255,7 @@ export default class BaseView {
               color.setHex(0x80bc7a);
             } else if (link.type === HNSW_LINK_TYPE.Extended) {
               color.setHex(0x4477ff);
+
               opacity = 0.5;
             } else if (link.type === HNSW_LINK_TYPE.Visited) {
               color.setHex(0x000000);
@@ -310,19 +311,44 @@ export default class BaseView {
         camera.updateProjectionMatrix();
       }
 
+      const composer = new EffectComposer(renderer);
+      const setupPostProcessing = () => {
+        const renderPass = new RenderPass(scene, camera);
+        renderPass.clearColor = new THREE.Color(0x000000);
+        // renderPass.clearAlpha = 0;
+        composer.addPass(renderPass);
+        // composer.addPass();
+
+        const bloomPass = new UnrealBloomPass(
+          new THREE.Vector2(canvas.clientWidth, canvas.clientHeight),
+          1.5,
+          0.7,
+          0.85
+        )
+        // bloomPass.threshold = 0.7;
+        composer.addPass(bloomPass);
+        // composer.addPass(bloomPass);
+      };
+      setupPostProcessing();
+
       //setup the controls
       const controls = new OrbitControls(camera, renderer.domElement);
-      let lastObject = null;
-      const render = () => {
+      let lastObject = null,
+        then = 0;
+
+      const render = (now) => {
+        now *= 0.001;
+        const deltaTime = now - then;
+        then = now;
         //update the controls
         controls.update();
-        
+
         //pick
         const id = pick();
         const object = spheres[id];
         if (object) {
           //change emissive color
-          object.material.emissive.setHex(0xffbb00);
+          object.material.emissive.setHex(0xaa5500);
         }
         if (lastObject !== object && lastObject) {
           lastObject.material.emissive.setHex(0x000000);
@@ -330,8 +356,8 @@ export default class BaseView {
         lastObject = object;
 
         //render the scene
-        renderer.render(scene, camera);
-
+        // renderer.render(scene, camera);
+        composer.render(deltaTime);
         //request the next frame
         requestAnimationFrame(render);
       };
