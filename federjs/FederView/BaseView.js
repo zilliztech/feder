@@ -4,6 +4,12 @@ import * as THREE from 'three';
 import { OrbitControls } from './jsm/controls/OrbitControls';
 import { HNSW_LINK_TYPE, HNSW_NODE_TYPE } from 'Types';
 import { GLTFExporter } from './jsm/exporters/GLTFExporter';
+import { SphereGeometry } from 'three';
+import { RenderPass } from './jsm/postprocessing/RenderPass';
+import { EffectComposer } from './jsm/postprocessing/EffectComposer';
+import { ShaderPass } from './jsm/postprocessing/ShaderPass';
+import { UnrealBloomPass } from './jsm/postprocessing/UnrealBloomPass';
+
 // import { VIEW_TYPE } from 'Types';
 
 export default class BaseView {
@@ -47,22 +53,11 @@ export default class BaseView {
   }
 
   async search(dom, { searchRes, targetMediaUrl }) {
-    // const canvas = initCanvas(
-    //   dom,
-    //   this.clientWidth,
-    //   this.clientHeight,
-    //   this.canvasScale
-    // );
     //create a canvas
     const canvas = document.createElement('canvas');
     canvas.width = this.clientWidth;
     canvas.height = this.clientHeight;
     document.body.appendChild(canvas);
-
-    // canvas.getContext("webgl2");
-    // const ctx = canvas.getContext('2d');
-
-    // const infoPanel = this.initInfoPanel(dom);
 
     const searchViewLayoutData = await this.searchViewHandler(searchRes);
     // console.log(searchViewLayoutData.visData, searchViewLayoutData.id2forcePos);
@@ -98,8 +93,6 @@ export default class BaseView {
       };
       setupLights();
       let spheres = [];
-      // console.log(searchViewLayoutData.entryNodesLevels);
-
       let entryPts = [],
         finePts = [];
       // add the nodes to the scene
@@ -155,6 +148,85 @@ export default class BaseView {
         }
       };
       setupNodes();
+      //gpu picking
+      const pickingScene = new THREE.Scene();
+      const pickingRenderer = new THREE.WebGLRenderTarget(
+        canvas.clientWidth,
+        canvas.clientHeight
+      );
+      /**
+       *
+       * @param {THREE.Geometry} geometry
+       * @param {THREE.Color } color
+       */
+      function applyVertexColors(geometry, color) {
+        const positions = geometry.getAttribute('position');
+        const colors = [];
+        for (let i = 0; i < positions.count; i++) {
+          colors.push(color.r, color.g, color.b);
+        }
+        geometry.setAttribute(
+          'color',
+          new THREE.Float32BufferAttribute(colors, 3)
+        );
+      }
+      const pickingMaterial = new THREE.MeshBasicMaterial({
+        vertexColors: true,
+      });
+      const setupPickingObjects = () => {
+        for (let i = 0; i < spheres.length; i++) {
+          const sphere = spheres[i];
+          //get geometry of the sphere
+          const geometry = sphere.geometry.clone();
+          const color = new THREE.Color();
+          applyVertexColors(geometry, color.setHex(i));
+          const mesh = new THREE.Mesh(geometry, pickingMaterial);
+          mesh.position.set(
+            sphere.position.x,
+            sphere.position.y,
+            sphere.position.z
+          );
+          pickingScene.add(mesh);
+        }
+      };
+      setupPickingObjects();
+      //get pointer coordinates in canvas
+      let pointer = { x: 0, y: 0 };
+      //setup the mouse events
+      canvas.addEventListener('mousemove', (e) => {
+        pointer = { x: e.offsetX, y: e.offsetY };
+      });
+      const pick = () => {
+        const pixelRatio = renderer.getPixelRatio();
+        // set the view offset to represent just a single pixel under the mouse
+        camera.setViewOffset(
+          canvas.clientWidth,
+          canvas.clientHeight,
+          (pointer.x * pixelRatio) | 0,
+          (pointer.y * pixelRatio) | 0,
+          1,
+          1
+        );
+        // render the scene
+        renderer.setRenderTarget(pickingRenderer);
+        renderer.render(pickingScene, camera);
+        renderer.setRenderTarget(null);
+        //clear the view offset so the camera returns to normal
+        camera.clearViewOffset();
+        // get the pixel color under the mouse
+        const pixelBuffer = new Uint8Array(4);
+        renderer.readRenderTargetPixels(
+          pickingRenderer,
+          0,
+          0,
+          1,
+          1,
+          pixelBuffer
+        );
+        const id =
+          (pixelBuffer[0] << 16) | (pixelBuffer[1] << 8) | pixelBuffer[2];
+        return id;
+      };
 
       const setupLinks = async () => {
         let z0 = 0;
@@ -235,58 +307,29 @@ export default class BaseView {
         camera.bottom = canvas.clientHeight * -1;
         camera.updateProjectionMatrix();
       }
+
+
       //setup the controls
       const controls = new OrbitControls(camera, renderer.domElement);
-      const raycaster = new THREE.Raycaster();
-      let pointer = { x: 0, y: 0 };
-
-      //setup the mouse events
-      canvas.addEventListener('mousemove', (e) => {
-        pointer.x = (e.offsetX / canvas.clientWidth) * 2 - 1;
-        pointer.y = -(e.offsetY / canvas.clientHeight) * 2 + 1;
-      });
-      let cubes = [];
-      // add 10 random cubes
-      // for (let i = 0; i < 10; i++) {
-      //   const geometry = new THREE.BoxGeometry(20, 20, 20);
-      //   const material = new THREE.MeshPhongMaterial({ color: 0x0011ff });
-      //   const cube = new THREE.Mesh(geometry, material);
-      //   cube.position.x = Math.random() * 100 - 5;
-      //   cube.position.y = Math.random() * 100 - 5;
-      //   cube.position.z = Math.random() * 100 - 5;
-      //   scene.add(cube);
-      //   cubes.push(cube);
-      // }
       let lastObject = null;
       const render = () => {
         //adjust the display
         // adjustDisplay();
         //update the controls
         controls.update();
-        //render the scene
-        // update the picking ray with the camera and pointer position
-        //update raycaster
-        raycaster.setFromCamera(pointer, camera);
-        // console.log(raycaster.ray.direction);
-        const intersects = raycaster.intersectObjects(spheres);
-        console.log(intersects, pointer);
-        if (intersects.length > 0) {
-          const intersection = intersects[0];
-          // const distance = intersection.distance;
-          const object = intersection.object;
-          if (lastObject !== object) {
-            object.scale.set(1.4, 1.4, 1.4);
-            object.material.emissive.setHex(0xffff00);
-
-          }
-          lastObject = object;
-          console.log(object);
-        }else{
-          if(lastObject){
-            lastObject.scale.set(1, 1, 1);
+        //pick
+        const id = pick();
+        const object = spheres[id];
+        if (object) {
+          //change emissive color
+          object.material.emissive.setHex(0xeebb00);
+          if (lastObject !== object && lastObject) {
             lastObject.material.emissive.setHex(0x000000);
           }
         }
+        lastObject = object;
+
+        //render the scene
         renderer.render(scene, camera);
 
         //request the next frame
