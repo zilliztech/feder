@@ -1,9 +1,9 @@
 import * as d3 from 'd3';
 import { renderLoading, finishLoading } from './loading';
 import * as THREE from 'three';
-import { OrbitControls } from './OrbitControls';
+import { OrbitControls } from './jsm/controls/OrbitControls';
 import { HNSW_LINK_TYPE, HNSW_NODE_TYPE } from 'Types';
-import { MeshLine, MeshLineMaterial, MeshLineRaycast } from 'three.meshline';
+import { GLTFExporter } from './jsm/exporters/GLTFExporter';
 // import { VIEW_TYPE } from 'Types';
 
 export default class BaseView {
@@ -47,12 +47,18 @@ export default class BaseView {
   }
 
   async search(dom, { searchRes, targetMediaUrl }) {
-    const canvas = initCanvas(
-      dom,
-      this.clientWidth,
-      this.clientHeight,
-      this.canvasScale
-    );
+    // const canvas = initCanvas(
+    //   dom,
+    //   this.clientWidth,
+    //   this.clientHeight,
+    //   this.canvasScale
+    // );
+    //create a canvas
+    const canvas = document.createElement('canvas');
+    canvas.width = this.clientWidth;
+    canvas.height = this.clientHeight;
+    document.body.appendChild(canvas);
+
     // canvas.getContext("webgl2");
     // const ctx = canvas.getContext('2d');
 
@@ -73,7 +79,9 @@ export default class BaseView {
         -2000,
         2000
       );
-      camera.position.set(0, 0, -25);
+      camera.position.z = 10;
+      camera.position.y = 1;
+      camera.lookAt(scene.position);
 
       //setup the renderer
       const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
@@ -89,6 +97,7 @@ export default class BaseView {
         scene.add(ambientLight);
       };
       setupLights();
+      let spheres = [];
       // console.log(searchViewLayoutData.entryNodesLevels);
 
       let entryPts = [],
@@ -138,6 +147,7 @@ export default class BaseView {
             });
             const sphere = new THREE.Mesh(geometry, material);
             sphere.position.set(x, z0, y);
+            spheres.push(sphere);
             scene.add(sphere);
           }
 
@@ -203,7 +213,7 @@ export default class BaseView {
           }
           z0 += 400;
         }
-        // delay
+
         const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
         for (let i = 0; i < lines.length; i++) {
@@ -227,14 +237,58 @@ export default class BaseView {
       }
       //setup the controls
       const controls = new OrbitControls(camera, renderer.domElement);
+      const raycaster = new THREE.Raycaster();
+      let pointer = { x: 0, y: 0 };
 
+      //setup the mouse events
+      canvas.addEventListener('mousemove', (e) => {
+        pointer.x = (e.offsetX / canvas.clientWidth) * 2 - 1;
+        pointer.y = -(e.offsetY / canvas.clientHeight) * 2 + 1;
+      });
+      let cubes = [];
+      // add 10 random cubes
+      // for (let i = 0; i < 10; i++) {
+      //   const geometry = new THREE.BoxGeometry(20, 20, 20);
+      //   const material = new THREE.MeshPhongMaterial({ color: 0x0011ff });
+      //   const cube = new THREE.Mesh(geometry, material);
+      //   cube.position.x = Math.random() * 100 - 5;
+      //   cube.position.y = Math.random() * 100 - 5;
+      //   cube.position.z = Math.random() * 100 - 5;
+      //   scene.add(cube);
+      //   cubes.push(cube);
+      // }
+      let lastObject = null;
       const render = () => {
         //adjust the display
-        adjustDisplay();
+        // adjustDisplay();
         //update the controls
         controls.update();
         //render the scene
+        // update the picking ray with the camera and pointer position
+        //update raycaster
+        raycaster.setFromCamera(pointer, camera);
+        // console.log(raycaster.ray.direction);
+        const intersects = raycaster.intersectObjects(spheres);
+        console.log(intersects, pointer);
+        if (intersects.length > 0) {
+          const intersection = intersects[0];
+          // const distance = intersection.distance;
+          const object = intersection.object;
+          if (lastObject !== object) {
+            object.scale.set(1.4, 1.4, 1.4);
+            object.material.emissive.setHex(0xffff00);
+
+          }
+          lastObject = object;
+          console.log(object);
+        }else{
+          if(lastObject){
+            lastObject.scale.set(1, 1, 1);
+            lastObject.material.emissive.setHex(0x000000);
+          }
+        }
         renderer.render(scene, camera);
+
         //request the next frame
         requestAnimationFrame(render);
       };
