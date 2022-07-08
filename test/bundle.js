@@ -35510,6 +35510,7 @@ ${indentData}`);
           setupNodes();
           const pickingScene = new Scene();
           const pickingRenderer = new WebGLRenderTarget(canvas.clientWidth, canvas.clientHeight);
+          pickingScene.background = new Color2(16777215);
           function applyVertexColors(geometry, color2) {
             const positions = geometry.getAttribute("position");
             const colors = [];
@@ -35533,13 +35534,15 @@ ${indentData}`);
             }
           };
           setupPickingObjects();
-          let pointer = { x: 0, y: 0 };
+          let pointer = { x: -1, y: -1 };
           canvas.addEventListener("mousemove", (e) => {
             pointer = { x: e.offsetX, y: e.offsetY };
           });
           const pick = () => {
+            if (pointer.x < 0 || pointer.y < 0)
+              return -1;
             const pixelRatio = renderer.getPixelRatio();
-            camera.setViewOffset(canvas.clientWidth, canvas.clientHeight, pointer.x * pixelRatio | 0, pointer.y * pixelRatio | 0, 1, 1);
+            camera.setViewOffset(canvas.clientWidth, canvas.clientHeight, pointer.x * pixelRatio, pointer.y * pixelRatio, 1, 1);
             renderer.setRenderTarget(pickingRenderer);
             renderer.render(pickingScene, camera);
             renderer.setRenderTarget(null);
@@ -35620,10 +35623,10 @@ ${indentData}`);
             const id2 = pick();
             const object = spheres[id2];
             if (object) {
-              object.material.emissive.setHex(15645440);
-              if (lastObject !== object && lastObject) {
-                lastObject.material.emissive.setHex(0);
-              }
+              object.material.emissive.setHex(16759552);
+            }
+            if (lastObject !== object && lastObject) {
+              lastObject.material.emissive.setHex(0);
             }
             lastObject = object;
             renderer.render(scene, camera);

@@ -154,6 +154,7 @@ export default class BaseView {
         canvas.clientWidth,
         canvas.clientHeight
       );
+      pickingScene.background = new THREE.Color(0xffffff);
       /**
        *
        * @param {THREE.Geometry} geometry
@@ -191,19 +192,20 @@ export default class BaseView {
       };
       setupPickingObjects();
       //get pointer coordinates in canvas
-      let pointer = { x: 0, y: 0 };
+      let pointer = { x: -1, y: -1 };
       //setup the mouse events
       canvas.addEventListener('mousemove', (e) => {
         pointer = { x: e.offsetX, y: e.offsetY };
       });
       const pick = () => {
+        if (pointer.x < 0 || pointer.y < 0) return -1;
         const pixelRatio = renderer.getPixelRatio();
         // set the view offset to represent just a single pixel under the mouse
         camera.setViewOffset(
           canvas.clientWidth,
           canvas.clientHeight,
-          (pointer.x * pixelRatio) | 0,
-          (pointer.y * pixelRatio) | 0,
+          pointer.x * pixelRatio,
+          pointer.y * pixelRatio,
           1,
           1
         );
@@ -295,7 +297,7 @@ export default class BaseView {
       };
       setupLinks();
 
-      //adjust the display
+      //adjust the display 响应式画布会用到，暂时不用
       function adjustDisplay() {
         renderer.setSize(
           renderer.domElement.clientWidth,
@@ -308,24 +310,22 @@ export default class BaseView {
         camera.updateProjectionMatrix();
       }
 
-
       //setup the controls
       const controls = new OrbitControls(camera, renderer.domElement);
       let lastObject = null;
       const render = () => {
-        //adjust the display
-        // adjustDisplay();
         //update the controls
         controls.update();
+        
         //pick
         const id = pick();
         const object = spheres[id];
         if (object) {
           //change emissive color
-          object.material.emissive.setHex(0xeebb00);
-          if (lastObject !== object && lastObject) {
-            lastObject.material.emissive.setHex(0x000000);
-          }
+          object.material.emissive.setHex(0xffbb00);
+        }
+        if (lastObject !== object && lastObject) {
+          lastObject.material.emissive.setHex(0x000000);
         }
         lastObject = object;
 
