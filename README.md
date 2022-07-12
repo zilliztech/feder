@@ -2,9 +2,9 @@
 
 ## What is feder
 
-Feder is an javascript tool that built for understanding your embedding vectors, feder visualizes faiss, hnswlib and other anns index files, so that we can have a better understanding of anns and high dimensional vectors.
+Feder is an javascript tool that built for understanding your embedding vectors, feder visualizes faiss, hnswlib and other anns index files, so that we can have a better understanding how anns work and what are high dimensional vector embeddings.
 
-So far, we are focusing on the index from Faiss (only ivf_flat) and HNSWlib (hnsw), we will cover more index types later. which index do you prefer?
+So far, we are focusing on the Faiss (only ivf_flat) index file and HNSWlib (hnsw) index file, we will cover more index types later. 
 
 Feder is written in **javascript**, and we also provide a python library **federpy**, which is based on federjs.
 
@@ -13,14 +13,19 @@ Feder is written in **javascript**, and we also provide a python library **feder
 - In IPython environment, it supports users to generate the corresponding visualization directly.
 - In other environments, it supports outputting visualizations as html files, which can be opened by the user through the browser with web service enabled.
 
+
+### Online demos
+- [Understanding vector embeddings with Feder by a reverse image search example](https://observablehq.com/@min-tian/reverse-image-search-feder-faiss-ivf_flat-visualizations)
+- [Javascript example (Observable)](https://observablehq.com/@min-tian/feder)
+- [Jupternotebook example (Colab)](https://colab.research.google.com/drive/12L_oJPR-yFDlORpPondsqGNTPVsSsUwi#scrollTo=N3qqBAYxYcbt)
+
+### How feder works
+- [Feder ivf layout](https://observablehq.com/@min-tian/feder-layout-ivf_flat/2)
+- [Feder hnsw layout ](https://observablehq.com/@min-tian/feder-layout-hnsw/2)
+
 ### Wiki
 
 - [Usage](https://github.com/zilliztech/feder/wiki)
-
-### Online Demos
-
-- [Javascript example (Observable)](https://observablehq.com/@min-tian/feder)
-- [Jupternotebook example (Colab)](https://colab.research.google.com/drive/12L_oJPR-yFDlORpPondsqGNTPVsSsUwi#scrollTo=N3qqBAYxYcbt)
 
 ### HNSW visualization screenshots
 
