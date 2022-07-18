@@ -225,7 +225,7 @@ export default class InfoPanel {
     }
     this.renderOverviewPanel(overviewInfo, whiteColor);
   }
-  updateOverviewClickedInfo(
+  async updateOverviewClickedInfo(
     node,
     level,
     { indexMeta, mediaType, mediaCallback, getVectorById }
@@ -255,7 +255,7 @@ export default class InfoPanel {
       });
       itemList.push({
         title: `Vectors:`,
-        text: `${showVectors(getVectorById(node.id))}`,
+        text: `${showVectors(await getVectorById(node.id))}`,
       });
     }
     this.renderSelectedPanel(itemList, ZYellow);
@@ -393,7 +393,7 @@ export default class InfoPanel {
       });
     }
   }
-  updateSearchViewClickedInfo(
+  async updateSearchViewClickedInfo(
     { clickedNode, clickedLevel },
     { mediaType, mediaCallback, getVectorById }
   ) {
@@ -417,7 +417,7 @@ export default class InfoPanel {
         });
       itemList.push({
         title: `Vector:`,
-        text: `${showVectors(getVectorById(clickedNode.id))}`,
+        text: `${showVectors(await getVectorById(clickedNode.id))}`,
       });
     }
     this.renderSelectedPanel(itemList, ZYellow);
