@@ -15950,33 +15950,35 @@ ${indentData}`);
       }
       this.renderOverviewPanel(overviewInfo, whiteColor);
     }
-    updateOverviewClickedInfo(node, level, { indexMeta, mediaType, mediaCallback, getVectorById }) {
-      const itemList = [];
-      if (node) {
-        itemList.push({
-          title: `Level ${level + indexMeta.levelCount - indexMeta.overviewLevelCount}`
-        });
-        itemList.push({
-          title: `Row No. ${node.id}`
-        });
-        mediaType === "img" && itemList.push({
-          isImg: true,
-          imgUrl: mediaCallback(node.id)
-        });
-        itemList.push({
-          title: `Shortest path from the entry:`,
-          text: `${[...node.path, node.id].join(" => ")}`
-        });
-        itemList.push({
-          title: `Linked vectors:`,
-          text: `${node.linksLevels[level].join(", ")}`
-        });
-        itemList.push({
-          title: `Vectors:`,
-          text: `${showVectors(getVectorById(node.id))}`
-        });
-      }
-      this.renderSelectedPanel(itemList, ZYellow);
+    updateOverviewClickedInfo(_0, _1, _2) {
+      return __async(this, arguments, function* (node, level, { indexMeta, mediaType, mediaCallback, getVectorById }) {
+        const itemList = [];
+        if (node) {
+          itemList.push({
+            title: `Level ${level + indexMeta.levelCount - indexMeta.overviewLevelCount}`
+          });
+          itemList.push({
+            title: `Row No. ${node.id}`
+          });
+          mediaType === "img" && itemList.push({
+            isImg: true,
+            imgUrl: mediaCallback(node.id)
+          });
+          itemList.push({
+            title: `Shortest path from the entry:`,
+            text: `${[...node.path, node.id].join(" => ")}`
+          });
+          itemList.push({
+            title: `Linked vectors:`,
+            text: `${node.linksLevels[level].join(", ")}`
+          });
+          itemList.push({
+            title: `Vectors:`,
+            text: `${showVectors(yield getVectorById(node.id))}`
+          });
+        }
+        this.renderSelectedPanel(itemList, ZYellow);
+      });
     }
     updateOverviewHoveredInfo(hoveredNode, { isLeft, endX, endY }, { mediaType, mediaCallback, canvasScale }) {
       if (!!hoveredNode) {
@@ -16081,30 +16083,32 @@ ${indentData}`);
         });
       }
     }
-    updateSearchViewClickedInfo({ clickedNode, clickedLevel }, { mediaType, mediaCallback, getVectorById }) {
-      const itemList = [];
-      if (!clickedNode) {
-        this.renderSelectedPanel([], ZYellow);
-      } else {
-        itemList.push({
-          title: `Level ${clickedLevel}`
-        });
-        itemList.push({
-          title: `Row No. ${clickedNode.id}`
-        });
-        itemList.push({
-          title: `Distance to the target: ${clickedNode.dist.toFixed(3)}`
-        });
-        mediaType === "img" && itemList.push({
-          isImg: true,
-          imgUrl: mediaCallback(clickedNode.id)
-        });
-        itemList.push({
-          title: `Vector:`,
-          text: `${showVectors(getVectorById(clickedNode.id))}`
-        });
-      }
-      this.renderSelectedPanel(itemList, ZYellow);
+    updateSearchViewClickedInfo(_0, _1) {
+      return __async(this, arguments, function* ({ clickedNode, clickedLevel }, { mediaType, mediaCallback, getVectorById }) {
+        const itemList = [];
+        if (!clickedNode) {
+          this.renderSelectedPanel([], ZYellow);
+        } else {
+          itemList.push({
+            title: `Level ${clickedLevel}`
+          });
+          itemList.push({
+            title: `Row No. ${clickedNode.id}`
+          });
+          itemList.push({
+            title: `Distance to the target: ${clickedNode.dist.toFixed(3)}`
+          });
+          mediaType === "img" && itemList.push({
+            isImg: true,
+            imgUrl: mediaCallback(clickedNode.id)
+          });
+          itemList.push({
+            title: `Vector:`,
+            text: `${showVectors(yield getVectorById(clickedNode.id))}`
+          });
+        }
+        this.renderSelectedPanel(itemList, ZYellow);
+      });
     }
   };
 
@@ -17858,10 +17862,20 @@ ${indentData}`);
     }
   };
 
+  // federjs/federCoreServer/config.js
+  var FEDER_CORE_REQUEST = {
+    get_index_type: "get_index_type",
+    get_index_meta: "get_index_meta",
+    get_test_id_and_vector: "get_test_id_and_vector",
+    get_vector_by_id: "get_vector_by_id",
+    search: "search",
+    set_search_params: "set_search_params"
+  };
+
   // federjs/Feder.js
   var Feder = class {
     constructor({
-      core = null,
+      coreUrl = null,
       filePath = "",
       source = "",
       domSelector: domSelector2 = null,
@@ -17869,13 +17883,14 @@ ${indentData}`);
     }) {
       this.federView = new FederView({ domSelector: domSelector2, viewParams });
       this.viewParams = viewParams;
-      if (!core) {
-        this.initCoreAndViewPromise = fetch(filePath).then((res) => res.arrayBuffer()).then((data) => {
-          core = new FederCore({ data, source, viewParams });
+      if (!coreUrl) {
+        this.initCoreAndViewPromise = fetch(filePath, { mode: "cors" }).then((res) => res.arrayBuffer()).then((data) => {
+          const core = new FederCore({ data, source, viewParams });
           this.core = core;
           const indexType = core.indexType;
           const indexMeta = core.indexMeta;
           const getVectorById = (id2) => id2 in core.id2vector ? core.id2vector[id2] : null;
+          this.core.getVectorById = getVectorById;
           this.federView.initView({
             indexType,
             indexMeta,
@@ -17883,6 +17898,30 @@ ${indentData}`);
           });
         });
       } else {
+        const getUrl = (path2) => `${coreUrl}/${path2}?`;
+        const requestData = (path2, params = {}) => fetch(getUrl(path2) + new URLSearchParams(params), {
+          mode: "cors"
+        }).then((res) => res.json()).then((res) => {
+          if (res.message === "succeed")
+            return res.data;
+          else
+            throw new Error(res);
+        });
+        this.initCoreAndViewPromise = new Promise((resolve) => __async(this, null, function* () {
+          const indexType = yield requestData(FEDER_CORE_REQUEST.get_index_type);
+          const indexMeta = yield requestData(FEDER_CORE_REQUEST.get_index_meta);
+          const getVectorById = (id2) => requestData(FEDER_CORE_REQUEST.get_vector_by_id, { id: id2 });
+          this.core = {
+            indexType,
+            indexMeta,
+            getVectorById,
+            getTestIdAndVec: () => requestData(FEDER_CORE_REQUEST.get_test_id_and_vector),
+            search: (target) => requestData(FEDER_CORE_REQUEST.search, { target }),
+            setSearchParams: (params) => requestData(FEDER_CORE_REQUEST.set_search_params, params)
+          };
+          this.federView.initView({ indexType, indexMeta, getVectorById });
+          resolve();
+        }));
       }
       this.setSearchParamsPromise = null;
     }
@@ -17894,13 +17933,13 @@ ${indentData}`);
         const searchResPromise = Promise.all([
           this.initCoreAndViewPromise,
           this.setSearchParamsPromise
-        ]).then(() => {
-          const searchRes = this.core.search(target);
+        ]).then(() => __async(this, null, function* () {
+          const searchRes = yield this.core.search(target);
           console.log(searchRes);
           this.searchRes = searchRes;
           this.targetMediaUrl = targetMediaUrl;
           return { searchRes, targetMediaUrl };
-        });
+        }));
         return this.federView.search({ searchResPromise });
       } else {
         if (!this.searchRes) {
@@ -17913,33 +17952,30 @@ ${indentData}`);
       }
     }
     searchById(testId) {
-      const searchResPromise = this.initCoreAndViewPromise.then(() => {
-        if (!(testId in this.core.id2vector)) {
-          console.error("Invalid Id");
-        } else {
-          const testVec = this.core.id2vector[testId];
-          const targetMediaUrl = this.viewParams && this.viewParams.mediaCallback ? this.viewParams.mediaCallback(testId) : null;
-          const searchRes = this.core.search(testVec);
-          console.log(searchRes);
-          this.searchRes = searchRes;
-          return { searchRes, targetMediaUrl };
-        }
-      });
-      return this.federView.search({ searchResPromise });
-    }
-    searchRandTestVec() {
-      const searchResPromise = this.initCoreAndViewPromise.then(() => {
-        let [testId, testVec] = this.core.getTestIdAndVec();
-        while (isNaN(testId)) {
-          [testId, testVec] = this.core.getTestIdAndVec();
-        }
-        console.log("random test vector:", testId, testVec);
+      const searchResPromise = this.initCoreAndViewPromise.then(() => __async(this, null, function* () {
+        const testVec = yield this.core.getVectorById(testId);
         const targetMediaUrl = this.viewParams && this.viewParams.mediaCallback ? this.viewParams.mediaCallback(testId) : null;
-        const searchRes = this.core.search(testVec);
+        const searchRes = yield this.core.search(testVec);
         console.log(searchRes);
         this.searchRes = searchRes;
         return { searchRes, targetMediaUrl };
-      });
+      }));
+      return this.federView.search({ searchResPromise });
+    }
+    searchRandTestVec() {
+      const searchResPromise = new Promise((resolve) => __async(this, null, function* () {
+        this.initCoreAndViewPromise && (yield this.initCoreAndViewPromise);
+        let { testId, testVec } = yield this.core.getTestIdAndVec();
+        while (isNaN(testId)) {
+          [testId, testVec] = yield this.core.getTestIdAndVec();
+        }
+        console.log("random test vector:", testId, testVec);
+        const targetMediaUrl = this.viewParams && this.viewParams.mediaCallback ? this.viewParams.mediaCallback(testId) : null;
+        const searchRes = yield this.core.search(testVec);
+        console.log(searchRes);
+        this.searchRes = searchRes;
+        resolve({ searchRes, targetMediaUrl });
+      }));
       return this.federView.search({ searchResPromise });
     }
     setSearchParams(params) {
@@ -17948,7 +17984,7 @@ ${indentData}`);
         if (!this.core) {
           console.error("No feder-core");
         } else {
-          this.core.setSearchParams(params);
+          yield this.core.setSearchParams(params);
         }
         resolve();
       }));
@@ -17958,9 +17994,10 @@ ${indentData}`);
 
   // test/config.js
   var hnswSource = "hnswlib";
-  var hnswIndexFilePath = "https://assets.zilliz.com/hnswlib_hnsw_voc_17k_1f1dfd63a9.index";
+  var local = false;
+  var hnswIndexFilePath = local ? "data/hnswlib_hnsw_voc_17k.index" : "https://assets.zilliz.com/hnswlib_hnsw_voc_17k_1f1dfd63a9.index";
   var ivfflatSource = "faiss";
-  var ivfflatIndexFilePath = "https://assets.zilliz.com/faiss_ivf_flat_voc_17k_ab112eec72.index";
+  var ivfflatIndexFilePath = local ? "data/faiss_ivf_flat_voc_17k.index" : "https://assets.zilliz.com/faiss_ivf_flat_voc_17k_ab112eec72.index";
   var imgNamesFilePath = "https://assets.zilliz.com/voc_names_4cee9440b1.csv";
   var getRowId2name = () => __async(void 0, null, function* () {
     const data = yield csv2(imgNamesFilePath);
@@ -18002,7 +18039,7 @@ ${indentData}`);
     return feder;
   });
 
-  // test/test.js
+  // test/test_core_browser.js
   var domSelector = "#container";
   window.addEventListener("DOMContentLoaded", () => __async(void 0, null, function* () {
     const hnsw_feder = yield getFederHnsw();
