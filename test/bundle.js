@@ -7455,67 +7455,6 @@ ${indentData}`);
     }
   });
 
-  // federjs/Types.js
-  var SOURCE_TYPE = {
-    hnswlib: "hnswlib",
-    faiss: "faiss"
-  };
-  var INDEX_TYPE = {
-    hnsw: "hnsw",
-    ivf_flat: "ivf_flat",
-    flat: "flat"
-  };
-  var PROJECT_METHOD = {
-    umap: "umap",
-    tsne: "tsne"
-  };
-  var MetricType = {
-    METRIC_INNER_PRODUCT: 0,
-    METRIC_L2: 1,
-    METRIC_L1: 2,
-    METRIC_Linf: 3,
-    METRIC_Lp: 4,
-    METRIC_Canberra: 20,
-    METRIC_BrayCurtis: 21,
-    METRIC_JensenShannon: 22
-  };
-  var DirectMapType = {
-    NoMap: 0,
-    Array: 1,
-    Hashtable: 2
-  };
-  var IndexHeader = {
-    IVFFlat: "IwFl",
-    FlatL2: "IxF2",
-    FlatIR: "IxFI"
-  };
-  var HNSW_NODE_TYPE = {
-    Coarse: 1,
-    Candidate: 2,
-    Fine: 3,
-    Target: 4
-  };
-  var HNSW_LINK_TYPE = {
-    None: 0,
-    Visited: 1,
-    Extended: 2,
-    Searched: 3,
-    Fine: 4
-  };
-  var VIEW_TYPE = {
-    overview: "overview",
-    search: "search"
-  };
-  var SEARCH_VIEW_TYPE = {
-    voronoi: "voronoi",
-    polar: "polar",
-    project: "project"
-  };
-  var ANIMATION_TYPE = {
-    exit: "exit",
-    enter: "enter"
-  };
-
   // node_modules/d3-array/src/ascending.js
   function ascending(a2, b) {
     return a2 == null || b == null ? NaN : a2 < b ? -1 : a2 > b ? 1 : a2 >= b ? 0 : NaN;
@@ -13426,6 +13365,89 @@ ${indentData}`);
     return node.__zoom;
   }
 
+  // test/config.js
+  var imgNamesFilePath = "https://assets.zilliz.com/voc_names_4cee9440b1.csv";
+  var getRowId2name = () => __async(void 0, null, function* () {
+    const data = yield csv2(imgNamesFilePath);
+    const rowId2name = (rowId) => data[rowId].name;
+    return rowId2name;
+  });
+  var name2imgUrl = (name) => `https://assets.zilliz.com/voc2012/JPEGImages/${name}`;
+  var getRowId2imgUrl = () => __async(void 0, null, function* () {
+    const rowId2name = yield getRowId2name();
+    const rowId2imgUrl = (rowId) => name2imgUrl(rowId2name(rowId));
+    return rowId2imgUrl;
+  });
+
+  // federjs/Types.js
+  var SOURCE_TYPE = {
+    hnswlib: "hnswlib",
+    faiss: "faiss"
+  };
+  var INDEX_TYPE = {
+    hnsw: "hnsw",
+    ivf_flat: "ivf_flat",
+    flat: "flat"
+  };
+  var PROJECT_METHOD = {
+    umap: "umap",
+    tsne: "tsne"
+  };
+  var MetricType = {
+    METRIC_INNER_PRODUCT: 0,
+    METRIC_L2: 1,
+    METRIC_L1: 2,
+    METRIC_Linf: 3,
+    METRIC_Lp: 4,
+    METRIC_Canberra: 20,
+    METRIC_BrayCurtis: 21,
+    METRIC_JensenShannon: 22
+  };
+  var DirectMapType = {
+    NoMap: 0,
+    Array: 1,
+    Hashtable: 2
+  };
+  var IndexHeader = {
+    IVFFlat: "IwFl",
+    FlatL2: "IxF2",
+    FlatIR: "IxFI"
+  };
+  var HNSW_NODE_TYPE = {
+    Coarse: 1,
+    Candidate: 2,
+    Fine: 3,
+    Target: 4
+  };
+  var HNSW_LINK_TYPE = {
+    None: 0,
+    Visited: 1,
+    Extended: 2,
+    Searched: 3,
+    Fine: 4
+  };
+  var VIEW_TYPE = {
+    overview: "overview",
+    search: "search"
+  };
+  var SEARCH_VIEW_TYPE = {
+    voronoi: "voronoi",
+    polar: "polar",
+    project: "project"
+  };
+  var ANIMATION_TYPE = {
+    exit: "exit",
+    enter: "enter"
+  };
+  var FEDER_CORE_REQUEST = {
+    get_index_type: "get_index_type",
+    get_index_meta: "get_index_meta",
+    get_test_id_and_vector: "get_test_id_and_vector",
+    get_vector_by_id: "get_vector_by_id",
+    search: "search",
+    set_search_params: "set_search_params"
+  };
+
   // federjs/Utils/index.js
   var getDisL2 = (vec1, vec2) => {
     return Math.sqrt(vec1.map((num, i) => num - vec2[i]).map((num) => num * num).reduce((a2, c2) => a2 + c2, 0));
@@ -17536,10 +17558,10 @@ ${indentData}`);
         if (item.images) {
           const imagesDiv = div.append("div");
           imagesDiv.classed("panel-img-gallery", true);
-          item.images.forEach((url) => {
+          item.images.forEach((url2) => {
             const imgItem = imagesDiv.append("div");
             imgItem.classed("panel-img-gallery-item", true);
-            imgItem.style("background-image", `url(${url})`);
+            imgItem.style("background-image", `url(${url2})`);
           });
         }
         if (item.isOption) {
@@ -17862,20 +17884,10 @@ ${indentData}`);
     }
   };
 
-  // federjs/federCoreServer/config.js
-  var FEDER_CORE_REQUEST = {
-    get_index_type: "get_index_type",
-    get_index_meta: "get_index_meta",
-    get_test_id_and_vector: "get_test_id_and_vector",
-    get_vector_by_id: "get_vector_by_id",
-    search: "search",
-    set_search_params: "set_search_params"
-  };
-
   // federjs/Feder.js
   var Feder = class {
     constructor({
-      coreUrl = null,
+      coreUrl: coreUrl2 = null,
       filePath = "",
       source = "",
       domSelector: domSelector2 = null,
@@ -17883,7 +17895,7 @@ ${indentData}`);
     }) {
       this.federView = new FederView({ domSelector: domSelector2, viewParams });
       this.viewParams = viewParams;
-      if (!coreUrl) {
+      if (!coreUrl2) {
         this.initCoreAndViewPromise = fetch(filePath, { mode: "cors" }).then((res) => res.arrayBuffer()).then((data) => {
           const core = new FederCore({ data, source, viewParams });
           this.core = core;
@@ -17898,7 +17910,7 @@ ${indentData}`);
           });
         });
       } else {
-        const getUrl = (path2) => `${coreUrl}/${path2}?`;
+        const getUrl = (path2) => `${coreUrl2}/${path2}?`;
         const requestData = (path2, params = {}) => fetch(getUrl(path2) + new URLSearchParams(params), {
           mode: "cors"
         }).then((res) => res.json()).then((res) => {
@@ -17992,61 +18004,22 @@ ${indentData}`);
     }
   };
 
-  // test/config.js
-  var hnswSource = "hnswlib";
-  var local = false;
-  var hnswIndexFilePath = local ? "data/hnswlib_hnsw_voc_17k.index" : "https://assets.zilliz.com/hnswlib_hnsw_voc_17k_1f1dfd63a9.index";
-  var ivfflatSource = "faiss";
-  var ivfflatIndexFilePath = local ? "data/faiss_ivf_flat_voc_17k.index" : "https://assets.zilliz.com/faiss_ivf_flat_voc_17k_ab112eec72.index";
-  var imgNamesFilePath = "https://assets.zilliz.com/voc_names_4cee9440b1.csv";
-  var getRowId2name = () => __async(void 0, null, function* () {
-    const data = yield csv2(imgNamesFilePath);
-    const rowId2name = (rowId) => data[rowId].name;
-    return rowId2name;
-  });
-  var name2imgUrl = (name) => `https://assets.zilliz.com/voc2012/JPEGImages/${name}`;
-  var getRowId2imgUrl = () => __async(void 0, null, function* () {
-    const rowId2name = yield getRowId2name();
-    const rowId2imgUrl = (rowId) => name2imgUrl(rowId2name(rowId));
-    return rowId2imgUrl;
-  });
-
-  // test/testHnsw.js
-  var getFederHnsw = () => __async(void 0, null, function* () {
-    const rowId2imgUrl = yield getRowId2imgUrl();
-    const feder = new Feder({
-      source: hnswSource,
-      filePath: hnswIndexFilePath,
-      viewParams: {
-        mediaType: "img",
-        mediaCallback: rowId2imgUrl
-      }
-    });
-    return feder;
-  });
-
-  // test/testIvfflat.js
-  var getFederIvfflat = () => __async(void 0, null, function* () {
-    const rowId2imgUrl = yield getRowId2imgUrl();
-    const feder = new Feder({
-      source: ivfflatSource,
-      filePath: ivfflatIndexFilePath,
-      viewParams: {
-        mediaType: "img",
-        mediaCallback: rowId2imgUrl
-      }
-    });
-    return feder;
-  });
-
-  // test/test_core_browser.js
+  // test/test_core_node.js
+  var url = "http://localhost";
+  var port = 1332;
+  var coreUrl = `${url}:${port}`;
   var domSelector = "#container";
   window.addEventListener("DOMContentLoaded", () => __async(void 0, null, function* () {
-    const hnsw_feder = yield getFederHnsw();
-    document.querySelector(domSelector).appendChild(hnsw_feder.overview());
-    document.querySelector(domSelector).appendChild(hnsw_feder.setSearchParams({ k: 6, nprobe: 8, ef: 9 }).searchRandTestVec());
-    const ivfflat_feder = yield getFederIvfflat();
-    document.querySelector(domSelector).appendChild(ivfflat_feder.overview());
-    document.querySelector(domSelector).appendChild(ivfflat_feder.setSearchParams({ k: 9, nprobe: 8, ef: 6 }).searchById(14383));
+    const rowId2imgUrl = yield getRowId2imgUrl();
+    const feder = new Feder({
+      coreUrl,
+      viewParams: {
+        mediaType: "img",
+        mediaCallback: rowId2imgUrl
+      }
+    });
+    document.querySelector(domSelector).appendChild(feder.overview());
+    document.querySelector(domSelector).appendChild(feder.setSearchParams({ k: 9, nprobe: 8, ef: 6 }).searchById(14383));
+    document.querySelector(domSelector).appendChild(feder.setSearchParams({ k: 12, nprobe: 10, ef: 8 }).searchRandTestVec());
   }));
 })();

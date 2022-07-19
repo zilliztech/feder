@@ -1,6 +1,9 @@
 import { getRowId2imgUrl } from './config.js';
-import { coreNodePort } from 'federCoreServer/config.js';
 import { Feder } from '';
+
+const url = 'http://localhost';
+const port = 1332;
+const coreUrl = `${url}:${port}`;
 
 const domSelector = '#container';
 
@@ -8,7 +11,7 @@ window.addEventListener('DOMContentLoaded', async () => {
   const rowId2imgUrl = await getRowId2imgUrl();
 
   const feder = new Feder({
-    coreUrl: `http://[::]:${coreNodePort}`,
+    coreUrl,
     viewParams: {
       mediaType: 'img',
       mediaCallback: rowId2imgUrl,

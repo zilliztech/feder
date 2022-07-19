@@ -15,8 +15,8 @@
     "test": "c8 node test/index.js",
     "coverage": "mkdir -p ./coverage; c8 report --reporter=text-lcov > ./coverage/lcov.info",
     "dev": "esbuild test/test_core_browser.js --bundle --outfile=test/bundle.js --watch",
-    "dev_front": "esbuild test/test_core_node.js --bundle --outfile=test/bundle.js --watch",
-    "dev_node": "node federjs/federCoreServer/index.js",
+    "dev_core_browser": "esbuild test/test_core_browser.js --bundle --outfile=test/bundle.js --watch",
+    "dev_core_node": "esbuild test/test_core_node.js --bundle --outfile=test/bundle.js --watch",
     "publish_py": "cd federpy && rm -rf dist && python -m build && twine upload dist/*"
   },
   "repository": {
@@ -33,10 +33,7 @@
     "@zilliz/feder": "^0.2.4",
     "ascjs": "^5.0.1",
     "c8": "^7.11.2",
-    "cors": "^2.8.5",
-    "esbuild": "^0.14.38",
-    "express": "^4.18.1",
-    "node-fetch": "^3.2.8"
+    "esbuild": "^0.14.38"
   },
   "exports": {
     ".": {

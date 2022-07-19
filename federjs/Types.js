@@ -71,3 +71,12 @@ export const ANIMATION_TYPE = {
   exit: 'exit',
   enter: 'enter',
 }
+
+export const FEDER_CORE_REQUEST = {
+  get_index_type: "get_index_type",
+  get_index_meta: "get_index_meta",
+  get_test_id_and_vector: "get_test_id_and_vector",
+  get_vector_by_id: "get_vector_by_id",
+  search: "search",
+  set_search_params: "set_search_params",
+};
