@@ -1,6 +1,6 @@
 import FederCore from './FederCore';
 import FederView from './FederView';
-import { FEDER_CORE_REQUEST } from 'federCoreServer/config.js';
+import { FEDER_CORE_REQUEST } from 'Types';
 
 export default class Feder {
   constructor({
