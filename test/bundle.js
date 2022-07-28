@@ -13677,10 +13677,11 @@ ${indentData}`);
     const vectors = [];
     const externalLabel = [];
     for (let i = 0; i < index2.cur_element_count; i++) {
-      linkLists_level0_count.push(reader.readLevelOCount());
+      const count = reader.readLevelOCount();
+      linkLists_level0_count.push(count);
       isDeleted.push(reader.readIsDeleted());
       reader.readIsReused();
-      linkLists_level0.push(reader.readUint32Array(index2.maxM0_));
+      linkLists_level0.push(reader.readUint32Array(index2.maxM0_).slice(0, count));
       vectors.push(reader.readFloat32Array(index2.dim));
       externalLabel.push(reader.readUint64());
     }

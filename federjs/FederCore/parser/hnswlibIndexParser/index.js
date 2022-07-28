@@ -41,8 +41,8 @@ export const hnswlibIndexParser = (arrayBuffer) => {
       const levelCount = linkListSize / 4 / (index.maxM_ + 1);
       linkLists_[i] = generateArray(levelCount)
         .map((_) => reader.readUint32Array(index.maxM_ + 1))
-        .map((linkLists) => linkLists.slice(1, linkLists[0] + 1))
-        // .filter((a) => a.length > 0);
+        .map((linkLists) => linkLists.slice(1, linkLists[0] + 1));
+      // .filter((a) => a.length > 0);
     }
   }
   index.linkListSizes = linkListSizes;
@@ -78,10 +78,11 @@ const read_data_level0_memory_ = (reader, index) => {
   const vectors = [];
   const externalLabel = [];
   for (let i = 0; i < index.cur_element_count; i++) {
-    linkLists_level0_count.push(reader.readLevelOCount());
+    const count = reader.readLevelOCount();
+    linkLists_level0_count.push(count);
     isDeleted.push(reader.readIsDeleted());
     reader.readIsReused(); // Unknown use.
-    linkLists_level0.push(reader.readUint32Array(index.maxM0_));
+    linkLists_level0.push(reader.readUint32Array(index.maxM0_).slice(0, count));
     vectors.push(reader.readFloat32Array(index.dim));
     externalLabel.push(reader.readUint64());
     // console.log(isDeleted, linkLists_level0_count);
