@@ -4737,13 +4737,14 @@
   };
 
   // federjs/FederView/index.ts
-  var FederView = ({
-    indexType,
-    actionType,
-    viewType,
-    visData
-  }) => {
-    return "???";
+  var FederView = class {
+    constructor({
+      indexType,
+      actionType,
+      viewType,
+      visData
+    }) {
+    }
   };
 
   // test/index.js
@@ -4758,7 +4759,6 @@
     const arrayBuffer = yield fetch(hnswIndexFile).then((res) => res.arrayBuffer());
     const federIndex = new FederIndex("hnsw");
     federIndex.initByArrayBuffer(arrayBuffer);
-    console.log("federIndex", federIndex);
     const federLayout = new FederLayout(federIndex);
     const visDataAll = yield federLayout.getVisData({
       actionType: "search",
@@ -4769,7 +4769,6 @@
       viewType: "normal"
     });
     console.log("visDataAll", visDataAll);
-    const htmlElement = FederView(visDataAll);
-    console.log("htmlElement, htmlElement", htmlElement);
+    const federView = new FederView(visDataAll);
   }));
 })();
