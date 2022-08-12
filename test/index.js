@@ -1,7 +1,7 @@
-import { FederIndex, FederLayout, FederView } from "";
+import { FederIndex, FederLayout, FederView } from '';
 
 const hnswIndexFile =
-  "https://assets.zilliz.com/hnswlib_hnsw_voc_17k_1f1dfd63a9.index";
+  'https://assets.zilliz.com/hnswlib_hnsw_voc_17k_1f1dfd63a9.index';
 
 const testVector = Array(512)
   .fill(0)
@@ -13,13 +13,13 @@ const testSearchParams = {
   nprobe: 4,
 };
 
-window.addEventListener("DOMContentLoaded", async () => {
+window.addEventListener('DOMContentLoaded', async () => {
   const arrayBuffer = await fetch(hnswIndexFile).then((res) =>
     res.arrayBuffer()
   );
-  const federIndex = new FederIndex("hnsw");
+  const federIndex = new FederIndex('hnsw');
   federIndex.initByArrayBuffer(arrayBuffer);
-  console.log("federIndex", federIndex);
+  console.log('federIndex', federIndex);
 
   const federLayout = new FederLayout(federIndex);
 
@@ -29,16 +29,18 @@ window.addEventListener("DOMContentLoaded", async () => {
   // })
 
   const visDataAll = await federLayout.getVisData({
-    actionType: "search",
+    actionType: 'search',
     actionData: {
       target: testVector,
       searchParams: testSearchParams,
     },
-    // viewType: "normal", 
-    viewType: "hnsw3d",
+    viewType: 'normal',
+    // viewType: 'hnsw3d',
   });
 
-  console.log("visDataAll", visDataAll);
+  console.log('visDataAll', visDataAll);
 
-  const htmlElement = new FederView(visDataAll);
+  const federView = FederView(visDataAll);
+
+  // document.querySelector('#container').appendChild(federView.node);
 });

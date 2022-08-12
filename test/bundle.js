@@ -4737,10 +4737,13 @@
   };
 
   // federjs/FederView/index.ts
-  var FederView = class {
-    constructor({ indexType, actionType, viewType }) {
-      console.log("new view");
-    }
+  var FederView = ({
+    indexType,
+    actionType,
+    viewType,
+    visData
+  }) => {
+    return "???";
   };
 
   // test/index.js
@@ -4763,9 +4766,10 @@
         target: testVector,
         searchParams: testSearchParams
       },
-      viewType: "hnsw3d"
+      viewType: "normal"
     });
     console.log("visDataAll", visDataAll);
-    const htmlElement = new FederView(visDataAll);
+    const htmlElement = FederView(visDataAll);
+    console.log("htmlElement, htmlElement", htmlElement);
   }));
 })();
