@@ -1,8 +1,8 @@
 import express from 'express';
 import cors from 'cors';
-import getFederCore from './initFederCore.js';
+import getFederCore from './initFederCore.js.js';
 
-import { coreNodePort } from '../../test/config.js';
+import { coreNodePort } from '../config.js.js';
 
 const app = express();
 app.use(cors());

@@ -1,7 +1,15 @@
-import { TVisDataAll } from "Types/visData";
+import { TVisDataAll } from 'Types/visData';
 
-export class FederView {
-  constructor({ indexType, actionType, viewType }: TVisDataAll) {
-    console.log("new view");
-  }
-}
+export default class FederView {
+  node: HTMLElement;
+  constructor({
+    indexType,
+    actionType,
+    viewType,
+    visData,
+  }: TVisDataAll) {
+    
+  };
+} 
+
+
