@@ -14,7 +14,7 @@
     "cjs": "ascjs --no-default esm cjs",
     "test": "c8 node test/index.js",
     "coverage": "mkdir -p ./coverage; c8 report --reporter=text-lcov > ./coverage/lcov.info",
-    "dev": "esbuild test/test_core_browser.js --bundle --outfile=test/bundle.js --watch",
+    "dev": "esbuild test/index.js --bundle --outfile=test/bundle.js --watch",
     "dev_core_browser": "esbuild test/test_core_browser.js --bundle --outfile=test/bundle.js --watch",
     "dev_core_node": "esbuild test/test_core_node.js --bundle --outfile=test/bundle.js --watch",
     "publish_py": "cd federpy && rm -rf dist && python -m build && twine upload dist/*"
