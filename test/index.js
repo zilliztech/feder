@@ -17,9 +17,12 @@ window.addEventListener('DOMContentLoaded', async () => {
   const arrayBuffer = await fetch(hnswIndexFile).then((res) =>
     res.arrayBuffer()
   );
+
   const federIndex = new FederIndex('hnsw');
+
   federIndex.initByArrayBuffer(arrayBuffer);
-  console.log('federIndex', federIndex);
+
+  // console.log('federIndex', federIndex);
 
   const federLayout = new FederLayout(federIndex);
 
@@ -29,7 +32,7 @@ window.addEventListener('DOMContentLoaded', async () => {
   // })
 
   const visDataAll = await federLayout.getVisData({
-    actionType: 'search',
+    actionType: 'search', // 'overview'
     actionData: {
       target: testVector,
       searchParams: testSearchParams,
@@ -40,7 +43,7 @@ window.addEventListener('DOMContentLoaded', async () => {
 
   console.log('visDataAll', visDataAll);
 
-  const federView = FederView(visDataAll);
+  const federView = new FederView(visDataAll);
 
   // document.querySelector('#container').appendChild(federView.node);
 });

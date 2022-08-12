@@ -1,6 +1,6 @@
 import { TVisDataAll } from 'Types/visData';
 
-export default class FederView {
+export class FederView {
   node: HTMLElement;
   constructor({
     indexType,
