@@ -4,7 +4,7 @@ import TViewHandler from '../ViewHandler';
 
 import InfoPanel from 'FederView/InfoPanel';
 
-export default class HnswSearchHnsw3dViewHandler implements TViewHandler {
+export default class HnswSearchView implements TViewHandler {
   node: HTMLElement;
   staticPanel: InfoPanel;
   clickedPanel: InfoPanel;
