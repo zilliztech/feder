@@ -4756,7 +4756,7 @@
   // federjs/FederView/hnswView/HnswSearchHnsw3dViewHandler.ts
   var HnswSearchHnsw3dViewHandler = class {
     constructor(visData, viewParams) {
-      this.infoPanel = new infoPanel();
+      this.staticPanel = new infoPanel();
       this.clickedPanel = new infoPanel();
       this.hoveredPanel = new infoPanel();
       this.init(visData, viewParams);
