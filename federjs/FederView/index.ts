@@ -1,15 +1,15 @@
 import { TVisDataAll } from 'Types/visData';
 import { TViewParams, EIndexType, EActionType, EViewType } from 'Types';
 
-import HnswSearchHnsw3dViewHandler from './hnswView/HnswSearchHnsw3dViewHandler';
-import HnswSearchViewHandler from './hnswView/HnswSearchViewHandler';
+import HnswSearchHnsw3dView from './hnswView/HnswSearchHnsw3dView';
+import HnswSearchView from './hnswView/HnswSearchView';
 import ViewHandler from './ViewHandler';
 
-const viewHandlerMap = {
+const viewMap = {
   [EIndexType.hnsw + EActionType.search + EViewType.hnsw3d]:
-    HnswSearchHnsw3dViewHandler,
+    HnswSearchHnsw3dView,
   [EIndexType.hnsw + EActionType.search + EViewType.default]:
-    HnswSearchViewHandler,
+    HnswSearchView,
 };
 export class FederView {
   node: HTMLElement;
@@ -18,7 +18,7 @@ export class FederView {
     { indexType, actionType, viewType, visData }: TVisDataAll,
     viewParams: TViewParams
   ) {
-    this.view = new viewHandlerMap[indexType + actionType + viewType](
+    this.view = new viewMap[indexType + actionType + viewType](
       visData,
       viewParams
     );
