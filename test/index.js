@@ -18,7 +18,7 @@ window.addEventListener('DOMContentLoaded', async () => {
     res.arrayBuffer()
   );
 
-  const federIndex = new FederIndex('hnsw');
+  const federIndex = new FederIndex('hnswlib');
 
   federIndex.initByArrayBuffer(arrayBuffer);
 
@@ -37,13 +37,15 @@ window.addEventListener('DOMContentLoaded', async () => {
       target: testVector,
       searchParams: testSearchParams,
     },
-    viewType: 'normal',
-    // viewType: 'hnsw3d',
+    // viewType: 'default',
+    viewType: 'hnsw3d',
+    layoutParams: {},
   });
 
   console.log('visDataAll', visDataAll);
 
-  const federView = new FederView(visDataAll);
+  const viewParams = {};
+  const federView = new FederView(visDataAll, viewParams);
 
   // document.querySelector('#container').appendChild(federView.node);
 });

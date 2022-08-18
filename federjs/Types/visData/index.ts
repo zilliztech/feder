@@ -1,11 +1,12 @@
-import { EActionType, EIndexType, EViewType, TSearchParams, TVec } from "Types";
+import { EActionType, EIndexType, EViewType, TSearchParams, TVec } from 'Types';
 
+export type TVisData = any;
 export interface TVisDataAll {
   indexType: EIndexType;
   actionType: EActionType;
   actionData?: TAcitonData;
   viewType: EViewType;
-  visData: any;
+  visData: TVisData;
 }
 
 export interface TAcitonData {
@@ -13,5 +14,3 @@ export interface TAcitonData {
   targetUrl?: string;
   searchParams: TSearchParams;
 }
-
-export type TLayoutParams = any;

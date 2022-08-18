@@ -1,12 +1,15 @@
-import { TVec, TSearchParams, EViewType } from "Types";
-import { TSearchRecords, TSearchRecordsHnsw } from "Types/searchRecords";
+import { TFederLayoutHandler } from 'FederLayout/FederLayoutHandler';
+import { TVec, TSearchParams, EViewType, TLayoutParams } from 'Types';
+import { TSearchRecords, TSearchRecordsHnsw } from 'Types/searchRecords';
+import { TVisData } from 'Types/visData';
 
-import { searchViewLayoutHandler } from "./search";
-import { searchViewLayoutHandler3d } from "./search/hnsw3d";
+import { searchViewLayoutHandler } from './search';
+import { searchViewLayoutHandler3d } from './search/hnsw3d';
 
 const searchViewLayoutHandlerMap = {
-  [EViewType.normal]: searchViewLayoutHandler,
-  [EViewType.hnsw3d]: searchViewLayoutHandler3d,
+  [EViewType.default]: searchViewLayoutHandler,
+  [EViewType.hnsw3d]: searchViewLayoutHandler,
+  // [EViewType.hnsw3d]: searchViewLayoutHandler3d,
 };
 
 const defaultHnswLayoutParams = {
@@ -33,19 +36,23 @@ const defaultHnswLayoutParams = {
   targetOrigin: [0, 0],
 };
 
-export default class FederLayoutHnsw {
+export default class FederLayoutHnsw implements TFederLayoutHandler {
   constructor() {}
-  getOverviewVisData() {}
-  getSearchViewVisData(
+
+  computeOverviewVisData() {
+    return {} as TVisData;
+  }
+
+  computeSearchViewVisData(
     viewType: EViewType,
     searchRecords: TSearchRecordsHnsw,
-    layoutParams: any
+    layoutParams: TLayoutParams
   ) {
     const searchViewLayoutHandler = searchViewLayoutHandlerMap[viewType];
 
     return searchViewLayoutHandler(
       searchRecords,
       Object.assign({}, defaultHnswLayoutParams, layoutParams)
-    );
+    ) as TVisData;
   }
 }

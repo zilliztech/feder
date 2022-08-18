@@ -1,25 +1,28 @@
-import { EIndexType, TVec, TSearchParams } from "Types";
+import { ESourceType, EIndexType, TVec, TSearchParams } from 'Types';
 
-import { Parser } from "./parser";
-import { SearchHandler } from "./searchHandler";
+import { Parser } from './parser';
+import { SearchHandler } from './searchHandler';
 
 export class FederIndex {
-  index: any;
+  private index: any;
   indexType: EIndexType;
-  parser: Parser;
-  searchHandler: SearchHandler;
-  constructor(indexType: EIndexType) {
-    this.indexType = indexType;
-    this.parser = new Parser(indexType);
-    this.searchHandler = new SearchHandler(indexType);
+  private parser: Parser;
+  private searchHandler: SearchHandler;
+  constructor(sourceType: ESourceType) {
+    this.parser = new Parser(sourceType);
   }
   initByArrayBuffer(arrayBuffer: ArrayBuffer) {
     this.index = this.parser.parse(arrayBuffer);
+    this.indexType = this.index.indexType;
+    this.searchHandler = new SearchHandler(this.indexType);
   }
-  getIndexMeta() {
-    return "";
+  async getIndexType() {
+    return this.indexType;
   }
-  getSearchRecords(target: TVec, searchParams: TSearchParams) {
+  async getIndexMeta() {
+    return '';
+  }
+  async getSearchRecords(target: TVec, searchParams: TSearchParams) {
     return this.searchHandler.search({
       index: this.index,
       target,

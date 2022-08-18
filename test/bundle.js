@@ -184,7 +184,7 @@
 
   // federjs/FederIndex/parser/index.ts
   var parserMap = {
-    ["hnsw" /* hnsw */]: hnswlibIndexParser
+    ["hnswlib" /* hnswlib */]: hnswlibIndexParser
   };
   var Parser = class {
     constructor(indexType) {
@@ -441,22 +441,31 @@
 
   // federjs/FederIndex/index.ts
   var FederIndex = class {
-    constructor(indexType) {
-      this.indexType = indexType;
-      this.parser = new Parser(indexType);
-      this.searchHandler = new SearchHandler(indexType);
+    constructor(sourceType) {
+      this.parser = new Parser(sourceType);
     }
     initByArrayBuffer(arrayBuffer) {
       this.index = this.parser.parse(arrayBuffer);
+      this.indexType = this.index.indexType;
+      this.searchHandler = new SearchHandler(this.indexType);
+    }
+    getIndexType() {
+      return __async(this, null, function* () {
+        return this.indexType;
+      });
     }
     getIndexMeta() {
-      return "";
+      return __async(this, null, function* () {
+        return "";
+      });
     }
     getSearchRecords(target, searchParams) {
-      return this.searchHandler.search({
-        index: this.index,
-        target,
-        params: searchParams
+      return __async(this, null, function* () {
+        return this.searchHandler.search({
+          index: this.index,
+          target,
+          params: searchParams
+        });
       });
     }
   };
@@ -4651,15 +4660,10 @@
     };
   });
 
-  // federjs/FederLayout/visDataHandler/hnsw/search/hnsw3d.ts
-  var searchViewLayoutHandler3d = () => {
-    return {};
-  };
-
   // federjs/FederLayout/visDataHandler/hnsw/index.ts
   var searchViewLayoutHandlerMap = {
-    ["normal" /* normal */]: searchViewLayoutHandler,
-    ["hnsw3d" /* hnsw3d */]: searchViewLayoutHandler3d
+    ["default" /* default */]: searchViewLayoutHandler,
+    ["hnsw3d" /* hnsw3d */]: searchViewLayoutHandler
   };
   var defaultHnswLayoutParams = {
     padding: [80, 200, 60, 220],
@@ -4687,9 +4691,10 @@
   var FederLayoutHnsw = class {
     constructor() {
     }
-    getOverviewVisData() {
+    computeOverviewVisData() {
+      return {};
     }
-    getSearchViewVisData(viewType, searchRecords, layoutParams) {
+    computeSearchViewVisData(viewType, searchRecords, layoutParams) {
       const searchViewLayoutHandler2 = searchViewLayoutHandlerMap[viewType];
       return searchViewLayoutHandler2(searchRecords, Object.assign({}, defaultHnswLayoutParams, layoutParams));
     }
@@ -4710,18 +4715,18 @@
         return {};
       });
     }
-    getSearchViewVisData(_0, _1) {
-      return __async(this, arguments, function* (actionData, viewType, layoutParams = {}) {
-        const searchRecords = this.federIndex.getSearchRecords(actionData.target, actionData.searchParams);
+    getSearchViewVisData(actionData, viewType, layoutParams) {
+      return __async(this, null, function* () {
+        const searchRecords = yield this.federIndex.getSearchRecords(actionData.target, actionData.searchParams);
         console.log("searchRecords", searchRecords);
-        return yield this.federLayoutHandler.getSearchViewVisData(viewType, searchRecords, layoutParams);
+        return this.federLayoutHandler.computeSearchViewVisData(viewType, searchRecords, layoutParams);
       });
     }
     getVisData(_0) {
       return __async(this, arguments, function* ({
         actionType,
         actionData,
-        viewType = "normal" /* normal */,
+        viewType = "default" /* default */,
         layoutParams = {}
       }) {
         const visData = actionType === "search" /* search */ ? yield this.getSearchViewVisData(actionData, viewType, layoutParams) : yield this.getOverviewVisData(viewType, layoutParams);
@@ -4736,14 +4741,57 @@
     }
   };
 
+  // federjs/FederView/InfoPanel/index.ts
+  var infoPanel = class {
+    constructor(styles = {}, viewParams = {}) {
+    }
+    init() {
+    }
+    setContext(context = null) {
+    }
+    setPosition(pos = null) {
+    }
+  };
+
+  // federjs/FederView/hnswView/HnswSearchHnsw3dViewHandler.ts
+  var HnswSearchHnsw3dViewHandler = class {
+    constructor(visData, viewParams) {
+      this.infoPanel = new infoPanel();
+      this.clickedPanel = new infoPanel();
+      this.hoveredPanel = new infoPanel();
+      this.init(visData, viewParams);
+    }
+    init(visData, viewParams) {
+    }
+    render() {
+    }
+  };
+
+  // federjs/FederView/hnswView/HnswSearchViewHandler.ts
+  var HnswSearchViewHandler = class {
+    constructor(visData, viewParams) {
+      this.staticPanel = new infoPanel();
+      this.clickedPanel = new infoPanel();
+      this.hoveredPanel = new infoPanel();
+      this.init(visData, viewParams);
+    }
+    init(visData, viewParams) {
+    }
+    render() {
+    }
+  };
+
   // federjs/FederView/index.ts
+  var viewHandlerMap = {
+    ["hnsw" /* hnsw */ + "search" /* search */ + "hnsw3d" /* hnsw3d */]: HnswSearchHnsw3dViewHandler,
+    ["hnsw" /* hnsw */ + "search" /* search */ + "default" /* default */]: HnswSearchViewHandler
+  };
   var FederView = class {
-    constructor({
-      indexType,
-      actionType,
-      viewType,
-      visData
-    }) {
+    constructor({ indexType, actionType, viewType, visData }, viewParams) {
+      this.view = new viewHandlerMap[indexType + actionType + viewType](visData, viewParams);
+    }
+    render() {
+      this.view.render();
     }
   };
 
@@ -4757,7 +4805,7 @@
   };
   window.addEventListener("DOMContentLoaded", () => __async(void 0, null, function* () {
     const arrayBuffer = yield fetch(hnswIndexFile).then((res) => res.arrayBuffer());
-    const federIndex = new FederIndex("hnsw");
+    const federIndex = new FederIndex("hnswlib");
     federIndex.initByArrayBuffer(arrayBuffer);
     const federLayout = new FederLayout(federIndex);
     const visDataAll = yield federLayout.getVisData({
@@ -4766,9 +4814,11 @@
         target: testVector,
         searchParams: testSearchParams
       },
-      viewType: "normal"
+      viewType: "hnsw3d",
+      layoutParams: {}
     });
     console.log("visDataAll", visDataAll);
-    const federView = new FederView(visDataAll);
+    const viewParams = {};
+    const federView = new FederView(visDataAll, viewParams);
   }));
 })();
