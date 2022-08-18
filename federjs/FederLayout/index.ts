@@ -1,7 +1,15 @@
-import { FederIndex } from "FederIndex";
-import { EViewType, EActionType, EIndexType, TVec, TSearchParams } from "Types";
-import { TVisDataAll, TAcitonData, TLayoutParams } from "Types/visData";
-import FederLayoutHnsw from "./visDataHandler/hnsw";
+import { FederIndex } from 'FederIndex';
+import {
+  EViewType,
+  EActionType,
+  EIndexType,
+  TVec,
+  TSearchParams,
+  TLayoutParams,
+} from 'Types';
+import { TVisDataAll, TAcitonData } from 'Types/visData';
+import { TFederLayoutHandler } from './FederLayoutHandler';
+import FederLayoutHnsw from './visDataHandler/hnsw';
 
 const federLayoutHandlerMap = {
   [EIndexType.hnsw]: FederLayoutHnsw,
@@ -9,30 +17,30 @@ const federLayoutHandlerMap = {
 };
 
 export class FederLayout {
-  federIndex: FederIndex;
+  private federIndex: FederIndex;
   indexType: EIndexType;
-  federLayoutHandler: any;
+  private federLayoutHandler: TFederLayoutHandler;
   constructor(federIndex: FederIndex) {
     this.federIndex = federIndex;
     this.indexType = federIndex.indexType;
     this.federLayoutHandler = new federLayoutHandlerMap[federIndex.indexType]();
   }
 
-  async getOverviewVisData(viewType: EViewType, layoutParams: any) {
+  async getOverviewVisData(viewType: EViewType, layoutParams: TLayoutParams) {
     return {};
   }
 
   async getSearchViewVisData(
     actionData: TAcitonData,
     viewType: EViewType,
-    layoutParams: any = {}
+    layoutParams: TLayoutParams
   ) {
-    const searchRecords = this.federIndex.getSearchRecords(
+    const searchRecords = await this.federIndex.getSearchRecords(
       actionData.target,
       actionData.searchParams
     );
-    console.log("searchRecords", searchRecords);
-    return await this.federLayoutHandler.getSearchViewVisData(
+    console.log('searchRecords', searchRecords);
+    return this.federLayoutHandler.computeSearchViewVisData(
       viewType,
       searchRecords,
       layoutParams
@@ -42,7 +50,7 @@ export class FederLayout {
   async getVisData({
     actionType,
     actionData,
-    viewType = EViewType.normal,
+    viewType = EViewType.default,
     layoutParams = {},
   }: {
     actionType: EActionType;

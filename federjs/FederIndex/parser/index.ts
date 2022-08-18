@@ -1,15 +1,17 @@
-import { TIndexStructureHnsw, hnswlibIndexParser } from "./hnswlibParser";
-import { EIndexType } from "Types";
+import { TIndexStructureHnsw, hnswlibIndexParser } from './hnswlibParser';
+import { ESourceType } from 'Types';
 
 const parserMap = {
-  [EIndexType.hnsw]: hnswlibIndexParser,
+  [ESourceType.hnswlib]: hnswlibIndexParser,
+  // [ESourceType.faiss]: ,
+  // [ESourceType.milvus]: ,
 };
 
 export type TIndexParseFunc = (arrayBuffer: ArrayBuffer) => TIndexStructureHnsw;
 
 export class Parser {
   parse: TIndexParseFunc;
-  constructor(indexType: EIndexType) {
+  constructor(indexType: ESourceType) {
     this.parse = parserMap[indexType];
   }
 }

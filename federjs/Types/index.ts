@@ -2,9 +2,15 @@ export type TVec = number[];
 export type TId = number;
 export type TCoord = [number, number];
 
+export enum ESourceType {
+  faiss = 'faiss',
+  hnswlib = 'hnswlib',
+  milvus = 'milvus',
+}
+
 export enum EIndexType {
-  hnsw = "hnsw",
-  ivfflat = "ivfflat",
+  hnsw = 'hnsw',
+  ivfflat = 'ivfflat',
 }
 
 export enum EMetricType {
@@ -22,13 +28,13 @@ export enum EMetricType {
 }
 
 export enum EActionType {
-  overview = "overview",
-  search = "search",
+  overview = 'overview',
+  search = 'search',
 }
 
 export enum EViewType {
-  normal = "normal",
-  hnsw3d = "hnsw3d",
+  default = 'default',
+  hnsw3d = 'hnsw3d',
 }
 
 export interface TSearchParams {
@@ -53,3 +59,6 @@ export enum EHnswLinkType {
   Fine = 4,
 }
 
+export type TViewParams = any;
+
+export type TLayoutParams = any;
