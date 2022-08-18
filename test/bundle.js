@@ -4753,8 +4753,8 @@
     }
   };
 
-  // federjs/FederView/hnswView/HnswSearchHnsw3dViewHandler.ts
-  var HnswSearchHnsw3dViewHandler = class {
+  // federjs/FederView/hnswView/HnswSearchHnsw3dView.ts
+  var HnswSearchHnsw3dView = class {
     constructor(visData, viewParams) {
       this.staticPanel = new infoPanel();
       this.clickedPanel = new infoPanel();
@@ -4767,8 +4767,8 @@
     }
   };
 
-  // federjs/FederView/hnswView/HnswSearchViewHandler.ts
-  var HnswSearchViewHandler = class {
+  // federjs/FederView/hnswView/HnswSearchView.ts
+  var HnswSearchView = class {
     constructor(visData, viewParams) {
       this.staticPanel = new infoPanel();
       this.clickedPanel = new infoPanel();
@@ -4782,13 +4782,13 @@
   };
 
   // federjs/FederView/index.ts
-  var viewHandlerMap = {
-    ["hnsw" /* hnsw */ + "search" /* search */ + "hnsw3d" /* hnsw3d */]: HnswSearchHnsw3dViewHandler,
-    ["hnsw" /* hnsw */ + "search" /* search */ + "default" /* default */]: HnswSearchViewHandler
+  var viewMap = {
+    ["hnsw" /* hnsw */ + "search" /* search */ + "hnsw3d" /* hnsw3d */]: HnswSearchHnsw3dView,
+    ["hnsw" /* hnsw */ + "search" /* search */ + "default" /* default */]: HnswSearchView
   };
   var FederView = class {
     constructor({ indexType, actionType, viewType, visData }, viewParams) {
-      this.view = new viewHandlerMap[indexType + actionType + viewType](visData, viewParams);
+      this.view = new viewMap[indexType + actionType + viewType](visData, viewParams);
     }
     render() {
       this.view.render();
