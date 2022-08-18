@@ -6,11 +6,11 @@ import InfoPanel from 'FederView/InfoPanel';
 
 export default class HnswSearchHnsw3dViewHandler implements TViewHandler {
   node: HTMLElement;
-  infoPanel: InfoPanel;
+  staticPanel: InfoPanel;
   clickedPanel: InfoPanel;
   hoveredPanel: InfoPanel;
   constructor(visData: TVisData, viewParams: TViewParams) {
-    this.infoPanel = new InfoPanel();
+    this.staticPanel = new InfoPanel();
     this.clickedPanel = new InfoPanel();
     this.hoveredPanel = new InfoPanel();
 
