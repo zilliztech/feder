@@ -1,9 +1,10 @@
 import { TIndexStructureHnsw, hnswlibIndexParser } from './hnswlibParser';
+import { faissIndexParser } from './faissParser';
 import { ESourceType } from 'Types';
 
 const parserMap = {
   [ESourceType.hnswlib]: hnswlibIndexParser,
-  // [ESourceType.faiss]: ,
+  [ESourceType.faiss]: faissIndexParser,
   // [ESourceType.milvus]: ,
 };
 

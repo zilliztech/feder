@@ -1,7 +1,7 @@
-import { getDisFunc } from "Utils/distFunc";
-import { EMetricType, TSearchParams } from "Types";
-import { TSearchRecordsHnsw } from "Types/searchRecords";
-import searchLevelO from "./searchLevel0";
+import { getDisFunc } from 'Utils/distFunc';
+import { EMetricType, TSearchParams } from 'Types';
+import { TSearchRecordsHnsw } from 'Types/searchRecords';
+import searchLevelO from './searchLevel0';
 
 export const hnswlibHNSWSearch = ({
   index,
@@ -72,7 +72,6 @@ export const hnswlibHNSWSearch = ({
     const res = top_candidates.pop();
     topkResults.push({
       id: labels[res[1]],
-      internalId: res[1],
       dis: -res[0],
     });
   }

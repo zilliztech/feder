@@ -11,6 +11,7 @@ export enum ESourceType {
 export enum EIndexType {
   hnsw = 'hnsw',
   ivfflat = 'ivfflat',
+  flat = 'flat',
 }
 
 export enum EMetricType {
