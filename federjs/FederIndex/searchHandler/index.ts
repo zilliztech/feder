@@ -1,9 +1,11 @@
-import { hnswlibHNSWSearch } from "./hnswSearch";
-import { EIndexType, TVec, TSearchParams } from "Types";
-import { TSearchRecords } from "Types/searchRecords";
+import { hnswlibHNSWSearch } from './hnswSearch';
+import { faissIVFFlatSearch } from './ivfflatSearch';
+import { EIndexType, TVec, TSearchParams } from 'Types';
+import { TSearchRecords } from 'Types/searchRecords';
 
 const searchFuncMap = {
   [EIndexType.hnsw]: hnswlibHNSWSearch,
+  [EIndexType.ivfflat]: faissIVFFlatSearch,
 };
 
 export interface TSearchVectorAndParams {
