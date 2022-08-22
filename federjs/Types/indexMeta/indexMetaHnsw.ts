@@ -10,12 +10,12 @@ export interface TIndexMetaHnswGraph {
   nodes: TIndexMetaHnswGraphNode[];
 }
 
-export interface IIndexMetaHnsw {
+export interface TIndexMetaHnsw {
   efConstruction: number;
   M: number;
   ntotal: number;
-  ndeleted: number;
-  nLevels: number;
+  ndeleted?: number;
+  nlevels: number;
   entryPointId: TId;
   nOverviewLevels: number;
   overviewGraphLayers: TIndexMetaHnswGraph[];
