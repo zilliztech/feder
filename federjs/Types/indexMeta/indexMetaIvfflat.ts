@@ -9,6 +9,6 @@ export interface TIndexMetaIvfflatCluster {
 export interface TIndexMetaIvfflat {
   nlist: number;
   ntotal: number;
-  ndeleted: number;
+  ndeleted?: number;
   clusters: TIndexMetaIvfflatCluster[];
 }

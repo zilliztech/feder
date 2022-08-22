@@ -1,23 +1,23 @@
 import { FederIndex } from '../dist/index.js';
-import fetch from 'node-fetch';
-import { hnswIndexFilePath, hnswSource } from './config.js';
+import fs from 'fs';
+import { hnswIndexFilePath, hnswSource, outputDirPath } from './config.js';
 
 export async function test_federIndex_hnswlib_hnsw() {
   const federIndex = new FederIndex(hnswSource);
 
-  const arrayBuffer = await fetch(hnswIndexFilePath).then((res) =>
-    res.arrayBuffer()
-  );
+  const arrayBuffer = fs.readFileSync(hnswIndexFilePath).buffer;
   federIndex.initByArrayBuffer(arrayBuffer);
-
-  console.log(await federIndex.getIndexMeta());
 
   await test_getIndexMeta(federIndex);
   await test_getSearchRecords(federIndex);
 }
 
 const test_getIndexMeta = async (federIndex) => {
-  console.log(await federIndex.getIndexMeta());
+  const indexMeta = await federIndex.getIndexMeta();
+  fs.writeFileSync(
+    outputDirPath + 'FederIndex_hnswlib_hnsw_indexMeta.json',
+    JSON.stringify(indexMeta, null, 2)
+  );
 };
 
 const test_getSearchRecords = async (federIndex) => {
@@ -28,7 +28,14 @@ const test_getSearchRecords = async (federIndex) => {
   const testSearchParams = {
     k: 4,
     ef: 6,
-    nprobe: 4,
+    nprobe: 5,
   };
-  console.log(await federIndex.getSearchRecords(testVector, testSearchParams));
+  const searchRecords = await federIndex.getSearchRecords(
+    testVector,
+    testSearchParams
+  );
+  fs.writeFileSync(
+    outputDirPath + 'FederIndex_hnswlib_hnsw_searchRecords.json',
+    JSON.stringify(searchRecords, null, 2)
+  );
 };

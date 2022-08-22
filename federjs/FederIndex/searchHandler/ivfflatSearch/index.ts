@@ -1,13 +1,18 @@
-import { TSearchParams } from 'Types/index.js';
+import { TSearchParams, TVec } from 'Types';
+import { TIndexStructureIvfflat } from 'Types/indexStructure';
 import faissFlatSearch from './faissFlatSearch.js';
 import faissIVFSearch from './faissIVFSearch.js';
 
 export const faissIVFFlatSearch = ({
   index,
   target,
-  params = {} as TSearchParams,
+  searchParams = {},
+}: {
+  index: TIndexStructureIvfflat;
+  target: TVec;
+  searchParams: TSearchParams;
 }) => {
-  const { nprobe = 8, k = 10 } = params;
+  const { nprobe = 8, k = 10 } = searchParams;
 
   // cs: coarse-search
   // fs: fine-search
