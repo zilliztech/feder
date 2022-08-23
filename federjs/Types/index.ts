@@ -11,6 +11,7 @@ export enum ESourceType {
 export enum EIndexType {
   hnsw = 'hnsw',
   ivfflat = 'ivfflat',
+  flat = 'flat',
 }
 
 export enum EMetricType {
@@ -37,8 +38,12 @@ export enum EViewType {
   hnsw3d = 'hnsw3d',
 }
 
+export interface TMetaParams {
+  numOverviewLevel?: number;
+}
+
 export interface TSearchParams {
-  k: number;
+  k?: number;
   ef?: number;
   nprobe?: number;
   metricType?: EMetricType;

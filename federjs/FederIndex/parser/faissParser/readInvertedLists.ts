@@ -1,5 +1,3 @@
-import { generateArray } from 'Utils';
-
 const checkInvH = (h) => {
   if (h !== 'ilar') {
     console.warn('[invlists h] not ilar.', h);
@@ -17,23 +15,23 @@ const readArrayInvLists = (reader, invlists) => {
   checkInvListType(invlists.listType);
 
   invlists.listSizesSize = reader.readUint64();
-  invlists.listSizes = generateArray(invlists.listSizesSize).map((_) =>
-    reader.readUint64()
-  );
+  invlists.listSizes = Array(invlists.listSizesSize)
+    .fill(0)
+    .map((_) => reader.readUint64());
 
   const data = [];
-  generateArray(invlists.listSizesSize).forEach((_, i) => {
-    const vectors = generateArray(invlists.listSizes[i]).map((_) =>
-      reader.readFloat32Array(invlists.codeSize / 4)
-    );
+  for (let i = 0; i < invlists.listSizesSize; i++) {
+    const vectors = Array(invlists.listSizes[i])
+      .fill(0)
+      .map((_) => reader.readFloat32Array(invlists.codeSize / 4));
     const ids = reader.readUint64Array(invlists.listSizes[i]);
     data.push({ ids, vectors });
-  });
+  }
   invlists.data = data;
 };
 
 export const readInvertedLists = (reader, index) => {
-  const invlists = {};
+  const invlists = {} as any;
   invlists.h = reader.readH();
   checkInvH(invlists.h);
   invlists.nlist = reader.readUint64();

@@ -1,10 +1,15 @@
-import FaissFileReader from './FaissFileReader.js';
-import readInvertedLists from './readInvertedLists.js';
-import readDirectMap from './readDirectMap.js';
-import readIndexHeader from './readIndexHeader.js';
+import FaissFileReader from './FaissFileReader';
+import readInvertedLists from './readInvertedLists';
+import readDirectMap from './readDirectMap';
+import readIndexHeader from './readIndexHeader';
 
-import { generateArray } from 'Utils';
-import { INDEX_TYPE, IndexHeader } from 'Types';
+import { EIndexType } from 'Types';
+
+enum EFaissIndexHeader {
+  ivfflat = 'IwFl',
+  flatL2 = 'IxF2',
+  flatIR = 'IxFI',
+}
 
 const readIvfHeader = (reader, index) => {
   readIndexHeader(reader, index);
@@ -20,20 +25,23 @@ const readIvfHeader = (reader, index) => {
 const readXbVectors = (reader, index) => {
   index.codeSize = reader.readUint64();
 
-  index.vectors = generateArray(index.ntotal).map((_) =>
-    reader.readFloat32Array(index.d)
-  );
+  index.vectors = Array(index.ntotal)
+    .fill(0)
+    .map((_) => reader.readFloat32Array(index.d));
 };
 
 const readIndex = (reader) => {
-  const index = {};
+  const index = {} as any;
   index.h = reader.readH();
-  if (index.h === IndexHeader.IVFFlat) {
-    index.indexType = INDEX_TYPE.ivf_flat;
+  if (index.h === EFaissIndexHeader.ivfflat) {
+    index.indexType = EIndexType.ivfflat;
     readIvfHeader(reader, index);
     readInvertedLists(reader, index);
-  } else if (index.h === IndexHeader.FlatIR || index.h === IndexHeader.FlatL2) {
-    index.indexType = INDEX_TYPE.flat;
+  } else if (
+    index.h === EFaissIndexHeader.flatIR ||
+    index.h === EFaissIndexHeader.flatL2
+  ) {
+    index.indexType = EIndexType.flat;
     readIndexHeader(reader, index);
     readXbVectors(reader, index);
   } else {
@@ -42,10 +50,9 @@ const readIndex = (reader) => {
   return index;
 };
 
-const faissIndexParser = (arraybuffer) => {
+export const faissIndexParser = (arraybuffer) => {
   const faissFileReader = new FaissFileReader(arraybuffer);
   const index = readIndex(faissFileReader);
   return index;
 };
 
-export default faissIndexParser;

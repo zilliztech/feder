@@ -1,7 +1,9 @@
-import HNSWlibFileReader from "./HNSWlibFileReader.js";
-import { EIndexType } from "Types";
-import { TIndexStructureHnswDetail, TIndexStructureHnsw } from "./types";
-export { TIndexStructureHnsw } from "./types";
+import HNSWlibFileReader from './HNSWlibFileReader.js';
+import { EIndexType } from 'Types';
+import {
+  TIndexStructureHnswDetail,
+  TIndexStructureHnsw,
+} from 'Types/indexStructure';
 
 export const hnswlibIndexParser = (arrayBuffer: ArrayBuffer) => {
   const reader = new HNSWlibFileReader(arrayBuffer);
@@ -52,7 +54,7 @@ export const hnswlibIndexParser = (arrayBuffer: ArrayBuffer) => {
 
   console.assert(
     reader.isEmpty,
-    "HNSWlib Parser Failed. Not empty when the parser completes."
+    'HNSWlib Parser Failed. Not empty when the parser completes.'
   );
 
   return {

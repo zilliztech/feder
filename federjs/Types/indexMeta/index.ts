@@ -1,5 +1,5 @@
 import {
-  IIndexMetaHnsw,
+  TIndexMetaHnsw,
   TIndexMetaHnswGraphNode,
   TIndexMetaHnswGraph,
 } from "./indexMetaHnsw";
@@ -9,11 +9,11 @@ import {
   TIndexMetaIvfflatCluster,
 } from "./indexMetaIvfflat";
 
-type TIndexMeta = TIndexMetaIvfflat | IIndexMetaHnsw;
+type TIndexMeta = TIndexMetaIvfflat | TIndexMetaHnsw;
 
 export {
   TIndexMeta,
-  IIndexMetaHnsw,
+  TIndexMetaHnsw,
   TIndexMetaHnswGraphNode,
   TIndexMetaHnswGraph,
   TIndexMetaIvfflat,

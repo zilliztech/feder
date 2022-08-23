@@ -1,4 +1,4 @@
-import { TVec, TId, EIndexType } from "Types";
+import { TVec, TId, EIndexType } from 'Types';
 export type THnswlibLinkList = TId[];
 export type THnswlibLinkLists = THnswlibLinkList[];
 
