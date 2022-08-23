@@ -32,7 +32,7 @@ export class FederIndex {
   async getIndexMeta(metaParams: TMetaParams = {}) {
     return this.metaHandler.getMeta(this.index, metaParams);
   }
-  async getSearchRecords(target: TVec, searchParams: TSearchParams) {
+  async getSearchRecords(target: TVec, searchParams: TSearchParams = {}) {
     return this.searchHandler.search({
       index: this.index,
       target,
