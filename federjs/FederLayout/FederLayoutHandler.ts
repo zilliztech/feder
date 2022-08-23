@@ -1,9 +1,14 @@
 import { EViewType, TLayoutParams } from 'Types';
+import { TIndexMeta } from 'Types/indexMeta';
 import { TSearchRecords } from 'Types/searchRecords';
-import { TAcitonData, TVisDataAll } from 'Types/visData';
+import { TVisDataAll } from 'Types/visData';
 
 export interface TFederLayoutHandler {
-  computeOverviewVisData(): TVisDataAll;
+  computeOverviewVisData(
+    viewType: EViewType,
+    indexMeta: TIndexMeta,
+    layoutParams: TLayoutParams
+  ): TVisDataAll;
   computeSearchViewVisData(
     viewType: EViewType,
     searchRecords: TSearchRecords,

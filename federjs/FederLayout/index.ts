@@ -10,10 +10,11 @@ import {
 import { TVisDataAll, TAcitonData } from 'Types/visData';
 import { TFederLayoutHandler } from './FederLayoutHandler';
 import FederLayoutHnsw from './visDataHandler/hnsw';
+import FederLayoutIvfflat from './visDataHandler/ivfflat';
 
 const federLayoutHandlerMap = {
   [EIndexType.hnsw]: FederLayoutHnsw,
-  // [EIndexType.ivfflat]: FederLayoutIVFFlat;
+  [EIndexType.ivfflat]: FederLayoutIvfflat,
 };
 
 export class FederLayout {
@@ -36,9 +37,12 @@ export class FederLayout {
     layoutParams: TLayoutParams;
   }) {
     // [todo] cache
-    const indexMeta = await this.federIndex.getIndexMeta();
-    // const
-    return {};
+    const indexMeta = await this.federIndex.getIndexMeta(actionData.metaParams);
+    return this.federLayoutHandler.computeOverviewVisData(
+      viewType,
+      indexMeta,
+      layoutParams
+    );
   }
 
   async getSearchViewVisData({
