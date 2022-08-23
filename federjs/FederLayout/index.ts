@@ -26,20 +26,35 @@ export class FederLayout {
     this.federLayoutHandler = new federLayoutHandlerMap[federIndex.indexType]();
   }
 
-  async getOverviewVisData(viewType: EViewType, layoutParams: TLayoutParams) {
+  async getOverviewVisData({
+    actionData = {},
+    viewType,
+    layoutParams = {},
+  }: {
+    actionData: TAcitonData;
+    viewType: EViewType;
+    layoutParams: TLayoutParams;
+  }) {
+    // [todo] cache
+    const indexMeta = await this.federIndex.getIndexMeta();
+    // const
     return {};
   }
 
-  async getSearchViewVisData(
-    actionData: TAcitonData,
-    viewType: EViewType,
-    layoutParams: TLayoutParams
-  ) {
+  async getSearchViewVisData({
+    actionData = {},
+    viewType,
+    layoutParams = {},
+  }: {
+    actionData: TAcitonData;
+    viewType: EViewType;
+    layoutParams: TLayoutParams;
+  }) {
     const searchRecords = await this.federIndex.getSearchRecords(
       actionData.target,
       actionData.searchParams
     );
-    console.log('searchRecords', searchRecords);
+    console.log('searchRecords got!');
     return this.federLayoutHandler.computeSearchViewVisData(
       viewType,
       searchRecords,
@@ -60,8 +75,12 @@ export class FederLayout {
   }) {
     const visData =
       actionType === EActionType.search
-        ? await this.getSearchViewVisData(actionData, viewType, layoutParams)
-        : await this.getOverviewVisData(viewType, layoutParams);
+        ? await this.getSearchViewVisData({
+            actionData,
+            viewType,
+            layoutParams,
+          })
+        : await this.getOverviewVisData({ actionData, viewType, layoutParams });
     return {
       indexType: this.indexType,
       actionType,

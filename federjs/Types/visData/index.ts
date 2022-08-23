@@ -1,4 +1,4 @@
-import { EActionType, EIndexType, EViewType, TSearchParams, TVec } from 'Types';
+import { EActionType, EIndexType, EViewType, TMetaParams, TSearchParams, TVec } from 'Types';
 
 export type TVisData = any;
 export interface TVisDataAll {
@@ -10,7 +10,8 @@ export interface TVisDataAll {
 }
 
 export interface TAcitonData {
-  target: TVec;
+  target?: TVec;
   targetUrl?: string;
-  searchParams: TSearchParams;
+  searchParams?: TSearchParams;
+  metaParams?: TMetaParams;
 }
