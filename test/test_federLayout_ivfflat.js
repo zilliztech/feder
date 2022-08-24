@@ -15,7 +15,7 @@ export const test_federLayout_ivfflat = async () => {
   const federLayout = new FederLayout(federIndex);
   
   await test_getVisData_overview(federLayout);
-  await test_getVisData_search(federLayout);
+  // await test_getVisData_search(federLayout);
 };
 
 const test_getVisData_overview = async (federLayout) => {
