@@ -2,25 +2,16 @@ import { TIndexMetaIvfflat } from 'Types/indexMeta';
 import { getProjector } from 'FederLayout/projector';
 import { EProjectMethod, TCoord, TVec } from 'Types';
 import * as d3 from 'd3';
-import { TVisDataIvfflatOverviewCluster } from 'Types/visData';
+import {
+  TVisDataIvfflatOverviewCluster,
+  TLayoutParamsIvfflat,
+} from 'Types/visData';
 import getVoronoi from '../getVoronoi';
-export interface TLayoutParamsIvfflat {
-  width?: number;
-  height?: number;
-  coarseSearchWithProjection?: boolean;
-  fineSearchWithProjection?: boolean;
-  projectMethod?: EProjectMethod;
-  projectParams?: any;
-
-  minVoronoiRadius?: number;
-  canvasScale?: number;
-  numForceIterations?: number;
-}
 
 export const IvfflatOverviewLayout = (
   indexMeta: TIndexMetaIvfflat,
   layoutParams: TLayoutParamsIvfflat
-) => {
+): Promise<TVisDataIvfflatOverviewCluster[]> => {
   const {
     width = 800,
     height = 480,
@@ -102,7 +93,6 @@ export const IvfflatOverviewLayout = (
           cluster.forceProjection = [cluster.x, cluster.y];
         });
         const voronoi = getVoronoi(clusters, canvasWidth, canvasHeight);
-        console.log('voronoi', voronoi);
         clusters.forEach((cluster, i) => {
           const points = voronoi.cellPolygon(i);
           points.pop();
