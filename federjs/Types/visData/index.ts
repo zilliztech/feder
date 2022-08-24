@@ -1,4 +1,13 @@
-import { EActionType, EIndexType, EViewType, TMetaParams, TSearchParams, TVec } from 'Types';
+import {
+  EActionType,
+  EIndexType,
+  EViewType,
+  TCoord,
+  TId,
+  TMetaParams,
+  TSearchParams,
+  TVec,
+} from 'Types';
 
 export type TVisData = any;
 export interface TVisDataAll {
@@ -14,4 +23,26 @@ export interface TAcitonData {
   targetUrl?: string;
   searchParams?: TSearchParams;
   metaParams?: TMetaParams;
+}
+
+export interface TVisDataIvfflatOverview {
+  clusters: TVisDataIvfflatOverviewCluster[];
+  voronoi: d3.Voronoi<d3.Delaunay.Point>;
+}
+
+export interface TVisDataIvfflatOverviewCluster {
+  clusterId: TId;
+  ids: TId[];
+  count: number;
+  countP: number;
+  countArea: number;
+  x: number;
+  y: number;
+  r: number;
+
+  oriProjection: TCoord;
+  forceProjection: TCoord;
+
+  OVPolyPoints: TCoord[];
+  OVPolyCentroid: TCoord;
 }

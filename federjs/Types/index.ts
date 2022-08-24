@@ -67,3 +67,10 @@ export enum EHnswLinkType {
 export type TViewParams = any;
 
 export type TLayoutParams = any;
+
+export enum EProjectMethod {
+  umap = 'umap',
+  tsne = 'tsne',
+  pca = 'pca',
+  mds = 'mds',
+}
