@@ -14,8 +14,8 @@ export const test_federLayout_ivfflat = async () => {
 
   const federLayout = new FederLayout(federIndex);
   
-  await test_getVisData_overview(federLayout);
-  // await test_getVisData_search(federLayout);
+  // await test_getVisData_overview(federLayout);
+  await test_getVisData_search(federLayout);
 };
 
 const test_getVisData_overview = async (federLayout) => {
@@ -30,7 +30,7 @@ const test_getVisData_overview = async (federLayout) => {
   })
 
   fs.writeFileSync(
-    outputDirPath + 'FederLayout_ivfflat_overview.json',
+    outputDirPath + 'FederLayout_visData_ivfflat_overview.json',
     JSON.stringify(visDataOverview, null, 2)
   );
 }
@@ -60,7 +60,7 @@ const test_getVisData_search = async (federLayout) => {
   })
 
   fs.writeFileSync(
-    outputDirPath + 'FederLayout_ivfflat_overview.json',
+    outputDirPath + 'FederLayout_visData_ivfflat_search.json',
     JSON.stringify(visDataOverview, null, 2)
   );
 }

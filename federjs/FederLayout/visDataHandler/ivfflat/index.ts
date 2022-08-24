@@ -1,7 +1,11 @@
 import { EViewType } from 'Types';
 import { TIndexMeta } from 'Types/indexMeta';
 import { TSearchRecords } from 'Types/searchRecords';
-import { TVisDataAll } from 'Types/visData';
+import {
+  TLayoutParamsIvfflat,
+  TVisData,
+  TVisDataIvfflatOverviewCluster,
+} from 'Types/visData';
 import { TFederLayoutHandler } from '../../FederLayoutHandler';
 import IvfflatOverviewLayout from './overview';
 import IvfflatSearchViewLayout from './search';
@@ -15,20 +19,44 @@ const searchViewLayoutFuncMap = {
 };
 
 export default class FederLayoutIvfflat implements TFederLayoutHandler {
-  computeOverviewVisData(
+  indexMeta: TIndexMeta;
+  overviewLayoutParams: TLayoutParamsIvfflat;
+  overviewClusters: TVisDataIvfflatOverviewCluster;
+  async computeOverviewVisData(
     viewType: EViewType,
     indexMeta: TIndexMeta,
-    layoutParams: any
-  ): TVisDataAll {
+    layoutParams: TLayoutParamsIvfflat
+  ): Promise<TVisDataIvfflatOverviewCluster> {
+    this.indexMeta = indexMeta;
     const overviewLayoutFunc = overviewLayoutFuncMap[viewType];
-    return overviewLayoutFunc(indexMeta, layoutParams);
+    const overviewClusters = await overviewLayoutFunc(indexMeta, layoutParams);
+    this.overviewClusters = overviewClusters;
+    return overviewClusters;
   }
-  computeSearchViewVisData(
+  async computeSearchViewVisData(
     viewType: EViewType,
     searchRecords: TSearchRecords,
-    layoutParams: any
-  ): TVisDataAll {
+    layoutParams: TLayoutParamsIvfflat
+  ): Promise<TVisData> {
     const searchViewLayoutFunc = searchViewLayoutFuncMap[viewType];
-    return searchViewLayoutFunc(searchRecords, layoutParams);
+
+    let isSameLayoutParams = true;
+    for (let paramKey in this.overviewLayoutParams) {
+      if (this.overviewLayoutParams[paramKey] !== layoutParams[paramKey]) {
+        isSameLayoutParams = false;
+        console.log('paramKey');
+        break;
+      }
+    }
+
+    const overviewClusters = isSameLayoutParams
+      ? this.overviewClusters
+      : await this.computeOverviewVisData(
+          viewType,
+          this.indexMeta,
+          layoutParams
+        );
+
+    return searchViewLayoutFunc(overviewClusters, searchRecords, layoutParams);
   }
 }

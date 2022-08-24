@@ -1,17 +1,17 @@
 import { EViewType, TLayoutParams } from 'Types';
 import { TIndexMeta } from 'Types/indexMeta';
 import { TSearchRecords } from 'Types/searchRecords';
-import { TVisDataAll } from 'Types/visData';
+import { TVisData } from 'Types/visData';
 
 export interface TFederLayoutHandler {
   computeOverviewVisData(
     viewType: EViewType,
     indexMeta: TIndexMeta,
     layoutParams: TLayoutParams
-  ): TVisDataAll;
+  ): Promise<TVisData>;
   computeSearchViewVisData(
     viewType: EViewType,
     searchRecords: TSearchRecords,
     layoutParams: TLayoutParams
-  ): TVisDataAll;
+  ): Promise<TVisData>;
 }
