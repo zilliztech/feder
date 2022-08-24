@@ -12,6 +12,7 @@ export interface TFederLayoutHandler {
   computeSearchViewVisData(
     viewType: EViewType,
     searchRecords: TSearchRecords,
-    layoutParams: TLayoutParams
+    layoutParams: TLayoutParams,
+    indexMeta: TIndexMeta,
   ): Promise<TVisData>;
 }
