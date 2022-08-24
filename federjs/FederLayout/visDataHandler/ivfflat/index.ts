@@ -19,15 +19,13 @@ const searchViewLayoutFuncMap = {
 };
 
 export default class FederLayoutIvfflat implements TFederLayoutHandler {
-  indexMeta: TIndexMeta;
-  overviewLayoutParams: TLayoutParamsIvfflat;
+  overviewLayoutParams: TLayoutParamsIvfflat = {};
   overviewClusters: TVisDataIvfflatOverviewCluster;
   async computeOverviewVisData(
     viewType: EViewType,
     indexMeta: TIndexMeta,
     layoutParams: TLayoutParamsIvfflat
   ): Promise<TVisDataIvfflatOverviewCluster> {
-    this.indexMeta = indexMeta;
     const overviewLayoutFunc = overviewLayoutFuncMap[viewType];
     const overviewClusters = await overviewLayoutFunc(indexMeta, layoutParams);
     this.overviewClusters = overviewClusters;
@@ -36,26 +34,32 @@ export default class FederLayoutIvfflat implements TFederLayoutHandler {
   async computeSearchViewVisData(
     viewType: EViewType,
     searchRecords: TSearchRecords,
-    layoutParams: TLayoutParamsIvfflat
+    layoutParams: TLayoutParamsIvfflat,
+    indexMeta: TIndexMeta
   ): Promise<TVisData> {
     const searchViewLayoutFunc = searchViewLayoutFuncMap[viewType];
 
     let isSameLayoutParams = true;
-    for (let paramKey in this.overviewLayoutParams) {
-      if (this.overviewLayoutParams[paramKey] !== layoutParams[paramKey]) {
-        isSameLayoutParams = false;
-        console.log('paramKey');
-        break;
+    if (
+      Object.keys(this.overviewLayoutParams).length !==
+      Object.keys(layoutParams).length
+    ) {
+      isSameLayoutParams = false;
+    } else {
+      for (let paramKey in this.overviewLayoutParams) {
+        if (this.overviewLayoutParams[paramKey] !== layoutParams[paramKey]) {
+          isSameLayoutParams = false;
+          console.log('paramKey');
+          break;
+        }
       }
     }
+    const shouldUpdateOverviewVisData =
+      !this.overviewClusters || !isSameLayoutParams;
 
-    const overviewClusters = isSameLayoutParams
-      ? this.overviewClusters
-      : await this.computeOverviewVisData(
-          viewType,
-          this.indexMeta,
-          layoutParams
-        );
+    const overviewClusters = shouldUpdateOverviewVisData
+      ? await this.computeOverviewVisData(viewType, indexMeta, layoutParams)
+      : this.overviewClusters;
 
     return searchViewLayoutFunc(overviewClusters, searchRecords, layoutParams);
   }

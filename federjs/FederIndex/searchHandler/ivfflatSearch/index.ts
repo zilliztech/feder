@@ -24,7 +24,7 @@ export const faissIVFFlatSearch = ({
     0,
     Math.min(index.nlist, nprobe)
   );
-  const csListIds = csRes.map((res) => res.id);
+  const csListIds = csRes.map((res) => res.clusterId);
 
   const fsAllIdsAndDistances = faissIVFSearch({
     index,
@@ -34,13 +34,14 @@ export const faissIVFFlatSearch = ({
   // console.log('fsResProjections', fsResProjections);
   const fsRes = fsAllIdsAndDistances.slice(0, Math.min(index.ntotal, k));
 
-  const coarse = csAllListIdsAndDistances;
-  const fine = fsAllIdsAndDistances;
+  const coarseSearchRecords = csAllListIdsAndDistances;
+  const fineSearchRecords = fsAllIdsAndDistances;
   const res = {
-    coarse,
-    fine,
-    csResIds: csListIds,
-    fsResIds: fsRes.map((d) => d.id),
+    coarseSearchRecords,
+    fineSearchRecords,
+    nprobeClusterIds: csListIds,
+    topKVectorIds: fsRes.map((d) => d.id),
+    searchParams: { nprobe, k },
   };
 
   return res;

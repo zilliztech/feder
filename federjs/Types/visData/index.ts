@@ -50,8 +50,21 @@ export interface TVisDataIvfflatOverviewCluster {
 
 export interface TVisDataIvfflatSearchViewCluster
   extends TVisDataIvfflatOverviewCluster {
-    
-  }
+  distance: number;
+  inNprobe: boolean;
+  SVPos: TCoord;
+  SVPolyPoints: TCoord[];
+  SVPolyCentroid: TCoord;
+  polarOrder?: number;
+  SVNextLevelPos?: TCoord;
+  SVNextLevelTran?: TCoord;
+}
+
+export interface TVisDataIvfflatSearchViewTarget {
+  SVPos: TCoord;
+  isLeft_coarseLevel: boolean;
+  polarPos: TCoord;
+}
 
 export interface TLayoutParamsIvfflat {
   width?: number;
@@ -64,4 +77,5 @@ export interface TLayoutParamsIvfflat {
   minVoronoiRadius?: number;
   canvasScale?: number;
   numForceIterations?: number;
+  polarOriginBias?: number;
 }

@@ -7,6 +7,7 @@ import {
   TSearchParams,
   TLayoutParams,
 } from 'Types';
+import { TIndexMeta } from 'Types/indexMeta';
 import { TVisDataAll, TAcitonData } from 'Types/visData';
 import { TFederLayoutHandler } from './FederLayoutHandler';
 import FederLayoutHnsw from './visDataHandler/hnsw';
@@ -21,10 +22,17 @@ export class FederLayout {
   private federIndex: FederIndex;
   indexType: EIndexType;
   private federLayoutHandler: TFederLayoutHandler;
+  private getIndexMetaPromise: Promise<void>;
+  private indexMeta: TIndexMeta;
   constructor(federIndex: FederIndex) {
     this.federIndex = federIndex;
     this.indexType = federIndex.indexType;
     this.federLayoutHandler = new federLayoutHandlerMap[federIndex.indexType]();
+
+    this.getIndexMetaPromise = new Promise(async (resolve) => {
+      this.indexMeta = await this.federIndex.getIndexMeta();
+      resolve();
+    });
   }
 
   async getOverviewVisData({
@@ -37,10 +45,10 @@ export class FederLayout {
     layoutParams: TLayoutParams;
   }) {
     // [todo] cache
-    const indexMeta = await this.federIndex.getIndexMeta(actionData.metaParams);
+    await this.getIndexMetaPromise;
     return this.federLayoutHandler.computeOverviewVisData(
       viewType,
-      indexMeta,
+      this.indexMeta,
       layoutParams
     );
   }
@@ -62,7 +70,8 @@ export class FederLayout {
     return this.federLayoutHandler.computeSearchViewVisData(
       viewType,
       searchRecords,
-      layoutParams
+      layoutParams,
+      this.indexMeta // ivf searchVisData depends on overviewVisData, hnsw not
     );
   }
 
