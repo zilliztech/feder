@@ -60,10 +60,26 @@ export interface TVisDataIvfflatSearchViewCluster
   SVNextLevelTran?: TCoord;
 }
 
-export interface TVisDataIvfflatSearchViewTarget {
+export interface TVisDataIvfflatSearchViewTargetNode {
+  clusterId: TId;
   SVPos: TCoord;
   isLeft_coarseLevel: boolean;
   polarPos: TCoord;
+}
+
+export interface TVisDataIvfflatSearchViewNode {
+  id: TId;
+  clusterId: TId;
+  distance: number;
+  vector: TVec;
+  polarOrder?: number;
+  voronoiPos?: TCoord;
+  x?: number;
+  y?: number;
+  r?: number;
+  polarPos?: TCoord;
+  projection?: TCoord;
+  projectPos?: TCoord;
 }
 
 export interface TLayoutParamsIvfflat {
@@ -78,4 +94,7 @@ export interface TLayoutParamsIvfflat {
   canvasScale?: number;
   numForceIterations?: number;
   polarOriginBias?: number;
+  nonTopKNodeR?: number;
+
+  projectPadding?: [number, number, number, number];
 }

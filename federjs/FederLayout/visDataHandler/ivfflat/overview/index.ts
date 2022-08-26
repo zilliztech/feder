@@ -1,6 +1,6 @@
 import { TIndexMetaIvfflat } from 'Types/indexMeta';
 import { getProjector } from 'FederLayout/projector';
-import { EProjectMethod, TCoord, TVec } from 'Types';
+import { TCoord, TVec } from 'Types';
 import * as d3 from 'd3';
 import {
   TVisDataIvfflatOverviewCluster,
@@ -13,17 +13,17 @@ export const IvfflatOverviewLayout = (
   layoutParams: TLayoutParamsIvfflat
 ): Promise<TVisDataIvfflatOverviewCluster[]> => {
   const {
-    width = 800,
-    height = 480,
-    canvasScale = 2,
-    coarseSearchWithProjection = true,
-    projectMethod = EProjectMethod.umap,
-    projectParams = {},
-    minVoronoiRadius = 5,
-    numForceIterations = 100,
+    width,
+    height,
+    canvasScale,
+    coarseSearchWithProjection,
+    projectMethod,
+    projectParams,
+    minVoronoiRadius,
+    numForceIterations,
   } = layoutParams;
   return new Promise((resolve) => {
-    const { nlist, ntotal } = indexMeta;
+    const { ntotal } = indexMeta;
     const projector = coarseSearchWithProjection
       ? getProjector({
           method: projectMethod,
