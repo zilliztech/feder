@@ -10,7 +10,7 @@ export const faissIVFSearch = ({ index, csListIds, target }) => {
               id,
               clusterId: listId,
               distance: disFunc(cur.vectors[ofs], target),
-              // vec: cur.vectors[ofs]
+              vector: Array.from(cur.vectors[ofs]),
             }))
           : []
       ),
