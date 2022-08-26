@@ -1,16 +1,11 @@
-import * as d3 from 'd3';
-import { TCoord, TId, TVec } from 'Types';
 import { TSearchRecordsIvfflat } from 'Types/searchRecords';
 import {
   TLayoutParamsIvfflat,
   TVisDataIvfflatOverviewCluster,
-  TVisDataIvfflatSearchViewCluster,
-  TVisDataIvfflatSearchViewNode,
-  TVisDataIvfflatSearchViewTargetNode,
 } from 'Types/visData';
 import ivfflatSearchViewLayoutCoarseVoronoi from './coarseVoronoi';
 import ivfflatSearchViewLayoutFinePolar from './finePolar';
-import { getProjector } from 'FederLayout/projector';
+import ivfflatSearchViewLayoutFineProject from './fineProject';
 
 export const IvfflatSearchViewLayout = (
   overviewClusters: TVisDataIvfflatOverviewCluster,
@@ -42,5 +37,3 @@ export const IvfflatSearchViewLayout = (
   });
 };
 export default IvfflatSearchViewLayout;
-
-
