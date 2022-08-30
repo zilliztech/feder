@@ -1,6 +1,6 @@
 import { TViewParams } from 'Types';
 import { TVisData } from 'Types/visData';
-import TViewHandler from '../ViewHandler';
+import TViewHandler from '../types';
 
 import InfoPanel from 'FederView/InfoPanel';
 
