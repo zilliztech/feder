@@ -1,7 +1,6 @@
 import { FederIndex, FederLayout, FederView } from '';
 
-const hnswIndexFile =
-  'https://assets.zilliz.com/hnswlib_hnsw_voc_17k_1f1dfd63a9.index';
+const hnswIndexFile = 'hnswlib_hnsw_voc_17k_1f1dfd63a9.index';
 
 const testVector = Array(512)
   .fill(0)
@@ -46,6 +45,8 @@ window.addEventListener('DOMContentLoaded', async () => {
 
   const viewParams = {};
   const federView = new FederView(visDataAll, viewParams);
-
-  // document.querySelector('#container').appendChild(federView.node);
+  document.querySelector('#container').appendChild(federView.view.node);
+  
+  federView.view.render();
+  // federView.view.test();
 });

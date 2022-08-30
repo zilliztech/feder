@@ -8,8 +8,7 @@ import { searchViewLayoutHandler3d } from './search/hnsw3d';
 
 const searchViewLayoutHandlerMap = {
   [EViewType.default]: searchViewLayoutHandler,
-  [EViewType.hnsw3d]: searchViewLayoutHandler,
-  // [EViewType.hnsw3d]: searchViewLayoutHandler3d,
+  [EViewType.hnsw3d]: searchViewLayoutHandler3d,
 };
 
 const defaultHnswLayoutParams = {
