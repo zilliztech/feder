@@ -26,13 +26,6 @@ export default function renderNodes(this: IvfflatSearchView) {
       ? (node: TVisDataIvfflatSearchViewNode) => node.polarPos
       : (node: TVisDataIvfflatSearchViewNode) => node.projectPos;
 
-  this.ctx.clearRect(
-    0,
-    0,
-    this.viewParams.width * canvasScale,
-    this.viewParams.height * canvasScale
-  );
-
   // nonTopK
   for (let i = 0; i < nprobe; i++) {
     const nodes = this.searchViewNodes

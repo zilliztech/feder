@@ -12,6 +12,7 @@ import renderNodes from './renderNodes';
 import * as d3 from 'd3';
 import { TCoord } from 'Types';
 import { getDisL2Square } from 'Utils/distFunc';
+import clearCanvas from './clearCanvas';
 
 export enum EStepType {
   voronoi = 0,
@@ -115,15 +116,14 @@ export default class IvfflatSearchView implements ViewHandler {
     });
   }
   render(): void {
-    // this.renderVoronoiView();
-    // this.renderPolarView();
-    this.renderProjectView();
+    this.initVoronoiView();
+    // this.initPolarView();
+    // this.initProjectView();
   }
 
-  renderVoronoiView() {
+  initVoronoiView() {
     this.stepType = EStepType.voronoi;
-    renderClusters.call(this);
-    renderTarget.call(this);
+    this.renderVoronoiView();
 
     this.mouseClickHandler = null;
     this.mouseMoveHandler = ({ x, y }) => {
@@ -132,27 +132,33 @@ export default class IvfflatSearchView implements ViewHandler {
       );
       if (hoveredCluster !== this.hoveredCluster) {
         this.hoveredCluster = hoveredCluster;
-        requestAnimationFrame(() => this.renderVoronoiView());
+        this.renderVoronoiView();
       }
     };
     this.mouseLeaveHandler = () => {
       this.hoveredCluster = null;
-      requestAnimationFrame(() => this.renderVoronoiView());
+      this.renderVoronoiView();
     };
+  }
+  renderVoronoiView() {
+    clearCanvas.call(this);
+    renderClusters.call(this);
+    renderTarget.call(this);
     // updatePanel
   }
-  renderPolarView() {
-    this.stepType = EStepType.polar;
-    this.renderNodesView();
-  }
-  renderProjectView() {
-    this.stepType = EStepType.project;
-    this.renderNodesView();
-  }
-  renderNodesView() {
-    renderNodes.call(this);
 
+  initPolarView() {
+    this.stepType = EStepType.polar;
+    this.initNodesView();
+  }
+  initProjectView() {
+    this.stepType = EStepType.project;
+    this.initNodesView();
+  }
+  initNodesView() {
+    this.renderNodesView();
     this.mouseClickHandler = null;
+
     const { highlightNodeR, canvasScale } = this.viewParams;
     const mouseInNodeR = highlightNodeR * canvasScale;
     const threshold = mouseInNodeR * mouseInNodeR;
@@ -171,13 +177,20 @@ export default class IvfflatSearchView implements ViewHandler {
           : null;
       if (hoveredNode !== this.hoveredNode) {
         this.hoveredNode = hoveredNode;
-        requestAnimationFrame(() => this.renderNodesView());
+        this.renderNodesView();
       }
     };
+
     this.mouseLeaveHandler = () => {
       this.hoveredNode = null;
-      requestAnimationFrame(() => this.renderNodesView());
+      this.renderNodesView();
     };
+  }
+  renderNodesView() {
+    clearCanvas.call(this);
+    renderNodes.call(this);
+    this.stepType === EStepType.polar && renderTarget.call(this);
+    // updatePanel
   }
 }
 
