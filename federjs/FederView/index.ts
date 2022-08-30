@@ -3,16 +3,17 @@ import { TViewParams, EIndexType, EActionType, EViewType } from 'Types';
 
 import HnswSearchHnsw3dView from './hnswView/HnswSearchHnsw3dView';
 import HnswSearchView from './hnswView/HnswSearchView';
+import IvfflatSearchView from './ivfflatView/IvfflatSearchView';
 import ViewHandler from './ViewHandler';
 
 const viewMap = {
   [EIndexType.hnsw + EActionType.search + EViewType.hnsw3d]:
     HnswSearchHnsw3dView,
-  [EIndexType.hnsw + EActionType.search + EViewType.default]:
-    HnswSearchView,
+  [EIndexType.hnsw + EActionType.search + EViewType.default]: HnswSearchView,
+  [EIndexType.ivfflat + EActionType.search + EViewType.default]:
+    IvfflatSearchView,
 };
 export class FederView {
-  node: HTMLElement;
   view: ViewHandler;
   constructor(
     { indexType, actionType, viewType, visData }: TVisDataAll,
@@ -22,6 +23,9 @@ export class FederView {
       visData,
       viewParams
     );
+  }
+  get node() {
+    return this.view.node;
   }
 
   render() {

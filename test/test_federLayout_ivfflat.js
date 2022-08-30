@@ -5,11 +5,12 @@ import {
   outputDirPath,
 } from './config.js';
 import fs from 'fs';
+import path from 'path';
 
 export const test_federLayout_ivfflat = async () => {
   const federIndex = new FederIndex(ivfflatSource);
 
-  const arrayBuffer = fs.readFileSync(ivfflatIndexFilePath).buffer;
+  const arrayBuffer = fs.readFileSync(path.join("./test", ivfflatIndexFilePath)).buffer;
   federIndex.initByArrayBuffer(arrayBuffer);
 
   const federLayout = new FederLayout(federIndex);

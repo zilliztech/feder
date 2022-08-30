@@ -5,11 +5,14 @@ import {
   outputDirPath,
 } from './config.js';
 import fs from 'fs';
+import path from 'path';
 
 export async function test_federIndex_faiss_ivfflat() {
   const federIndex = new FederIndex(ivfflatSource);
 
-  const arrayBuffer = fs.readFileSync(ivfflatIndexFilePath).buffer;
+  const arrayBuffer = fs.readFileSync(
+    path.join('./test', ivfflatIndexFilePath)
+  ).buffer;
   federIndex.initByArrayBuffer(arrayBuffer);
 
   await test_getIndexMeta(federIndex);
