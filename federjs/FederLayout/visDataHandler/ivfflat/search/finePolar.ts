@@ -22,7 +22,7 @@ export const ivfflatSearchViewLayoutFinePolar = ({
   polarMaxR: number;
 }) =>
   new Promise<TVisDataIvfflatSearchViewNode[]>((resolve) => {
-    const { numForceIterations, nonTopKNodeR, canvasScale } = layoutParams;
+    const { numForceIterations, nonTopkNodeR, canvasScale } = layoutParams;
 
     const clusterId2cluster = {} as {
       [clusterId: TId]: TVisDataIvfflatSearchViewCluster;
@@ -32,13 +32,18 @@ export const ivfflatSearchViewLayoutFinePolar = ({
     );
 
     const searchViewNodes = searchRecords.fineSearchRecords.map(
-      ({ id, clusterId, distance }) => ({ id, clusterId, distance })
+      ({ id, clusterId, distance }) => ({
+        id,
+        clusterId,
+        distance,
+        inTopK: searchRecords.topKVectorIds.indexOf(id) >= 0,
+      })
     ) as TVisDataIvfflatSearchViewNode[];
     searchViewNodes.sort((a, b) => a.distance - b.distance);
 
     // distance scale
-    const minDis = getPercentile(searchViewNodes, 'clusterId', 0);
-    const maxDis = getPercentile(searchViewNodes, 'clusterId', 0.97);
+    const minDis = getPercentile(searchViewNodes, 'distance', 0);
+    const maxDis = getPercentile(searchViewNodes, 'distance', 0.97);
     const r = d3
       .scaleLinear()
       .domain([minDis, maxDis])
@@ -66,7 +71,7 @@ export const ivfflatSearchViewLayoutFinePolar = ({
         'collide',
         d3
           .forceCollide()
-          .radius((_) => nonTopKNodeR * canvasScale)
+          .radius((_) => nonTopkNodeR * canvasScale)
           .strength(0.4)
       )
       .force(

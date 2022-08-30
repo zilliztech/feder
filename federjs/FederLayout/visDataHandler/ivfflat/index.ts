@@ -5,6 +5,7 @@ import {
   TLayoutParamsIvfflat,
   TVisData,
   TVisDataIvfflatOverviewCluster,
+  TVisDataIvfflatSearchView,
 } from 'Types/visData';
 import { TFederLayoutHandler } from '../../FederLayoutHandler';
 import IvfflatOverviewLayout from './overview';
@@ -28,7 +29,7 @@ const layoutParamsIvfflatDefault = {
   projectMethod: EProjectMethod.umap,
   projectParams: {},
   polarOriginBias: 0.15,
-  nonTopKNodeR: 5,
+  nonTopkNodeR: 3,
   minVoronoiRadius: 5,
   projectPadding: [20, 30, 20, 30],
 };
@@ -56,7 +57,7 @@ export default class FederLayoutIvfflat implements TFederLayoutHandler {
     searchRecords: TSearchRecords,
     _layoutParams: TLayoutParamsIvfflat,
     indexMeta: TIndexMeta
-  ): Promise<TVisData> {
+  ): Promise<TVisDataIvfflatSearchView> {
     const layoutParams = Object.assign(
       {},
       layoutParamsIvfflatDefault,
