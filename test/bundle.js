@@ -7110,6 +7110,9 @@ ${indentData}`);
   };
 
   // federjs/Utils/distFunc.ts
+  var getDisL2Square = (vec1, vec2) => {
+    return vec1.map((num, i) => num - vec2[i]).map((num) => num * num).reduce((a2, c2) => a2 + c2, 0);
+  };
   var getDisL2 = (vec1, vec2) => {
     return Math.sqrt(vec1.map((num, i) => num - vec2[i]).map((num) => num * num).reduce((a2, c2) => a2 + c2, 0));
   };
@@ -7770,6 +7773,28 @@ ${indentData}`);
     else if (error >= e2)
       step1 *= 2;
     return stop < start2 ? -step1 : step1;
+  }
+
+  // node_modules/d3-array/src/minIndex.js
+  function minIndex(values, valueof) {
+    let min2;
+    let minIndex2 = -1;
+    let index2 = -1;
+    if (valueof === void 0) {
+      for (const value of values) {
+        ++index2;
+        if (value != null && (min2 > value || min2 === void 0 && value >= value)) {
+          min2 = value, minIndex2 = index2;
+        }
+      }
+    } else {
+      for (let value of values) {
+        if ((value = valueof(value, ++index2, values)) != null && (min2 > value || min2 === void 0 && value >= value)) {
+          min2 = value, minIndex2 = index2;
+        }
+      }
+    }
+    return minIndex2;
   }
 
   // node_modules/d3-array/src/range.js
@@ -13490,13 +13515,18 @@ ${indentData}`);
     polarOrigin,
     polarMaxR
   }) => new Promise((resolve) => {
-    const { numForceIterations, nonTopKNodeR, canvasScale } = layoutParams;
+    const { numForceIterations, nonTopkNodeR, canvasScale } = layoutParams;
     const clusterId2cluster = {};
     searchViewClusters.forEach((cluster) => clusterId2cluster[cluster.clusterId] = cluster);
-    const searchViewNodes = searchRecords.fineSearchRecords.map(({ id: id2, clusterId, distance }) => ({ id: id2, clusterId, distance }));
+    const searchViewNodes = searchRecords.fineSearchRecords.map(({ id: id2, clusterId, distance }) => ({
+      id: id2,
+      clusterId,
+      distance,
+      inTopK: searchRecords.topKVectorIds.indexOf(id2) >= 0
+    }));
     searchViewNodes.sort((a2, b) => a2.distance - b.distance);
-    const minDis = getPercentile(searchViewNodes, "clusterId", 0);
-    const maxDis = getPercentile(searchViewNodes, "clusterId", 0.97);
+    const minDis = getPercentile(searchViewNodes, "distance", 0);
+    const maxDis = getPercentile(searchViewNodes, "distance", 0.97);
     const r = linear2().domain([minDis, maxDis]).range([polarMaxR * 0.2, polarMaxR]).clamp(true);
     searchViewNodes.forEach((node) => {
       const cluster = clusterId2cluster[node.clusterId];
@@ -13509,7 +13539,7 @@ ${indentData}`);
       node.y = node.voronoiPos[1];
       node.r = r(node.distance);
     });
-    const simulation = simulation_default(searchViewNodes).alphaDecay(1 - Math.pow(1e-3, 1 / numForceIterations * 2)).force("collide", collide_default().radius((_) => nonTopKNodeR * canvasScale).strength(0.4)).force("r", radial_default((node) => node.r, ...polarOrigin).strength(1)).on("end", () => {
+    const simulation = simulation_default(searchViewNodes).alphaDecay(1 - Math.pow(1e-3, 1 / numForceIterations * 2)).force("collide", collide_default().radius((_) => nonTopkNodeR * canvasScale).strength(0.4)).force("r", radial_default((node) => node.r, ...polarOrigin).strength(1)).on("end", () => {
       searchViewNodes.forEach((node) => {
         node.polarPos = [node.x, node.y];
       });
@@ -13594,7 +13624,7 @@ ${indentData}`);
     projectMethod: "umap" /* umap */,
     projectParams: {},
     polarOriginBias: 0.15,
-    nonTopKNodeR: 5,
+    nonTopkNodeR: 3,
     minVoronoiRadius: 5,
     projectPadding: [20, 30, 20, 30]
   };
@@ -13823,6 +13853,116 @@ ${indentData}`);
     draw(__spreadValues({ ctx, drawFunc }, styles));
   };
 
+  // federjs/FederView/ivfflatView/renderClusters.ts
+  function renderClusters() {
+    const {
+      canvasScale,
+      nonNprobeClusterFill,
+      nonNprobeClusterOpacity,
+      nonNprobeClusterStroke,
+      nonNprobeClusterStrokeWidth,
+      nprobeClusterFill,
+      nprobeClusterOpacity,
+      nprobeClusterStroke,
+      nprobeClusterStrokeWidth,
+      hoveredClusterFill,
+      hoveredClusterOpacity,
+      hoveredClusterStroke,
+      hoveredClusterStrokeWidth
+    } = this.viewParams;
+    const nonNprobeClusters = this.searchViewClusters.filter((cluster) => !cluster.inNprobe);
+    drawPolygons({
+      ctx: this.ctx,
+      pointsList: nonNprobeClusters.map((cluster) => cluster.SVPolyPoints),
+      hasFill: true,
+      fillStyle: hexWithOpacity(nonNprobeClusterFill, nonNprobeClusterOpacity),
+      hasStroke: true,
+      strokeStyle: nonNprobeClusterStroke,
+      lineWidth: nonNprobeClusterStrokeWidth * canvasScale
+    });
+    const nprobeClusters = this.searchViewClusters.filter((cluster) => cluster.inNprobe);
+    drawPolygons({
+      ctx: this.ctx,
+      pointsList: nprobeClusters.map((cluster) => cluster.SVPolyPoints),
+      hasFill: true,
+      fillStyle: hexWithOpacity(nprobeClusterFill, nprobeClusterOpacity),
+      hasStroke: true,
+      strokeStyle: nprobeClusterStroke,
+      lineWidth: nprobeClusterStrokeWidth * canvasScale
+    });
+    this.hoveredCluster && drawPolygons({
+      ctx: this.ctx,
+      pointsList: [this.hoveredCluster.SVPolyPoints],
+      hasFill: true,
+      fillStyle: hexWithOpacity(hoveredClusterFill, hoveredClusterOpacity),
+      hasStroke: true,
+      strokeStyle: hoveredClusterStroke,
+      lineWidth: hoveredClusterStrokeWidth * canvasScale
+    });
+  }
+
+  // federjs/FederView/ivfflatView/renderTarget.ts
+  function renderTarget() {
+    const position = this.stepType === 0 /* voronoi */ ? this.targetNode.SVPos : this.targetNode.polarPos;
+    const { canvasScale, targetOuterR, targetInnerR, targetNodeStroke } = this.viewParams;
+    drawCircles({
+      ctx: this.ctx,
+      circles: [[...position, targetInnerR * canvasScale]],
+      hasStroke: true,
+      strokeStyle: targetNodeStroke,
+      lineWidth: (targetOuterR - targetInnerR) * canvasScale
+    });
+  }
+
+  // federjs/FederView/ivfflatView/renderNodes.ts
+  function renderNodes() {
+    const {
+      canvasScale,
+      topkNodeR,
+      topkNodeOpacity,
+      nonTopkNodeR,
+      nonTopkNodeOpacity,
+      highlightNodeR,
+      highlightNodeStroke,
+      highlightNodeStrokeWidth,
+      highlightNodeOpacity
+    } = this.viewParams;
+    const nprobe = this.searchViewClusters.filter((cluster) => cluster.inNprobe).length;
+    const colorScheme = range(nprobe).map((i) => hsl(360 * i / nprobe, 1, 0.5).formatHex());
+    const getPos = this.stepType === 1 /* polar */ ? (node) => node.polarPos : (node) => node.projectPos;
+    this.ctx.clearRect(0, 0, this.viewParams.width * canvasScale, this.viewParams.height * canvasScale);
+    for (let i = 0; i < nprobe; i++) {
+      const nodes = this.searchViewNodes.filter((node) => !node.inTopK).filter((node) => node.polarOrder === i);
+      drawCircles({
+        ctx: this.ctx,
+        circles: nodes.map((node) => [
+          ...getPos(node),
+          nonTopkNodeR * canvasScale
+        ]),
+        hasFill: true,
+        fillStyle: hexWithOpacity(colorScheme[i], nonTopkNodeOpacity)
+      });
+    }
+    for (let i = 0; i < nprobe; i++) {
+      const nodes = this.searchViewNodes.filter((node) => node.inTopK).filter((node) => node.polarOrder === i);
+      drawCircles({
+        ctx: this.ctx,
+        circles: nodes.map((node) => [...getPos(node), topkNodeR * canvasScale]),
+        hasFill: true,
+        fillStyle: hexWithOpacity(colorScheme[i], topkNodeOpacity)
+      });
+    }
+    this.hoveredNode && drawCircles({
+      ctx: this.ctx,
+      circles: [[...getPos(this.hoveredNode), highlightNodeR * canvasScale]],
+      hasFill: true,
+      fillStyle: hexWithOpacity(colorScheme[this.hoveredNode.polarOrder], highlightNodeOpacity),
+      hasStroke: true,
+      strokeStyle: highlightNodeStroke,
+      lineWidth: highlightNodeStrokeWidth * canvasScale
+    });
+  }
+
   // federjs/FederView/ivfflatView/IvfflatSearchView.ts
   var defaltViewParamsIvfflat = {
     width: 800,
@@ -13842,9 +13982,17 @@ ${indentData}`);
     hoveredClusterStrokeWidth: 2,
     targetOuterR: 12,
     targetInnerR: 7,
-    targetNodeStroke: "#fff"
+    targetNodeStroke: "#fff",
+    topkNodeR: 5,
+    topkNodeOpacity: 0.7,
+    nonTopkNodeR: 3,
+    nonTopkNodeOpacity: 0.4,
+    highlightNodeR: 6,
+    highlightNodeStroke: "#fff",
+    highlightNodeStrokeWidth: 1,
+    highlightNodeOpacity: 1
   };
-  var IvfflatSearchView = class {
+  var IvfflatSearchView3 = class {
     constructor(visData, viewParams) {
       this.hoveredCluster = null;
       this.hoveredNode = null;
@@ -13891,71 +14039,12 @@ ${indentData}`);
       });
     }
     render() {
-      this.renderVoronoiView();
-    }
-    renderClusters() {
-      const {
-        canvasScale,
-        nonNprobeClusterFill,
-        nonNprobeClusterOpacity,
-        nonNprobeClusterStroke,
-        nonNprobeClusterStrokeWidth,
-        nprobeClusterFill,
-        nprobeClusterOpacity,
-        nprobeClusterStroke,
-        nprobeClusterStrokeWidth,
-        hoveredClusterFill,
-        hoveredClusterOpacity,
-        hoveredClusterStroke,
-        hoveredClusterStrokeWidth
-      } = this.viewParams;
-      const nonNprobeClusters = this.searchViewClusters.filter((cluster) => !cluster.inNprobe);
-      drawPolygons({
-        ctx: this.ctx,
-        pointsList: nonNprobeClusters.map((cluster) => cluster.SVPolyPoints),
-        hasFill: true,
-        fillStyle: hexWithOpacity(nonNprobeClusterFill, nonNprobeClusterOpacity),
-        hasStroke: true,
-        strokeStyle: nonNprobeClusterStroke,
-        lineWidth: nonNprobeClusterStrokeWidth * canvasScale
-      });
-      const nprobeClusters = this.searchViewClusters.filter((cluster) => cluster.inNprobe);
-      drawPolygons({
-        ctx: this.ctx,
-        pointsList: nprobeClusters.map((cluster) => cluster.SVPolyPoints),
-        hasFill: true,
-        fillStyle: hexWithOpacity(nprobeClusterFill, nprobeClusterOpacity),
-        hasStroke: true,
-        strokeStyle: nprobeClusterStroke,
-        lineWidth: nprobeClusterStrokeWidth * canvasScale
-      });
-      this.hoveredCluster && drawPolygons({
-        ctx: this.ctx,
-        pointsList: [this.hoveredCluster.SVPolyPoints],
-        hasFill: true,
-        fillStyle: hexWithOpacity(hoveredClusterFill, hoveredClusterOpacity),
-        hasStroke: true,
-        strokeStyle: hoveredClusterStroke,
-        lineWidth: hoveredClusterStrokeWidth * canvasScale
-      });
-    }
-    renderNodes() {
-    }
-    renderTarget() {
-      const position = this.stepType === 0 /* voronoi */ ? this.targetNode.SVPos : this.targetNode.polarPos;
-      const { canvasScale, targetOuterR, targetInnerR, targetNodeStroke } = this.viewParams;
-      drawCircles({
-        ctx: this.ctx,
-        circles: [[...position, targetInnerR * canvasScale]],
-        hasStroke: true,
-        strokeStyle: targetNodeStroke,
-        lineWidth: (targetOuterR - targetInnerR) * canvasScale
-      });
+      this.renderProjectView();
     }
     renderVoronoiView() {
       this.stepType = 0 /* voronoi */;
-      this.renderClusters();
-      this.renderTarget();
+      renderClusters.call(this);
+      renderTarget.call(this);
       this.mouseClickHandler = null;
       this.mouseMoveHandler = ({ x: x3, y: y3 }) => {
         const hoveredCluster = this.searchViewClusters.find((cluster) => contains_default(cluster.SVPolyPoints, [x3, y3]));
@@ -13971,9 +14060,32 @@ ${indentData}`);
     }
     renderPolarView() {
       this.stepType = 1 /* polar */;
+      this.renderNodesView();
     }
     renderProjectView() {
       this.stepType = 2 /* project */;
+      this.renderNodesView();
+    }
+    renderNodesView() {
+      renderNodes.call(this);
+      this.mouseClickHandler = null;
+      const { highlightNodeR, canvasScale } = this.viewParams;
+      const mouseInNodeR = highlightNodeR * canvasScale;
+      const threshold = mouseInNodeR * mouseInNodeR;
+      const getPos = this.stepType === 1 /* polar */ ? (node) => node.polarPos : (node) => node.projectPos;
+      this.mouseMoveHandler = ({ x: x3, y: y3 }) => {
+        const distances = this.searchViewNodes.map((node) => getDisL2Square(getPos(node), [x3, y3]));
+        const nearestNodeIndex = minIndex(distances);
+        const hoveredNode = distances[nearestNodeIndex] < threshold ? this.searchViewNodes[nearestNodeIndex] : null;
+        if (hoveredNode !== this.hoveredNode) {
+          this.hoveredNode = hoveredNode;
+          requestAnimationFrame(() => this.renderNodesView());
+        }
+      };
+      this.mouseLeaveHandler = () => {
+        this.hoveredNode = null;
+        requestAnimationFrame(() => this.renderNodesView());
+      };
     }
   };
 
@@ -13981,7 +14093,7 @@ ${indentData}`);
   var viewMap = {
     ["hnsw" /* hnsw */ + "search" /* search */ + "hnsw3d" /* hnsw3d */]: HnswSearchHnsw3dView,
     ["hnsw" /* hnsw */ + "search" /* search */ + "default" /* default */]: HnswSearchView,
-    ["ivfflat" /* ivfflat */ + "search" /* search */ + "default" /* default */]: IvfflatSearchView
+    ["ivfflat" /* ivfflat */ + "search" /* search */ + "default" /* default */]: IvfflatSearchView3
   };
   var FederView = class {
     constructor({ indexType, actionType, viewType, visData }, viewParams) {
@@ -14024,6 +14136,7 @@ ${indentData}`);
     console.log("visDataAll", visDataAll);
     const viewParams = {};
     const federView = new FederView(visDataAll, viewParams);
+    console.log("federView", federView);
     document.querySelector("#container").appendChild(federView.node);
     federView.render();
   }));

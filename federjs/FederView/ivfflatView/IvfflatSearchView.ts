@@ -1,45 +1,22 @@
 import ViewHandler from 'FederView/types';
 import {
+  TViewParamsIvfflat,
   TVisDataIvfflatSearchView,
   TVisDataIvfflatSearchViewCluster,
   TVisDataIvfflatSearchViewNode,
   TVisDataIvfflatSearchViewTargetNode,
 } from 'Types/visData';
+import renderClusters from './renderClusters';
+import renderTarget from './renderTarget';
+import renderNodes from './renderNodes';
 import * as d3 from 'd3';
-import {
-  drawCircles,
-  drawPolygons,
-  hexWithOpacity,
-} from 'FederView/renderUtils2D';
 import { TCoord } from 'Types';
+import { getDisL2Square } from 'Utils/distFunc';
 
 export enum EStepType {
   voronoi = 0,
   polar,
   project,
-}
-
-export interface TViewParamsIvfflat {
-  width: number;
-  height: number;
-  canvasScale: number;
-
-  nonNprobeClusterFill: string;
-  nonNprobeClusterOpacity: number;
-  nonNprobeClusterStroke: string;
-  nonNprobeClusterStrokeWidth: number;
-  nprobeClusterFill: string;
-  nprobeClusterOpacity: number;
-  nprobeClusterStroke: string;
-  nprobeClusterStrokeWidth: number;
-  hoveredClusterFill: string;
-  hoveredClusterOpacity: number;
-  hoveredClusterStroke: string;
-  hoveredClusterStrokeWidth: number;
-
-  targetOuterR: number;
-  targetInnerR: number;
-  targetNodeStroke: string;
 }
 
 const defaltViewParamsIvfflat = {
@@ -63,6 +40,15 @@ const defaltViewParamsIvfflat = {
   targetOuterR: 12,
   targetInnerR: 7,
   targetNodeStroke: '#fff',
+
+  topkNodeR: 5,
+  topkNodeOpacity: 0.7,
+  nonTopkNodeR: 3,
+  nonTopkNodeOpacity: 0.4,
+  highlightNodeR: 6,
+  highlightNodeStroke: '#fff',
+  highlightNodeStrokeWidth: 1,
+  highlightNodeOpacity: 1,
 } as TViewParamsIvfflat;
 
 export default class IvfflatSearchView implements ViewHandler {
@@ -129,90 +115,15 @@ export default class IvfflatSearchView implements ViewHandler {
     });
   }
   render(): void {
-    this.renderVoronoiView();
-  }
-  renderClusters() {
-    // non-nprobe
-    const {
-      canvasScale,
-      nonNprobeClusterFill,
-      nonNprobeClusterOpacity,
-      nonNprobeClusterStroke,
-      nonNprobeClusterStrokeWidth,
-      nprobeClusterFill,
-      nprobeClusterOpacity,
-      nprobeClusterStroke,
-      nprobeClusterStrokeWidth,
-      hoveredClusterFill,
-      hoveredClusterOpacity,
-      hoveredClusterStroke,
-      hoveredClusterStrokeWidth,
-    } = this.viewParams;
-    const nonNprobeClusters = this.searchViewClusters.filter(
-      (cluster) => !cluster.inNprobe
-    );
-    drawPolygons({
-      ctx: this.ctx,
-      pointsList: nonNprobeClusters.map((cluster) => cluster.SVPolyPoints),
-      hasFill: true,
-      fillStyle: hexWithOpacity(nonNprobeClusterFill, nonNprobeClusterOpacity),
-      hasStroke: true,
-      strokeStyle: nonNprobeClusterStroke,
-      lineWidth: nonNprobeClusterStrokeWidth * canvasScale,
-    });
-
-    // probe
-    const nprobeClusters = this.searchViewClusters.filter(
-      (cluster) => cluster.inNprobe
-    );
-    drawPolygons({
-      ctx: this.ctx,
-      pointsList: nprobeClusters.map((cluster) => cluster.SVPolyPoints),
-      hasFill: true,
-      fillStyle: hexWithOpacity(nprobeClusterFill, nprobeClusterOpacity),
-      hasStroke: true,
-      strokeStyle: nprobeClusterStroke,
-      lineWidth: nprobeClusterStrokeWidth * canvasScale,
-    });
-
-    // hover
-    this.hoveredCluster &&
-      drawPolygons({
-        ctx: this.ctx,
-        pointsList: [this.hoveredCluster.SVPolyPoints],
-        hasFill: true,
-        fillStyle: hexWithOpacity(hoveredClusterFill, hoveredClusterOpacity),
-        hasStroke: true,
-        strokeStyle: hoveredClusterStroke,
-        lineWidth: hoveredClusterStrokeWidth * canvasScale,
-      });
-  }
-  renderNodes() {
-    // for t in nprobe
-    // non-topk
-    // top-k
-    // hover
-  }
-  renderTarget() {
-    const position =
-      this.stepType === EStepType.voronoi
-        ? this.targetNode.SVPos
-        : this.targetNode.polarPos;
-    const { canvasScale, targetOuterR, targetInnerR, targetNodeStroke } =
-      this.viewParams;
-    drawCircles({
-      ctx: this.ctx,
-      circles: [[...position, targetInnerR * canvasScale]],
-      hasStroke: true,
-      strokeStyle: targetNodeStroke,
-      lineWidth: (targetOuterR - targetInnerR) * canvasScale,
-    });
+    // this.renderVoronoiView();
+    // this.renderPolarView();
+    this.renderProjectView();
   }
 
   renderVoronoiView() {
     this.stepType = EStepType.voronoi;
-    this.renderClusters();
-    this.renderTarget();
+    renderClusters.call(this);
+    renderTarget.call(this);
 
     this.mouseClickHandler = null;
     this.mouseMoveHandler = ({ x, y }) => {
@@ -232,9 +143,41 @@ export default class IvfflatSearchView implements ViewHandler {
   }
   renderPolarView() {
     this.stepType = EStepType.polar;
+    this.renderNodesView();
   }
   renderProjectView() {
     this.stepType = EStepType.project;
+    this.renderNodesView();
+  }
+  renderNodesView() {
+    renderNodes.call(this);
+
+    this.mouseClickHandler = null;
+    const { highlightNodeR, canvasScale } = this.viewParams;
+    const mouseInNodeR = highlightNodeR * canvasScale;
+    const threshold = mouseInNodeR * mouseInNodeR;
+    const getPos =
+      this.stepType === EStepType.polar
+        ? (node: TVisDataIvfflatSearchViewNode) => node.polarPos
+        : (node: TVisDataIvfflatSearchViewNode) => node.projectPos;
+    this.mouseMoveHandler = ({ x, y }) => {
+      const distances = this.searchViewNodes.map((node) =>
+        getDisL2Square(getPos(node), [x, y])
+      );
+      const nearestNodeIndex = d3.minIndex(distances);
+      const hoveredNode =
+        distances[nearestNodeIndex] < threshold
+          ? this.searchViewNodes[nearestNodeIndex]
+          : null;
+      if (hoveredNode !== this.hoveredNode) {
+        this.hoveredNode = hoveredNode;
+        requestAnimationFrame(() => this.renderNodesView());
+      }
+    };
+    this.mouseLeaveHandler = () => {
+      this.hoveredNode = null;
+      requestAnimationFrame(() => this.renderNodesView());
+    };
   }
 }
 

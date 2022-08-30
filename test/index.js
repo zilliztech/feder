@@ -49,6 +49,7 @@ window.addEventListener('DOMContentLoaded', async () => {
 
   const viewParams = {};
   const federView = new FederView(visDataAll, viewParams);
+  console.log('federView', federView);
 
   document.querySelector('#container').appendChild(federView.node);
   federView.render();

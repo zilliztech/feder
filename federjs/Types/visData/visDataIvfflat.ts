@@ -45,6 +45,7 @@ export interface TVisDataIvfflatSearchViewNode {
   id: TId;
   clusterId: TId;
   distance: number;
+  inTopK: boolean;
   vector: TVec;
   polarOrder?: number;
   voronoiPos?: TCoord;
@@ -75,7 +76,39 @@ export interface TLayoutParamsIvfflat {
   canvasScale?: number;
   numForceIterations?: number;
   polarOriginBias?: number;
-  nonTopKNodeR?: number;
+  nonTopkNodeR?: number;
 
   projectPadding?: [number, number, number, number];
+}
+
+export interface TViewParamsIvfflat {
+  width: number;
+  height: number;
+  canvasScale: number;
+
+  nonNprobeClusterFill: string;
+  nonNprobeClusterOpacity: number;
+  nonNprobeClusterStroke: string;
+  nonNprobeClusterStrokeWidth: number;
+  nprobeClusterFill: string;
+  nprobeClusterOpacity: number;
+  nprobeClusterStroke: string;
+  nprobeClusterStrokeWidth: number;
+  hoveredClusterFill: string;
+  hoveredClusterOpacity: number;
+  hoveredClusterStroke: string;
+  hoveredClusterStrokeWidth: number;
+
+  targetOuterR: number;
+  targetInnerR: number;
+  targetNodeStroke: string;
+
+  topkNodeR: number;
+  topkNodeOpacity: number;
+  nonTopkNodeR: number;
+  nonTopkNodeOpacity: number;
+  highlightNodeR: number;
+  highlightNodeStroke: string;
+  highlightNodeStrokeWidth: number;
+  highlightNodeOpacity: number;
 }
