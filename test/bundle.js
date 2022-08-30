@@ -13930,7 +13930,6 @@ ${indentData}`);
     const nprobe = this.searchViewClusters.filter((cluster) => cluster.inNprobe).length;
     const colorScheme = range(nprobe).map((i) => hsl(360 * i / nprobe, 1, 0.5).formatHex());
     const getPos = this.stepType === 1 /* polar */ ? (node) => node.polarPos : (node) => node.projectPos;
-    this.ctx.clearRect(0, 0, this.viewParams.width * canvasScale, this.viewParams.height * canvasScale);
     for (let i = 0; i < nprobe; i++) {
       const nodes = this.searchViewNodes.filter((node) => !node.inTopK).filter((node) => node.polarOrder === i);
       drawCircles({
@@ -13961,6 +13960,12 @@ ${indentData}`);
       strokeStyle: highlightNodeStroke,
       lineWidth: highlightNodeStrokeWidth * canvasScale
     });
+  }
+
+  // federjs/FederView/ivfflatView/clearCanvas.ts
+  function clearCanvas() {
+    const { width, height, canvasScale } = this.viewParams;
+    this.ctx.clearRect(0, 0, width * canvasScale, height * canvasScale);
   }
 
   // federjs/FederView/ivfflatView/IvfflatSearchView.ts
@@ -14039,35 +14044,39 @@ ${indentData}`);
       });
     }
     render() {
-      this.renderProjectView();
+      this.initVoronoiView();
     }
-    renderVoronoiView() {
+    initVoronoiView() {
       this.stepType = 0 /* voronoi */;
-      renderClusters.call(this);
-      renderTarget.call(this);
+      this.renderVoronoiView();
       this.mouseClickHandler = null;
       this.mouseMoveHandler = ({ x: x3, y: y3 }) => {
         const hoveredCluster = this.searchViewClusters.find((cluster) => contains_default(cluster.SVPolyPoints, [x3, y3]));
         if (hoveredCluster !== this.hoveredCluster) {
           this.hoveredCluster = hoveredCluster;
-          requestAnimationFrame(() => this.renderVoronoiView());
+          this.renderVoronoiView();
         }
       };
       this.mouseLeaveHandler = () => {
         this.hoveredCluster = null;
-        requestAnimationFrame(() => this.renderVoronoiView());
+        this.renderVoronoiView();
       };
     }
-    renderPolarView() {
+    renderVoronoiView() {
+      clearCanvas.call(this);
+      renderClusters.call(this);
+      renderTarget.call(this);
+    }
+    initPolarView() {
       this.stepType = 1 /* polar */;
-      this.renderNodesView();
+      this.initNodesView();
     }
-    renderProjectView() {
+    initProjectView() {
       this.stepType = 2 /* project */;
-      this.renderNodesView();
+      this.initNodesView();
     }
-    renderNodesView() {
-      renderNodes.call(this);
+    initNodesView() {
+      this.renderNodesView();
       this.mouseClickHandler = null;
       const { highlightNodeR, canvasScale } = this.viewParams;
       const mouseInNodeR = highlightNodeR * canvasScale;
@@ -14079,13 +14088,18 @@ ${indentData}`);
         const hoveredNode = distances[nearestNodeIndex] < threshold ? this.searchViewNodes[nearestNodeIndex] : null;
         if (hoveredNode !== this.hoveredNode) {
           this.hoveredNode = hoveredNode;
-          requestAnimationFrame(() => this.renderNodesView());
+          this.renderNodesView();
         }
       };
       this.mouseLeaveHandler = () => {
         this.hoveredNode = null;
-        requestAnimationFrame(() => this.renderNodesView());
+        this.renderNodesView();
       };
+    }
+    renderNodesView() {
+      clearCanvas.call(this);
+      renderNodes.call(this);
+      this.stepType === 1 /* polar */ && renderTarget.call(this);
     }
   };
 
