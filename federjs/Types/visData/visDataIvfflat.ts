@@ -63,6 +63,7 @@ export interface TVisDataIvfflatSearchView {
   searchViewNodes: TVisDataIvfflatSearchViewNode[];
   targetNode: TVisDataIvfflatSearchViewTargetNode;
   polarOrigin: TCoord;
+  polarR: number;
 }
 
 export interface TLayoutParamsIvfflat {
@@ -78,6 +79,7 @@ export interface TLayoutParamsIvfflat {
   numForceIterations?: number;
   polarOriginBias?: number;
   nonTopkNodeR?: number;
+  polarRadiusUpperBound?: number;
 
   projectPadding?: [number, number, number, number];
 }
@@ -112,6 +114,11 @@ export interface TViewParamsIvfflat {
   highlightNodeStroke: string;
   highlightNodeStrokeWidth: number;
   highlightNodeOpacity: number;
+
+  polarAxisTickCount: number;
+  polarAxisStrokeWidth: number;
+  polarAxisStroke: string;
+  polarAxisOpacity: number;
 
   transitionClustersExitTime: number;
   transitionReplaceTime: number;

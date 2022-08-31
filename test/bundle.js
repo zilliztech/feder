@@ -13518,7 +13518,7 @@ ${indentData}`);
     polarOrigin,
     polarMaxR
   }) => new Promise((resolve) => {
-    const { numForceIterations, nonTopkNodeR, canvasScale } = layoutParams;
+    const { numForceIterations, nonTopkNodeR, canvasScale, polarRadiusUpperBound } = layoutParams;
     const clusterId2cluster = {};
     searchViewClusters.forEach((cluster) => clusterId2cluster[cluster.clusterId] = cluster);
     const searchViewNodes = searchRecords.fineSearchRecords.map(({ id: id2, clusterId, distance }) => ({
@@ -13529,7 +13529,7 @@ ${indentData}`);
     }));
     searchViewNodes.sort((a2, b) => a2.distance - b.distance);
     const minDis = getPercentile(searchViewNodes, "distance", 0);
-    const maxDis = getPercentile(searchViewNodes, "distance", 0.97);
+    const maxDis = getPercentile(searchViewNodes, "distance", polarRadiusUpperBound);
     const r = linear2().domain([minDis, maxDis]).range([polarMaxR * 0.2, polarMaxR]).clamp(true);
     searchViewNodes.forEach((node) => {
       const cluster = clusterId2cluster[node.clusterId];
@@ -13615,7 +13615,7 @@ ${indentData}`);
         layoutParams,
         targetNode
       });
-      resolve({ searchViewClusters, searchViewNodes, targetNode, polarOrigin });
+      resolve({ searchViewClusters, searchViewNodes, targetNode, polarOrigin, polarR: polarMaxR });
     }));
   };
   var search_default = IvfflatSearchViewLayout;
@@ -13637,6 +13637,7 @@ ${indentData}`);
     projectMethod: "umap" /* umap */,
     projectParams: {},
     polarOriginBias: 0.15,
+    polarRadiusUpperBound: 0.97,
     nonTopkNodeR: 3,
     minVoronoiRadius: 5,
     projectPadding: [20, 30, 20, 30]
@@ -14046,7 +14047,7 @@ ${indentData}`);
   }
 
   // federjs/FederView/ivfflatView/IvfflatSearchView/transitionNodesEnter.ts
-  function transitionNodesEnter(t, reverse = false) {
+  function transitionNodesEnter(t, newStepType, reverse = false) {
     if (t < 0)
       return;
     const {
@@ -14090,7 +14091,7 @@ ${indentData}`);
       }
     } else {
       const p = (t - transitionReplaceTime) / transitionNodesEnterTime;
-      const getPos = this.stepType === "polar" /* polar */ ? (node) => vecAdd(vecMultiply(node.voronoiPos, 1 - p), vecMultiply(node.polarPos, p)) : (node) => vecAdd(vecMultiply(node.voronoiPos, 1 - p), vecMultiply(node.projectPos, p));
+      const getPos = newStepType === "polar" /* polar */ ? (node) => vecAdd(vecMultiply(node.voronoiPos, 1 - p), vecMultiply(node.polarPos, p)) : (node) => vecAdd(vecMultiply(node.voronoiPos, 1 - p), vecMultiply(node.projectPos, p));
       for (let i = 0; i < this.nprobe; i++) {
         const nodes = this.searchViewNodes.filter((node) => !node.inTopK).filter((node) => node.polarOrder === i);
         drawCircles({
@@ -14133,7 +14134,7 @@ ${indentData}`);
     if (t > transitionNodesMoveTime)
       return;
     let p = t / transitionNodesMoveTime;
-    p = this.stepType === "project" /* project */ ? p : 1 - p;
+    p = this.stepType === "polar" /* polar */ ? p : 1 - p;
     const getPos = (node) => vecAdd(vecMultiply(node.polarPos, 1 - p), vecMultiply(node.projectPos, p));
     for (let i = 0; i < this.nprobe; i++) {
       const nodes = this.searchViewNodes.filter((node) => !node.inTopK).filter((node) => node.polarOrder === i);
@@ -14156,6 +14157,74 @@ ${indentData}`);
         fillStyle: hexWithOpacity(this.colorScheme[i], topkNodeOpacity)
       });
     }
+  }
+
+  // federjs/FederView/ivfflatView/IvfflatSearchView/transitionTargetMove.ts
+  function transitionTargetMove(t, duration, preStepType, nextStepType) {
+    if (t > duration || t < 0)
+      return;
+    const p = t / duration;
+    const startPoint = stepType2targePos[preStepType](this.targetNode);
+    const endPoint = stepType2targePos[nextStepType](this.targetNode);
+    const position = vecAdd(vecMultiply(startPoint, 1 - p), vecMultiply(endPoint, p));
+    const { canvasScale, targetOuterR, targetInnerR, targetNodeStroke } = this.viewParams;
+    drawCircles({
+      ctx: this.ctx,
+      circles: [[...position, targetInnerR * canvasScale]],
+      hasStroke: true,
+      strokeStyle: targetNodeStroke,
+      lineWidth: (targetOuterR - targetInnerR) * canvasScale
+    });
+  }
+
+  // federjs/FederView/ivfflatView/IvfflatSearchView/renderPolarAxis.ts
+  function renderPolarAxis() {
+    const {
+      canvasScale,
+      polarAxisTickCount,
+      polarAxisStrokeWidth,
+      polarAxisStroke,
+      polarAxisOpacity
+    } = this.viewParams;
+    const circles = range(polarAxisTickCount).map((i) => [
+      ...this.polarOrigin,
+      (i + 0.7) / polarAxisTickCount * this.polarR
+    ]);
+    drawCircles({
+      ctx: this.ctx,
+      circles,
+      hasStroke: true,
+      lineWidth: polarAxisStrokeWidth * canvasScale,
+      strokeStyle: hexWithOpacity(polarAxisStroke, polarAxisOpacity)
+    });
+  }
+
+  // federjs/FederView/ivfflatView/IvfflatSearchView/transtionPolarAxisEnter.ts
+  function transitionPolarAxisEnter(t, reverse = false) {
+    const {
+      transitionNodesEnterTime,
+      canvasScale,
+      polarAxisTickCount,
+      polarAxisStrokeWidth,
+      polarAxisStroke,
+      polarAxisOpacity
+    } = this.viewParams;
+    t = Math.max(t, 0);
+    t = Math.min(t, transitionNodesEnterTime);
+    t = reverse ? transitionNodesEnterTime - t : t;
+    const p = t / transitionNodesEnterTime;
+    const opacity = p * polarAxisOpacity;
+    const circles = range(polarAxisTickCount).map((i) => [
+      ...this.polarOrigin,
+      (i + 0.7) / polarAxisTickCount * this.polarR
+    ]);
+    drawCircles({
+      ctx: this.ctx,
+      circles,
+      hasStroke: true,
+      lineWidth: polarAxisStrokeWidth * canvasScale,
+      strokeStyle: hexWithOpacity(polarAxisStroke, opacity)
+    });
   }
 
   // federjs/FederView/ivfflatView/IvfflatSearchView/index.ts
@@ -14186,10 +14255,14 @@ ${indentData}`);
     highlightNodeStroke: "#fff",
     highlightNodeStrokeWidth: 1,
     highlightNodeOpacity: 1,
-    transitionClustersExitTime: 2e3,
-    transitionReplaceTime: 1e3,
-    transitionNodesEnterTime: 2e3,
-    transitionNodesMoveTime: 2e3
+    polarAxisTickCount: 5,
+    polarAxisStrokeWidth: 1,
+    polarAxisStroke: "#175FFF",
+    polarAxisOpacity: 0.4,
+    transitionClustersExitTime: 800,
+    transitionReplaceTime: 600,
+    transitionNodesEnterTime: 800,
+    transitionNodesMoveTime: 800
   };
   var IvfflatSearchView5 = class {
     constructor(visData, viewParams) {
@@ -14199,19 +14272,29 @@ ${indentData}`);
       this.mouseMoveHandler = null;
       this.mouseClickHandler = null;
       this.mouseLeaveHandler = null;
-      const { searchViewClusters, searchViewNodes, targetNode, polarOrigin } = visData;
+      const {
+        searchViewClusters,
+        searchViewNodes,
+        targetNode,
+        polarOrigin,
+        polarR
+      } = visData;
       this.searchViewClusters = searchViewClusters;
       this.searchViewNodes = searchViewNodes;
       this.targetNode = targetNode;
       this.polarOrigin = polarOrigin;
+      this.polarR = polarR;
       this.viewParams = Object.assign({}, defaltViewParamsIvfflat, viewParams);
-      this.nprobe = this.searchViewClusters.filter((cluster) => cluster.inNprobe).length;
-      this.colorScheme = range(this.nprobe).map((i) => hsl(360 * i / this.nprobe, 1, 0.5).formatHex());
       this.init();
     }
     init() {
+      this.initColorScheme();
       this.initCanvas();
       this.initEventListener();
+    }
+    initColorScheme() {
+      this.nprobe = this.searchViewClusters.filter((cluster) => cluster.inNprobe).length;
+      this.colorScheme = range(this.nprobe).map((i) => hsl(360 * i / this.nprobe, 1, 0.5).formatHex());
     }
     initCanvas() {
       const divD3 = create_default("div");
@@ -14294,6 +14377,7 @@ ${indentData}`);
     }
     renderNodesView() {
       clearCanvas.call(this);
+      this.stepType === "polar" /* polar */ && renderPolarAxis.call(this);
       renderNodes.call(this);
       renderTarget.call(this);
     }
@@ -14316,31 +14400,42 @@ ${indentData}`);
             this.initVoronoiView();
           } else {
             clearCanvas.call(this);
-            transitionClustersExit.call(this, elapsed - transitionNodesEnterTime, true);
-            transitionNodesEnter.call(this, elapsed, true);
+            const reverse = true;
+            transitionClustersExit.call(this, elapsed - transitionNodesEnterTime, reverse);
+            this.stepType === "polar" /* polar */ && transitionPolarAxisEnter.call(this, elapsed, reverse);
+            transitionNodesEnter.call(this, elapsed, this.stepType, reverse);
+            transitionTargetMove.call(this, elapsed, transitionNodesEnterTime, this.stepType, "polar" /* polar */);
+            transitionTargetMove.call(this, elapsed - transitionNodesEnterTime, transitionReplaceTime, "polar" /* polar */, "polar" /* polar */);
+            transitionTargetMove.call(this, elapsed - transitionNodesEnterTime - transitionReplaceTime, transitionClustersExitTime, "polar" /* polar */, newStepType);
           }
         });
       } else if (this.stepType === "voronoi" /* voronoi */) {
-        this.stepType = newStepType;
         const timer2 = timer((elapsed) => {
           if (elapsed > allTime) {
             timer2.stop();
+            this.stepType = newStepType;
             this.initNodesView();
           } else {
             clearCanvas.call(this);
             transitionClustersExit.call(this, elapsed);
-            transitionNodesEnter.call(this, elapsed - transitionClustersExitTime);
+            newStepType === "polar" /* polar */ && transitionPolarAxisEnter.call(this, elapsed - transitionClustersExitTime - transitionReplaceTime);
+            transitionNodesEnter.call(this, elapsed - transitionClustersExitTime, newStepType);
+            transitionTargetMove.call(this, elapsed, transitionClustersExitTime, this.stepType, "polar" /* polar */);
+            transitionTargetMove.call(this, elapsed - transitionClustersExitTime, transitionReplaceTime, "polar" /* polar */, "polar" /* polar */);
+            transitionTargetMove.call(this, elapsed - transitionClustersExitTime - transitionReplaceTime, transitionNodesEnterTime, "polar" /* polar */, newStepType);
           }
         });
       } else {
-        this.stepType = newStepType;
         const timer2 = timer((elapsed) => {
           if (elapsed > transitionNodesMoveTime) {
             timer2.stop();
+            this.stepType = newStepType;
             this.initNodesView();
           } else {
             clearCanvas.call(this);
+            transitionPolarAxisEnter.call(this, elapsed, newStepType === "project" /* project */);
             transitionNodesMove.call(this, elapsed);
+            transitionTargetMove.call(this, elapsed, transitionClustersExitTime, this.stepType, newStepType);
           }
         });
       }

@@ -22,8 +22,7 @@ export const ivfflatSearchViewLayoutFinePolar = ({
   polarMaxR: number;
 }) =>
   new Promise<TVisDataIvfflatSearchViewNode[]>((resolve) => {
-    const { numForceIterations, nonTopkNodeR, canvasScale } = layoutParams;
-
+    const { numForceIterations, nonTopkNodeR, canvasScale, polarRadiusUpperBound } = layoutParams;
     const clusterId2cluster = {} as {
       [clusterId: TId]: TVisDataIvfflatSearchViewCluster;
     };
@@ -43,7 +42,7 @@ export const ivfflatSearchViewLayoutFinePolar = ({
 
     // distance scale
     const minDis = getPercentile(searchViewNodes, 'distance', 0);
-    const maxDis = getPercentile(searchViewNodes, 'distance', 0.97);
+    const maxDis = getPercentile(searchViewNodes, 'distance', polarRadiusUpperBound);
     const r = d3
       .scaleLinear()
       .domain([minDis, maxDis])
