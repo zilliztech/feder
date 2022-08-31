@@ -7,6 +7,7 @@ import IvfflatSearchView, { EStepType } from '.';
 export default function transitionNodesEnter(
   this: IvfflatSearchView,
   t: number,
+  newStepType: EStepType,
   reverse: boolean = false
 ) {
   if (t < 0) return;
@@ -65,7 +66,7 @@ export default function transitionNodesEnter(
     const p = (t - transitionReplaceTime) / transitionNodesEnterTime;
 
     const getPos =
-      this.stepType === EStepType.polar
+      newStepType === EStepType.polar
         ? (node: TVisDataIvfflatSearchViewNode) =>
             vecAdd(
               vecMultiply(node.voronoiPos, 1 - p),

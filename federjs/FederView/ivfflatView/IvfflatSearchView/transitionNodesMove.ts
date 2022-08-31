@@ -21,7 +21,7 @@ export default function transitionNodesMove(
 
   // default polar => project
   let p = t / transitionNodesMoveTime;
-  p = this.stepType === EStepType.project ? p : 1 - p;
+  p = this.stepType === EStepType.polar ? p : 1 - p;
   const getPos = (node: TVisDataIvfflatSearchViewNode) =>
     vecAdd(
       vecMultiply(node.polarPos, 1 - p),
