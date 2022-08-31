@@ -13653,7 +13653,7 @@ ${indentData}`);
         const overviewLayoutFunc = overviewLayoutFuncMap[viewType];
         const overviewClusters = yield overviewLayoutFunc(indexMeta, layoutParams);
         this.overviewClusters = overviewClusters;
-        return overviewClusters;
+        return { overviewClusters };
       });
     }
     computeSearchViewVisData(viewType, searchRecords, _layoutParams, indexMeta) {
@@ -13980,7 +13980,7 @@ ${indentData}`);
     });
   }
 
-  // federjs/FederView/ivfflatView/clearCanvas.ts
+  // federjs/FederView/clearCanvas.ts
   function clearCanvas() {
     const { width, height, canvasScale } = this.viewParams;
     this.ctx.clearRect(0, 0, width * canvasScale, height * canvasScale);
@@ -14227,7 +14227,7 @@ ${indentData}`);
     });
   }
 
-  // federjs/FederView/ivfflatView/IvfflatSearchView/index.ts
+  // federjs/FederView/ivfflatView/defaultViewParamsIvfflat.ts
   var defaltViewParamsIvfflat = {
     width: 800,
     height: 480,
@@ -14264,6 +14264,9 @@ ${indentData}`);
     transitionNodesEnterTime: 800,
     transitionNodesMoveTime: 800
   };
+  var defaultViewParamsIvfflat_default = defaltViewParamsIvfflat;
+
+  // federjs/FederView/ivfflatView/IvfflatSearchView/index.ts
   var IvfflatSearchView5 = class {
     constructor(visData, viewParams) {
       this.hoveredCluster = null;
@@ -14284,7 +14287,7 @@ ${indentData}`);
       this.targetNode = targetNode;
       this.polarOrigin = polarOrigin;
       this.polarR = polarR;
-      this.viewParams = Object.assign({}, defaltViewParamsIvfflat, viewParams);
+      this.viewParams = Object.assign({}, defaultViewParamsIvfflat_default, viewParams);
       this.init();
     }
     init() {
@@ -14442,11 +14445,109 @@ ${indentData}`);
     }
   };
 
+  // federjs/FederView/ivfflatView/IvfflatOverview/renderClusters.ts
+  function renderClusters2() {
+    const {
+      canvasScale,
+      nonNprobeClusterFill,
+      nonNprobeClusterOpacity,
+      nonNprobeClusterStroke,
+      nonNprobeClusterStrokeWidth,
+      hoveredClusterFill,
+      hoveredClusterOpacity,
+      hoveredClusterStroke,
+      hoveredClusterStrokeWidth
+    } = this.viewParams;
+    drawPolygons({
+      ctx: this.ctx,
+      pointsList: this.overviewClusters.map((cluster) => cluster.OVPolyPoints),
+      hasFill: true,
+      fillStyle: hexWithOpacity(nonNprobeClusterFill, nonNprobeClusterOpacity),
+      hasStroke: true,
+      strokeStyle: nonNprobeClusterStroke,
+      lineWidth: nonNprobeClusterStrokeWidth * canvasScale
+    });
+    this.hoveredCluster && drawPolygons({
+      ctx: this.ctx,
+      pointsList: [this.hoveredCluster.OVPolyPoints],
+      hasFill: true,
+      fillStyle: hexWithOpacity(hoveredClusterFill, hoveredClusterOpacity),
+      hasStroke: true,
+      strokeStyle: hoveredClusterStroke,
+      lineWidth: hoveredClusterStrokeWidth * canvasScale
+    });
+  }
+
+  // federjs/FederView/ivfflatView/IvfflatOverview/index.ts
+  var IvfflatOverview = class {
+    constructor(visData, viewParams) {
+      this.mouseMoveHandler = null;
+      this.mouseClickHandler = null;
+      this.mouseLeaveHandler = null;
+      this.overviewClusters = visData.overviewClusters;
+      this.viewParams = Object.assign({}, defaultViewParamsIvfflat_default, viewParams);
+      this.init();
+    }
+    init() {
+      this.initCanvas();
+      this.initEventListener();
+    }
+    initCanvas() {
+      const divD3 = create_default("div");
+      this.node = divD3.node();
+      const { width, height, canvasScale } = this.viewParams;
+      const canvasD3 = divD3.append("canvas").attr("width", width).attr("height", height);
+      this.ctx = canvasD3.node().getContext("2d");
+      this.ctx.scale(1 / canvasScale, 1 / canvasScale);
+    }
+    initEventListener() {
+      const { canvasScale } = this.viewParams;
+      this.node.addEventListener("mousemove", (e) => {
+        const { offsetX, offsetY } = e;
+        const x3 = offsetX * canvasScale;
+        const y3 = offsetY * canvasScale;
+        this.mouseMoveHandler && this.mouseMoveHandler({ x: x3, y: y3 });
+      });
+      this.node.addEventListener("click", (e) => {
+        const { offsetX, offsetY } = e;
+        const x3 = offsetX * canvasScale;
+        const y3 = offsetY * canvasScale;
+        this.mouseClickHandler && this.mouseClickHandler({ x: x3, y: y3 });
+      });
+      this.node.addEventListener("mouseleave", () => {
+        this.mouseLeaveHandler && this.mouseLeaveHandler();
+      });
+    }
+    render() {
+      this.initVoronoiView();
+    }
+    initVoronoiView() {
+      this.renderVoronoiView();
+      this.mouseClickHandler = null;
+      this.mouseMoveHandler = ({ x: x3, y: y3 }) => {
+        const hoveredCluster = this.overviewClusters.find((cluster) => contains_default(cluster.OVPolyPoints, [x3, y3]));
+        if (hoveredCluster !== this.hoveredCluster) {
+          this.hoveredCluster = hoveredCluster;
+          this.renderVoronoiView();
+        }
+      };
+      this.mouseLeaveHandler = () => {
+        this.hoveredCluster = null;
+        this.renderVoronoiView();
+      };
+    }
+    renderVoronoiView() {
+      clearCanvas.call(this);
+      renderClusters2.call(this);
+    }
+  };
+
   // federjs/FederView/index.ts
   var viewMap = {
     ["hnsw" /* hnsw */ + "search" /* search */ + "hnsw3d" /* hnsw3d */]: HnswSearchHnsw3dView,
     ["hnsw" /* hnsw */ + "search" /* search */ + "default" /* default */]: HnswSearchView,
-    ["ivfflat" /* ivfflat */ + "search" /* search */ + "default" /* default */]: IvfflatSearchView5
+    ["ivfflat" /* ivfflat */ + "search" /* search */ + "default" /* default */]: IvfflatSearchView5,
+    ["ivfflat" /* ivfflat */ + "overview" /* overview */ + "default" /* default */]: IvfflatOverview
   };
   var FederView = class {
     constructor({ indexType, actionType, viewType, visData }, viewParams) {
@@ -14478,7 +14579,7 @@ ${indentData}`);
     federIndex.initByArrayBuffer(arrayBuffer);
     const federLayout = new FederLayout(federIndex);
     const visDataAll = yield federLayout.getVisData({
-      actionType: "search",
+      actionType: "overview",
       actionData: {
         target: testVector,
         searchParams: testSearchParams

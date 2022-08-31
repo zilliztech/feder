@@ -12,61 +12,20 @@ import renderNodes from './renderNodes';
 import * as d3 from 'd3';
 import { TCoord } from 'Types';
 import { getDisL2Square } from 'Utils/distFunc';
-import clearCanvas from '../clearCanvas';
+import clearCanvas from '../../clearCanvas';
 import transitionClustersExit from './transitionClustersExit';
 import transitionNodesEnter from './transitionNodesEnter';
 import transitionNodesMove from './transitionNodesMove';
 import transitionTargetMove from './transitionTargetMove';
 import renderPolarAxis from './renderPolarAxis';
 import transitionPolarAxisEnter from './transtionPolarAxisEnter';
+import defaltViewParamsIvfflat from '../defaultViewParamsIvfflat';
 
 export enum EStepType {
   voronoi = 'voronoi',
   polar = 'polar',
   project = 'project',
 }
-
-const defaltViewParamsIvfflat = {
-  width: 800,
-  height: 480,
-  canvasScale: 2,
-
-  nonNprobeClusterFill: '#175FFF',
-  nonNprobeClusterOpacity: 1,
-  nonNprobeClusterStroke: '#000',
-  nonNprobeClusterStrokeWidth: 2,
-  nprobeClusterFill: '#91FDFF',
-  nprobeClusterOpacity: 1,
-  nprobeClusterStroke: '#000',
-  nprobeClusterStrokeWidth: 2,
-  hoveredClusterFill: '#FFFC85',
-  hoveredClusterOpacity: 0.8,
-  hoveredClusterStroke: '#000',
-  hoveredClusterStrokeWidth: 2,
-
-  targetOuterR: 12,
-  targetInnerR: 7,
-  targetNodeStroke: '#fff',
-
-  topkNodeR: 5,
-  topkNodeOpacity: 0.7,
-  nonTopkNodeR: 3,
-  nonTopkNodeOpacity: 0.4,
-  highlightNodeR: 6,
-  highlightNodeStroke: '#fff',
-  highlightNodeStrokeWidth: 1,
-  highlightNodeOpacity: 1,
-
-  polarAxisTickCount: 5,
-  polarAxisStrokeWidth: 1,
-  polarAxisStroke: '#175FFF',
-  polarAxisOpacity: 0.4,
-
-  transitionClustersExitTime: 800,
-  transitionReplaceTime: 600,
-  transitionNodesEnterTime: 800,
-  transitionNodesMoveTime: 800,
-} as TViewParamsIvfflat;
 
 export default class IvfflatSearchView implements ViewHandler {
   searchViewClusters: TVisDataIvfflatSearchViewCluster[];

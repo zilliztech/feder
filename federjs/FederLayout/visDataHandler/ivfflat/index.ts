@@ -4,6 +4,7 @@ import { TSearchRecords } from 'Types/searchRecords';
 import {
   TLayoutParamsIvfflat,
   TVisData,
+  TVisDataIvfflatOverview,
   TVisDataIvfflatOverviewCluster,
   TVisDataIvfflatSearchView,
 } from 'Types/visData';
@@ -41,7 +42,7 @@ export default class FederLayoutIvfflat implements TFederLayoutHandler {
     viewType: EViewType,
     indexMeta: TIndexMeta,
     _layoutParams: TLayoutParamsIvfflat
-  ): Promise<TVisDataIvfflatOverviewCluster> {
+  ): Promise<TVisDataIvfflatOverview> {
     const layoutParams = Object.assign(
       {},
       layoutParamsIvfflatDefault,
@@ -51,7 +52,7 @@ export default class FederLayoutIvfflat implements TFederLayoutHandler {
     const overviewLayoutFunc = overviewLayoutFuncMap[viewType];
     const overviewClusters = await overviewLayoutFunc(indexMeta, layoutParams);
     this.overviewClusters = overviewClusters;
-    return overviewClusters;
+    return { overviewClusters };
   }
   async computeSearchViewVisData(
     viewType: EViewType,

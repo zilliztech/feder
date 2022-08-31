@@ -1,8 +1,7 @@
 import { EProjectMethod, TCoord, TId, TVec } from 'Types';
 
 export interface TVisDataIvfflatOverview {
-  clusters: TVisDataIvfflatOverviewCluster[];
-  voronoi: d3.Voronoi<d3.Delaunay.Point>;
+  overviewClusters: TVisDataIvfflatOverviewCluster[];
 }
 
 export interface TVisDataIvfflatOverviewCluster {
