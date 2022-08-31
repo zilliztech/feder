@@ -31,6 +31,7 @@ export const IvfflatSearchViewLayout = (
       searchViewNodes,
       searchRecords,
       layoutParams,
+      targetNode,
     });
 
     resolve({ searchViewClusters, searchViewNodes, targetNode, polarOrigin });

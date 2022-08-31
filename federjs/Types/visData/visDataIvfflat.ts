@@ -39,6 +39,7 @@ export interface TVisDataIvfflatSearchViewTargetNode {
   SVPos: TCoord;
   isLeft_coarseLevel: boolean;
   polarPos: TCoord;
+  projectPos: TCoord;
 }
 
 export interface TVisDataIvfflatSearchViewNode {
@@ -111,4 +112,9 @@ export interface TViewParamsIvfflat {
   highlightNodeStroke: string;
   highlightNodeStrokeWidth: number;
   highlightNodeOpacity: number;
+
+  transitionClustersExitTime: number;
+  transitionReplaceTime: number;
+  transitionNodesEnterTime: number;
+  transitionNodesMoveTime: number;
 }

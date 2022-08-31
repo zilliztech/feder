@@ -42,6 +42,7 @@ export const faissIVFFlatSearch = ({
     nprobeClusterIds: csListIds,
     topKVectorIds: fsRes.map((d) => d.id),
     searchParams: { nprobe, k },
+    target,
   };
 
   return res;

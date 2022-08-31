@@ -7110,6 +7110,8 @@ ${indentData}`);
   };
 
   // federjs/Utils/distFunc.ts
+  var vecAdd = (vec1, vec2) => vec1.map((d, i) => d + vec2[i]);
+  var vecMultiply = (vec1, k) => vec1.map((d) => d * k);
   var getDisL2Square = (vec1, vec2) => {
     return vec1.map((num, i) => num - vec2[i]).map((num) => num * num).reduce((a2, c2) => a2 + c2, 0);
   };
@@ -7400,7 +7402,8 @@ ${indentData}`);
       fineSearchRecords,
       nprobeClusterIds: csListIds,
       topKVectorIds: fsRes.map((d) => d.id),
-      searchParams: { nprobe, k }
+      searchParams: { nprobe, k },
+      target
     };
     return res;
   };
@@ -13552,7 +13555,8 @@ ${indentData}`);
   var ivfflatSearchViewLayoutFineProject = ({
     searchViewNodes,
     searchRecords,
-    layoutParams
+    layoutParams,
+    targetNode
   }) => new Promise((resolve) => {
     const {
       projectPadding,
@@ -13567,7 +13571,10 @@ ${indentData}`);
       method: projectMethod,
       params: projectParams
     }) : (vecs) => vecs.map((_) => [Math.random(), Math.random()]);
-    const searchviewNodesProjection = projector(searchRecords.fineSearchRecords.map((node) => node.vector));
+    const searchviewNodesProjection = projector([
+      ...searchRecords.fineSearchRecords.map((node) => node.vector),
+      searchRecords.target
+    ]);
     searchViewNodes.forEach((node, i) => {
       node.projection = searchviewNodesProjection[i];
     });
@@ -13582,6 +13589,11 @@ ${indentData}`);
     searchViewNodes.forEach((node) => {
       node.projectPos = [x3(node.projection[0]), y3(node.projection[1])];
     });
+    const targetNodeProjection = searchviewNodesProjection[searchviewNodesProjection.length - 1];
+    targetNode.projectPos = [
+      x3(targetNodeProjection[0]),
+      y3(targetNodeProjection[1])
+    ];
     resolve();
   });
   var fineProject_default = ivfflatSearchViewLayoutFineProject;
@@ -13600,7 +13612,8 @@ ${indentData}`);
       yield fineProject_default({
         searchViewNodes,
         searchRecords,
-        layoutParams
+        layoutParams,
+        targetNode
       });
       resolve({ searchViewClusters, searchViewNodes, targetNode, polarOrigin });
     }));
@@ -13853,7 +13866,7 @@ ${indentData}`);
     draw(__spreadValues({ ctx, drawFunc }, styles));
   };
 
-  // federjs/FederView/ivfflatView/renderClusters.ts
+  // federjs/FederView/ivfflatView/IvfflatSearchView/renderClusters.ts
   function renderClusters() {
     const {
       canvasScale,
@@ -13901,9 +13914,14 @@ ${indentData}`);
     });
   }
 
-  // federjs/FederView/ivfflatView/renderTarget.ts
+  // federjs/FederView/ivfflatView/IvfflatSearchView/renderTarget.ts
+  var stepType2targePos = {
+    ["voronoi" /* voronoi */]: (node) => node.SVPos,
+    ["polar" /* polar */]: (node) => node.polarPos,
+    ["project" /* project */]: (node) => node.projectPos
+  };
   function renderTarget() {
-    const position = this.stepType === 0 /* voronoi */ ? this.targetNode.SVPos : this.targetNode.polarPos;
+    const position = stepType2targePos[this.stepType](this.targetNode);
     const { canvasScale, targetOuterR, targetInnerR, targetNodeStroke } = this.viewParams;
     drawCircles({
       ctx: this.ctx,
@@ -13914,7 +13932,7 @@ ${indentData}`);
     });
   }
 
-  // federjs/FederView/ivfflatView/renderNodes.ts
+  // federjs/FederView/ivfflatView/IvfflatSearchView/renderNodes.ts
   function renderNodes() {
     const {
       canvasScale,
@@ -13927,10 +13945,9 @@ ${indentData}`);
       highlightNodeStrokeWidth,
       highlightNodeOpacity
     } = this.viewParams;
-    const nprobe = this.searchViewClusters.filter((cluster) => cluster.inNprobe).length;
-    const colorScheme = range(nprobe).map((i) => hsl(360 * i / nprobe, 1, 0.5).formatHex());
-    const getPos = this.stepType === 1 /* polar */ ? (node) => node.polarPos : (node) => node.projectPos;
-    for (let i = 0; i < nprobe; i++) {
+    const colorScheme = this.colorScheme;
+    const getPos = this.stepType === "polar" /* polar */ ? (node) => node.polarPos : (node) => node.projectPos;
+    for (let i = 0; i < this.nprobe; i++) {
       const nodes = this.searchViewNodes.filter((node) => !node.inTopK).filter((node) => node.polarOrder === i);
       drawCircles({
         ctx: this.ctx,
@@ -13942,7 +13959,7 @@ ${indentData}`);
         fillStyle: hexWithOpacity(colorScheme[i], nonTopkNodeOpacity)
       });
     }
-    for (let i = 0; i < nprobe; i++) {
+    for (let i = 0; i < this.nprobe; i++) {
       const nodes = this.searchViewNodes.filter((node) => node.inTopK).filter((node) => node.polarOrder === i);
       drawCircles({
         ctx: this.ctx,
@@ -13968,7 +13985,180 @@ ${indentData}`);
     this.ctx.clearRect(0, 0, width * canvasScale, height * canvasScale);
   }
 
-  // federjs/FederView/ivfflatView/IvfflatSearchView.ts
+  // federjs/FederView/ivfflatView/IvfflatSearchView/transitionClustersExit.ts
+  function transitionClustersExit(t, reverse = false) {
+    if (t < 0)
+      return;
+    const {
+      transitionClustersExitTime,
+      transitionReplaceTime,
+      nprobeClusterFill,
+      nprobeClusterOpacity,
+      nprobeClusterStroke,
+      nprobeClusterStrokeWidth,
+      nonNprobeClusterFill,
+      nonNprobeClusterOpacity,
+      nonNprobeClusterStroke,
+      nonNprobeClusterStrokeWidth,
+      canvasScale
+    } = this.viewParams;
+    if (t > transitionClustersExitTime + transitionReplaceTime)
+      return;
+    t = reverse ? transitionClustersExitTime + transitionReplaceTime - t : t;
+    if (t < transitionClustersExitTime) {
+      const p = t / transitionClustersExitTime;
+      const opacity = nonNprobeClusterOpacity * (1 - p);
+      drawPolygons({
+        ctx: this.ctx,
+        pointsList: this.searchViewClusters.filter((cluster) => !cluster.inNprobe).map((cluster) => cluster.SVPolyPoints),
+        hasFill: true,
+        fillStyle: hexWithOpacity(nonNprobeClusterFill, opacity),
+        hasStroke: true,
+        strokeStyle: nonNprobeClusterStroke,
+        lineWidth: nonNprobeClusterStrokeWidth * canvasScale
+      });
+      const pointsList = this.searchViewClusters.filter((cluster) => cluster.inNprobe).map((cluster) => {
+        const trans = cluster.SVNextLevelTran.map((d) => d * p);
+        return cluster.SVPolyPoints.map((point) => vecAdd(point, trans));
+      });
+      drawPolygons({
+        ctx: this.ctx,
+        pointsList,
+        hasFill: true,
+        fillStyle: hexWithOpacity(nprobeClusterFill, nprobeClusterOpacity),
+        hasStroke: true,
+        strokeStyle: nprobeClusterStroke,
+        lineWidth: nprobeClusterStrokeWidth * canvasScale
+      });
+    } else {
+      const p = (t - transitionClustersExitTime) / transitionReplaceTime;
+      const opacity = nprobeClusterOpacity * (1 - p);
+      drawPolygons({
+        ctx: this.ctx,
+        pointsList: this.searchViewClusters.filter((cluster) => cluster.inNprobe).map((cluster) => cluster.SVPolyPoints.map((point) => vecAdd(point, cluster.SVNextLevelTran))),
+        hasFill: true,
+        fillStyle: hexWithOpacity(nprobeClusterFill, opacity),
+        hasStroke: true,
+        strokeStyle: nprobeClusterStroke,
+        lineWidth: nprobeClusterStrokeWidth * canvasScale
+      });
+    }
+  }
+
+  // federjs/FederView/ivfflatView/IvfflatSearchView/transitionNodesEnter.ts
+  function transitionNodesEnter(t, reverse = false) {
+    if (t < 0)
+      return;
+    const {
+      transitionReplaceTime,
+      transitionNodesEnterTime,
+      canvasScale,
+      topkNodeR,
+      topkNodeOpacity,
+      nonTopkNodeR,
+      nonTopkNodeOpacity
+    } = this.viewParams;
+    if (t > transitionReplaceTime + transitionNodesEnterTime)
+      return;
+    t = reverse ? transitionReplaceTime + transitionNodesEnterTime - t : t;
+    const colorScheme = this.colorScheme;
+    if (t < transitionReplaceTime) {
+      const p = t / transitionReplaceTime;
+      for (let i = 0; i < this.nprobe; i++) {
+        const nodes = this.searchViewNodes.filter((node) => !node.inTopK).filter((node) => node.polarOrder === i);
+        drawCircles({
+          ctx: this.ctx,
+          circles: nodes.map((node) => [
+            ...node.voronoiPos,
+            nonTopkNodeR * canvasScale
+          ]),
+          hasFill: true,
+          fillStyle: hexWithOpacity(colorScheme[i], nonTopkNodeOpacity * p)
+        });
+      }
+      for (let i = 0; i < this.nprobe; i++) {
+        const nodes = this.searchViewNodes.filter((node) => node.inTopK).filter((node) => node.polarOrder === i);
+        drawCircles({
+          ctx: this.ctx,
+          circles: nodes.map((node) => [
+            ...node.voronoiPos,
+            topkNodeR * canvasScale
+          ]),
+          hasFill: true,
+          fillStyle: hexWithOpacity(colorScheme[i], topkNodeOpacity * p)
+        });
+      }
+    } else {
+      const p = (t - transitionReplaceTime) / transitionNodesEnterTime;
+      const getPos = this.stepType === "polar" /* polar */ ? (node) => vecAdd(vecMultiply(node.voronoiPos, 1 - p), vecMultiply(node.polarPos, p)) : (node) => vecAdd(vecMultiply(node.voronoiPos, 1 - p), vecMultiply(node.projectPos, p));
+      for (let i = 0; i < this.nprobe; i++) {
+        const nodes = this.searchViewNodes.filter((node) => !node.inTopK).filter((node) => node.polarOrder === i);
+        drawCircles({
+          ctx: this.ctx,
+          circles: nodes.map((node) => [
+            ...getPos(node),
+            nonTopkNodeR * canvasScale
+          ]),
+          hasFill: true,
+          fillStyle: hexWithOpacity(colorScheme[i], nonTopkNodeOpacity)
+        });
+      }
+      for (let i = 0; i < this.nprobe; i++) {
+        const nodes = this.searchViewNodes.filter((node) => node.inTopK).filter((node) => node.polarOrder === i);
+        drawCircles({
+          ctx: this.ctx,
+          circles: nodes.map((node) => [
+            ...getPos(node),
+            topkNodeR * canvasScale
+          ]),
+          hasFill: true,
+          fillStyle: hexWithOpacity(colorScheme[i], topkNodeOpacity)
+        });
+      }
+    }
+  }
+
+  // federjs/FederView/ivfflatView/IvfflatSearchView/transitionNodesMove.ts
+  function transitionNodesMove(t) {
+    if (t < 0)
+      return;
+    const {
+      transitionNodesMoveTime,
+      canvasScale,
+      topkNodeR,
+      topkNodeOpacity,
+      nonTopkNodeR,
+      nonTopkNodeOpacity
+    } = this.viewParams;
+    if (t > transitionNodesMoveTime)
+      return;
+    let p = t / transitionNodesMoveTime;
+    p = this.stepType === "project" /* project */ ? p : 1 - p;
+    const getPos = (node) => vecAdd(vecMultiply(node.polarPos, 1 - p), vecMultiply(node.projectPos, p));
+    for (let i = 0; i < this.nprobe; i++) {
+      const nodes = this.searchViewNodes.filter((node) => !node.inTopK).filter((node) => node.polarOrder === i);
+      drawCircles({
+        ctx: this.ctx,
+        circles: nodes.map((node) => [
+          ...getPos(node),
+          nonTopkNodeR * canvasScale
+        ]),
+        hasFill: true,
+        fillStyle: hexWithOpacity(this.colorScheme[i], nonTopkNodeOpacity)
+      });
+    }
+    for (let i = 0; i < this.nprobe; i++) {
+      const nodes = this.searchViewNodes.filter((node) => node.inTopK).filter((node) => node.polarOrder === i);
+      drawCircles({
+        ctx: this.ctx,
+        circles: nodes.map((node) => [...getPos(node), topkNodeR * canvasScale]),
+        hasFill: true,
+        fillStyle: hexWithOpacity(this.colorScheme[i], topkNodeOpacity)
+      });
+    }
+  }
+
+  // federjs/FederView/ivfflatView/IvfflatSearchView/index.ts
   var defaltViewParamsIvfflat = {
     width: 800,
     height: 480,
@@ -13995,13 +14185,17 @@ ${indentData}`);
     highlightNodeR: 6,
     highlightNodeStroke: "#fff",
     highlightNodeStrokeWidth: 1,
-    highlightNodeOpacity: 1
+    highlightNodeOpacity: 1,
+    transitionClustersExitTime: 2e3,
+    transitionReplaceTime: 1e3,
+    transitionNodesEnterTime: 2e3,
+    transitionNodesMoveTime: 2e3
   };
-  var IvfflatSearchView3 = class {
+  var IvfflatSearchView5 = class {
     constructor(visData, viewParams) {
       this.hoveredCluster = null;
       this.hoveredNode = null;
-      this.stepType = 0 /* voronoi */;
+      this.stepType = "voronoi" /* voronoi */;
       this.mouseMoveHandler = null;
       this.mouseClickHandler = null;
       this.mouseLeaveHandler = null;
@@ -14011,6 +14205,8 @@ ${indentData}`);
       this.targetNode = targetNode;
       this.polarOrigin = polarOrigin;
       this.viewParams = Object.assign({}, defaltViewParamsIvfflat, viewParams);
+      this.nprobe = this.searchViewClusters.filter((cluster) => cluster.inNprobe).length;
+      this.colorScheme = range(this.nprobe).map((i) => hsl(360 * i / this.nprobe, 1, 0.5).formatHex());
       this.init();
     }
     init() {
@@ -14047,7 +14243,7 @@ ${indentData}`);
       this.initVoronoiView();
     }
     initVoronoiView() {
-      this.stepType = 0 /* voronoi */;
+      this.stepType = "voronoi" /* voronoi */;
       this.renderVoronoiView();
       this.mouseClickHandler = null;
       this.mouseMoveHandler = ({ x: x3, y: y3 }) => {
@@ -14068,11 +14264,11 @@ ${indentData}`);
       renderTarget.call(this);
     }
     initPolarView() {
-      this.stepType = 1 /* polar */;
+      this.stepType = "polar" /* polar */;
       this.initNodesView();
     }
     initProjectView() {
-      this.stepType = 2 /* project */;
+      this.stepType = "project" /* project */;
       this.initNodesView();
     }
     initNodesView() {
@@ -14081,7 +14277,7 @@ ${indentData}`);
       const { highlightNodeR, canvasScale } = this.viewParams;
       const mouseInNodeR = highlightNodeR * canvasScale;
       const threshold = mouseInNodeR * mouseInNodeR;
-      const getPos = this.stepType === 1 /* polar */ ? (node) => node.polarPos : (node) => node.projectPos;
+      const getPos = this.stepType === "polar" /* polar */ ? (node) => node.polarPos : (node) => node.projectPos;
       this.mouseMoveHandler = ({ x: x3, y: y3 }) => {
         const distances = this.searchViewNodes.map((node) => getDisL2Square(getPos(node), [x3, y3]));
         const nearestNodeIndex = minIndex(distances);
@@ -14099,7 +14295,55 @@ ${indentData}`);
     renderNodesView() {
       clearCanvas.call(this);
       renderNodes.call(this);
-      this.stepType === 1 /* polar */ && renderTarget.call(this);
+      renderTarget.call(this);
+    }
+    switchView(newStepType) {
+      console.log(this.stepType, newStepType);
+      if (newStepType === this.stepType)
+        return;
+      const {
+        transitionClustersExitTime,
+        transitionReplaceTime,
+        transitionNodesEnterTime,
+        transitionNodesMoveTime
+      } = this.viewParams;
+      const allTime = transitionClustersExitTime + transitionReplaceTime + transitionNodesEnterTime;
+      if (newStepType === "voronoi" /* voronoi */) {
+        const timer2 = timer((elapsed) => {
+          if (elapsed > allTime) {
+            timer2.stop();
+            this.stepType = newStepType;
+            this.initVoronoiView();
+          } else {
+            clearCanvas.call(this);
+            transitionClustersExit.call(this, elapsed - transitionNodesEnterTime, true);
+            transitionNodesEnter.call(this, elapsed, true);
+          }
+        });
+      } else if (this.stepType === "voronoi" /* voronoi */) {
+        this.stepType = newStepType;
+        const timer2 = timer((elapsed) => {
+          if (elapsed > allTime) {
+            timer2.stop();
+            this.initNodesView();
+          } else {
+            clearCanvas.call(this);
+            transitionClustersExit.call(this, elapsed);
+            transitionNodesEnter.call(this, elapsed - transitionClustersExitTime);
+          }
+        });
+      } else {
+        this.stepType = newStepType;
+        const timer2 = timer((elapsed) => {
+          if (elapsed > transitionNodesMoveTime) {
+            timer2.stop();
+            this.initNodesView();
+          } else {
+            clearCanvas.call(this);
+            transitionNodesMove.call(this, elapsed);
+          }
+        });
+      }
     }
   };
 
@@ -14107,7 +14351,7 @@ ${indentData}`);
   var viewMap = {
     ["hnsw" /* hnsw */ + "search" /* search */ + "hnsw3d" /* hnsw3d */]: HnswSearchHnsw3dView,
     ["hnsw" /* hnsw */ + "search" /* search */ + "default" /* default */]: HnswSearchView,
-    ["ivfflat" /* ivfflat */ + "search" /* search */ + "default" /* default */]: IvfflatSearchView3
+    ["ivfflat" /* ivfflat */ + "search" /* search */ + "default" /* default */]: IvfflatSearchView5
   };
   var FederView = class {
     constructor({ indexType, actionType, viewType, visData }, viewParams) {

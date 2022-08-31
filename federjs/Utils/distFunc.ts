@@ -1,5 +1,10 @@
 import { EMetricType, TVec } from 'Types';
 
+export const vecAdd = (vec1: TVec, vec2: TVec) =>
+  vec1.map((d, i) => d + vec2[i]);
+
+export const vecMultiply = (vec1: TVec, k: number) => vec1.map((d) => d * k);
+
 export const getDisL2Square = (vec1: TVec, vec2: TVec) => {
   return vec1
     .map((num, i) => num - vec2[i])
