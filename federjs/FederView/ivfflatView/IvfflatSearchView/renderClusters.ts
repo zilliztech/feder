@@ -1,5 +1,5 @@
 import { drawPolygons, hexWithOpacity } from 'FederView/renderUtils2D';
-import IvfflatSearchView from './IvfflatSearchView';
+import IvfflatSearchView from '.';
 
 export default function renderClusters(this: IvfflatSearchView) {
   const {
@@ -17,6 +17,8 @@ export default function renderClusters(this: IvfflatSearchView) {
     hoveredClusterStroke,
     hoveredClusterStrokeWidth,
   } = this.viewParams;
+
+  // non-nprobe
   const nonNprobeClusters = this.searchViewClusters.filter(
     (cluster) => !cluster.inNprobe
   );
@@ -30,7 +32,7 @@ export default function renderClusters(this: IvfflatSearchView) {
     lineWidth: nonNprobeClusterStrokeWidth * canvasScale,
   });
 
-  // probe
+  // nprobe
   const nprobeClusters = this.searchViewClusters.filter(
     (cluster) => cluster.inNprobe
   );

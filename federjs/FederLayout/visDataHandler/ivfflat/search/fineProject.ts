@@ -5,16 +5,19 @@ import { TSearchRecordsIvfflat } from 'Types/searchRecords';
 import {
   TLayoutParamsIvfflat,
   TVisDataIvfflatSearchViewNode,
+  TVisDataIvfflatSearchViewTargetNode,
 } from 'Types/visData';
 
 export const ivfflatSearchViewLayoutFineProject = ({
   searchViewNodes,
   searchRecords,
   layoutParams,
+  targetNode,
 }: {
   searchViewNodes: TVisDataIvfflatSearchViewNode[];
   searchRecords: TSearchRecordsIvfflat;
   layoutParams: TLayoutParamsIvfflat;
+  targetNode: TVisDataIvfflatSearchViewTargetNode;
 }) =>
   new Promise<void>((resolve) => {
     const {
@@ -33,9 +36,10 @@ export const ivfflatSearchViewLayoutFineProject = ({
         })
       : (vecs: TVec[]) =>
           vecs.map((_) => [Math.random(), Math.random()] as TCoord);
-    const searchviewNodesProjection = projector(
-      searchRecords.fineSearchRecords.map((node) => node.vector)
-    );
+    const searchviewNodesProjection = projector([
+      ...searchRecords.fineSearchRecords.map((node) => node.vector),
+      searchRecords.target,
+    ]);
     searchViewNodes.forEach((node, i) => {
       node.projection = searchviewNodesProjection[i];
     });
@@ -57,6 +61,12 @@ export const ivfflatSearchViewLayoutFineProject = ({
     searchViewNodes.forEach((node) => {
       node.projectPos = [x(node.projection[0]), y(node.projection[1])];
     });
+    const targetNodeProjection =
+      searchviewNodesProjection[searchviewNodesProjection.length - 1];
+    targetNode.projectPos = [
+      x(targetNodeProjection[0]),
+      y(targetNodeProjection[1]),
+    ];
     resolve();
   });
 

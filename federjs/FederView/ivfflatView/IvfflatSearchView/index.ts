@@ -12,12 +12,15 @@ import renderNodes from './renderNodes';
 import * as d3 from 'd3';
 import { TCoord } from 'Types';
 import { getDisL2Square } from 'Utils/distFunc';
-import clearCanvas from './clearCanvas';
+import clearCanvas from '../clearCanvas';
+import transitionClustersExit from './transitionClustersExit';
+import transitionNodesEnter from './transitionNodesEnter';
+import transitionNodesMove from './transitionNodesMove';
 
 export enum EStepType {
-  voronoi = 0,
-  polar,
-  project,
+  voronoi = 'voronoi',
+  polar = 'polar',
+  project = 'project',
 }
 
 const defaltViewParamsIvfflat = {
@@ -50,6 +53,11 @@ const defaltViewParamsIvfflat = {
   highlightNodeStroke: '#fff',
   highlightNodeStrokeWidth: 1,
   highlightNodeOpacity: 1,
+
+  transitionClustersExitTime: 2000,
+  transitionReplaceTime: 1000,
+  transitionNodesEnterTime: 2000,
+  transitionNodesMoveTime: 2000,
 } as TViewParamsIvfflat;
 
 export default class IvfflatSearchView implements ViewHandler {
@@ -67,6 +75,8 @@ export default class IvfflatSearchView implements ViewHandler {
   mouseMoveHandler: ({ x, y }: { x: number; y: number }) => void = null;
   mouseClickHandler: ({ x, y }: { x: number; y: number }) => void = null;
   mouseLeaveHandler: () => void = null;
+  colorScheme: string[];
+  nprobe: number;
 
   constructor(
     visData: TVisDataIvfflatSearchView,
@@ -79,6 +89,13 @@ export default class IvfflatSearchView implements ViewHandler {
     this.targetNode = targetNode;
     this.polarOrigin = polarOrigin;
     this.viewParams = Object.assign({}, defaltViewParamsIvfflat, viewParams);
+
+    this.nprobe = this.searchViewClusters.filter(
+      (cluster) => cluster.inNprobe
+    ).length;
+    this.colorScheme = d3
+      .range(this.nprobe)
+      .map((i) => d3.hsl((360 * i) / this.nprobe, 1, 0.5).formatHex());
     this.init();
   }
   init(): void {
@@ -189,9 +206,71 @@ export default class IvfflatSearchView implements ViewHandler {
   renderNodesView() {
     clearCanvas.call(this);
     renderNodes.call(this);
-    this.stepType === EStepType.polar && renderTarget.call(this);
+    renderTarget.call(this);
     // updatePanel
   }
-}
 
-export const renderVoronoiPolygon = ({}: {} = {}) => {};
+  switchView(newStepType: EStepType) {
+    console.log(this.stepType, newStepType);
+    if (newStepType === this.stepType) return;
+
+    const {
+      transitionClustersExitTime,
+      transitionReplaceTime,
+      transitionNodesEnterTime,
+      transitionNodesMoveTime,
+    } = this.viewParams;
+
+    const allTime =
+      transitionClustersExitTime +
+      transitionReplaceTime +
+      transitionNodesEnterTime;
+
+    if (newStepType === EStepType.voronoi) {
+      // node => voronoi
+      // ExitTime node pos
+      // ReplaceTime node / cluster opacity
+      // EnterTime node pos
+      const timer = d3.timer((elapsed) => {
+        if (elapsed > allTime) {
+          timer.stop();
+          this.stepType = newStepType;
+          this.initVoronoiView();
+        } else {
+          clearCanvas.call(this);
+          transitionClustersExit.call(
+            this,
+            elapsed - transitionNodesEnterTime,
+            true
+          );
+          transitionNodesEnter.call(this, elapsed, true);
+        }
+      });
+    } else if (this.stepType === EStepType.voronoi) {
+      // voronoi => node
+      this.stepType = newStepType;
+      const timer = d3.timer((elapsed) => {
+        if (elapsed > allTime) {
+          timer.stop();
+          this.initNodesView();
+        } else {
+          clearCanvas.call(this);
+          transitionClustersExit.call(this, elapsed);
+          transitionNodesEnter.call(this, elapsed - transitionClustersExitTime);
+        }
+      });
+    } else {
+      // node => node
+      this.stepType = newStepType;
+      const timer = d3.timer((elapsed) => {
+        if (elapsed > transitionNodesMoveTime) {
+          timer.stop();
+          this.initNodesView();
+        } else {
+          clearCanvas.call(this);
+          transitionNodesMove.call(this, elapsed);
+        }
+      })
+    }
+  }
+}

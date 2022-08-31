@@ -1,7 +1,7 @@
 import * as d3 from 'd3';
 import { drawCircles, hexWithOpacity } from 'FederView/renderUtils2D';
 import { TVisDataIvfflatSearchViewNode } from 'Types/visData';
-import IvfflatSearchView, { EStepType } from './IvfflatSearchView';
+import IvfflatSearchView, { EStepType } from '.';
 
 export default function renderNodes(this: IvfflatSearchView) {
   const {
@@ -15,19 +15,14 @@ export default function renderNodes(this: IvfflatSearchView) {
     highlightNodeStrokeWidth,
     highlightNodeOpacity,
   } = this.viewParams;
-  const nprobe = this.searchViewClusters.filter(
-    (cluster) => cluster.inNprobe
-  ).length;
-  const colorScheme = d3
-    .range(nprobe)
-    .map((i) => d3.hsl((360 * i) / nprobe, 1, 0.5).formatHex());
+  const colorScheme = this.colorScheme;
   const getPos =
     this.stepType === EStepType.polar
       ? (node: TVisDataIvfflatSearchViewNode) => node.polarPos
       : (node: TVisDataIvfflatSearchViewNode) => node.projectPos;
 
   // nonTopK
-  for (let i = 0; i < nprobe; i++) {
+  for (let i = 0; i < this.nprobe; i++) {
     const nodes = this.searchViewNodes
       .filter((node) => !node.inTopK)
       .filter((node) => node.polarOrder === i);
@@ -43,7 +38,7 @@ export default function renderNodes(this: IvfflatSearchView) {
   }
 
   // topK
-  for (let i = 0; i < nprobe; i++) {
+  for (let i = 0; i < this.nprobe; i++) {
     const nodes = this.searchViewNodes
       .filter((node) => node.inTopK)
       .filter((node) => node.polarOrder === i);

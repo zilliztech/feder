@@ -19,4 +19,5 @@ export interface TSearchRecordsIvfflat {
   fineSearchRecords: TSearchRecordsIvfflatFineNode[];
   topKVectorIds: TId[];
   searchParams: TSearchParams;
+  target: TVec;
 }
