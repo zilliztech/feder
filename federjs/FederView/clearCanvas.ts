@@ -1,4 +1,4 @@
-import IvfflatSearchView from './IvfflatSearchView';
+import IvfflatSearchView from './ivfflatView/IvfflatSearchView';
 
 export default function clearCanvas(this: IvfflatSearchView) {
   const { width, height, canvasScale } = this.viewParams;
