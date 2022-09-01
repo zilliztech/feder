@@ -7505,6 +7505,39 @@ ${indentData}`);
     }
   };
 
+  // federjs/FederLayout/visDataHandler/hnsw/defaultLayoutParamsHnsw.ts
+  var defaultHnswLayoutParams = {
+    width: 800,
+    height: 480,
+    canvasScale: 2,
+    targetOrigin: [0, 0],
+    numForceIterations: 100,
+    padding: [80, 200, 60, 220],
+    xBias: 0.65,
+    yBias: 0.4,
+    yOver: 0.1,
+    targetR: 3,
+    searchViewNodeBasicR: 1,
+    searchViewNodeRStep: 1,
+    forceTime: 3e3,
+    layerDotNum: 20,
+    shortenLineD: 8,
+    overviewLinkLineWidth: 2,
+    reachableLineWidth: 3,
+    shortestPathLineWidth: 4,
+    ellipseRation: 1.4,
+    shadowBlur: 4,
+    mouse2nodeBias: 3,
+    highlightRadiusExt: 0.5,
+    searchInterLevelTime: 300,
+    searchIntraLevelTime: 100,
+    HoveredPanelLine_1_x: 15,
+    HoveredPanelLine_1_y: -25,
+    HoveredPanelLine_2_x: 30,
+    hoveredPanelLineWidth: 2
+  };
+  var defaultLayoutParamsHnsw_default = defaultHnswLayoutParams;
+
   // federjs/FederLayout/visDataHandler/hnsw/search/utils.ts
   var connection = "---";
   var getLinkId = (sourceId, targetId) => `${sourceId}${connection}${targetId}`;
@@ -7593,7 +7626,7 @@ ${indentData}`);
         }
       });
       const nodes = Object.keys(id2nodeType).map((id2) => ({
-        id: `${id2}`,
+        id: id2,
         type: id2nodeType[id2],
         dist: id2dist[id2]
       }));
@@ -8736,6 +8769,251 @@ ${indentData}`);
     return select_default2(creator_default(name).call(document.documentElement));
   }
 
+  // node_modules/d3-selection/src/sourceEvent.js
+  function sourceEvent_default(event) {
+    let sourceEvent;
+    while (sourceEvent = event.sourceEvent)
+      event = sourceEvent;
+    return event;
+  }
+
+  // node_modules/d3-selection/src/pointer.js
+  function pointer_default(event, node) {
+    event = sourceEvent_default(event);
+    if (node === void 0)
+      node = event.currentTarget;
+    if (node) {
+      var svg = node.ownerSVGElement || node;
+      if (svg.createSVGPoint) {
+        var point = svg.createSVGPoint();
+        point.x = event.clientX, point.y = event.clientY;
+        point = point.matrixTransform(node.getScreenCTM().inverse());
+        return [point.x, point.y];
+      }
+      if (node.getBoundingClientRect) {
+        var rect = node.getBoundingClientRect();
+        return [event.clientX - rect.left - node.clientLeft, event.clientY - rect.top - node.clientTop];
+      }
+    }
+    return [event.pageX, event.pageY];
+  }
+
+  // node_modules/d3-drag/src/noevent.js
+  var nonpassive = { passive: false };
+  var nonpassivecapture = { capture: true, passive: false };
+  function nopropagation(event) {
+    event.stopImmediatePropagation();
+  }
+  function noevent_default(event) {
+    event.preventDefault();
+    event.stopImmediatePropagation();
+  }
+
+  // node_modules/d3-drag/src/nodrag.js
+  function nodrag_default(view) {
+    var root2 = view.document.documentElement, selection2 = select_default2(view).on("dragstart.drag", noevent_default, nonpassivecapture);
+    if ("onselectstart" in root2) {
+      selection2.on("selectstart.drag", noevent_default, nonpassivecapture);
+    } else {
+      root2.__noselect = root2.style.MozUserSelect;
+      root2.style.MozUserSelect = "none";
+    }
+  }
+  function yesdrag(view, noclick) {
+    var root2 = view.document.documentElement, selection2 = select_default2(view).on("dragstart.drag", null);
+    if (noclick) {
+      selection2.on("click.drag", noevent_default, nonpassivecapture);
+      setTimeout(function() {
+        selection2.on("click.drag", null);
+      }, 0);
+    }
+    if ("onselectstart" in root2) {
+      selection2.on("selectstart.drag", null);
+    } else {
+      root2.style.MozUserSelect = root2.__noselect;
+      delete root2.__noselect;
+    }
+  }
+
+  // node_modules/d3-drag/src/constant.js
+  var constant_default2 = (x3) => () => x3;
+
+  // node_modules/d3-drag/src/event.js
+  function DragEvent(type2, {
+    sourceEvent,
+    subject,
+    target,
+    identifier,
+    active,
+    x: x3,
+    y: y3,
+    dx,
+    dy,
+    dispatch: dispatch2
+  }) {
+    Object.defineProperties(this, {
+      type: { value: type2, enumerable: true, configurable: true },
+      sourceEvent: { value: sourceEvent, enumerable: true, configurable: true },
+      subject: { value: subject, enumerable: true, configurable: true },
+      target: { value: target, enumerable: true, configurable: true },
+      identifier: { value: identifier, enumerable: true, configurable: true },
+      active: { value: active, enumerable: true, configurable: true },
+      x: { value: x3, enumerable: true, configurable: true },
+      y: { value: y3, enumerable: true, configurable: true },
+      dx: { value: dx, enumerable: true, configurable: true },
+      dy: { value: dy, enumerable: true, configurable: true },
+      _: { value: dispatch2 }
+    });
+  }
+  DragEvent.prototype.on = function() {
+    var value = this._.on.apply(this._, arguments);
+    return value === this._ ? this : value;
+  };
+
+  // node_modules/d3-drag/src/drag.js
+  function defaultFilter(event) {
+    return !event.ctrlKey && !event.button;
+  }
+  function defaultContainer() {
+    return this.parentNode;
+  }
+  function defaultSubject(event, d) {
+    return d == null ? { x: event.x, y: event.y } : d;
+  }
+  function defaultTouchable() {
+    return navigator.maxTouchPoints || "ontouchstart" in this;
+  }
+  function drag_default() {
+    var filter2 = defaultFilter, container = defaultContainer, subject = defaultSubject, touchable = defaultTouchable, gestures = {}, listeners = dispatch_default("start", "drag", "end"), active = 0, mousedownx, mousedowny, mousemoving, touchending, clickDistance2 = 0;
+    function drag(selection2) {
+      selection2.on("mousedown.drag", mousedowned).filter(touchable).on("touchstart.drag", touchstarted).on("touchmove.drag", touchmoved, nonpassive).on("touchend.drag touchcancel.drag", touchended).style("touch-action", "none").style("-webkit-tap-highlight-color", "rgba(0,0,0,0)");
+    }
+    function mousedowned(event, d) {
+      if (touchending || !filter2.call(this, event, d))
+        return;
+      var gesture = beforestart(this, container.call(this, event, d), event, d, "mouse");
+      if (!gesture)
+        return;
+      select_default2(event.view).on("mousemove.drag", mousemoved, nonpassivecapture).on("mouseup.drag", mouseupped, nonpassivecapture);
+      nodrag_default(event.view);
+      nopropagation(event);
+      mousemoving = false;
+      mousedownx = event.clientX;
+      mousedowny = event.clientY;
+      gesture("start", event);
+    }
+    function mousemoved(event) {
+      noevent_default(event);
+      if (!mousemoving) {
+        var dx = event.clientX - mousedownx, dy = event.clientY - mousedowny;
+        mousemoving = dx * dx + dy * dy > clickDistance2;
+      }
+      gestures.mouse("drag", event);
+    }
+    function mouseupped(event) {
+      select_default2(event.view).on("mousemove.drag mouseup.drag", null);
+      yesdrag(event.view, mousemoving);
+      noevent_default(event);
+      gestures.mouse("end", event);
+    }
+    function touchstarted(event, d) {
+      if (!filter2.call(this, event, d))
+        return;
+      var touches = event.changedTouches, c2 = container.call(this, event, d), n = touches.length, i, gesture;
+      for (i = 0; i < n; ++i) {
+        if (gesture = beforestart(this, c2, event, d, touches[i].identifier, touches[i])) {
+          nopropagation(event);
+          gesture("start", event, touches[i]);
+        }
+      }
+    }
+    function touchmoved(event) {
+      var touches = event.changedTouches, n = touches.length, i, gesture;
+      for (i = 0; i < n; ++i) {
+        if (gesture = gestures[touches[i].identifier]) {
+          noevent_default(event);
+          gesture("drag", event, touches[i]);
+        }
+      }
+    }
+    function touchended(event) {
+      var touches = event.changedTouches, n = touches.length, i, gesture;
+      if (touchending)
+        clearTimeout(touchending);
+      touchending = setTimeout(function() {
+        touchending = null;
+      }, 500);
+      for (i = 0; i < n; ++i) {
+        if (gesture = gestures[touches[i].identifier]) {
+          nopropagation(event);
+          gesture("end", event, touches[i]);
+        }
+      }
+    }
+    function beforestart(that, container2, event, d, identifier, touch) {
+      var dispatch2 = listeners.copy(), p = pointer_default(touch || event, container2), dx, dy, s;
+      if ((s = subject.call(that, new DragEvent("beforestart", {
+        sourceEvent: event,
+        target: drag,
+        identifier,
+        active,
+        x: p[0],
+        y: p[1],
+        dx: 0,
+        dy: 0,
+        dispatch: dispatch2
+      }), d)) == null)
+        return;
+      dx = s.x - p[0] || 0;
+      dy = s.y - p[1] || 0;
+      return function gesture(type2, event2, touch2) {
+        var p0 = p, n;
+        switch (type2) {
+          case "start":
+            gestures[identifier] = gesture, n = active++;
+            break;
+          case "end":
+            delete gestures[identifier], --active;
+          case "drag":
+            p = pointer_default(touch2 || event2, container2), n = active;
+            break;
+        }
+        dispatch2.call(type2, that, new DragEvent(type2, {
+          sourceEvent: event2,
+          subject: s,
+          target: drag,
+          identifier,
+          active: n,
+          x: p[0] + dx,
+          y: p[1] + dy,
+          dx: p[0] - p0[0],
+          dy: p[1] - p0[1],
+          dispatch: dispatch2
+        }), d);
+      };
+    }
+    drag.filter = function(_) {
+      return arguments.length ? (filter2 = typeof _ === "function" ? _ : constant_default2(!!_), drag) : filter2;
+    };
+    drag.container = function(_) {
+      return arguments.length ? (container = typeof _ === "function" ? _ : constant_default2(_), drag) : container;
+    };
+    drag.subject = function(_) {
+      return arguments.length ? (subject = typeof _ === "function" ? _ : constant_default2(_), drag) : subject;
+    };
+    drag.touchable = function(_) {
+      return arguments.length ? (touchable = typeof _ === "function" ? _ : constant_default2(!!_), drag) : touchable;
+    };
+    drag.on = function() {
+      var value = listeners.on.apply(listeners, arguments);
+      return value === listeners ? drag : value;
+    };
+    drag.clickDistance = function(_) {
+      return arguments.length ? (clickDistance2 = (_ = +_) * _, drag) : Math.sqrt(clickDistance2);
+    };
+    return drag;
+  }
+
   // node_modules/d3-color/src/define.js
   function define_default(constructor, factory, prototype) {
     constructor.prototype = factory.prototype = prototype;
@@ -9114,7 +9392,7 @@ ${indentData}`);
   }
 
   // node_modules/d3-interpolate/src/constant.js
-  var constant_default2 = (x3) => () => x3;
+  var constant_default3 = (x3) => () => x3;
 
   // node_modules/d3-interpolate/src/color.js
   function linear(a2, d) {
@@ -9129,12 +9407,12 @@ ${indentData}`);
   }
   function gamma(y3) {
     return (y3 = +y3) === 1 ? nogamma : function(a2, b) {
-      return b - a2 ? exponential(a2, b, y3) : constant_default2(isNaN(a2) ? b : a2);
+      return b - a2 ? exponential(a2, b, y3) : constant_default3(isNaN(a2) ? b : a2);
     };
   }
   function nogamma(a2, b) {
     var d = b - a2;
-    return d ? linear(a2, d) : constant_default2(isNaN(a2) ? b : a2);
+    return d ? linear(a2, d) : constant_default3(isNaN(a2) ? b : a2);
   }
 
   // node_modules/d3-interpolate/src/rgb.js
@@ -9294,7 +9572,7 @@ ${indentData}`);
   // node_modules/d3-interpolate/src/value.js
   function value_default(a2, b) {
     var t = typeof b, c2;
-    return b == null || t === "boolean" ? constant_default2(b) : (t === "number" ? number_default : t === "string" ? (c2 = color(b)) ? (b = c2, rgb_default) : string_default : b instanceof color ? rgb_default : b instanceof Date ? date_default : isNumberArray(b) ? numberArray_default : Array.isArray(b) ? genericArray : typeof b.valueOf !== "function" && typeof b.toString !== "function" || isNaN(b) ? object_default : number_default)(a2, b);
+    return b == null || t === "boolean" ? constant_default3(b) : (t === "number" ? number_default : t === "string" ? (c2 = color(b)) ? (b = c2, rgb_default) : string_default : b instanceof color ? rgb_default : b instanceof Date ? date_default : isNumberArray(b) ? numberArray_default : Array.isArray(b) ? genericArray : typeof b.valueOf !== "function" && typeof b.toString !== "function" || isNaN(b) ? object_default : number_default)(a2, b);
   }
 
   // node_modules/d3-interpolate/src/round.js
@@ -12077,7 +12355,7 @@ ${indentData}`);
   treeProto.y = y_default;
 
   // node_modules/d3-force/src/constant.js
-  function constant_default4(x3) {
+  function constant_default5(x3) {
     return function() {
       return x3;
     };
@@ -12098,7 +12376,7 @@ ${indentData}`);
   function collide_default(radius) {
     var nodes, radii, random, strength = 1, iterations = 1;
     if (typeof radius !== "function")
-      radius = constant_default4(radius == null ? 1 : +radius);
+      radius = constant_default5(radius == null ? 1 : +radius);
     function force() {
       var i, n = nodes.length, tree, node, xi, yi, ri, ri2;
       for (var k = 0; k < iterations; ++k) {
@@ -12162,7 +12440,7 @@ ${indentData}`);
       return arguments.length ? (strength = +_, force) : strength;
     };
     force.radius = function(_) {
-      return arguments.length ? (radius = typeof _ === "function" ? _ : constant_default4(+_), initialize(), force) : radius;
+      return arguments.length ? (radius = typeof _ === "function" ? _ : constant_default5(+_), initialize(), force) : radius;
     };
     return force;
   }
@@ -12178,7 +12456,7 @@ ${indentData}`);
     return node;
   }
   function link_default(links) {
-    var id2 = index, strength = defaultStrength, strengths, distance = constant_default4(30), distances, nodes, count, bias, random, iterations = 1;
+    var id2 = index, strength = defaultStrength, strengths, distance = constant_default5(30), distances, nodes, count, bias, random, iterations = 1;
     if (links == null)
       links = [];
     function defaultStrength(link) {
@@ -12248,10 +12526,10 @@ ${indentData}`);
       return arguments.length ? (iterations = +_, force) : iterations;
     };
     force.strength = function(_) {
-      return arguments.length ? (strength = typeof _ === "function" ? _ : constant_default4(+_), initializeStrength(), force) : strength;
+      return arguments.length ? (strength = typeof _ === "function" ? _ : constant_default5(+_), initializeStrength(), force) : strength;
     };
     force.distance = function(_) {
-      return arguments.length ? (distance = typeof _ === "function" ? _ : constant_default4(+_), initializeDistance(), force) : distance;
+      return arguments.length ? (distance = typeof _ === "function" ? _ : constant_default5(+_), initializeDistance(), force) : distance;
     };
     return force;
   }
@@ -12388,7 +12666,7 @@ ${indentData}`);
 
   // node_modules/d3-force/src/manyBody.js
   function manyBody_default() {
-    var nodes, node, random, alpha, strength = constant_default4(-30), strengths, distanceMin2 = 1, distanceMax2 = Infinity, theta2 = 0.81;
+    var nodes, node, random, alpha, strength = constant_default5(-30), strengths, distanceMin2 = 1, distanceMax2 = Infinity, theta2 = 0.81;
     function force(_) {
       var i, n = nodes.length, tree = quadtree(nodes, x2, y2).visitAfter(accumulate);
       for (alpha = _, i = 0; i < n; ++i)
@@ -12462,7 +12740,7 @@ ${indentData}`);
       initialize();
     };
     force.strength = function(_) {
-      return arguments.length ? (strength = typeof _ === "function" ? _ : constant_default4(+_), initialize(), force) : strength;
+      return arguments.length ? (strength = typeof _ === "function" ? _ : constant_default5(+_), initialize(), force) : strength;
     };
     force.distanceMin = function(_) {
       return arguments.length ? (distanceMin2 = _ * _, force) : Math.sqrt(distanceMin2);
@@ -12478,9 +12756,9 @@ ${indentData}`);
 
   // node_modules/d3-force/src/radial.js
   function radial_default(radius, x3, y3) {
-    var nodes, strength = constant_default4(0.1), strengths, radiuses;
+    var nodes, strength = constant_default5(0.1), strengths, radiuses;
     if (typeof radius !== "function")
-      radius = constant_default4(+radius);
+      radius = constant_default5(+radius);
     if (x3 == null)
       x3 = 0;
     if (y3 == null)
@@ -12507,10 +12785,10 @@ ${indentData}`);
       nodes = _, initialize();
     };
     force.strength = function(_) {
-      return arguments.length ? (strength = typeof _ === "function" ? _ : constant_default4(+_), initialize(), force) : strength;
+      return arguments.length ? (strength = typeof _ === "function" ? _ : constant_default5(+_), initialize(), force) : strength;
     };
     force.radius = function(_) {
-      return arguments.length ? (radius = typeof _ === "function" ? _ : constant_default4(+_), initialize(), force) : radius;
+      return arguments.length ? (radius = typeof _ === "function" ? _ : constant_default5(+_), initialize(), force) : radius;
     };
     force.x = function(_) {
       return arguments.length ? (x3 = +_, force) : x3;
@@ -13058,16 +13336,16 @@ ${indentData}`);
   }
 
   // federjs/FederLayout/visDataHandler/hnsw/search/forceSearchView.ts
-  var forceSearchView = (visData, targetOrigin = [0, 0], forceIterations = 100) => {
+  var forceSearchView = (parsedData, targetOrigin = [0, 0], numForceIterations = 100) => {
     return new Promise((resolve) => {
       const nodeId2dist = {};
-      visData.forEach((levelData) => levelData.nodes.forEach((node) => nodeId2dist[node.id] = node.dist || 0));
+      parsedData.forEach((levelData) => levelData.nodes.forEach((node) => nodeId2dist[node.id] = node.dist || 0));
       const nodeIds = Object.keys(nodeId2dist);
       const nodes = nodeIds.map((nodeId) => ({
         nodeId,
         dist: nodeId2dist[nodeId]
       }));
-      const linksAll = visData.reduce((acc, cur) => acc.concat(cur.links), []);
+      const linksAll = parsedData.reduce((acc, cur) => acc.concat(cur.links), []);
       const links = deDupLink(linksAll);
       const targetNode = {
         nodeId: "target",
@@ -13076,14 +13354,14 @@ ${indentData}`);
         fy: targetOrigin[1]
       };
       nodes.push(targetNode);
-      const targetLinks = visData[0].fineIds.map((fineId) => ({
+      const targetLinks = parsedData[0].fineIds.map((fineId) => ({
         source: `${fineId}`,
         target: "target",
         type: 0 /* None */
       }));
       links.push(...targetLinks);
       const rScale = linear2().domain(extent(nodes.filter((node) => node.dist > 0), (node) => node.dist)).range([10, 1e3]).clamp(true);
-      const simulation = simulation_default(nodes).alphaDecay(1 - Math.pow(1e-3, 1 / forceIterations)).force("link", link_default(links).id((d) => `${d.nodeId}`).strength((d) => d.type === 0 /* None */ ? 2 : 0.4)).force("r", radial_default((node) => rScale(node.dist), targetOrigin[0], targetOrigin[1]).strength(1)).force("charge", manyBody_default().strength(-1e4)).on("end", () => {
+      const simulation = simulation_default(nodes).alphaDecay(1 - Math.pow(1e-3, 1 / numForceIterations)).force("link", link_default(links).id((d) => `${d.nodeId}`).strength((d) => d.type === 0 /* None */ ? 2 : 0.4)).force("r", radial_default((node) => rScale(node.dist), targetOrigin[0], targetOrigin[1]).strength(1)).force("charge", manyBody_default().strength(-1e4)).on("end", () => {
         const id2forcePos = {};
         nodes.forEach((node) => id2forcePos[node.nodeId] = [node.x, node.y]);
         resolve(id2forcePos);
@@ -13093,7 +13371,15 @@ ${indentData}`);
   var forceSearchView_default = forceSearchView;
 
   // federjs/FederLayout/visDataHandler/hnsw/search/transformHandler.ts
-  var transformHandler = (nodes, { levelCount, width, height, padding, xBias = 0.65, yBias = 0.4, yOver = 0.1 }) => {
+  var transformHandler = (nodes, levelCount, {
+    width,
+    height,
+    canvasScale,
+    padding,
+    xBias = 0.65,
+    yBias = 0.4,
+    yOver = 0.1
+  }) => {
     const layerWidth = width - padding[1] - padding[3];
     const layerHeight = (height - padding[0] - padding[2]) / (levelCount - (levelCount - 1) * yOver);
     const xRange = extent(nodes, (node) => node.x);
@@ -13104,7 +13390,7 @@ ${indentData}`);
       const _y = (y3 - yRange[0]) / (yRange[1] - yRange[0]);
       const newX = xOffset + _x * layerWidth * (1 - xBias) - _y * layerWidth * xBias;
       const newY = padding[0] + layerHeight * (1 - yOver) * (levelCount - 1 - level) + _x * layerHeight * (1 - yBias) + _y * layerHeight * yBias;
-      return [newX, newY];
+      return [newX * canvasScale, newY * canvasScale];
     };
     const layerPos = [
       [layerWidth * xBias, 0],
@@ -13112,10 +13398,10 @@ ${indentData}`);
       [layerWidth * (1 - xBias), layerHeight],
       [0, layerHeight * yBias]
     ];
-    const layerPosLevels = Array(levelCount).fill(0).map((_, level) => layerPos.map((coord) => [
-      coord[0] + padding[3],
-      coord[1] + padding[0] + layerHeight * (1 - yOver) * (levelCount - 1 - level)
-    ]));
+    const layerPosLevels = Array(levelCount).fill(0).map((_, level) => layerPos.map((coord) => vecAdd(coord, [
+      padding[3],
+      padding[0] + layerHeight * (1 - yOver) * (levelCount - 1 - level)
+    ])).map((coord) => vecMultiply(coord, canvasScale)));
     return { layerPosLevels, transformFunc };
   };
   var transformHandler_default = transformHandler;
@@ -13137,22 +13423,20 @@ ${indentData}`);
     for (let level = linksLevels.length - 1; level >= 0; level--) {
       const links = linksLevels[level];
       if (links.length === 0) {
-        const sourceId = entryNodesLevels[level].id;
+        const sourceId = entryNodesLevels[level][0].id;
         const sourceIdWithLevel = getNodeIdWithLevel(sourceId, level);
         nodeShowTime[sourceIdWithLevel] = currentTime;
       } else {
         links.forEach((link) => {
-          const sourceId = link.source.id;
-          const targetId = link.target.id;
-          const sourceIdWithLevel = getNodeIdWithLevel(sourceId, level);
-          const targetIdWithLevel = getNodeIdWithLevel(targetId, level);
-          const linkIdWithLevel = getLinkIdWithLevel(sourceId, targetId, level);
+          const sourceIdWithLevel = getNodeIdWithLevel(link.source, level);
+          const targetIdWithLevel = getNodeIdWithLevel(link.target, level);
+          const linkIdWithLevel = getLinkIdWithLevel(link.source, link.target, level);
           const isCurrentLinkImportant = link.type === 3 /* Searched */ || link.type === 4 /* Fine */;
           isSourceChanged = preSourceIdWithLevel !== sourceIdWithLevel;
           const isSourceEntry = !(sourceIdWithLevel in nodeShowTime);
           if (isSourceEntry) {
             if (level < linksLevels.length - 1) {
-              const entryLinkIdWithLevel = getEntryLinkIdWithLevel(sourceId, level);
+              const entryLinkIdWithLevel = getEntryLinkIdWithLevel(link.source, level);
               linkShowTime[entryLinkIdWithLevel] = currentTime;
               const targetLinkIdWithLevel = getEntryLinkIdWithLevel("target", level);
               linkShowTime[targetLinkIdWithLevel] = currentTime;
@@ -13185,47 +13469,41 @@ ${indentData}`);
 
   // federjs/FederLayout/visDataHandler/hnsw/search/index.ts
   var searchViewLayoutHandler = (searchRecords, layoutParams) => __async(void 0, null, function* () {
-    const visData = parseVisRecords_default(searchRecords);
+    const parsedData = parseVisRecords_default(searchRecords);
+    const parsedDataCopy = JSON.parse(JSON.stringify(parsedData));
     const {
       targetR,
       canvasScale = 1,
       targetOrigin,
       searchViewNodeBasicR,
+      searchViewNodeRStep,
       searchInterLevelTime,
       searchIntraLevelTime,
-      forceIterations
+      numForceIterations
     } = layoutParams;
-    const id2forcePos = yield forceSearchView_default(visData, targetOrigin, forceIterations);
-    const searchNodesLevels = visData.map((levelData) => levelData.nodes);
+    const id2forcePos = yield forceSearchView_default(parsedData, targetOrigin, numForceIterations);
+    const searchNodesLevels = parsedData.map((levelData) => levelData.nodes);
     searchNodesLevels.forEach((levelData) => levelData.forEach((node) => {
       node.forcePos = id2forcePos[node.id];
       node.x = node.forcePos[0];
       node.y = node.forcePos[1];
     }));
-    const { layerPosLevels, transformFunc } = transformHandler_default(searchNodesLevels.reduce((acc, node) => acc.concat(node), []), layoutParams);
+    const { layerPosLevels, transformFunc } = transformHandler_default(searchNodesLevels.reduce((acc, node) => acc.concat(node), []), searchNodesLevels.length, layoutParams);
     const searchTarget = {
       id: "target",
       r: targetR * canvasScale,
-      searchViewPosLevels: range(visData.length).map((i) => transformFunc(...targetOrigin, i))
+      searchViewPosLevels: range(parsedData.length).map((i) => transformFunc(...targetOrigin, i))
     };
     searchNodesLevels.forEach((nodes, level) => {
       nodes.forEach((node) => {
         node.searchViewPosLevels = range(level + 1).map((i) => transformFunc(...node.forcePos, i));
-        node.r = (searchViewNodeBasicR + node.type * 0.5) * canvasScale;
+        node.r = (searchViewNodeBasicR + node.type * searchViewNodeRStep) * canvasScale;
       });
     });
     const id2searchNode = {};
     searchNodesLevels.forEach((levelData) => levelData.forEach((node) => id2searchNode[node.id] = node));
-    const searchLinksLevels = parseVisRecords_default(searchRecords).map((levelData) => levelData.links.filter((link) => link.type !== 0 /* None */));
-    searchLinksLevels.forEach((levelData) => levelData.forEach((link) => {
-      const sourceId = link.source;
-      const targetId = link.target;
-      const sourceNode = id2searchNode[sourceId];
-      const targetNode = id2searchNode[targetId];
-      link.source = sourceNode;
-      link.target = targetNode;
-    }));
-    const entryNodesLevels = visData.map((levelData) => levelData.entryIds.map((id2) => id2searchNode[id2]));
+    const searchLinksLevels = parsedDataCopy.map((levelData) => levelData.links.filter((link) => link.type !== 0 /* None */));
+    const entryNodesLevels = parsedData.map((levelData) => levelData.entryIds.map((id2) => id2searchNode[id2]));
     const { targetShowTime, nodeShowTime, linkShowTime, duration } = computeSearchViewTransition_default({
       linksLevels: searchLinksLevels,
       entryNodesLevels,
@@ -13233,8 +13511,6 @@ ${indentData}`);
       intraLevelGap: searchIntraLevelTime
     });
     return {
-      visData,
-      id2forcePos,
       searchTarget,
       entryNodesLevels,
       searchNodesLevels,
@@ -13253,29 +13529,6 @@ ${indentData}`);
     ["default" /* default */]: searchViewLayoutHandler,
     ["hnsw3d" /* hnsw3d */]: searchViewLayoutHandler
   };
-  var defaultHnswLayoutParams = {
-    padding: [80, 200, 60, 220],
-    forceTime: 3e3,
-    layerDotNum: 20,
-    shortenLineD: 8,
-    overviewLinkLineWidth: 2,
-    reachableLineWidth: 3,
-    shortestPathLineWidth: 4,
-    ellipseRation: 1.4,
-    shadowBlur: 4,
-    mouse2nodeBias: 3,
-    highlightRadiusExt: 0.5,
-    targetR: 3,
-    searchViewNodeBasicR: 1.5,
-    searchInterLevelTime: 300,
-    searchIntraLevelTime: 100,
-    HoveredPanelLine_1_x: 15,
-    HoveredPanelLine_1_y: -25,
-    HoveredPanelLine_2_x: 30,
-    hoveredPanelLineWidth: 2,
-    forceIterations: 100,
-    targetOrigin: [0, 0]
-  };
   var FederLayoutHnsw = class {
     constructor() {
     }
@@ -13284,7 +13537,7 @@ ${indentData}`);
     }
     computeSearchViewVisData(viewType, searchRecords, layoutParams) {
       const searchViewLayoutHandler2 = searchViewLayoutHandlerMap[viewType];
-      return searchViewLayoutHandler2(searchRecords, Object.assign({}, defaultHnswLayoutParams, layoutParams));
+      return searchViewLayoutHandler2(searchRecords, Object.assign({}, defaultLayoutParamsHnsw_default, layoutParams));
     }
   };
 
@@ -13764,17 +14017,242 @@ ${indentData}`);
     }
   };
 
-  // federjs/FederView/hnswView/HnswSearchView.ts
+  // federjs/FederView/hnswView/HnswSearchView/TimeControllerView.ts
+  var iconGap = 10;
+  var rectW = 36;
+  var sliderBackGroundWidth = 200;
+  var sliderWidth = sliderBackGroundWidth * 0.8;
+  var sliderHeight = rectW * 0.15;
+  var sliderBarWidth = 10;
+  var sliderBarHeight = rectW * 0.6;
+  var resetW = 16;
+  var resetIconD = `M12.3579 13.0447C11.1482 14.0929 9.60059 14.6689 7.99992 14.6667C4.31792 14.6667 1.33325 11.682 1.33325 8.00004C1.33325 4.31804 4.31792 1.33337 7.99992 1.33337C11.6819 1.33337 14.6666 4.31804 14.6666 8.00004C14.6666 9.42404 14.2199 10.744 13.4599 11.8267L11.3333 8.00004H13.3333C13.3332 6.77085 12.9085 5.57942 12.131 4.6273C11.3536 3.67519 10.2712 3.02084 9.06681 2.77495C7.86246 2.52906 6.61014 2.70672 5.5217 3.27788C4.43327 3.84905 3.57553 4.77865 3.0936 5.90943C2.61167 7.04021 2.53512 8.30275 2.87691 9.48347C3.2187 10.6642 3.95785 11.6906 4.96931 12.3891C5.98077 13.0876 7.20245 13.4152 8.42768 13.3166C9.65292 13.218 10.8065 12.6993 11.6933 11.848L12.3579 13.0447Z`;
+  var pauseIconHeight = rectW * 0.4;
+  var pauseIconWidth = rectW * 0.08;
+  var pauseIconGap = rectW * 0.15;
+  var pauseIconX = (rectW - pauseIconWidth * 2 - pauseIconGap) / 2;
+  var TimeControllerView = class {
+    constructor(domSelector) {
+      this.render(domSelector);
+      this.moveSilderBar = () => {
+      };
+    }
+    play() {
+      this.renderPauseIcon();
+    }
+    pause() {
+      this.renderPlayIcon();
+    }
+    renderPlayIcon() {
+      const playPauseIconG = this.playPauseIconG;
+      playPauseIconG.selectAll("*").remove();
+      playPauseIconG.append("path").attr("d", `M${rectW * 0.36},${rectW * 0.3}L${rectW * 0.64},${rectW * 0.5}L${rectW * 0.36},${rectW * 0.7}Z`).attr("fill", "#000");
+    }
+    renderPauseIcon() {
+      const playPauseIconG = this.playPauseIconG;
+      playPauseIconG.selectAll("*").remove();
+      playPauseIconG.selectAll("rect").data([, ,]).join("rect").attr("x", (_, i) => pauseIconX + i * (pauseIconGap + pauseIconWidth)).attr("y", (rectW - pauseIconHeight) / 2).attr("rx", pauseIconWidth / 2).attr("ry", pauseIconWidth / 2).attr("width", pauseIconWidth).attr("height", pauseIconHeight).attr("fill", "#000");
+    }
+    render(domSelector) {
+      const _dom = select_default2(domSelector);
+      _dom.selectAll("svg#feder-timer").remove();
+      const svg = _dom.append("svg").attr("id", "feder-timer").attr("width", 300).attr("height", rectW).style("position", "absolute").style("left", "20px").style("bottom", `${32}px`);
+      const playPauseG = svg.append("g");
+      playPauseG.append("rect").attr("x", 0).attr("y", 0).attr("width", rectW).attr("height", rectW).attr("fill", "#fff");
+      const playPauseIconG = playPauseG.append("g");
+      this.playPauseIconG = playPauseIconG;
+      this.renderPlayIcon();
+      const sliderG = svg.append("g").attr("transform", `translate(${rectW + iconGap}, 0)`);
+      sliderG.append("rect").attr("x", 0).attr("y", 0).attr("width", sliderBackGroundWidth).attr("height", rectW).attr("fill", "#1D2939");
+      sliderG.append("rect").attr("x", sliderBackGroundWidth / 2 - sliderWidth / 2).attr("y", rectW / 2 - sliderHeight / 2).attr("width", sliderWidth).attr("height", sliderHeight).attr("fill", "#fff");
+      const sliderBar = sliderG.append("g").append("rect").datum({ x: 0, y: 0 }).attr("transform", `translate(${sliderBackGroundWidth / 2 - sliderWidth / 2 - sliderBarWidth / 2},0)`).attr("x", 0).attr("y", rectW / 2 - sliderBarHeight / 2).attr("width", sliderBarWidth).attr("height", sliderBarHeight).attr("fill", "#fff");
+      const resetG = svg.append("g").attr("transform", `translate(${rectW + iconGap + sliderBackGroundWidth + iconGap}, 0)`);
+      resetG.append("rect").attr("x", 0).attr("y", 0).attr("width", rectW).attr("height", rectW).attr("fill", "#fff");
+      resetG.append("path").attr("d", resetIconD).attr("fill", "#000").attr("transform", `translate(${rectW / 2 - resetW / 2},${rectW / 2 - resetW / 2})`);
+      this.playPauseG = playPauseG;
+      this.sliderBar = sliderBar;
+      this.resetG = resetG;
+    }
+    setTimer(timer2) {
+      this.playPauseG.on("click", () => timer2.playPause());
+      this.resetG.on("click", () => timer2.restart());
+      const drag = drag_default().on("start", () => timer2.stop()).on("drag", (e, d) => {
+        const x3 = Math.max(0, Math.min(e.x, sliderWidth));
+        sliderBar.attr("x", d.x = x3);
+        timer2.setTimeP(x3 / sliderWidth);
+      });
+      const sliderBar = this.sliderBar;
+      sliderBar.call(drag);
+      this.moveSilderBar = (p) => {
+        const x3 = p * sliderWidth;
+        sliderBar.datum().x = x3;
+        sliderBar.attr("x", x3);
+      };
+    }
+  };
+  var TimeControllerView_default = TimeControllerView;
+
+  // federjs/FederView/hnswView/defaultViewParamsHnsw.ts
+  var defaultViewParamsHnsw = {
+    width: 800,
+    height: 480,
+    canvasScale: 2
+  };
+  var defaultViewParamsHnsw_default = defaultViewParamsHnsw;
+
+  // federjs/FederView/hnswView/HnswSearchView/TimerController.ts
+  var TimerController = class {
+    constructor({
+      duration,
+      speed = 1,
+      callback,
+      playCallback,
+      pauseCallback
+    }) {
+      this.tAlready = 0;
+      this.t = 0;
+      this.timer = null;
+      this.isPlaying = false;
+      this.callback = callback;
+      this.speed = speed;
+      this.duration = duration;
+      this.playCallback = playCallback;
+      this.pauseCallback = pauseCallback;
+    }
+    get currentT() {
+      return this.t;
+    }
+    start() {
+      const speed = this.speed;
+      this.isPlaying || this.playCallback();
+      this.isPlaying = true;
+      this.timer = timer((elapsed) => {
+        const t = elapsed * speed + this.tAlready;
+        const p = t / this.duration;
+        this.t = t;
+        this.callback({
+          t,
+          p
+        });
+        if (p >= 1) {
+          this.stop();
+        }
+      });
+    }
+    restart() {
+      this.timer.stop();
+      this.tAlready = 0;
+      this.start();
+    }
+    stop() {
+      this.timer.stop();
+      this.tAlready = this.t;
+      this.isPlaying && this.pauseCallback();
+      this.isPlaying = false;
+    }
+    playPause() {
+      if (this.isPlaying)
+        this.stop();
+      else
+        this.start();
+    }
+    continue() {
+      this.start();
+    }
+    setSpeed(speed) {
+      this.stop();
+      this.speed = speed;
+      this.continue();
+    }
+    setTimeT(t) {
+      this.stop();
+      const p = t / this.duration;
+      this.tAlready = t;
+      this.t = t;
+      this.callback({
+        t,
+        p
+      });
+    }
+    setTimeP(p) {
+      this.stop();
+      const t = this.duration * p;
+      this.tAlready = t;
+      this.t = t;
+      this.callback({
+        t,
+        p
+      });
+    }
+  };
+
+  // federjs/FederView/hnswView/HnswSearchView/index.ts
   var HnswSearchView = class {
     constructor(visData, viewParams) {
       this.staticPanel = new infoPanel();
       this.clickedPanel = new infoPanel();
       this.hoveredPanel = new infoPanel();
-      this.init(visData, viewParams);
+      this.viewParams = Object.assign({}, defaultViewParamsHnsw_default, viewParams);
+      this.searchTransitionDuration = visData.searchTransitionDuration;
+      this.init();
     }
-    init(visData, viewParams) {
+    init() {
+      console.log("this", this);
+      this.initCanvas();
+      this.initTimerController();
+      this.initEventListener();
+    }
+    initTimerController() {
+      const timeControllerView = new TimeControllerView_default(this.node);
+      const callback = ({ t, p }) => {
+        timeControllerView.moveSilderBar(p);
+      };
+      const timer2 = new TimerController({
+        duration: this.searchTransitionDuration,
+        callback,
+        playCallback: () => timeControllerView.play(),
+        pauseCallback: () => timeControllerView.pause()
+      });
+      timeControllerView.setTimer(timer2);
+      this.timer = timer2;
+    }
+    initCanvas() {
+      const { width, height, canvasScale } = this.viewParams;
+      const divD3 = create_default("div").style("width", `${width}px`).style("height", `${height}px`).style("position", "relative");
+      this.node = divD3.node();
+      const canvasD3 = divD3.append("canvas").attr("width", width).attr("height", height);
+      this.ctx = canvasD3.node().getContext("2d");
+      this.ctx.scale(1 / canvasScale, 1 / canvasScale);
+    }
+    initEventListener() {
+      const { canvasScale } = this.viewParams;
+      this.node.addEventListener("mousemove", (e) => {
+        const { offsetX, offsetY } = e;
+        const x3 = offsetX * canvasScale;
+        const y3 = offsetY * canvasScale;
+        this.mouseMoveHandler && this.mouseMoveHandler({ x: x3, y: y3 });
+      });
+      this.node.addEventListener("click", (e) => {
+        const { offsetX, offsetY } = e;
+        const x3 = offsetX * canvasScale;
+        const y3 = offsetY * canvasScale;
+        this.mouseClickHandler && this.mouseClickHandler({ x: x3, y: y3 });
+      });
+      this.node.addEventListener("mouseleave", () => {
+        this.mouseLeaveHandler && this.mouseLeaveHandler();
+      });
     }
     render() {
+      this.initView();
+    }
+    initView() {
+      this.timer.start();
+      this.mouseClickHandler = ({ x: x3, y: y3 }) => {
+      };
+      this.mouseMoveHandler = ({ x: x3, y: y3 }) => {
+      };
+      this.mouseLeaveHandler = () => {
+      };
     }
   };
 
@@ -14563,8 +15041,8 @@ ${indentData}`);
 
   // test/config.js
   var local = true;
-  var ivfflatSource = "faiss";
-  var ivfflatIndexFilePath = local ? "data/faiss_ivf_flat_voc_17k.index" : "https://assets.zilliz.com/faiss_ivf_flat_voc_17k_ab112eec72.index";
+  var hnswSource = "hnswlib";
+  var hnswIndexFilePath = local ? "data/hnswlib_hnsw_voc_17k.index" : "https://assets.zilliz.com/hnswlib_hnsw_voc_17k_1f1dfd63a9.index";
 
   // test/index.js
   var testVector = Array(512).fill(0).map((_) => Math.random());
@@ -14574,12 +15052,12 @@ ${indentData}`);
     nprobe: 4
   };
   window.addEventListener("DOMContentLoaded", () => __async(void 0, null, function* () {
-    const arrayBuffer = yield fetch(ivfflatIndexFilePath).then((res) => res.arrayBuffer());
-    const federIndex = new FederIndex(ivfflatSource);
+    const arrayBuffer = yield fetch(hnswIndexFilePath).then((res) => res.arrayBuffer());
+    const federIndex = new FederIndex(hnswSource);
     federIndex.initByArrayBuffer(arrayBuffer);
     const federLayout = new FederLayout(federIndex);
     const visDataAll = yield federLayout.getVisData({
-      actionType: "overview",
+      actionType: "search",
       actionData: {
         target: testVector,
         searchParams: testSearchParams

@@ -1,5 +1,5 @@
 export type TVec = number[];
-export type TId = number;
+export type TId = number | string;
 export type TCoord = [number, number];
 
 export enum ESourceType {

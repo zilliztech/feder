@@ -1,15 +1,20 @@
-import { EHnswNodeType, EHnswLinkType, TId } from "Types";
-import { TSearchRecordsHnsw } from "Types/searchRecords";
-import { getLinkId, parseLinkId } from "./utils";
+import { EHnswNodeType, EHnswLinkType, TId } from 'Types';
+import { TSearchRecordsHnsw } from 'Types/searchRecords';
+import {
+  TVisDataHnswLink,
+  TVisDataHnswNode,
+  TVisDataHnswParsedDataLevel,
+} from 'Types/visData';
+import { getLinkId, parseLinkId } from './utils';
 
 export const parseVisRecords = ({
   topkResults,
   searchRecords,
 }: TSearchRecordsHnsw) => {
-  const visData = [];
+  const visData = [] as TVisDataHnswParsedDataLevel[];
   const numLevels = searchRecords.length;
   let fineIds = topkResults.map((d) => d.id);
-  let entryId = -1;
+  let entryId = -1 as TId;
   for (let i = numLevels - 1; i >= 0; i--) {
     const level = numLevels - 1 - i;
     if (level > 0) {
@@ -18,8 +23,8 @@ export const parseVisRecords = ({
 
     const visRecordsLevel = searchRecords[i];
 
-    const id2nodeType = {};
-    const linkId2linkType = {};
+    const id2nodeType = {} as { [id: TId]: EHnswNodeType };
+    const linkId2linkType = {} as { [linkid: TId]: EHnswLinkType };
     const updateNodeType = (nodeId: TId, type: EHnswNodeType) => {
       if (id2nodeType[nodeId]) {
         id2nodeType[nodeId] = Math.max(id2nodeType[nodeId], type);
@@ -85,25 +90,28 @@ export const parseVisRecords = ({
       }
     });
 
-    const nodes = Object.keys(id2nodeType).map((id) => ({
-      id: `${id}`,
-      type: id2nodeType[id],
-      dist: id2dist[id],
-    }));
+    const nodes = Object.keys(id2nodeType).map(
+      (id) =>
+        ({
+          id: id,
+          type: id2nodeType[id],
+          dist: id2dist[id],
+        } as TVisDataHnswNode)
+    );
     const links = Object.keys(linkId2linkType).map((linkId) => {
       const [source, target] = parseLinkId(linkId);
       return {
         source: `${source}`,
         target: `${target}`,
         type: linkId2linkType[linkId],
-      };
+      } as TVisDataHnswLink;
     });
     const visDataLevel = {
       entryIds: [`${entryId}`],
       fineIds: fineIds.map((id) => `${id}`),
       links,
       nodes,
-    };
+    } as TVisDataHnswParsedDataLevel;
     visData.push(visDataLevel);
   }
 
