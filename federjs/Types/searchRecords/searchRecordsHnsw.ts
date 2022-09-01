@@ -1,4 +1,4 @@
-import { TId } from "Types";
+import { TId, TSearchParams } from "Types";
 
 export type TSearchRecordsHnswLayerItem = [TId, TId, number];
 
@@ -12,5 +12,5 @@ export interface TSearchRecordsHnswTopkResultItem {
 export interface TSearchRecordsHnsw {
   searchRecords: TSearchRecordsHnswLayer[];
   topkResults: TSearchRecordsHnswTopkResultItem[];
-  searchParams: any;
+  searchParams: TSearchParams;
 }

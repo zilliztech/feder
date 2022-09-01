@@ -17,11 +17,11 @@ const testSearchParams = {
 };
 
 window.addEventListener('DOMContentLoaded', async () => {
-  const arrayBuffer = await fetch(ivfflatIndexFilePath).then((res) =>
+  const arrayBuffer = await fetch(hnswIndexFilePath).then((res) =>
     res.arrayBuffer()
   );
 
-  const federIndex = new FederIndex(ivfflatSource);
+  const federIndex = new FederIndex(hnswSource);
 
   federIndex.initByArrayBuffer(arrayBuffer);
 
@@ -35,7 +35,7 @@ window.addEventListener('DOMContentLoaded', async () => {
   // })
 
   const visDataAll = await federLayout.getVisData({
-    actionType: 'overview', // 'overview' | 'search'
+    actionType: 'search', // 'overview' | 'search'
     actionData: {
       target: testVector,
       searchParams: testSearchParams,

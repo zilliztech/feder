@@ -9,6 +9,8 @@ import {
 
 export * from './visDataIvfflat';
 
+export * from './visDataHnsw';
+
 export type TVisData = any;
 export interface TVisDataAll {
   indexType: EIndexType;
