@@ -1,4 +1,5 @@
 import { TCoord } from 'Types';
+import { getDisL2, vecAdd, vecMultiply } from 'Utils/distFunc';
 
 export type TStopColor = [number, string];
 // [x, y, r]
@@ -112,20 +113,20 @@ export const drawLines = ({
   hasStroke?: boolean;
   isStrokeLinearGradient?: boolean;
 } & TStyles) => {
-  const drawFunc = () => {
-    pointsList.forEach((points) => {
-      const path = new Path2D(points2path(points, false));
-      const gradientPos = [...points[0], ...points[points.length - 1]] as [
-        number,
-        number,
-        number,
-        number
-      ];
+  pointsList.forEach((points) => {
+    const path = new Path2D(points2path(points, false));
+    const gradientPos = [...points[0], ...points[points.length - 1]] as [
+      number,
+      number,
+      number,
+      number
+    ];
+    const drawFunc = () => {
       hasFill && ctx.fill(path);
       hasStroke && ctx.stroke(path);
-      draw({ ctx, drawFunc, isStrokeLinearGradient, gradientPos, ...styles });
-    });
-  };
+    };
+    draw({ ctx, drawFunc, isStrokeLinearGradient, gradientPos, ...styles });
+  });
 };
 
 export const drawRect = ({
@@ -176,7 +177,7 @@ export const drawCircles = ({
   draw({ ctx, drawFunc, ...styles });
 };
 
-export const drawEllipse = ({
+export const drawEllipses = ({
   ctx,
   ellipses,
   hasFill = false,
@@ -197,4 +198,25 @@ export const drawEllipse = ({
     });
   };
   draw({ ctx, drawFunc, ...styles });
+};
+
+export const shortenLine = (
+  point_0: TCoord,
+  point_1: TCoord,
+  d = 10
+): TCoord[] => {
+  const length = getDisL2(point_0, point_1);
+  const t = Math.min(d / length, 0.4);
+  return [
+    getInprocessPos(point_0, point_1, t),
+    getInprocessPos(point_0, point_1, 1 - t),
+  ];
+};
+
+export const getInprocessPos = (
+  point_0: TCoord,
+  point_1: TCoord,
+  t: number
+) => {
+  return vecAdd(vecMultiply(point_0, 1 - t), vecMultiply(point_1, t)) as TCoord;
 };

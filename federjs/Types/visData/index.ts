@@ -9,7 +9,7 @@ import {
 
 export * from './visDataIvfflat';
 
-export * from './visDataHnsw';
+export * from './visDataHnswDefault';
 
 export type TVisData = any;
 export interface TVisDataAll {
