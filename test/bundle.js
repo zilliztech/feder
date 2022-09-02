@@ -7518,7 +7518,9 @@ ${indentData}`);
     yOver: 0.1,
     targetR: 3,
     searchViewNodeBasicR: 1,
-    searchViewNodeRStep: 1,
+    searchViewNodeRStep: 0.5,
+    searchInterLevelTime: 300,
+    searchIntraLevelTime: 100,
     forceTime: 3e3,
     layerDotNum: 20,
     shortenLineD: 8,
@@ -7529,8 +7531,6 @@ ${indentData}`);
     shadowBlur: 4,
     mouse2nodeBias: 3,
     highlightRadiusExt: 0.5,
-    searchInterLevelTime: 300,
-    searchIntraLevelTime: 100,
     HoveredPanelLine_1_x: 15,
     HoveredPanelLine_1_y: -25,
     HoveredPanelLine_2_x: 30,
@@ -14092,11 +14092,196 @@ ${indentData}`);
   };
   var TimeControllerView_default = TimeControllerView;
 
+  // federjs/FederView/renderUtils2D.ts
+  var hexWithOpacity = (color2, opacity) => {
+    let opacityString = Math.round(opacity * 255).toString(16);
+    if (opacityString.length < 2) {
+      opacityString = "0" + opacityString;
+    }
+    return color2 + opacityString;
+  };
+  var points2path = (points, closePath = false) => {
+    return `M${points.join("L")}${closePath ? "Z" : ""}`;
+  };
+  var draw = ({
+    ctx,
+    drawFunc = () => {
+    },
+    fillStyle = "",
+    strokeStyle = "",
+    lineWidth = 0,
+    lineCap = "butt",
+    shadowColor = "",
+    shadowBlur = 0,
+    shadowOffsetX = 0,
+    shadowOffsetY = 0,
+    isFillLinearGradient = false,
+    isStrokeLinearGradient = false,
+    gradientPos = [0, 0, 100, 100],
+    gradientStopColors = []
+  }) => {
+    ctx.save();
+    let gradient = null;
+    if (isFillLinearGradient || isStrokeLinearGradient) {
+      gradient = ctx.createLinearGradient(...gradientPos);
+      gradientStopColors.forEach((stopColor) => gradient.addColorStop(...stopColor));
+    }
+    ctx.fillStyle = isFillLinearGradient ? gradient : fillStyle;
+    ctx.strokeStyle = isStrokeLinearGradient ? gradient : strokeStyle;
+    ctx.lineWidth = lineWidth;
+    ctx.lineCap = lineCap;
+    ctx.shadowColor = shadowColor;
+    ctx.shadowBlur = shadowBlur;
+    ctx.shadowOffsetX = shadowOffsetX;
+    ctx.shadowOffsetY = shadowOffsetY;
+    drawFunc();
+    ctx.restore();
+  };
+  var drawPolygons = (_a) => {
+    var _b = _a, {
+      ctx,
+      pointsList,
+      hasFill = false,
+      hasStroke = false
+    } = _b, styles = __objRest(_b, [
+      "ctx",
+      "pointsList",
+      "hasFill",
+      "hasStroke"
+    ]);
+    const drawFunc = () => {
+      pointsList.forEach((points) => {
+        const path = new Path2D(points2path(points, true));
+        hasFill && ctx.fill(path);
+        hasStroke && ctx.stroke(path);
+      });
+    };
+    draw(__spreadValues({ ctx, drawFunc }, styles));
+  };
+  var drawLines = (_a) => {
+    var _b = _a, {
+      ctx,
+      pointsList,
+      hasFill = false,
+      hasStroke = false,
+      isStrokeLinearGradient = true
+    } = _b, styles = __objRest(_b, [
+      "ctx",
+      "pointsList",
+      "hasFill",
+      "hasStroke",
+      "isStrokeLinearGradient"
+    ]);
+    pointsList.forEach((points) => {
+      const path = new Path2D(points2path(points, false));
+      const gradientPos = [...points[0], ...points[points.length - 1]];
+      const drawFunc = () => {
+        hasFill && ctx.fill(path);
+        hasStroke && ctx.stroke(path);
+      };
+      draw(__spreadValues({ ctx, drawFunc, isStrokeLinearGradient, gradientPos }, styles));
+    });
+  };
+  var drawCircles = (_a) => {
+    var _b = _a, {
+      ctx,
+      circles,
+      hasFill = false,
+      hasStroke = false
+    } = _b, styles = __objRest(_b, [
+      "ctx",
+      "circles",
+      "hasFill",
+      "hasStroke"
+    ]);
+    const drawFunc = () => {
+      circles.forEach(([x3, y3, r]) => {
+        ctx.beginPath();
+        ctx.arc(x3, y3, r, 0, 2 * Math.PI);
+        hasFill && ctx.fill();
+        hasStroke && ctx.stroke();
+      });
+    };
+    draw(__spreadValues({ ctx, drawFunc }, styles));
+  };
+  var drawEllipses = (_a) => {
+    var _b = _a, {
+      ctx,
+      ellipses,
+      hasFill = false,
+      hasStroke = false
+    } = _b, styles = __objRest(_b, [
+      "ctx",
+      "ellipses",
+      "hasFill",
+      "hasStroke"
+    ]);
+    const drawFunc = () => {
+      ellipses.forEach(([x3, y3, rx, ry]) => {
+        ctx.beginPath();
+        ctx.ellipse(x3, y3, rx, ry, 0, 0, 2 * Math.PI);
+        hasFill && ctx.fill();
+        hasStroke && ctx.stroke();
+      });
+    };
+    draw(__spreadValues({ ctx, drawFunc }, styles));
+  };
+  var shortenLine = (point_0, point_1, d = 10) => {
+    const length = getDisL2(point_0, point_1);
+    const t = Math.min(d / length, 0.4);
+    return [
+      getInprocessPos(point_0, point_1, t),
+      getInprocessPos(point_0, point_1, 1 - t)
+    ];
+  };
+  var getInprocessPos = (point_0, point_1, t) => {
+    return vecAdd(vecMultiply(point_0, 1 - t), vecMultiply(point_1, t));
+  };
+
   // federjs/FederView/hnswView/defaultViewParamsHnsw.ts
   var defaultViewParamsHnsw = {
     width: 800,
     height: 480,
-    canvasScale: 2
+    canvasScale: 2,
+    layerDotNum: 20,
+    layerDotFill: "#ffffff",
+    layerDotOpacity: 0.2,
+    layerDotR: 0.8,
+    layerBorderStroke: "#D9EAFF",
+    layerBorderOpacity: 0.6,
+    layerBorderStrokeWidth: 0.5,
+    layerGradientStopColors: [
+      [0.1, hexWithOpacity("#1E64FF", 0.4)],
+      [0.9, hexWithOpacity("#00234D", 0)]
+    ],
+    searchInterLevelTime: 300,
+    searchIntraLevelTime: 100,
+    nodeEllipseRatio: 1.4,
+    nodeShadowBlur: 5,
+    coarseNodeFill: "#175FFF",
+    coarseNodeOpacity: 0.7,
+    candidateNodeFill: "#FFFC85",
+    candidateNodeOpacity: 0.8,
+    fineNodeFill: "#F36E4B",
+    fineNodeOpacity: 1,
+    targetNodeFill: "#FFFFFF",
+    targetNodeOpacity: 1,
+    linkShortenLineD: 6,
+    normalLinkWidth: 2,
+    normalGradientStopColors: [
+      [0, hexWithOpacity("#061982", 0.3)],
+      [1, hexWithOpacity("#1E64FF", 0.4)]
+    ],
+    importantLinkWidth: 3,
+    importantGradientStopColors: [
+      [0, hexWithOpacity("#ffffff", 0.2)],
+      [1, hexWithOpacity("#FFFC85", 1)]
+    ],
+    targetLinkWidth: 3,
+    targetGradientStopColors: [
+      [0, hexWithOpacity("#FFFFFF", 0)],
+      [1, hexWithOpacity("#FFFFFF", 0.8)]
+    ]
   };
   var defaultViewParamsHnsw_default = defaultViewParamsHnsw;
 
@@ -14186,6 +14371,323 @@ ${indentData}`);
     }
   };
 
+  // federjs/FederView/clearCanvas.ts
+  function clearCanvas() {
+    const { width, height, canvasScale } = this.viewParams;
+    this.ctx.clearRect(0, 0, width * canvasScale, height * canvasScale);
+  }
+
+  // federjs/FederView/hnswView/HnswSearchView/renderNodes.ts
+  function renderNodes(nodes, level) {
+    const {
+      canvasScale,
+      nodeEllipseRatio,
+      nodeShadowBlur,
+      coarseNodeFill,
+      coarseNodeOpacity,
+      candidateNodeFill,
+      candidateNodeOpacity,
+      fineNodeFill,
+      fineNodeOpacity
+    } = this.viewParams;
+    const coarseNodes = nodes.filter((node) => node.type === 1 /* Coarse */);
+    drawEllipses({
+      ctx: this.ctx,
+      ellipses: coarseNodes.map((node) => [
+        ...node.searchViewPosLevels[level],
+        node.r * nodeEllipseRatio,
+        node.r
+      ]),
+      hasFill: true,
+      fillStyle: hexWithOpacity(coarseNodeFill, coarseNodeOpacity),
+      shadowColor: coarseNodeFill,
+      shadowBlur: nodeShadowBlur * canvasScale
+    });
+    const candidateNodes = nodes.filter((node) => node.type === 2 /* Candidate */);
+    drawEllipses({
+      ctx: this.ctx,
+      ellipses: candidateNodes.map((node) => [
+        ...node.searchViewPosLevels[level],
+        node.r * nodeEllipseRatio,
+        node.r
+      ]),
+      hasFill: true,
+      fillStyle: hexWithOpacity(candidateNodeFill, candidateNodeOpacity),
+      shadowColor: candidateNodeFill,
+      shadowBlur: nodeShadowBlur * canvasScale
+    });
+    const fineNodes = nodes.filter((node) => node.type === 3 /* Fine */);
+    drawEllipses({
+      ctx: this.ctx,
+      ellipses: fineNodes.map((node) => [
+        ...node.searchViewPosLevels[level],
+        node.r * nodeEllipseRatio,
+        node.r
+      ]),
+      hasFill: true,
+      fillStyle: hexWithOpacity(fineNodeFill, fineNodeOpacity),
+      shadowColor: fineNodeFill,
+      shadowBlur: nodeShadowBlur * canvasScale
+    });
+  }
+
+  // federjs/FederView/hnswView/HnswSearchView/renderLayer.ts
+  function renderLayer(points) {
+    const {
+      canvasScale,
+      layerBorderStroke,
+      layerBorderOpacity,
+      layerBorderStrokeWidth,
+      layerGradientStopColors,
+      layerDotNum,
+      layerDotFill,
+      layerDotOpacity,
+      layerDotR
+    } = this.viewParams;
+    drawPolygons({
+      ctx: this.ctx,
+      pointsList: [points],
+      hasStroke: true,
+      isStrokeLinearGradient: false,
+      strokeStyle: hexWithOpacity(layerBorderStroke, layerBorderOpacity),
+      lineWidth: layerBorderStrokeWidth * canvasScale,
+      hasFill: true,
+      isFillLinearGradient: true,
+      gradientStopColors: layerGradientStopColors,
+      gradientPos: [points[1][0], points[0][1], points[3][0], points[2][1]]
+    });
+    const rightTopVec = [
+      points[1][0] - points[0][0],
+      points[1][1] - points[0][1]
+    ];
+    const leftTopVec = [
+      points[3][0] - points[0][0],
+      points[3][1] - points[0][1]
+    ];
+    const dots = [];
+    for (let i = 0; i < layerDotNum; i++) {
+      const rightTopT = i / layerDotNum + 1 / (2 * layerDotNum);
+      for (let j = 0; j < layerDotNum; j++) {
+        const leftTopT = j / layerDotNum + 1 / (2 * layerDotNum);
+        dots.push([
+          points[0][0] + rightTopVec[0] * rightTopT + leftTopVec[0] * leftTopT,
+          points[0][1] + rightTopVec[1] * rightTopT + leftTopVec[1] * leftTopT,
+          layerDotR * canvasScale
+        ]);
+      }
+    }
+    drawCircles({
+      ctx: this.ctx,
+      circles: dots,
+      hasFill: true,
+      fillStyle: hexWithOpacity(layerDotFill, layerDotOpacity)
+    });
+  }
+
+  // federjs/FederView/hnswView/HnswSearchView/renderLinks.ts
+  function renderLinks(links, level) {
+    const id2node = this.id2node;
+    const {
+      canvasScale,
+      linkShortenLineD,
+      normalLinkWidth,
+      normalGradientStopColors,
+      importantLinkWidth,
+      importantGradientStopColors
+    } = this.viewParams;
+    const normalLinksPointsList = links.filter((link) => link.type <= 2 /* Extended */).map((link) => {
+      const startPos = id2node[link.source].searchViewPosLevels[level];
+      const endPos = id2node[link.target].searchViewPosLevels[level];
+      return shortenLine(startPos, endPos, linkShortenLineD * canvasScale);
+    });
+    drawLines({
+      ctx: this.ctx,
+      pointsList: normalLinksPointsList,
+      hasStroke: true,
+      isStrokeLinearGradient: true,
+      gradientStopColors: normalGradientStopColors,
+      lineWidth: normalLinkWidth * canvasScale,
+      lineCap: "round"
+    });
+    const importantLinksPointsList = links.filter((link) => link.type >= 3 /* Searched */).map((link) => {
+      const startPos = id2node[link.source].searchViewPosLevels[level];
+      const endPos = id2node[link.target].searchViewPosLevels[level];
+      return shortenLine(startPos, endPos, linkShortenLineD * canvasScale);
+    });
+    drawLines({
+      ctx: this.ctx,
+      pointsList: importantLinksPointsList,
+      hasStroke: true,
+      isStrokeLinearGradient: true,
+      gradientStopColors: importantGradientStopColors,
+      lineWidth: importantLinkWidth * canvasScale,
+      lineCap: "round"
+    });
+  }
+
+  // federjs/FederView/hnswView/HnswSearchView/renderInProcessLinks.ts
+  function renderInProcessLinks(inProcessLinks, level) {
+    const id2node = this.id2node;
+    const {
+      canvasScale,
+      linkShortenLineD,
+      normalLinkWidth,
+      normalGradientStopColors,
+      importantLinkWidth,
+      importantGradientStopColors
+    } = this.viewParams;
+    const normalLinksPointsList = inProcessLinks.filter((link) => link.type <= 2 /* Extended */).map((link) => {
+      const startPos = id2node[link.source].searchViewPosLevels[level];
+      const endPos = id2node[link.target].searchViewPosLevels[level];
+      return shortenLine(startPos, getInprocessPos(startPos, endPos, link.inprocessP), linkShortenLineD * canvasScale);
+    });
+    drawLines({
+      ctx: this.ctx,
+      pointsList: normalLinksPointsList,
+      hasStroke: true,
+      isStrokeLinearGradient: true,
+      gradientStopColors: normalGradientStopColors,
+      lineWidth: normalLinkWidth * canvasScale,
+      lineCap: "round"
+    });
+    const importantLinksPointsList = inProcessLinks.filter((link) => link.type >= 3 /* Searched */).map((link) => {
+      const startPos = id2node[link.source].searchViewPosLevels[level];
+      const endPos = id2node[link.target].searchViewPosLevels[level];
+      return shortenLine(startPos, getInprocessPos(startPos, endPos, link.inprocessP), linkShortenLineD * canvasScale);
+    });
+    drawLines({
+      ctx: this.ctx,
+      pointsList: importantLinksPointsList,
+      hasStroke: true,
+      isStrokeLinearGradient: true,
+      gradientStopColors: importantGradientStopColors,
+      lineWidth: importantLinkWidth * canvasScale,
+      lineCap: "round"
+    });
+  }
+
+  // federjs/FederView/hnswView/HnswSearchView/renderEntryAndTargetLinks.ts
+  function renderEntryAndTargetLinks(showEntryNodes, inprocessEntryNodes, level) {
+    const {
+      linkShortenLineD,
+      canvasScale,
+      importantGradientStopColors,
+      importantLinkWidth,
+      targetLinkWidth,
+      targetGradientStopColors,
+      nodeEllipseRatio,
+      targetNodeFill,
+      targetNodeOpacity,
+      nodeShadowBlur
+    } = this.viewParams;
+    const pointsList = showEntryNodes.map((node) => shortenLine(node.searchViewPosLevels[level + 1], node.searchViewPosLevels[level], linkShortenLineD * canvasScale));
+    drawLines({
+      ctx: this.ctx,
+      pointsList,
+      hasStroke: true,
+      isStrokeLinearGradient: true,
+      gradientStopColors: importantGradientStopColors,
+      lineWidth: importantLinkWidth * canvasScale,
+      lineCap: "round"
+    });
+    const targetLinkPointsList = showEntryNodes.length === 0 ? [] : [
+      shortenLine(this.searchTarget.searchViewPosLevels[level + 1], this.searchTarget.searchViewPosLevels[level], linkShortenLineD * canvasScale)
+    ];
+    drawLines({
+      ctx: this.ctx,
+      pointsList: targetLinkPointsList,
+      hasStroke: true,
+      isStrokeLinearGradient: true,
+      gradientStopColors: targetGradientStopColors,
+      lineWidth: targetLinkWidth * canvasScale,
+      lineCap: "round"
+    });
+    const inprocessPointsList = inprocessEntryNodes.map((node) => shortenLine(node.searchViewPosLevels[level + 1], getInprocessPos(node.searchViewPosLevels[level + 1], node.searchViewPosLevels[level], node.inProcessP), linkShortenLineD * canvasScale));
+    drawLines({
+      ctx: this.ctx,
+      pointsList: inprocessPointsList,
+      hasStroke: true,
+      isStrokeLinearGradient: true,
+      gradientStopColors: importantGradientStopColors,
+      lineWidth: importantLinkWidth * canvasScale,
+      lineCap: "round"
+    });
+    const inProcessTargetLinkPointsList = inprocessEntryNodes.length === 0 ? [] : [
+      shortenLine(this.searchTarget.searchViewPosLevels[level + 1], getInprocessPos(this.searchTarget.searchViewPosLevels[level + 1], this.searchTarget.searchViewPosLevels[level], inprocessEntryNodes[0].inProcessP), linkShortenLineD * canvasScale)
+    ];
+    drawLines({
+      ctx: this.ctx,
+      pointsList: inProcessTargetLinkPointsList,
+      hasStroke: true,
+      isStrokeLinearGradient: true,
+      gradientStopColors: targetGradientStopColors,
+      lineWidth: targetLinkWidth * canvasScale,
+      lineCap: "round"
+    });
+    drawEllipses({
+      ctx: this.ctx,
+      ellipses: showEntryNodes.length === 0 ? [] : [
+        [
+          ...this.searchTarget.searchViewPosLevels[level],
+          this.searchTarget.r * nodeEllipseRatio,
+          this.searchTarget.r
+        ]
+      ],
+      hasFill: true,
+      fillStyle: hexWithOpacity(targetNodeFill, targetNodeOpacity),
+      shadowColor: targetNodeFill,
+      shadowBlur: nodeShadowBlur * canvasScale
+    });
+    if (level === this.searchNodesLevels.length - 1) {
+      drawEllipses({
+        ctx: this.ctx,
+        ellipses: [
+          [
+            ...this.searchTarget.searchViewPosLevels[level],
+            this.searchTarget.r * nodeEllipseRatio,
+            this.searchTarget.r
+          ]
+        ],
+        hasFill: true,
+        fillStyle: hexWithOpacity(targetNodeFill, targetNodeOpacity),
+        shadowColor: targetNodeFill,
+        shadowBlur: nodeShadowBlur * canvasScale
+      });
+    }
+  }
+
+  // federjs/FederView/hnswView/HnswSearchView/transitionSearchView.ts
+  function transitionSearchView(t) {
+    clearCanvas.call(this);
+    const { searchIntraLevelTime, searchInterLevelTime } = this.viewParams;
+    for (let level = 0; level < this.searchNodesLevels.length; level++) {
+      const showNodes = this.searchNodesLevels[level].filter((node) => this.searchNodeShowTime[getNodeIdWithLevel(node.id, level)] < t);
+      const showLinks = this.searchLinksLevels[level].filter((link) => this.searchLinkShowTime[getLinkIdWithLevel(link.source, link.target, level)] + searchIntraLevelTime < t);
+      const inProcessLinks = this.searchLinksLevels[level].filter((link) => {
+        const showTimeStart = this.searchLinkShowTime[getLinkIdWithLevel(link.source, link.target, level)];
+        if (showTimeStart < t && showTimeStart >= t - searchIntraLevelTime) {
+          link.inprocessP = (t - showTimeStart) / searchIntraLevelTime;
+          return true;
+        } else
+          return false;
+      });
+      const showEntryNodes = level === this.searchNodesLevels.length - 1 ? [] : this.entryNodesLevels[level].filter((entryNode) => this.searchLinkShowTime[getEntryLinkIdWithLevel(entryNode.id, level)] < t - searchInterLevelTime);
+      const inprocessEntryNodes = level === this.searchNodesLevels.length - 1 ? [] : this.entryNodesLevels[level].filter((entryNode) => {
+        const showTime = this.searchLinkShowTime[getEntryLinkIdWithLevel(entryNode.id, level)];
+        if (showTime > t - searchInterLevelTime && showTime < t) {
+          entryNode.inProcessP = (t - showTime) / searchInterLevelTime;
+          return true;
+        } else
+          return false;
+      });
+      renderLayer.call(this, this.searchLayerPosLevels[level]);
+      renderLinks.call(this, showLinks, level);
+      renderEntryAndTargetLinks.call(this, showEntryNodes, inprocessEntryNodes, level);
+      renderInProcessLinks.call(this, inProcessLinks, level);
+      renderNodes.call(this, showNodes, level);
+    }
+  }
+
   // federjs/FederView/hnswView/HnswSearchView/index.ts
   var HnswSearchView = class {
     constructor(visData, viewParams) {
@@ -14194,6 +14696,18 @@ ${indentData}`);
       this.hoveredPanel = new infoPanel();
       this.viewParams = Object.assign({}, defaultViewParamsHnsw_default, viewParams);
       this.searchTransitionDuration = visData.searchTransitionDuration;
+      this.searchTarget = visData.searchTarget;
+      this.entryNodesLevels = visData.entryNodesLevels;
+      this.searchNodesLevels = visData.searchNodesLevels;
+      this.searchLinksLevels = visData.searchLinksLevels;
+      this.searchLayerPosLevels = visData.searchLayerPosLevels;
+      this.searchTargetShowTime = visData.searchTargetShowTime;
+      this.searchNodeShowTime = visData.searchNodeShowTime;
+      this.searchLinkShowTime = visData.searchLinkShowTime;
+      this.searchParams = visData.searchParams;
+      const id2node = {};
+      this.searchNodesLevels.forEach((nodes) => nodes.forEach((node) => id2node[node.id] = node));
+      this.id2node = id2node;
       this.init();
     }
     init() {
@@ -14205,6 +14719,7 @@ ${indentData}`);
     initTimerController() {
       const timeControllerView = new TimeControllerView_default(this.node);
       const callback = ({ t, p }) => {
+        transitionSearchView.call(this, t);
         timeControllerView.moveSilderBar(p);
       };
       const timer2 = new TimerController({
@@ -14254,95 +14769,6 @@ ${indentData}`);
       this.mouseLeaveHandler = () => {
       };
     }
-  };
-
-  // federjs/FederView/renderUtils2D.ts
-  var hexWithOpacity = (color2, opacity) => {
-    let opacityString = Math.round(opacity * 255).toString(16);
-    if (opacityString.length < 2) {
-      opacityString = "0" + opacityString;
-    }
-    return color2 + opacityString;
-  };
-  var points2path = (points, closePath = false) => {
-    return `M${points.join("L")}${closePath ? "Z" : ""}`;
-  };
-  var draw = ({
-    ctx,
-    drawFunc = () => {
-    },
-    fillStyle = "",
-    strokeStyle = "",
-    lineWidth = 0,
-    lineCap = "butt",
-    shadowColor = "",
-    shadowBlur = 0,
-    shadowOffsetX = 0,
-    shadowOffsetY = 0,
-    isFillLinearGradient = false,
-    isStrokeLinearGradient = false,
-    gradientPos = [0, 0, 100, 100],
-    gradientStopColors = []
-  }) => {
-    ctx.save();
-    let gradient = null;
-    if (isFillLinearGradient || isStrokeLinearGradient) {
-      gradient = ctx.createLinearGradient(...gradientPos);
-      gradientStopColors.forEach((stopColor) => gradient.addColorStop(...stopColor));
-    }
-    ctx.fillStyle = isFillLinearGradient ? gradient : fillStyle;
-    ctx.strokeStyle = isStrokeLinearGradient ? gradient : strokeStyle;
-    ctx.lineWidth = lineWidth;
-    ctx.lineCap = lineCap;
-    ctx.shadowColor = shadowColor;
-    ctx.shadowBlur = shadowBlur;
-    ctx.shadowOffsetX = shadowOffsetX;
-    ctx.shadowOffsetY = shadowOffsetY;
-    drawFunc();
-    ctx.restore();
-  };
-  var drawPolygons = (_a) => {
-    var _b = _a, {
-      ctx,
-      pointsList,
-      hasFill = false,
-      hasStroke = false
-    } = _b, styles = __objRest(_b, [
-      "ctx",
-      "pointsList",
-      "hasFill",
-      "hasStroke"
-    ]);
-    const drawFunc = () => {
-      pointsList.forEach((points) => {
-        const path = new Path2D(points2path(points, true));
-        hasFill && ctx.fill(path);
-        hasStroke && ctx.stroke(path);
-      });
-    };
-    draw(__spreadValues({ ctx, drawFunc }, styles));
-  };
-  var drawCircles = (_a) => {
-    var _b = _a, {
-      ctx,
-      circles,
-      hasFill = false,
-      hasStroke = false
-    } = _b, styles = __objRest(_b, [
-      "ctx",
-      "circles",
-      "hasFill",
-      "hasStroke"
-    ]);
-    const drawFunc = () => {
-      circles.forEach(([x3, y3, r]) => {
-        ctx.beginPath();
-        ctx.arc(x3, y3, r, 0, 2 * Math.PI);
-        hasFill && ctx.fill();
-        hasStroke && ctx.stroke();
-      });
-    };
-    draw(__spreadValues({ ctx, drawFunc }, styles));
   };
 
   // federjs/FederView/ivfflatView/IvfflatSearchView/renderClusters.ts
@@ -14412,7 +14838,7 @@ ${indentData}`);
   }
 
   // federjs/FederView/ivfflatView/IvfflatSearchView/renderNodes.ts
-  function renderNodes() {
+  function renderNodes2() {
     const {
       canvasScale,
       topkNodeR,
@@ -14456,12 +14882,6 @@ ${indentData}`);
       strokeStyle: highlightNodeStroke,
       lineWidth: highlightNodeStrokeWidth * canvasScale
     });
-  }
-
-  // federjs/FederView/clearCanvas.ts
-  function clearCanvas() {
-    const { width, height, canvasScale } = this.viewParams;
-    this.ctx.clearRect(0, 0, width * canvasScale, height * canvasScale);
   }
 
   // federjs/FederView/ivfflatView/IvfflatSearchView/transitionClustersExit.ts
@@ -14859,7 +15279,7 @@ ${indentData}`);
     renderNodesView() {
       clearCanvas.call(this);
       this.stepType === "polar" /* polar */ && renderPolarAxis.call(this);
-      renderNodes.call(this);
+      renderNodes2.call(this);
       renderTarget.call(this);
     }
     switchView(newStepType) {

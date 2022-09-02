@@ -1,4 +1,11 @@
-import { TViewParamsHnsw, TVisDataHnswSearchView } from 'Types/visData';
+import {
+  TId2ShowTime,
+  TViewParamsHnsw,
+  TVisDataHnswLink,
+  TVisDataHnswNode,
+  TVisDataHnswSearchView,
+  TVisDataHnswTargetNode,
+} from 'Types/visData';
 import TViewHandler from 'FederView/types';
 
 import InfoPanel from 'FederView/InfoPanel';
@@ -6,6 +13,8 @@ import * as d3 from 'd3';
 import TimeControllerView from './TimeControllerView';
 import defaultViewParamsHnsw from '../defaultViewParamsHnsw';
 import TimerController from './TimerController';
+import transitionSearchView from './transitionSearchView';
+import { TCoord, TId, TSearchParams } from 'Types';
 
 export default class HnswSearchView implements TViewHandler {
   node: HTMLElement;
@@ -19,6 +28,16 @@ export default class HnswSearchView implements TViewHandler {
   mouseMoveHandler: Function;
   mouseClickHandler: Function;
   mouseLeaveHandler: Function;
+  searchTarget: TVisDataHnswTargetNode;
+  entryNodesLevels: TVisDataHnswNode[][];
+  searchNodesLevels: TVisDataHnswNode[][];
+  searchLinksLevels: TVisDataHnswLink[][];
+  searchLayerPosLevels: TCoord[][];
+  searchTargetShowTime: number[];
+  searchNodeShowTime: TId2ShowTime;
+  searchLinkShowTime: TId2ShowTime;
+  searchParams: TSearchParams;
+  id2node: { [id: TId]: TVisDataHnswNode };
   constructor(visData: TVisDataHnswSearchView, viewParams: TViewParamsHnsw) {
     this.staticPanel = new InfoPanel();
     this.clickedPanel = new InfoPanel();
@@ -27,6 +46,21 @@ export default class HnswSearchView implements TViewHandler {
     this.viewParams = Object.assign({}, defaultViewParamsHnsw, viewParams);
 
     this.searchTransitionDuration = visData.searchTransitionDuration;
+    this.searchTarget = visData.searchTarget;
+    this.entryNodesLevels = visData.entryNodesLevels;
+    this.searchNodesLevels = visData.searchNodesLevels;
+    this.searchLinksLevels = visData.searchLinksLevels;
+    this.searchLayerPosLevels = visData.searchLayerPosLevels;
+    this.searchTargetShowTime = visData.searchTargetShowTime;
+    this.searchNodeShowTime = visData.searchNodeShowTime;
+    this.searchLinkShowTime = visData.searchLinkShowTime;
+    this.searchParams = visData.searchParams;
+
+    const id2node = {} as { [id: TId]: TVisDataHnswNode };
+    this.searchNodesLevels.forEach((nodes) =>
+      nodes.forEach((node) => (id2node[node.id] = node))
+    );
+    this.id2node = id2node;
 
     this.init();
   }
@@ -40,7 +74,7 @@ export default class HnswSearchView implements TViewHandler {
     const timeControllerView = new TimeControllerView(this.node);
 
     const callback = ({ t, p }) => {
-      // transitionSearchView.call(this);
+      transitionSearchView.call(this, t);
       timeControllerView.moveSilderBar(p);
     };
     const timer = new TimerController({
@@ -94,5 +128,6 @@ export default class HnswSearchView implements TViewHandler {
     this.mouseClickHandler = ({ x, y }: { x: number; y: number }) => {};
     this.mouseMoveHandler = ({ x, y }: { x: number; y: number }) => {};
     this.mouseLeaveHandler = () => {};
+    // transitionSearchView.call(this, this.timer.currentT);
   }
 }

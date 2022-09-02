@@ -1,3 +1,4 @@
+import { TStopColor } from 'FederView/renderUtils2D';
 import {
   EHnswLinkType,
   EHnswNodeType,
@@ -17,6 +18,7 @@ export interface TVisDataHnswNode {
   y?: number;
   r?: number;
   searchViewPosLevels?: TCoord[];
+  inProcessP?: number;
 }
 
 export interface TVisDataHnswTargetNode {
@@ -29,8 +31,7 @@ export interface TVisDataHnswLink {
   source: TId;
   target: TId;
   type: EHnswLinkType;
-  // sourceNode: TVisDataHnswNode;
-  // targetNode: TVisDataHnswNode;
+  inprocessP?: number;
 }
 
 export interface TVisDataHnswParsedDataLevel {
@@ -57,6 +58,37 @@ export interface TViewParamsHnsw {
   width: number;
   height: number;
   canvasScale: number;
+
+  layerDotNum: number;
+  layerDotFill: string;
+  layerDotOpacity: number;
+  layerDotR: number;
+  layerBorderStroke: string;
+  layerBorderOpacity: number;
+  layerBorderStrokeWidth: number;
+  layerGradientStopColors: TStopColor[];
+
+  searchInterLevelTime: number;
+  searchIntraLevelTime: number;
+
+  nodeEllipseRatio: number;
+  nodeShadowBlur: number;
+  coarseNodeFill: string;
+  coarseNodeOpacity: number;
+  candidateNodeFill: string;
+  candidateNodeOpacity: number;
+  fineNodeFill: string;
+  fineNodeOpacity: number;
+  targetNodeFill: string;
+  targetNodeOpacity: number;
+
+  linkShortenLineD: number;
+  normalLinkWidth: number;
+  normalGradientStopColors: TStopColor[];
+  importantLinkWidth: number;
+  importantGradientStopColors: TStopColor[];
+  targetLinkWidth: number;
+  targetGradientStopColors: TStopColor[];
 }
 
 export interface TLayoutParamsHnsw {
