@@ -89,6 +89,10 @@ export interface TViewParamsHnsw {
   importantGradientStopColors: TStopColor[];
   targetLinkWidth: number;
   targetGradientStopColors: TStopColor[];
+
+  mouseThresholdR: number;
+  clickedNodeStroke: string;
+  clickedNodeStrokeWidth: number;
 }
 
 export interface TLayoutParamsHnsw {

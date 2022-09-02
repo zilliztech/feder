@@ -48,5 +48,9 @@ export const defaultViewParamsHnsw = {
     [0, hexWithOpacity('#FFFFFF', 0)],
     [1, hexWithOpacity('#FFFFFF', 0.8)],
   ],
+
+  mouseThresholdR: 6,
+  clickedNodeStroke: '#FFFC85',
+  clickedNodeStrokeWidth: 1.5,
 } as TViewParamsHnsw;
 export default defaultViewParamsHnsw;

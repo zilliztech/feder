@@ -11,6 +11,7 @@ import renderLinks from './renderLinks';
 import renderInProcessLinks from './renderInProcessLinks';
 import renderEntryAndTargetLinks from './renderEntryAndTargetLinks';
 import renderTarget from 'FederView/ivfflatView/IvfflatSearchView/renderTarget';
+import renderClickedNode from './renderClickedNode';
 
 export default function transitionSearchView(this: HnswSearchView, t: number) {
   clearCanvas.call(this);
@@ -78,4 +79,5 @@ export default function transitionSearchView(this: HnswSearchView, t: number) {
     renderInProcessLinks.call(this, inProcessLinks, level);
     renderNodes.call(this, showNodes, level);
   }
+  renderClickedNode.call(this);
 }
