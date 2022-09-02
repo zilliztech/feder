@@ -15,6 +15,7 @@ import defaultViewParamsHnsw from '../defaultViewParamsHnsw';
 import TimerController from './TimerController';
 import transitionSearchView from './transitionSearchView';
 import { TCoord, TId, TSearchParams } from 'Types';
+import { getDisL2Square } from 'Utils/distFunc';
 
 export default class HnswSearchView implements TViewHandler {
   node: HTMLElement;
@@ -38,6 +39,10 @@ export default class HnswSearchView implements TViewHandler {
   searchLinkShowTime: TId2ShowTime;
   searchParams: TSearchParams;
   id2node: { [id: TId]: TVisDataHnswNode };
+  clickedLevel: number;
+  clickedNode: TVisDataHnswNode;
+  hoveredLevel: number;
+  hoveredNode: TVisDataHnswNode;
   constructor(visData: TVisDataHnswSearchView, viewParams: TViewParamsHnsw) {
     this.staticPanel = new InfoPanel();
     this.clickedPanel = new InfoPanel();
@@ -125,9 +130,53 @@ export default class HnswSearchView implements TViewHandler {
   }
   initView() {
     this.timer.start();
-    this.mouseClickHandler = ({ x, y }: { x: number; y: number }) => {};
-    this.mouseMoveHandler = ({ x, y }: { x: number; y: number }) => {};
-    this.mouseLeaveHandler = () => {};
+
+    const mouse2level = (x: number, y: number) =>
+      this.searchLayerPosLevels.findIndex((points) =>
+        d3.polygonContains(points, [x, y])
+      );
+    const { mouseThresholdR, canvasScale } = this.viewParams;
+    const threshold = Math.pow(mouseThresholdR * canvasScale, 2);
+    const mouse2node = (x: number, y: number, level: number) => {
+      const distances = this.searchNodesLevels[level].map((node) =>
+        getDisL2Square(node.searchViewPosLevels[level], [x, y])
+      );
+      const nearestNodeIndex = d3.minIndex(distances);
+      return distances[nearestNodeIndex] < threshold
+        ? this.searchNodesLevels[level][nearestNodeIndex]
+        : null;
+    };
+
+    this.mouseClickHandler = ({ x, y }: { x: number; y: number }) => {
+      this.clickedLevel = mouse2level(x, y);
+      if (this.clickedLevel >= 0) {
+        const clickedNode = mouse2node(x, y, this.clickedLevel);
+        if (clickedNode !== this.clickedNode) {
+          this.clickedNode = clickedNode;
+          if (!this.timer.isPlaying)
+            transitionSearchView.call(this, this.timer.currentT);
+        }
+      } else {
+        this.clickedNode = null;
+      }
+    };
+    this.mouseMoveHandler = ({ x, y }: { x: number; y: number }) => {
+      this.hoveredLevel = mouse2level(x, y);
+      if (this.hoveredLevel >= 0) {
+        const hoveredNode = mouse2node(x, y, this.hoveredLevel);
+        if (hoveredNode !== this.hoveredNode) {
+          this.hoveredNode = hoveredNode;
+          if (!this.timer.isPlaying)
+            transitionSearchView.call(this, this.timer.currentT);
+        }
+      } else {
+        this.hoveredLevel = null;
+      }
+    };
+    this.mouseLeaveHandler = () => {
+      this.hoveredLevel = -1;
+      this.hoveredNode = null;
+    };
     // transitionSearchView.call(this, this.timer.currentT);
   }
 }

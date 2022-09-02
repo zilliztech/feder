@@ -14281,7 +14281,10 @@ ${indentData}`);
     targetGradientStopColors: [
       [0, hexWithOpacity("#FFFFFF", 0)],
       [1, hexWithOpacity("#FFFFFF", 0.8)]
-    ]
+    ],
+    mouseThresholdR: 6,
+    clickedNodeStroke: "#FFFC85",
+    clickedNodeStrokeWidth: 1.5
   };
   var defaultViewParamsHnsw_default = defaultViewParamsHnsw;
 
@@ -14656,6 +14659,32 @@ ${indentData}`);
     }
   }
 
+  // federjs/FederView/hnswView/HnswSearchView/renderClickedNode.ts
+  function renderClickedNode() {
+    if (!this.clickedNode)
+      return;
+    const {
+      canvasScale,
+      clickedNodeStroke,
+      clickedNodeStrokeWidth,
+      nodeEllipseRatio
+    } = this.viewParams;
+    const r = this.clickedNode.r + (clickedNodeStrokeWidth + 0.5) * canvasScale;
+    drawEllipses({
+      ctx: this.ctx,
+      ellipses: [
+        [
+          ...this.clickedNode.searchViewPosLevels[this.clickedLevel],
+          r * nodeEllipseRatio,
+          r
+        ]
+      ],
+      hasStroke: true,
+      strokeStyle: clickedNodeStroke,
+      lineWidth: clickedNodeStrokeWidth * canvasScale
+    });
+  }
+
   // federjs/FederView/hnswView/HnswSearchView/transitionSearchView.ts
   function transitionSearchView(t) {
     clearCanvas.call(this);
@@ -14686,6 +14715,7 @@ ${indentData}`);
       renderInProcessLinks.call(this, inProcessLinks, level);
       renderNodes.call(this, showNodes, level);
     }
+    renderClickedNode.call(this);
   }
 
   // federjs/FederView/hnswView/HnswSearchView/index.ts
@@ -14762,11 +14792,43 @@ ${indentData}`);
     }
     initView() {
       this.timer.start();
+      const mouse2level = (x3, y3) => this.searchLayerPosLevels.findIndex((points) => contains_default(points, [x3, y3]));
+      const { mouseThresholdR, canvasScale } = this.viewParams;
+      const threshold = Math.pow(mouseThresholdR * canvasScale, 2);
+      const mouse2node = (x3, y3, level) => {
+        const distances = this.searchNodesLevels[level].map((node) => getDisL2Square(node.searchViewPosLevels[level], [x3, y3]));
+        const nearestNodeIndex = minIndex(distances);
+        return distances[nearestNodeIndex] < threshold ? this.searchNodesLevels[level][nearestNodeIndex] : null;
+      };
       this.mouseClickHandler = ({ x: x3, y: y3 }) => {
+        this.clickedLevel = mouse2level(x3, y3);
+        if (this.clickedLevel >= 0) {
+          const clickedNode = mouse2node(x3, y3, this.clickedLevel);
+          if (clickedNode !== this.clickedNode) {
+            this.clickedNode = clickedNode;
+            if (!this.timer.isPlaying)
+              transitionSearchView.call(this, this.timer.currentT);
+          }
+        } else {
+          this.clickedNode = null;
+        }
       };
       this.mouseMoveHandler = ({ x: x3, y: y3 }) => {
+        this.hoveredLevel = mouse2level(x3, y3);
+        if (this.hoveredLevel >= 0) {
+          const hoveredNode = mouse2node(x3, y3, this.hoveredLevel);
+          if (hoveredNode !== this.hoveredNode) {
+            this.hoveredNode = hoveredNode;
+            if (!this.timer.isPlaying)
+              transitionSearchView.call(this, this.timer.currentT);
+          }
+        } else {
+          this.hoveredLevel = null;
+        }
       };
       this.mouseLeaveHandler = () => {
+        this.hoveredLevel = -1;
+        this.hoveredNode = null;
       };
     }
   };
