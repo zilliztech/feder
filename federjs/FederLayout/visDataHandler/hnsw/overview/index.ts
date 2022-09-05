@@ -43,8 +43,7 @@ export const overviewLayoutHandler = (
       await forceLevel({ nodes, links, numForceIterations });
 
       // scale
-      scaleNodes({ nodes, M });
-
+      i < overviewNodesLevels.length - 1 && scaleNodes({ nodes, M });
       // save
       id2pos = {};
       nodes.forEach((node) => {
@@ -67,16 +66,18 @@ export const overviewLayoutHandler = (
       nodes.forEach(
         (node) =>
           (node.overviewPos = transformFunc(
-            node.x,
-            node.y,
+            ...node.forcePos,
             nOverviewLevels - 1 - i
           ))
       )
     );
 
-    removeD3DataAttribute(overviewNodesLevels);
+    // removeD3DataAttribute(overviewNodesLevels);
 
-    resolve({ overviewNodesLevels, overviewLayerPosLevels: layerPosLevels });
+    resolve({
+      overviewNodesLevels: overviewNodesLevels.reverse(),
+      overviewLayerPosLevels: layerPosLevels,
+    });
   });
 };
 

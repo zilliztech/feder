@@ -2,7 +2,7 @@ import * as d3 from 'd3';
 import clearCanvas from 'FederView/clearCanvas';
 import InfoPanel from 'FederView/InfoPanel';
 import TViewHandler from 'FederView/types';
-import { TId } from 'Types';
+import { TCoord, TId } from 'Types';
 import {
   TViewParamsHnsw,
   TVisDataHnswGraph,
@@ -10,6 +10,8 @@ import {
   TVisDataHnswOverview,
 } from 'Types/visData';
 import defaultViewParamsHnsw from '../defaultViewParamsHnsw';
+import renderLayer from '../HnswSearchView/renderLayer';
+import renderNodes from './renderNodes';
 
 export default class HnswOverview implements TViewHandler {
   node: HTMLElement;
@@ -18,6 +20,7 @@ export default class HnswOverview implements TViewHandler {
   hoveredPanel: InfoPanel;
   viewParams: TViewParamsHnsw;
   overviewNodesLevels: TVisDataHnswGraph[];
+  overviewLayerPosLevels: TCoord[][];
   idWithLevel2node: { [idWithLevel: TId]: TVisDataHnswGraphNode };
   ctx: CanvasRenderingContext2D;
   constructor(visData: TVisDataHnswOverview, viewParams: TViewParamsHnsw) {
@@ -28,6 +31,7 @@ export default class HnswOverview implements TViewHandler {
     this.viewParams = Object.assign({}, defaultViewParamsHnsw, viewParams);
 
     this.overviewNodesLevels = visData.overviewNodesLevels;
+    this.overviewLayerPosLevels = visData.overviewLayerPosLevels;
 
     this.init();
   }
@@ -68,6 +72,14 @@ export default class HnswOverview implements TViewHandler {
   }
   renderView() {
     clearCanvas.call(this);
+
+    for (let i = 0; i < this.overviewNodesLevels.length; i++) {
+      const { nodes, level } = this.overviewNodesLevels[i];
+
+      renderLayer.call(this, this.overviewLayerPosLevels[i]);
+    }
+
+    renderNodes.call(this);
 
     // for level
     // layer

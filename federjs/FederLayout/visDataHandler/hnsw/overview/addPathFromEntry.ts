@@ -12,6 +12,7 @@ export default function addPathFromEntry(
   nodesLevels.forEach(({ nodes, level }) => {
     nodes.forEach((node: TVisDataHnswGraphNode) => {
       const idWithLevel = getNodeIdWithLevel(node.id, level);
+      node.level = level;
       node.idWithLevel = idWithLevel;
       node.pathFromEntry = [];
       id2node[idWithLevel] = node;
