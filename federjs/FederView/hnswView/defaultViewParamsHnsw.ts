@@ -8,7 +8,7 @@ export const defaultViewParamsHnsw = {
 
   layerDotNum: 20,
   layerDotFill: '#ffffff',
-  layerDotOpacity: 0.2,
+  layerDotOpacity: 0.3,
   layerDotR: 0.8,
   layerBorderStroke: '#D9EAFF',
   layerBorderOpacity: 0.6,
@@ -52,5 +52,7 @@ export const defaultViewParamsHnsw = {
   mouseThresholdR: 6,
   clickedNodeStroke: '#FFFC85',
   clickedNodeStrokeWidth: 1.5,
+
+  overviewNodesR: [1.5, 2, 2.5],
 } as TViewParamsHnsw;
 export default defaultViewParamsHnsw;

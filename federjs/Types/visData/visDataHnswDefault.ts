@@ -20,6 +20,7 @@ export interface TFroceNode {
 export interface TVisDataHnswGraphNode
   extends TIndexMetaHnswGraphNode,
     TFroceNode {
+  level?: number;
   idWithLevel?: string;
   pathFromEntry?: string[];
   forcePos?: TCoord;
@@ -120,6 +121,8 @@ export interface TViewParamsHnsw {
   mouseThresholdR: number;
   clickedNodeStroke: string;
   clickedNodeStrokeWidth: number;
+
+  overviewNodesR: number[];
 }
 
 export interface TLayoutParamsHnsw {

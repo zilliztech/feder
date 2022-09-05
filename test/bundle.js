@@ -13535,6 +13535,7 @@ ${indentData}`);
     nodesLevels.forEach(({ nodes, level }) => {
       nodes.forEach((node) => {
         const idWithLevel = getNodeIdWithLevel(node.id, level);
+        node.level = level;
         node.idWithLevel = idWithLevel;
         node.pathFromEntry = [];
         id2node[idWithLevel] = node;
@@ -13592,12 +13593,6 @@ ${indentData}`);
     nodes,
     M
   }) {
-    const xRange = extent(nodes, (node) => node.x);
-    const yRange = extent(nodes, (node) => node.y);
-    const isXLonger = xRange[1] - xRange[0] > yRange[1] - yRange[0];
-    if (!isXLonger) {
-      nodes.forEach((node) => [node.x, node.y] = [node.y, node.x]);
-    }
     const t = Math.sqrt(M) * 0.85;
     nodes.forEach((node) => {
       node.x = node.x * t;
@@ -13623,7 +13618,7 @@ ${indentData}`);
         });
         const links = nodes.reduce((acc, cur) => acc.concat(cur.links.map((target) => ({ source: cur.id, target }))), []);
         yield forceLevel({ nodes, links, numForceIterations });
-        scaleNodes({ nodes, M });
+        i < overviewNodesLevels.length - 1 && scaleNodes({ nodes, M });
         id2pos = {};
         nodes.forEach((node) => {
           id2pos[node.id] = [node.x, node.y];
@@ -13633,23 +13628,14 @@ ${indentData}`);
         node.forcePos = id2pos[node.id];
       }));
       const { layerPosLevels, transformFunc } = transformHandler_default(overviewNodesLevels[overviewNodesLevels.length - 1].nodes, overviewNodesLevels.length, layoutParams);
-      overviewNodesLevels.forEach(({ nodes }, i) => nodes.forEach((node) => node.overviewPos = transformFunc(node.x, node.y, nOverviewLevels - 1 - i)));
-      removeD3DataAttribute(overviewNodesLevels);
-      resolve({ overviewNodesLevels, overviewLayerPosLevels: layerPosLevels });
+      overviewNodesLevels.forEach(({ nodes }, i) => nodes.forEach((node) => node.overviewPos = transformFunc(...node.forcePos, nOverviewLevels - 1 - i)));
+      resolve({
+        overviewNodesLevels: overviewNodesLevels.reverse(),
+        overviewLayerPosLevels: layerPosLevels
+      });
     }));
   };
   var overview_default = overviewLayoutHandler;
-  var removeD3DataAttribute = (overviewNodesLevels) => {
-    overviewNodesLevels.forEach(({ nodes }) => nodes.forEach((node) => {
-      delete node.x;
-      delete node.y;
-      delete node.fx;
-      delete node.fy;
-      delete node.vx;
-      delete node.vy;
-      delete node.index;
-    }));
-  };
 
   // federjs/FederLayout/visDataHandler/hnsw/index.ts
   var searchViewLayoutHandlerMap = {
@@ -14463,7 +14449,7 @@ ${indentData}`);
     canvasScale: 2,
     layerDotNum: 20,
     layerDotFill: "#ffffff",
-    layerDotOpacity: 0.2,
+    layerDotOpacity: 0.3,
     layerDotR: 0.8,
     layerBorderStroke: "#D9EAFF",
     layerBorderOpacity: 0.6,
@@ -14502,7 +14488,8 @@ ${indentData}`);
     ],
     mouseThresholdR: 6,
     clickedNodeStroke: "#FFFC85",
-    clickedNodeStrokeWidth: 1.5
+    clickedNodeStrokeWidth: 1.5,
+    overviewNodesR: [1.5, 2, 2.5]
   };
   var defaultViewParamsHnsw_default = defaultViewParamsHnsw;
 
@@ -15051,6 +15038,32 @@ ${indentData}`);
     }
   };
 
+  // federjs/FederView/hnswView/HnswOverview/renderNodes.ts
+  function renderNodes2() {
+    const {
+      canvasScale,
+      nodeEllipseRatio,
+      overviewNodesR,
+      coarseNodeFill,
+      coarseNodeOpacity,
+      nodeShadowBlur
+    } = this.viewParams;
+    this.overviewNodesLevels.forEach(({ nodes }, i) => {
+      drawEllipses({
+        ctx: this.ctx,
+        ellipses: nodes.map((node) => [
+          ...node.overviewPos,
+          overviewNodesR[i] * canvasScale * nodeEllipseRatio,
+          overviewNodesR[i] * canvasScale
+        ]),
+        hasFill: true,
+        fillStyle: hexWithOpacity(coarseNodeFill, coarseNodeOpacity),
+        shadowColor: coarseNodeFill,
+        shadowBlur: nodeShadowBlur * canvasScale
+      });
+    });
+  }
+
   // federjs/FederView/hnswView/HnswOverview/index.ts
   var HnswOverview = class {
     constructor(visData, viewParams) {
@@ -15059,6 +15072,7 @@ ${indentData}`);
       this.hoveredPanel = new InfoPanel();
       this.viewParams = Object.assign({}, defaultViewParamsHnsw_default, viewParams);
       this.overviewNodesLevels = visData.overviewNodesLevels;
+      this.overviewLayerPosLevels = visData.overviewLayerPosLevels;
       this.init();
     }
     init() {
@@ -15086,6 +15100,11 @@ ${indentData}`);
     }
     renderView() {
       clearCanvas.call(this);
+      for (let i = 0; i < this.overviewNodesLevels.length; i++) {
+        const { nodes, level } = this.overviewNodesLevels[i];
+        renderLayer.call(this, this.overviewLayerPosLevels[i]);
+      }
+      renderNodes2.call(this);
     }
   };
 
@@ -15156,7 +15175,7 @@ ${indentData}`);
   }
 
   // federjs/FederView/ivfflatView/IvfflatSearchView/renderNodes.ts
-  function renderNodes2() {
+  function renderNodes3() {
     const {
       canvasScale,
       topkNodeR,
@@ -15597,7 +15616,7 @@ ${indentData}`);
     renderNodesView() {
       clearCanvas.call(this);
       this.stepType === "polar" /* polar */ && renderPolarAxis.call(this);
-      renderNodes2.call(this);
+      renderNodes3.call(this);
       renderTarget.call(this);
     }
     switchView(newStepType) {
