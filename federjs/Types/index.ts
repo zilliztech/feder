@@ -74,3 +74,8 @@ export enum EProjectMethod {
   pca = 'pca',
   mds = 'mds',
 }
+
+export interface TForceLink {
+  source: TId;
+  target: TId;
+}

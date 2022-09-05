@@ -2,7 +2,7 @@ import {
   getEntryLinkIdWithLevel,
   getLinkIdWithLevel,
   getNodeIdWithLevel,
-} from 'FederLayout/visDataHandler/hnsw/search/utils';
+} from 'FederLayout/visDataHandler/hnsw/utils';
 import clearCanvas from 'FederView/clearCanvas';
 import renderNodes from './renderNodes';
 import HnswSearchView from '.';

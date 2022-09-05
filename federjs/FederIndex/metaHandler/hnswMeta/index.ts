@@ -6,7 +6,7 @@ export const getHnswIndexMeta = (
   index: TIndexStructureHnsw,
   metaParams: TMetaParams
 ) => {
-  const { numOverviewLevel = 10 } = metaParams;
+  const { numOverviewLevel = 3 } = metaParams;
   const nOverviewLevels = Math.min(numOverviewLevel, index.maxLevel);
   const overviewGraphLayers = Array(nOverviewLevels)
     .fill(0)

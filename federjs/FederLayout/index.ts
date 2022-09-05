@@ -36,7 +36,6 @@ export class FederLayout {
   }
 
   async getOverviewVisData({
-    actionData = {},
     viewType,
     layoutParams = {},
   }: {
@@ -62,6 +61,7 @@ export class FederLayout {
     viewType: EViewType;
     layoutParams: TLayoutParams;
   }) {
+    // todo cache
     const searchRecords = await this.federIndex.getSearchRecords(
       actionData.target,
       actionData.searchParams

@@ -1,7 +1,7 @@
 import * as d3 from 'd3';
 import { EHnswLinkType, TCoord, TId } from 'Types';
 import { TVisDataHnswLink, TVisDataHnswParsedDataLevel } from 'Types/visData';
-import { deDupLink } from './utils';
+import { deDupLink } from '../utils';
 
 const forceSearchView = (
   parsedData: TVisDataHnswParsedDataLevel[],

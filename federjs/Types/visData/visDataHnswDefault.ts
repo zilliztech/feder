@@ -6,6 +6,24 @@ import {
   TId,
   TSearchParams,
 } from 'Types';
+import { TIndexMetaHnswGraphNode } from 'Types/indexMeta';
+
+export interface TFroceNode {
+  x?: number;
+  y?: number;
+  fx?: number;
+  fy?: number;
+  vx?: number;
+  vy?: number;
+  index?: number;
+}
+export interface TVisDataHnswGraphNode
+  extends TIndexMetaHnswGraphNode,
+    TFroceNode {
+  idWithLevel?: string;
+  pathFromEntry?: string[];
+  forcePos?: TCoord;
+}
 
 export interface TVisDataHnswOverview {}
 

@@ -13991,13 +13991,101 @@ ${indentData}`);
     }
   };
 
+  // federjs/FederView/InfoPanel/defaultTInfoPanelStyles.ts
+  var defaultTInfoPanelStyles = {
+    position: "absolute"
+  };
+  var cssDefinition = `
+.panel-border {
+  border-style: dashed;
+  border-width: 1px;
+}
+.panel {
+  padding: 6px 8px;
+  font-size: 12px;
+}
+.hide {
+  opacity: 0;
+}
+.panel-item {
+  margin-bottom: 6px;
+}
+.panel-img {
+  width: 150px;
+  height: 100px;
+  background-size: cover;
+  margin-bottom: 12px;
+  border-radius: 4px;
+}
+.panel-item-display-flex {
+  display: flex;
+}
+.panel-item-title {
+  font-weight: 600;
+  margin-bottom: 3px;
+}
+.panel-item-text {
+  font-weight: 400;
+  font-size: 10px;
+  word-break: break-all;
+}
+.panel-item-text-flex {
+  margin-left: 8px;
+}
+.panel-item-text-margin {
+  margin: 0 6px;
+}
+.text-no-wrap {
+  white-space: nowrap;
+}
+.panel-img-gallery {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-row-gap: 8px;
+  grid-column-gap: 8px;
+}
+.panel-img-gallery-item {
+  width: 100%;
+  height: 44px;
+  background-size: cover;
+  border-radius: 2px;
+}
+.panel-item-option {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  // pointer-events: auto;
+}
+.panel-item-option-icon {
+  width: 6px;
+  height: 6px;
+  border-radius: 7px;
+  border: 2px solid #FFFC85;
+  margin-left: 2px;
+}
+.panel-item-option-icon-active {
+  background-color: #FFFC85;
+}
+.panel-item-option-label {
+  margin-left: 6px;
+}
+`;
+
   // federjs/FederView/InfoPanel/index.ts
-  var infoPanel = class {
+  var InfoPanel = class {
     constructor(styles = {}, viewParams = {}) {
+      const divD3 = create_default("div");
+      this.div = divD3.node();
+      Object.assign(divD3.style, Object.assign({}, defaultTInfoPanelStyles, styles));
     }
-    init() {
+    static initClass() {
+      const styleCss = document.createElement("style");
+      styleCss.innerHTML = cssDefinition;
+      document.getElementsByTagName("head").item(0).appendChild(styleCss);
     }
-    setContext(context = null) {
+    setContext(context, isFlex = false) {
+      const container = select_default2(this.div);
+      container.selectAll("*").remove();
     }
     setPosition(pos = null) {
     }
@@ -14006,9 +14094,9 @@ ${indentData}`);
   // federjs/FederView/hnswView/HnswSearchHnsw3dView.ts
   var HnswSearchHnsw3dView = class {
     constructor(visData, viewParams) {
-      this.staticPanel = new infoPanel();
-      this.clickedPanel = new infoPanel();
-      this.hoveredPanel = new infoPanel();
+      this.staticPanel = new InfoPanel();
+      this.clickedPanel = new InfoPanel();
+      this.hoveredPanel = new InfoPanel();
       this.init(visData, viewParams);
     }
     init(visData, viewParams) {
@@ -14721,9 +14809,9 @@ ${indentData}`);
   // federjs/FederView/hnswView/HnswSearchView/index.ts
   var HnswSearchView = class {
     constructor(visData, viewParams) {
-      this.staticPanel = new infoPanel();
-      this.clickedPanel = new infoPanel();
-      this.hoveredPanel = new infoPanel();
+      this.staticPanel = new InfoPanel();
+      this.clickedPanel = new InfoPanel();
+      this.hoveredPanel = new InfoPanel();
       this.viewParams = Object.assign({}, defaultViewParamsHnsw_default, viewParams);
       this.searchTransitionDuration = visData.searchTransitionDuration;
       this.searchTarget = visData.searchTarget;

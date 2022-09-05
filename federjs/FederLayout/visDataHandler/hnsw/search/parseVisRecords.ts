@@ -5,7 +5,7 @@ import {
   TVisDataHnswNode,
   TVisDataHnswParsedDataLevel,
 } from 'Types/visData';
-import { getLinkId, parseLinkId } from './utils';
+import { getLinkId, parseLinkId } from '../utils';
 
 export const parseVisRecords = ({
   topkResults,
