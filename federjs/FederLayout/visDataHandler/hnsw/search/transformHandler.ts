@@ -1,10 +1,9 @@
 import * as d3 from 'd3';
-import { TCoord } from 'Types';
-import { TVisDataHnswNode } from 'Types/visData';
+import { TCoord, TD3Node } from 'Types';
 import { vecAdd, vecMultiply } from 'Utils/distFunc';
 
 export const transformHandler = (
-  nodes: TVisDataHnswNode[],
+  nodes: TD3Node[],
   levelCount: number,
   {
     width,

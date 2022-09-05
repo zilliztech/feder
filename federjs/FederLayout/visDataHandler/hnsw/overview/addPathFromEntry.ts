@@ -1,12 +1,12 @@
 import { TId } from 'Types';
 import { TIndexMetaHnswGraph } from 'Types/indexMeta';
-import { TVisDataHnswGraphNode } from 'Types/visData';
+import { TVisDataHnswGraph, TVisDataHnswGraphNode } from 'Types/visData';
 import { getNodeIdWithLevel, parseNodeIdWidthLevel } from '../utils';
 
 export default function addPathFromEntry(
   overviewGraphLayers: TIndexMetaHnswGraph[],
   entryPointId: TId
-) {
+): TVisDataHnswGraph[] {
   const nodesLevels = overviewGraphLayers;
   const id2node = {} as { [id: TId]: TVisDataHnswGraphNode };
   nodesLevels.forEach(({ nodes, level }) => {
