@@ -6,6 +6,8 @@ import defaultHnswLayoutParams from './defaultLayoutParamsHnsw';
 
 import { searchViewLayoutHandler } from './search';
 import { searchViewLayoutHandler3d } from './search/hnsw3d';
+import overviewLayoutHandler from './overview';
+import { TIndexMetaHnsw } from 'Types/indexMeta';
 
 const searchViewLayoutHandlerMap = {
   [EViewType.default]: searchViewLayoutHandler,
@@ -13,11 +15,23 @@ const searchViewLayoutHandlerMap = {
   // [EViewType.hnsw3d]: searchViewLayoutHandler3d,
 };
 
+const overviewLayoutHandlerMap = {
+  [EViewType.default]: overviewLayoutHandler,
+};
+
 export default class FederLayoutHnsw implements TFederLayoutHandler {
   constructor() {}
 
-  computeOverviewVisData() {
-    return {} as TVisData;
+  computeOverviewVisData(
+    viewType: EViewType,
+    indexMeta: TIndexMetaHnsw,
+    layoutParams: TLayoutParamsHnsw
+  ) {
+    const overviewLayoutHandler = overviewLayoutHandlerMap[viewType];
+    return overviewLayoutHandler(
+      indexMeta,
+      Object.assign({}, defaultHnswLayoutParams, layoutParams)
+    ) as TVisData;
   }
 
   computeSearchViewVisData(

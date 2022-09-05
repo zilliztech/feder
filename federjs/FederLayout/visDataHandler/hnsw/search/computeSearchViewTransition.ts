@@ -2,9 +2,9 @@ import {
   getNodeIdWithLevel,
   getLinkIdWithLevel,
   getEntryLinkIdWithLevel,
-} from './utils';
+} from '../utils';
 
-import { EHnswLinkType, TId } from 'Types';
+import { EHnswLinkType } from 'Types';
 import { TId2ShowTime, TVisDataHnswLink, TVisDataHnswNode } from 'Types/visData';
 
 export const computeSearchViewTransition = ({

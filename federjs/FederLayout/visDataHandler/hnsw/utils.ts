@@ -1,6 +1,6 @@
-import { TId } from "Types";
+import { TId } from 'Types';
 
-const connection = "---";
+const connection = '---';
 
 export const getLinkId = (sourceId: TId, targetId: TId) =>
   `${sourceId}${connection}${targetId}`;
@@ -17,13 +17,18 @@ export const getLinkIdWithLevel = (
 export const getNodeIdWithLevel = (nodeId: TId, level: number) =>
   `node-${level}-${nodeId}`;
 
+export const parseNodeIdWidthLevel = (idWithLevel: string) => {
+  const idString = idWithLevel.split('-');
+  return [+idString[1], idString[2]] as [number, TId];
+};
+
 export const getEntryLinkIdWithLevel = (nodeId: TId | string, level: number) =>
   `inter-level-${level}-${nodeId}`;
 
 export const deDupLink = (
   links: any[],
-  source = "source",
-  target = "target"
+  source = 'source',
+  target = 'target'
 ) => {
   const linkStringSet = new Set();
   return links.filter((link) => {
