@@ -79,3 +79,8 @@ export interface TForceLink {
   source: TId;
   target: TId;
 }
+
+export interface TD3Node {
+  x?: number;
+  y?: number;
+}

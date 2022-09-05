@@ -23,9 +23,18 @@ export interface TVisDataHnswGraphNode
   idWithLevel?: string;
   pathFromEntry?: string[];
   forcePos?: TCoord;
+  overviewPos?: TCoord;
 }
 
-export interface TVisDataHnswOverview {}
+export interface TVisDataHnswGraph {
+  level: number;
+  nodes: TVisDataHnswGraphNode[];
+}
+
+export interface TVisDataHnswOverview {
+  overviewNodesLevels: TVisDataHnswGraph[];
+  overviewLayerPosLevels: TCoord[][];
+}
 
 export interface TVisDataHnswNode {
   id: TId;

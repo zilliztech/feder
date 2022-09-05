@@ -14,8 +14,8 @@ export default class HnswSearchHnsw3dView implements TViewHandler {
     this.clickedPanel = new InfoPanel();
     this.hoveredPanel = new InfoPanel();
 
-    this.init(visData, viewParams);
+    this.init();
   }
-  init(visData: TVisData, viewParams: TViewParams) {}
+  init() {}
   render() {}
 }

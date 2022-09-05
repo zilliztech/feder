@@ -1,66 +1,99 @@
-import { TCoord, TId } from 'Types';
+import { TCoord, TD3Node, TId } from 'Types';
 import { TIndexMetaHnsw } from 'Types/indexMeta';
-import { TLayoutParamsHnsw, TVisDataHnswGraphNode } from 'Types/visData';
+import {
+  TLayoutParamsHnsw,
+  TVisDataHnswGraph,
+  TVisDataHnswGraphNode,
+  TVisDataHnswOverview,
+} from 'Types/visData';
+import transformHandler from '../search/transformHandler';
 import addPathFromEntry from './addPathFromEntry';
 import forceLevel from './forceLevel';
 import scaleNodes from './scaleNodes';
 
-export const overviewLayoutHandler = async (
+export const overviewLayoutHandler = (
   indexMeta: TIndexMetaHnsw,
   layoutParams: TLayoutParamsHnsw
-): Promise<any> => {
+) => {
   const { numForceIterations } = layoutParams;
-  const { overviewGraphLayers, entryPointId, M } = indexMeta;
-  return new Promise<any>((resolve) => {
+  const { overviewGraphLayers, entryPointId, M, nOverviewLevels } = indexMeta;
+  return new Promise<TVisDataHnswOverview>(async (resolve) => {
     const overviewNodesLevels = addPathFromEntry(
       overviewGraphLayers,
       entryPointId
     );
 
     let id2pos = {} as { [id: TId]: TCoord };
-    overviewNodesLevels.forEach(
-      ({ nodes }: { nodes: TVisDataHnswGraphNode[] }) => {
-        nodes.forEach((node) => {
-          if (node.id in id2pos) {
-            const pos = id2pos[node.id];
-            node.fx = pos[0];
-            node.fy = pos[1];
-          }
-        });
+    for (let i = 0; i < overviewNodesLevels.length; i++) {
+      const nodes = overviewNodesLevels[i].nodes as TVisDataHnswGraphNode[];
+      nodes.forEach((node) => {
+        if (node.id in id2pos) {
+          const pos = id2pos[node.id];
+          node.fx = pos[0];
+          node.fy = pos[1];
+        }
+      });
 
-        // force
-        const links = nodes.reduce(
-          (acc, cur) =>
-            acc.concat(cur.links.map((target) => ({ source: cur.id, target }))),
-          []
-        );
-        forceLevel({ nodes, links, numForceIterations });
+      // force
+      const links = nodes.reduce(
+        (acc, cur) =>
+          acc.concat(cur.links.map((target) => ({ source: cur.id, target }))),
+        []
+      );
+      await forceLevel({ nodes, links, numForceIterations });
 
-        // scale
-        scaleNodes({ nodes, M });
+      // scale
+      scaleNodes({ nodes, M });
 
-        // save
-        id2pos = {};
-        nodes.forEach((node) => {
-          id2pos[node.id] = [node.x, node.y];
-        });
-      }
-    );
+      // save
+      id2pos = {};
+      nodes.forEach((node) => {
+        id2pos[node.id] = [node.x, node.y];
+      });
+    }
     overviewNodesLevels.forEach(({ nodes }) =>
-      nodes.forEach((node: TVisDataHnswGraphNode) => {
+      nodes.forEach((node) => {
         node.forcePos = id2pos[node.id];
-        delete node.x;
-        delete node.y;
-        delete node.fx;
-        delete node.fy;
-        delete node.vx;
-        delete node.vy;
-        delete node.index;
       })
     );
 
-    resolve(overviewNodesLevels);
+    const { layerPosLevels, transformFunc } = transformHandler(
+      overviewNodesLevels[overviewNodesLevels.length - 1].nodes as TD3Node[],
+      overviewNodesLevels.length,
+      layoutParams
+    );
+
+    overviewNodesLevels.forEach(({ nodes }, i) =>
+      nodes.forEach(
+        (node) =>
+          (node.overviewPos = transformFunc(
+            node.x,
+            node.y,
+            nOverviewLevels - 1 - i
+          ))
+      )
+    );
+
+    removeD3DataAttribute(overviewNodesLevels);
+
+    resolve({ overviewNodesLevels, overviewLayerPosLevels: layerPosLevels });
   });
 };
 
 export default overviewLayoutHandler;
+
+export const removeD3DataAttribute = (
+  overviewNodesLevels: TVisDataHnswGraph[]
+) => {
+  overviewNodesLevels.forEach(({ nodes }) =>
+    nodes.forEach((node: TVisDataHnswGraphNode) => {
+      delete node.x;
+      delete node.y;
+      delete node.fx;
+      delete node.fy;
+      delete node.vx;
+      delete node.vy;
+      delete node.index;
+    })
+  );
+};

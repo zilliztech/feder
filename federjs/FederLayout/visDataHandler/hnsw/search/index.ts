@@ -80,16 +80,6 @@ export const searchViewLayoutHandler = async (
   const searchLinksLevels = parsedDataCopy.map((levelData) =>
     levelData.links.filter((link) => link.type !== EHnswLinkType.None)
   );
-  // searchLinksLevels.forEach((levelData) =>
-  //   levelData.forEach((link) => {
-  //     const sourceId = link.source;
-  //     const targetId = link.target;
-  //     const sourceNode = id2searchNode[sourceId];
-  //     const targetNode = id2searchNode[targetId];
-  //     link.sourceNode = sourceNode;
-  //     link.targetNode = targetNode;
-  //   })
-  // );
 
   const entryNodesLevels = parsedData.map((levelData) =>
     levelData.entryIds.map((id) => id2searchNode[id])

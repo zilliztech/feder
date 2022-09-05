@@ -10,7 +10,6 @@ import renderLayer from './renderLayer';
 import renderLinks from './renderLinks';
 import renderInProcessLinks from './renderInProcessLinks';
 import renderEntryAndTargetLinks from './renderEntryAndTargetLinks';
-import renderTarget from 'FederView/ivfflatView/IvfflatSearchView/renderTarget';
 import renderClickedNode from './renderClickedNode';
 
 export default function transitionSearchView(this: HnswSearchView, t: number) {

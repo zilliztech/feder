@@ -7436,7 +7436,7 @@ ${indentData}`);
 
   // federjs/FederIndex/metaHandler/hnswMeta/index.ts
   var getHnswIndexMeta = (index2, metaParams) => {
-    const { numOverviewLevel = 10 } = metaParams;
+    const { numOverviewLevel = 3 } = metaParams;
     const nOverviewLevels = Math.min(numOverviewLevel, index2.maxLevel);
     const overviewGraphLayers = Array(nOverviewLevels).fill(0).map((_, i) => {
       const level = index2.maxLevel - i;
@@ -7538,12 +7538,16 @@ ${indentData}`);
   };
   var defaultLayoutParamsHnsw_default = defaultHnswLayoutParams;
 
-  // federjs/FederLayout/visDataHandler/hnsw/search/utils.ts
+  // federjs/FederLayout/visDataHandler/hnsw/utils.ts
   var connection = "---";
   var getLinkId = (sourceId, targetId) => `${sourceId}${connection}${targetId}`;
   var parseLinkId = (linkId) => linkId.split(connection).map((d) => +d);
   var getLinkIdWithLevel = (sourceId, targetId, level) => `link-${level}-${sourceId}-${targetId}`;
   var getNodeIdWithLevel = (nodeId, level) => `node-${level}-${nodeId}`;
+  var parseNodeIdWidthLevel = (idWithLevel) => {
+    const idString = idWithLevel.split("-");
+    return [+idString[1], idString[2]];
+  };
   var getEntryLinkIdWithLevel = (nodeId, level) => `inter-level-${level}-${nodeId}`;
   var deDupLink = (links, source = "source", target = "target") => {
     const linkStringSet = /* @__PURE__ */ new Set();
@@ -13524,16 +13528,143 @@ ${indentData}`);
     };
   });
 
+  // federjs/FederLayout/visDataHandler/hnsw/overview/addPathFromEntry.ts
+  function addPathFromEntry(overviewGraphLayers, entryPointId) {
+    const nodesLevels = overviewGraphLayers;
+    const id2node = {};
+    nodesLevels.forEach(({ nodes, level }) => {
+      nodes.forEach((node) => {
+        const idWithLevel = getNodeIdWithLevel(node.id, level);
+        node.idWithLevel = idWithLevel;
+        node.pathFromEntry = [];
+        id2node[idWithLevel] = node;
+      });
+    });
+    const entryNodeIdWithLevel = getNodeIdWithLevel(entryPointId, nodesLevels[0].level);
+    id2node[entryNodeIdWithLevel].pathFromEntry = [entryNodeIdWithLevel];
+    let queue = [entryNodeIdWithLevel];
+    let p = 0;
+    while (p < queue.length) {
+      const idWithLevel = queue[p];
+      p += 1;
+      const [level, nodeId] = parseNodeIdWidthLevel(idWithLevel);
+      const currentNode = id2node[idWithLevel];
+      const candidateIds = currentNode.links;
+      candidateIds.forEach((candidateId) => {
+        const candidateIdWithLevel = getNodeIdWithLevel(candidateId, level);
+        if (queue.indexOf(candidateIdWithLevel) < 0) {
+          id2node[candidateIdWithLevel].pathFromEntry = [
+            ...currentNode.pathFromEntry,
+            candidateIdWithLevel
+          ];
+          queue.push(candidateIdWithLevel);
+        }
+      });
+      const nextLevelNodeIdWithLevel = getNodeIdWithLevel(currentNode.id, level - 1);
+      if (nextLevelNodeIdWithLevel in id2node) {
+        if (queue.indexOf(nextLevelNodeIdWithLevel) < 0) {
+          id2node[nextLevelNodeIdWithLevel].pathFromEntry = [
+            ...currentNode.pathFromEntry,
+            nextLevelNodeIdWithLevel
+          ];
+          queue.push(nextLevelNodeIdWithLevel);
+        }
+      }
+    }
+    return nodesLevels;
+  }
+
+  // federjs/FederLayout/visDataHandler/hnsw/overview/forceLevel.ts
+  function forceLevel({
+    nodes,
+    links,
+    numForceIterations
+  }) {
+    return new Promise((resolve) => {
+      const simulation = simulation_default(nodes).alphaDecay(1 - Math.pow(1e-3, 1 / numForceIterations * 2)).force("link", link_default(links).id((d) => d.id).strength(1)).force("center", center_default(0, 0)).force("charge", manyBody_default().strength(-500)).on("end", () => {
+        resolve();
+      });
+    });
+  }
+
+  // federjs/FederLayout/visDataHandler/hnsw/overview/scaleNodes.ts
+  function scaleNodes({
+    nodes,
+    M
+  }) {
+    const xRange = extent(nodes, (node) => node.x);
+    const yRange = extent(nodes, (node) => node.y);
+    const isXLonger = xRange[1] - xRange[0] > yRange[1] - yRange[0];
+    if (!isXLonger) {
+      nodes.forEach((node) => [node.x, node.y] = [node.y, node.x]);
+    }
+    const t = Math.sqrt(M) * 0.85;
+    nodes.forEach((node) => {
+      node.x = node.x * t;
+      node.y = node.y * t;
+    });
+  }
+
+  // federjs/FederLayout/visDataHandler/hnsw/overview/index.ts
+  var overviewLayoutHandler = (indexMeta, layoutParams) => {
+    const { numForceIterations } = layoutParams;
+    const { overviewGraphLayers, entryPointId, M, nOverviewLevels } = indexMeta;
+    return new Promise((resolve) => __async(void 0, null, function* () {
+      const overviewNodesLevels = addPathFromEntry(overviewGraphLayers, entryPointId);
+      let id2pos = {};
+      for (let i = 0; i < overviewNodesLevels.length; i++) {
+        const nodes = overviewNodesLevels[i].nodes;
+        nodes.forEach((node) => {
+          if (node.id in id2pos) {
+            const pos = id2pos[node.id];
+            node.fx = pos[0];
+            node.fy = pos[1];
+          }
+        });
+        const links = nodes.reduce((acc, cur) => acc.concat(cur.links.map((target) => ({ source: cur.id, target }))), []);
+        yield forceLevel({ nodes, links, numForceIterations });
+        scaleNodes({ nodes, M });
+        id2pos = {};
+        nodes.forEach((node) => {
+          id2pos[node.id] = [node.x, node.y];
+        });
+      }
+      overviewNodesLevels.forEach(({ nodes }) => nodes.forEach((node) => {
+        node.forcePos = id2pos[node.id];
+      }));
+      const { layerPosLevels, transformFunc } = transformHandler_default(overviewNodesLevels[overviewNodesLevels.length - 1].nodes, overviewNodesLevels.length, layoutParams);
+      overviewNodesLevels.forEach(({ nodes }, i) => nodes.forEach((node) => node.overviewPos = transformFunc(node.x, node.y, nOverviewLevels - 1 - i)));
+      removeD3DataAttribute(overviewNodesLevels);
+      resolve({ overviewNodesLevels, overviewLayerPosLevels: layerPosLevels });
+    }));
+  };
+  var overview_default = overviewLayoutHandler;
+  var removeD3DataAttribute = (overviewNodesLevels) => {
+    overviewNodesLevels.forEach(({ nodes }) => nodes.forEach((node) => {
+      delete node.x;
+      delete node.y;
+      delete node.fx;
+      delete node.fy;
+      delete node.vx;
+      delete node.vy;
+      delete node.index;
+    }));
+  };
+
   // federjs/FederLayout/visDataHandler/hnsw/index.ts
   var searchViewLayoutHandlerMap = {
     ["default" /* default */]: searchViewLayoutHandler,
     ["hnsw3d" /* hnsw3d */]: searchViewLayoutHandler
   };
+  var overviewLayoutHandlerMap = {
+    ["default" /* default */]: overview_default
+  };
   var FederLayoutHnsw = class {
     constructor() {
     }
-    computeOverviewVisData() {
-      return {};
+    computeOverviewVisData(viewType, indexMeta, layoutParams) {
+      const overviewLayoutHandler2 = overviewLayoutHandlerMap[viewType];
+      return overviewLayoutHandler2(indexMeta, Object.assign({}, defaultLayoutParamsHnsw_default, layoutParams));
     }
     computeSearchViewVisData(viewType, searchRecords, layoutParams) {
       const searchViewLayoutHandler2 = searchViewLayoutHandlerMap[viewType];
@@ -13633,7 +13764,7 @@ ${indentData}`);
       });
     });
   };
-  var overview_default = IvfflatOverviewLayout;
+  var overview_default2 = IvfflatOverviewLayout;
 
   // federjs/FederLayout/visDataHandler/ivfflat/search/vecSort.ts
   var calAngle = (x3, y3) => {
@@ -13875,7 +14006,7 @@ ${indentData}`);
 
   // federjs/FederLayout/visDataHandler/ivfflat/index.ts
   var overviewLayoutFuncMap = {
-    ["default" /* default */]: overview_default
+    ["default" /* default */]: overview_default2
   };
   var searchViewLayoutFuncMap = {
     ["default" /* default */]: search_default
@@ -13949,7 +14080,6 @@ ${indentData}`);
     }
     getOverviewVisData(_0) {
       return __async(this, arguments, function* ({
-        actionData = {},
         viewType,
         layoutParams = {}
       }) {
@@ -14097,9 +14227,9 @@ ${indentData}`);
       this.staticPanel = new InfoPanel();
       this.clickedPanel = new InfoPanel();
       this.hoveredPanel = new InfoPanel();
-      this.init(visData, viewParams);
+      this.init();
     }
-    init(visData, viewParams) {
+    init() {
     }
     render() {
     }
@@ -14921,6 +15051,44 @@ ${indentData}`);
     }
   };
 
+  // federjs/FederView/hnswView/HnswOverview/index.ts
+  var HnswOverview = class {
+    constructor(visData, viewParams) {
+      this.staticPanel = new InfoPanel();
+      this.clickedPanel = new InfoPanel();
+      this.hoveredPanel = new InfoPanel();
+      this.viewParams = Object.assign({}, defaultViewParamsHnsw_default, viewParams);
+      this.overviewNodesLevels = visData.overviewNodesLevels;
+      this.init();
+    }
+    init() {
+      this.initIdWithLevel2node();
+      this.initCanvas();
+    }
+    initIdWithLevel2node() {
+      const idWithLevel2node = {};
+      this.overviewNodesLevels.forEach(({ nodes }) => nodes.forEach((node) => idWithLevel2node[node.idWithLevel] = node));
+      this.idWithLevel2node = idWithLevel2node;
+    }
+    initCanvas() {
+      const { width, height, canvasScale } = this.viewParams;
+      const divD3 = create_default("div").style("width", `${width}px`).style("height", `${height}px`).style("position", "relative");
+      this.node = divD3.node();
+      const canvasD3 = divD3.append("canvas").attr("width", width).attr("height", height);
+      this.ctx = canvasD3.node().getContext("2d");
+      this.ctx.scale(1 / canvasScale, 1 / canvasScale);
+    }
+    render() {
+      this.initView();
+    }
+    initView() {
+      this.renderView();
+    }
+    renderView() {
+      clearCanvas.call(this);
+    }
+  };
+
   // federjs/FederView/ivfflatView/IvfflatSearchView/renderClusters.ts
   function renderClusters() {
     const {
@@ -15594,6 +15762,7 @@ ${indentData}`);
   var viewMap = {
     ["hnsw" /* hnsw */ + "search" /* search */ + "hnsw3d" /* hnsw3d */]: HnswSearchHnsw3dView,
     ["hnsw" /* hnsw */ + "search" /* search */ + "default" /* default */]: HnswSearchView,
+    ["hnsw" /* hnsw */ + "overview" /* overview */ + "default" /* default */]: HnswOverview,
     ["ivfflat" /* ivfflat */ + "search" /* search */ + "default" /* default */]: IvfflatSearchView5,
     ["ivfflat" /* ivfflat */ + "overview" /* overview */ + "default" /* default */]: IvfflatOverview
   };
@@ -15627,7 +15796,7 @@ ${indentData}`);
     federIndex.initByArrayBuffer(arrayBuffer);
     const federLayout = new FederLayout(federIndex);
     const visDataAll = yield federLayout.getVisData({
-      actionType: "search",
+      actionType: "overview",
       actionData: {
         target: testVector,
         searchParams: testSearchParams
