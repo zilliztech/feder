@@ -13593,6 +13593,12 @@ ${indentData}`);
     nodes,
     M
   }) {
+    const xRange = extent(nodes, (node) => node.x);
+    const yRange = extent(nodes, (node) => node.y);
+    const isXLonger = xRange[1] - xRange[0] > yRange[1] - yRange[0];
+    if (!isXLonger) {
+      nodes.forEach((node) => [node.x, node.y] = [node.y, node.x]);
+    }
     const t = Math.sqrt(M) * 0.85;
     nodes.forEach((node) => {
       node.x = node.x * t;
@@ -13629,6 +13635,7 @@ ${indentData}`);
       }));
       const { layerPosLevels, transformFunc } = transformHandler_default(overviewNodesLevels[overviewNodesLevels.length - 1].nodes, overviewNodesLevels.length, layoutParams);
       overviewNodesLevels.forEach(({ nodes }, i) => nodes.forEach((node) => node.overviewPos = transformFunc(...node.forcePos, nOverviewLevels - 1 - i)));
+      removeD3DataAttribute(overviewNodesLevels);
       resolve({
         overviewNodesLevels: overviewNodesLevels.reverse(),
         overviewLayerPosLevels: layerPosLevels
@@ -13636,6 +13643,17 @@ ${indentData}`);
     }));
   };
   var overview_default = overviewLayoutHandler;
+  var removeD3DataAttribute = (overviewNodesLevels) => {
+    overviewNodesLevels.forEach(({ nodes }) => nodes.forEach((node) => {
+      delete node.x;
+      delete node.y;
+      delete node.fx;
+      delete node.fy;
+      delete node.vx;
+      delete node.vy;
+      delete node.index;
+    }));
+  };
 
   // federjs/FederLayout/visDataHandler/hnsw/index.ts
   var searchViewLayoutHandlerMap = {
@@ -14489,7 +14507,7 @@ ${indentData}`);
     mouseThresholdR: 6,
     clickedNodeStroke: "#FFFC85",
     clickedNodeStrokeWidth: 1.5,
-    overviewNodesR: [1.5, 2, 2.5]
+    overviewNodesR: [1.5, 2, 2.5, 3]
   };
   var defaultViewParamsHnsw_default = defaultViewParamsHnsw;
 
@@ -15038,14 +15056,77 @@ ${indentData}`);
     }
   };
 
+  // federjs/FederView/hnswView/HnswOverview/renderLinks.ts
+  function renderLinks2(baseLinks, pathFromEntryLinks, path2NeighborLinks) {
+    const {
+      canvasScale,
+      normalLinkWidth,
+      normalGradientStopColors,
+      importantLinkWidth,
+      importantGradientStopColors,
+      targetLinkWidth,
+      targetGradientStopColors,
+      linkShortenLineD
+    } = this.viewParams;
+    const baseLinksPointsList = baseLinks.map(({ source, target }) => {
+      const startPos = this.idWithLevel2node[source].overviewPos;
+      const endPos = this.idWithLevel2node[target].overviewPos;
+      return shortenLine(startPos, endPos, linkShortenLineD * canvasScale);
+    });
+    const pathFromEntryPointsList = pathFromEntryLinks.map(({ source, target }) => {
+      const startPos = this.idWithLevel2node[source].overviewPos;
+      const endPos = this.idWithLevel2node[target].overviewPos;
+      return shortenLine(startPos, endPos, linkShortenLineD * canvasScale);
+    });
+    const path2NeighborPointsList = path2NeighborLinks.map(({ source, target }) => {
+      const startPos = this.idWithLevel2node[source].overviewPos;
+      const endPos = this.idWithLevel2node[target].overviewPos;
+      return shortenLine(startPos, endPos, linkShortenLineD * canvasScale);
+    });
+    drawLines({
+      ctx: this.ctx,
+      pointsList: baseLinksPointsList,
+      hasStroke: true,
+      isStrokeLinearGradient: true,
+      gradientStopColors: normalGradientStopColors,
+      lineWidth: normalLinkWidth * canvasScale,
+      lineCap: "round"
+    });
+    drawLines({
+      ctx: this.ctx,
+      pointsList: path2NeighborPointsList,
+      hasStroke: true,
+      isStrokeLinearGradient: true,
+      gradientStopColors: targetGradientStopColors,
+      lineWidth: targetLinkWidth * canvasScale,
+      lineCap: "round"
+    });
+    drawLines({
+      ctx: this.ctx,
+      pointsList: pathFromEntryPointsList,
+      hasStroke: true,
+      isStrokeLinearGradient: true,
+      gradientStopColors: importantGradientStopColors,
+      lineWidth: importantLinkWidth * canvasScale,
+      lineCap: "round"
+    });
+  }
+
   // federjs/FederView/hnswView/HnswOverview/renderNodes.ts
   function renderNodes2() {
+    const highlightNode = this.clickedNode || this.hoveredNode;
     const {
       canvasScale,
       nodeEllipseRatio,
       overviewNodesR,
       coarseNodeFill,
       coarseNodeOpacity,
+      candidateNodeFill,
+      candidateNodeOpacity,
+      targetNodeFill,
+      targetNodeOpacity,
+      fineNodeFill,
+      fineNodeOpacity,
       nodeShadowBlur
     } = this.viewParams;
     this.overviewNodesLevels.forEach(({ nodes }, i) => {
@@ -15061,6 +15142,46 @@ ${indentData}`);
         shadowColor: coarseNodeFill,
         shadowBlur: nodeShadowBlur * canvasScale
       });
+    });
+    const neighborNodes = (highlightNode == null ? void 0 : highlightNode.links.map((nodeId) => this.idWithLevel2node[getNodeIdWithLevel(nodeId, highlightNode.level)])) || [];
+    drawEllipses({
+      ctx: this.ctx,
+      ellipses: neighborNodes.map((node) => [
+        ...node.overviewPos,
+        overviewNodesR[2] * canvasScale * nodeEllipseRatio,
+        overviewNodesR[2] * canvasScale
+      ]),
+      hasFill: true,
+      fillStyle: hexWithOpacity(targetNodeFill, targetNodeOpacity),
+      shadowColor: targetNodeFill,
+      shadowBlur: nodeShadowBlur * canvasScale
+    });
+    const nodesInPathFromPath = (highlightNode == null ? void 0 : highlightNode.pathFromEntry.map((idWithLevel) => this.idWithLevel2node[idWithLevel]).filter((node) => node.id !== highlightNode.id)) || [];
+    drawEllipses({
+      ctx: this.ctx,
+      ellipses: nodesInPathFromPath.map((node) => [
+        ...node.overviewPos,
+        overviewNodesR[3] * canvasScale * nodeEllipseRatio,
+        overviewNodesR[3] * canvasScale
+      ]),
+      hasFill: true,
+      fillStyle: hexWithOpacity(candidateNodeFill, candidateNodeOpacity),
+      shadowColor: candidateNodeFill,
+      shadowBlur: nodeShadowBlur * canvasScale
+    });
+    highlightNode && drawEllipses({
+      ctx: this.ctx,
+      ellipses: [
+        [
+          ...highlightNode.overviewPos,
+          overviewNodesR[3] * canvasScale * nodeEllipseRatio,
+          overviewNodesR[3] * canvasScale
+        ]
+      ],
+      hasFill: true,
+      fillStyle: hexWithOpacity(fineNodeFill, fineNodeOpacity),
+      shadowColor: fineNodeFill,
+      shadowBlur: nodeShadowBlur * canvasScale
     });
   }
 
@@ -15078,6 +15199,7 @@ ${indentData}`);
     init() {
       this.initIdWithLevel2node();
       this.initCanvas();
+      this.initEventListener();
     }
     initIdWithLevel2node() {
       const idWithLevel2node = {};
@@ -15097,12 +15219,83 @@ ${indentData}`);
     }
     initView() {
       this.renderView();
+      const mouse2level = (x3, y3) => this.overviewLayerPosLevels.findIndex((points) => contains_default(points, [x3, y3]));
+      const { mouseThresholdR, canvasScale } = this.viewParams;
+      const threshold = Math.pow(mouseThresholdR * canvasScale, 2);
+      const mouse2node = (x3, y3, level) => {
+        const distances = this.overviewNodesLevels[level].nodes.map((node) => getDisL2Square(node.overviewPos, [x3, y3]));
+        const nearestNodeIndex = minIndex(distances);
+        return distances[nearestNodeIndex] < threshold ? this.overviewNodesLevels[level].nodes[nearestNodeIndex] : null;
+      };
+      this.mouseClickHandler = ({ x: x3, y: y3 }) => {
+        this.clickedLevel = mouse2level(x3, y3);
+        if (this.clickedLevel >= 0) {
+          const clickedNode = mouse2node(x3, y3, this.clickedLevel);
+          if (clickedNode != this.clickedNode) {
+            this.clickedNode = clickedNode;
+            this.renderView();
+          }
+        } else {
+          this.clickedNode = null;
+          this.renderView();
+        }
+      };
+      this.mouseMoveHandler = ({ x: x3, y: y3 }) => {
+        this.hoveredLevel = mouse2level(x3, y3);
+        if (this.hoveredLevel >= 0) {
+          const hoveredNode = mouse2node(x3, y3, this.hoveredLevel);
+          if (hoveredNode != this.hoveredNode) {
+            this.hoveredNode = hoveredNode;
+            this.renderView();
+          }
+        }
+      };
+      this.mouseLeaveHandler = () => {
+      };
+    }
+    initEventListener() {
+      const { canvasScale } = this.viewParams;
+      this.node.addEventListener("mousemove", (e) => {
+        const { offsetX, offsetY } = e;
+        const x3 = offsetX * canvasScale;
+        const y3 = offsetY * canvasScale;
+        this.mouseMoveHandler && this.mouseMoveHandler({ x: x3, y: y3 });
+      });
+      this.node.addEventListener("click", (e) => {
+        const { offsetX, offsetY } = e;
+        const x3 = offsetX * canvasScale;
+        const y3 = offsetY * canvasScale;
+        this.mouseClickHandler && this.mouseClickHandler({ x: x3, y: y3 });
+      });
+      this.node.addEventListener("mouseleave", () => {
+        this.mouseLeaveHandler && this.mouseLeaveHandler();
+      });
     }
     renderView() {
       clearCanvas.call(this);
+      const highlightNode = this.clickedNode || this.hoveredNode;
       for (let i = 0; i < this.overviewNodesLevels.length; i++) {
         const { nodes, level } = this.overviewNodesLevels[i];
+        const baseLinks = i > 1 ? nodes.reduce((acc, node) => acc.concat(node.links.map((targetId) => ({
+          source: getNodeIdWithLevel(node.id, level),
+          target: getNodeIdWithLevel(targetId, level)
+        }))), []) : [];
+        const pathFromEntryLinks = (highlightNode == null ? void 0 : highlightNode.pathFromEntry.map((idWithLevel, k) => {
+          const [_level, id2] = parseNodeIdWidthLevel(idWithLevel);
+          if (k > 0 && _level === level) {
+            return {
+              source: highlightNode.pathFromEntry[k - 1],
+              target: idWithLevel
+            };
+          }
+          return null;
+        }).filter((a2) => a2)) || [];
+        const path2NeighborLinks = highlightNode && level === highlightNode.level ? highlightNode.links.map((neighborId) => ({
+          source: highlightNode.idWithLevel,
+          target: getNodeIdWithLevel(neighborId, highlightNode.level)
+        })) : [];
         renderLayer.call(this, this.overviewLayerPosLevels[i]);
+        renderLinks2.call(this, baseLinks, pathFromEntryLinks, path2NeighborLinks);
       }
       renderNodes2.call(this);
     }
@@ -15815,7 +16008,7 @@ ${indentData}`);
     federIndex.initByArrayBuffer(arrayBuffer);
     const federLayout = new FederLayout(federIndex);
     const visDataAll = yield federLayout.getVisData({
-      actionType: "overview",
+      actionType: "search",
       actionData: {
         target: testVector,
         searchParams: testSearchParams

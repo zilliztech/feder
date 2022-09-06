@@ -35,7 +35,7 @@ window.addEventListener('DOMContentLoaded', async () => {
   // })
 
   const visDataAll = await federLayout.getVisData({
-    actionType: 'overview', // 'overview' | 'search'
+    actionType: 'search', // 'overview' | 'search'
     actionData: {
       target: testVector,
       searchParams: testSearchParams,

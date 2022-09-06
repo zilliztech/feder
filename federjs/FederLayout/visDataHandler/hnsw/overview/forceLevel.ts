@@ -1,5 +1,5 @@
 import * as d3 from 'd3';
-import { TForceLink } from 'Types';
+import { TD3Link } from 'Types';
 import { TVisDataHnswGraphNode } from 'Types/visData';
 
 export default function forceLevel({
@@ -8,7 +8,7 @@ export default function forceLevel({
   numForceIterations,
 }: {
   nodes: TVisDataHnswGraphNode[];
-  links: TForceLink[];
+  links: TD3Link[];
   numForceIterations: number;
 }) {
   return new Promise<void>((resolve) => {
