@@ -75,7 +75,7 @@ export enum EProjectMethod {
   mds = 'mds',
 }
 
-export interface TForceLink {
+export interface TD3Link {
   source: TId;
   target: TId;
 }

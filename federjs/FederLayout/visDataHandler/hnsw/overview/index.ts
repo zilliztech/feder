@@ -72,7 +72,7 @@ export const overviewLayoutHandler = (
       )
     );
 
-    // removeD3DataAttribute(overviewNodesLevels);
+    removeD3DataAttribute(overviewNodesLevels);
 
     resolve({
       overviewNodesLevels: overviewNodesLevels.reverse(),

@@ -1,16 +1,22 @@
 import * as d3 from 'd3';
+import {
+  getNodeIdWithLevel,
+  parseNodeIdWidthLevel,
+} from 'FederLayout/visDataHandler/hnsw/utils';
 import clearCanvas from 'FederView/clearCanvas';
 import InfoPanel from 'FederView/InfoPanel';
 import TViewHandler from 'FederView/types';
-import { TCoord, TId } from 'Types';
+import { TCoord, TD3Link, TId } from 'Types';
 import {
   TViewParamsHnsw,
   TVisDataHnswGraph,
   TVisDataHnswGraphNode,
   TVisDataHnswOverview,
 } from 'Types/visData';
+import { getDisL2Square } from 'Utils/distFunc';
 import defaultViewParamsHnsw from '../defaultViewParamsHnsw';
 import renderLayer from '../HnswSearchView/renderLayer';
+import renderLinks from './renderLinks';
 import renderNodes from './renderNodes';
 
 export default class HnswOverview implements TViewHandler {
@@ -23,6 +29,13 @@ export default class HnswOverview implements TViewHandler {
   overviewLayerPosLevels: TCoord[][];
   idWithLevel2node: { [idWithLevel: TId]: TVisDataHnswGraphNode };
   ctx: CanvasRenderingContext2D;
+  mouseMoveHandler: Function;
+  mouseClickHandler: Function;
+  mouseLeaveHandler: Function;
+  clickedLevel: number;
+  clickedNode: TVisDataHnswGraphNode;
+  hoveredNode: TVisDataHnswGraphNode;
+  hoveredLevel: number;
   constructor(visData: TVisDataHnswOverview, viewParams: TViewParamsHnsw) {
     this.staticPanel = new InfoPanel();
     this.clickedPanel = new InfoPanel();
@@ -38,6 +51,7 @@ export default class HnswOverview implements TViewHandler {
   init(): void {
     this.initIdWithLevel2node();
     this.initCanvas();
+    this.initEventListener();
   }
   initIdWithLevel2node() {
     const idWithLevel2node = {} as {
@@ -69,14 +83,112 @@ export default class HnswOverview implements TViewHandler {
   initView() {
     // event;
     this.renderView();
+
+    const mouse2level = (x: number, y: number) =>
+      this.overviewLayerPosLevels.findIndex((points) =>
+        d3.polygonContains(points, [x, y])
+      );
+    const { mouseThresholdR, canvasScale } = this.viewParams;
+    const threshold = Math.pow(mouseThresholdR * canvasScale, 2);
+    const mouse2node = (x: number, y: number, level: number) => {
+      const distances = this.overviewNodesLevels[level].nodes.map((node) =>
+        getDisL2Square(node.overviewPos, [x, y])
+      );
+      const nearestNodeIndex = d3.minIndex(distances);
+      return distances[nearestNodeIndex] < threshold
+        ? this.overviewNodesLevels[level].nodes[nearestNodeIndex]
+        : null;
+    };
+    this.mouseClickHandler = ({ x, y }: { x: number; y: number }) => {
+      this.clickedLevel = mouse2level(x, y);
+      if (this.clickedLevel >= 0) {
+        const clickedNode = mouse2node(x, y, this.clickedLevel);
+        if (clickedNode != this.clickedNode) {
+          this.clickedNode = clickedNode;
+          this.renderView();
+        }
+      } else {
+        this.clickedNode = null;
+        this.renderView();
+      }
+    };
+    this.mouseMoveHandler = ({ x, y }: { x: number; y: number }) => {
+      this.hoveredLevel = mouse2level(x, y);
+      if (this.hoveredLevel >= 0) {
+        const hoveredNode = mouse2node(x, y, this.hoveredLevel);
+        if (hoveredNode != this.hoveredNode) {
+          this.hoveredNode = hoveredNode;
+          this.renderView();
+        }
+      }
+    };
+    this.mouseLeaveHandler = () => {};
+  }
+  initEventListener() {
+    const { canvasScale } = this.viewParams;
+    this.node.addEventListener('mousemove', (e) => {
+      const { offsetX, offsetY } = e;
+      const x = offsetX * canvasScale;
+      const y = offsetY * canvasScale;
+      this.mouseMoveHandler && this.mouseMoveHandler({ x, y });
+    });
+    this.node.addEventListener('click', (e) => {
+      const { offsetX, offsetY } = e;
+      const x = offsetX * canvasScale;
+      const y = offsetY * canvasScale;
+      this.mouseClickHandler && this.mouseClickHandler({ x, y });
+    });
+    this.node.addEventListener('mouseleave', () => {
+      this.mouseLeaveHandler && this.mouseLeaveHandler();
+    });
   }
   renderView() {
     clearCanvas.call(this);
 
+    const highlightNode = this.clickedNode || this.hoveredNode;
+
     for (let i = 0; i < this.overviewNodesLevels.length; i++) {
       const { nodes, level } = this.overviewNodesLevels[i];
 
+      const baseLinks =
+        i > 1
+          ? nodes.reduce(
+              (acc, node) =>
+                acc.concat(
+                  node.links.map((targetId) => ({
+                    source: getNodeIdWithLevel(node.id, level),
+                    target: getNodeIdWithLevel(targetId, level),
+                  }))
+                ),
+              [] as TD3Link[]
+            )
+          : [];
+      const pathFromEntryLinks =
+        (highlightNode?.pathFromEntry
+          .map((idWithLevel, k) => {
+            const [_level, id] = parseNodeIdWidthLevel(idWithLevel);
+            if (k > 0 && _level === level) {
+              return {
+                source: highlightNode.pathFromEntry[k - 1],
+                target: idWithLevel,
+              };
+            }
+            return null;
+          })
+          .filter((a) => a) as TD3Link[]) || [];
+      const path2NeighborLinks =
+        highlightNode && level === highlightNode.level
+          ? highlightNode.links.map(
+              (neighborId) =>
+                ({
+                  source: highlightNode.idWithLevel,
+                  target: getNodeIdWithLevel(neighborId, highlightNode.level),
+                } as TD3Link)
+            )
+          : [];
+
       renderLayer.call(this, this.overviewLayerPosLevels[i]);
+      renderLinks.call(this, baseLinks, pathFromEntryLinks, path2NeighborLinks);
     }
 
     renderNodes.call(this);

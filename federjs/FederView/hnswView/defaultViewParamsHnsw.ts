@@ -53,6 +53,6 @@ export const defaultViewParamsHnsw = {
   clickedNodeStroke: '#FFFC85',
   clickedNodeStrokeWidth: 1.5,
 
-  overviewNodesR: [1.5, 2, 2.5],
+  overviewNodesR: [1.5, 2, 2.5, 3],
 } as TViewParamsHnsw;
 export default defaultViewParamsHnsw;
