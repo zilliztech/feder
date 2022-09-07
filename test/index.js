@@ -4,6 +4,7 @@ import {
   hnswSource,
   ivfflatIndexFilePath,
   ivfflatSource,
+  getRowId2imgUrl,
 } from './config';
 
 const testVector = Array(512)
@@ -20,6 +21,8 @@ window.addEventListener('DOMContentLoaded', async () => {
   const arrayBuffer = await fetch(hnswIndexFilePath).then((res) =>
     res.arrayBuffer()
   );
+
+  const rowId2imgUrl = await getRowId2imgUrl();
 
   const federIndex = new FederIndex(hnswSource);
 
@@ -38,6 +41,7 @@ window.addEventListener('DOMContentLoaded', async () => {
     actionType: 'search', // 'overview' | 'search'
     actionData: {
       target: testVector,
+      targetMedia: rowId2imgUrl(12345),
       searchParams: testSearchParams,
     },
     // viewType: 'default' | 'default'
@@ -47,7 +51,10 @@ window.addEventListener('DOMContentLoaded', async () => {
 
   console.log('visDataAll', visDataAll);
 
-  const viewParams = {};
+  const viewParams = {
+    mediaType: 'image',
+    mediaContent: rowId2imgUrl,
+  };
   const federView = new FederView(visDataAll, viewParams);
   console.log('federView', federView);
 

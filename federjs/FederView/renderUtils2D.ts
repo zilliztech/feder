@@ -104,7 +104,7 @@ export const drawLines = ({
   pointsList,
   hasFill = false,
   hasStroke = false,
-  isStrokeLinearGradient = true,
+  isStrokeLinearGradient = false,
   ...styles
 }: {
   ctx: CanvasRenderingContext2D;

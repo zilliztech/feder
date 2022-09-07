@@ -6943,10 +6943,11 @@ ${indentData}`);
     const vectors = [];
     const externalLabel = [];
     for (let i = 0; i < index2.cur_element_count; i++) {
-      linkLists_level0_count.push(reader.readLevelOCount());
+      const linkListsCount = reader.readLevelOCount();
+      linkLists_level0_count.push(linkListsCount);
       isDeleted.push(reader.readIsDeleted());
       reader.readIsReused();
-      linkLists_level0.push(reader.readUint32Array(index2.maxM0_));
+      linkLists_level0.push(reader.readUint32Array(index2.maxM0_).slice(0, linkListsCount));
       vectors.push(reader.readFloat32Array(index2.dim));
       externalLabel.push(reader.readUint64());
     }
@@ -7446,6 +7447,10 @@ ${indentData}`);
       } : null).filter((a2) => a2);
       return { level, nodes };
     });
+    const nodesCount = Array(index2.maxLevel).fill(0).map((_, level) => index2.linkLists_levels.filter((linkLists) => linkLists.length > level).length);
+    nodesCount.unshift(index2.linkLists_level_0.length);
+    const linksCount = Array(index2.maxLevel).fill(0).map((_, level) => index2.linkLists_levels.filter((linkLists) => linkLists.length > level).reduce((acc, linkLists) => acc + linkLists[level].length, 0));
+    linksCount.unshift(index2.linkLists_level_0.reduce((acc, linkLists) => acc + linkLists.length, 0));
     const indexMeta = {
       efConstruction: index2.ef_construction,
       M: index2.M,
@@ -7453,7 +7458,9 @@ ${indentData}`);
       nlevels: index2.maxLevel + 1,
       nOverviewLevels,
       entryPointId: index2.enterPoint,
-      overviewGraphLayers
+      overviewGraphLayers,
+      nodesCount,
+      linksCount
     };
     return indexMeta;
   };
@@ -11979,6 +11986,185 @@ ${indentData}`);
     }
   }
 
+  // node_modules/d3-dsv/src/dsv.js
+  var EOL = {};
+  var EOF = {};
+  var QUOTE = 34;
+  var NEWLINE = 10;
+  var RETURN = 13;
+  function objectConverter(columns) {
+    return new Function("d", "return {" + columns.map(function(name, i) {
+      return JSON.stringify(name) + ": d[" + i + '] || ""';
+    }).join(",") + "}");
+  }
+  function customConverter(columns, f) {
+    var object = objectConverter(columns);
+    return function(row, i) {
+      return f(object(row), i, columns);
+    };
+  }
+  function inferColumns(rows) {
+    var columnSet = /* @__PURE__ */ Object.create(null), columns = [];
+    rows.forEach(function(row) {
+      for (var column in row) {
+        if (!(column in columnSet)) {
+          columns.push(columnSet[column] = column);
+        }
+      }
+    });
+    return columns;
+  }
+  function pad(value, width) {
+    var s = value + "", length = s.length;
+    return length < width ? new Array(width - length + 1).join(0) + s : s;
+  }
+  function formatYear(year) {
+    return year < 0 ? "-" + pad(-year, 6) : year > 9999 ? "+" + pad(year, 6) : pad(year, 4);
+  }
+  function formatDate(date) {
+    var hours = date.getUTCHours(), minutes = date.getUTCMinutes(), seconds = date.getUTCSeconds(), milliseconds = date.getUTCMilliseconds();
+    return isNaN(date) ? "Invalid Date" : formatYear(date.getUTCFullYear(), 4) + "-" + pad(date.getUTCMonth() + 1, 2) + "-" + pad(date.getUTCDate(), 2) + (milliseconds ? "T" + pad(hours, 2) + ":" + pad(minutes, 2) + ":" + pad(seconds, 2) + "." + pad(milliseconds, 3) + "Z" : seconds ? "T" + pad(hours, 2) + ":" + pad(minutes, 2) + ":" + pad(seconds, 2) + "Z" : minutes || hours ? "T" + pad(hours, 2) + ":" + pad(minutes, 2) + "Z" : "");
+  }
+  function dsv_default(delimiter) {
+    var reFormat = new RegExp('["' + delimiter + "\n\r]"), DELIMITER = delimiter.charCodeAt(0);
+    function parse(text, f) {
+      var convert, columns, rows = parseRows(text, function(row, i) {
+        if (convert)
+          return convert(row, i - 1);
+        columns = row, convert = f ? customConverter(row, f) : objectConverter(row);
+      });
+      rows.columns = columns || [];
+      return rows;
+    }
+    function parseRows(text, f) {
+      var rows = [], N = text.length, I = 0, n = 0, t, eof = N <= 0, eol = false;
+      if (text.charCodeAt(N - 1) === NEWLINE)
+        --N;
+      if (text.charCodeAt(N - 1) === RETURN)
+        --N;
+      function token() {
+        if (eof)
+          return EOF;
+        if (eol)
+          return eol = false, EOL;
+        var i, j = I, c2;
+        if (text.charCodeAt(j) === QUOTE) {
+          while (I++ < N && text.charCodeAt(I) !== QUOTE || text.charCodeAt(++I) === QUOTE)
+            ;
+          if ((i = I) >= N)
+            eof = true;
+          else if ((c2 = text.charCodeAt(I++)) === NEWLINE)
+            eol = true;
+          else if (c2 === RETURN) {
+            eol = true;
+            if (text.charCodeAt(I) === NEWLINE)
+              ++I;
+          }
+          return text.slice(j + 1, i - 1).replace(/""/g, '"');
+        }
+        while (I < N) {
+          if ((c2 = text.charCodeAt(i = I++)) === NEWLINE)
+            eol = true;
+          else if (c2 === RETURN) {
+            eol = true;
+            if (text.charCodeAt(I) === NEWLINE)
+              ++I;
+          } else if (c2 !== DELIMITER)
+            continue;
+          return text.slice(j, i);
+        }
+        return eof = true, text.slice(j, N);
+      }
+      while ((t = token()) !== EOF) {
+        var row = [];
+        while (t !== EOL && t !== EOF)
+          row.push(t), t = token();
+        if (f && (row = f(row, n++)) == null)
+          continue;
+        rows.push(row);
+      }
+      return rows;
+    }
+    function preformatBody(rows, columns) {
+      return rows.map(function(row) {
+        return columns.map(function(column) {
+          return formatValue(row[column]);
+        }).join(delimiter);
+      });
+    }
+    function format2(rows, columns) {
+      if (columns == null)
+        columns = inferColumns(rows);
+      return [columns.map(formatValue).join(delimiter)].concat(preformatBody(rows, columns)).join("\n");
+    }
+    function formatBody(rows, columns) {
+      if (columns == null)
+        columns = inferColumns(rows);
+      return preformatBody(rows, columns).join("\n");
+    }
+    function formatRows(rows) {
+      return rows.map(formatRow).join("\n");
+    }
+    function formatRow(row) {
+      return row.map(formatValue).join(delimiter);
+    }
+    function formatValue(value) {
+      return value == null ? "" : value instanceof Date ? formatDate(value) : reFormat.test(value += "") ? '"' + value.replace(/"/g, '""') + '"' : value;
+    }
+    return {
+      parse,
+      parseRows,
+      format: format2,
+      formatBody,
+      formatRows,
+      formatRow,
+      formatValue
+    };
+  }
+
+  // node_modules/d3-dsv/src/csv.js
+  var csv = dsv_default(",");
+  var csvParse = csv.parse;
+  var csvParseRows = csv.parseRows;
+  var csvFormat = csv.format;
+  var csvFormatBody = csv.formatBody;
+  var csvFormatRows = csv.formatRows;
+  var csvFormatRow = csv.formatRow;
+  var csvFormatValue = csv.formatValue;
+
+  // node_modules/d3-dsv/src/tsv.js
+  var tsv = dsv_default("	");
+  var tsvParse = tsv.parse;
+  var tsvParseRows = tsv.parseRows;
+  var tsvFormat = tsv.format;
+  var tsvFormatBody = tsv.formatBody;
+  var tsvFormatRows = tsv.formatRows;
+  var tsvFormatRow = tsv.formatRow;
+  var tsvFormatValue = tsv.formatValue;
+
+  // node_modules/d3-fetch/src/text.js
+  function responseText(response) {
+    if (!response.ok)
+      throw new Error(response.status + " " + response.statusText);
+    return response.text();
+  }
+  function text_default3(input, init2) {
+    return fetch(input, init2).then(responseText);
+  }
+
+  // node_modules/d3-fetch/src/dsv.js
+  function dsvParse(parse) {
+    return function(input, init2, row) {
+      if (arguments.length === 2 && typeof init2 === "function")
+        row = init2, init2 = void 0;
+      return text_default3(input, init2).then(function(response) {
+        return parse(response, row);
+      });
+    };
+  }
+  var csv2 = dsvParse(csvParse);
+  var tsv2 = dsvParse(tsvParse);
+
   // node_modules/d3-force/src/center.js
   function center_default(x3, y3) {
     var nodes, strength = 1;
@@ -13609,7 +13795,17 @@ ${indentData}`);
   // federjs/FederLayout/visDataHandler/hnsw/overview/index.ts
   var overviewLayoutHandler = (indexMeta, layoutParams) => {
     const { numForceIterations } = layoutParams;
-    const { overviewGraphLayers, entryPointId, M, nOverviewLevels } = indexMeta;
+    const {
+      overviewGraphLayers,
+      entryPointId,
+      M,
+      efConstruction,
+      ntotal,
+      nOverviewLevels,
+      nlevels,
+      nodesCount,
+      linksCount
+    } = indexMeta;
     return new Promise((resolve) => __async(void 0, null, function* () {
       const overviewNodesLevels = addPathFromEntry(overviewGraphLayers, entryPointId);
       let id2pos = {};
@@ -13638,7 +13834,13 @@ ${indentData}`);
       removeD3DataAttribute(overviewNodesLevels);
       resolve({
         overviewNodesLevels: overviewNodesLevels.reverse(),
-        overviewLayerPosLevels: layerPosLevels
+        overviewLayerPosLevels: layerPosLevels,
+        M,
+        efConstruction,
+        ntotal,
+        nlevels,
+        nodesCount,
+        linksCount
       });
     }));
   };
@@ -13670,9 +13872,20 @@ ${indentData}`);
       const overviewLayoutHandler2 = overviewLayoutHandlerMap[viewType];
       return overviewLayoutHandler2(indexMeta, Object.assign({}, defaultLayoutParamsHnsw_default, layoutParams));
     }
-    computeSearchViewVisData(viewType, searchRecords, layoutParams) {
-      const searchViewLayoutHandler2 = searchViewLayoutHandlerMap[viewType];
-      return searchViewLayoutHandler2(searchRecords, Object.assign({}, defaultLayoutParamsHnsw_default, layoutParams));
+    computeSearchViewVisData(viewType, searchRecords, layoutParams, indexMeta) {
+      return __async(this, null, function* () {
+        const searchViewLayoutHandler2 = searchViewLayoutHandlerMap[viewType];
+        const visData = yield searchViewLayoutHandler2(searchRecords, Object.assign({}, defaultLayoutParamsHnsw_default, layoutParams));
+        const { M, efConstruction, ntotal, nodesCount, linksCount } = indexMeta;
+        Object.assign(visData, {
+          M,
+          efConstruction,
+          ntotal,
+          nodesCount,
+          linksCount
+        });
+        return visData;
+      });
     }
   };
 
@@ -14127,16 +14340,16 @@ ${indentData}`);
 
   // federjs/FederView/InfoPanel/defaultTInfoPanelStyles.ts
   var defaultTInfoPanelStyles = {
-    position: "absolute"
+    position: "absolute",
+    color: "#ffffff"
   };
   var cssDefinition = `
 .panel-border {
   border-style: dashed;
   border-width: 1px;
 }
-.panel {
+.panel-padding {
   padding: 6px 8px;
-  font-size: 12px;
 }
 .hide {
   opacity: 0;
@@ -14150,18 +14363,23 @@ ${indentData}`);
   background-size: cover;
   margin-bottom: 12px;
   border-radius: 4px;
+  margin-right: 6px;
 }
 .panel-item-display-flex {
   display: flex;
 }
+.panel-span {
+  margin-bottom: 3px;
+}
 .panel-item-title {
   font-weight: 600;
-  margin-bottom: 3px;
+  font-size: 12px;
+  margin-right: 10px;
 }
 .panel-item-text {
   font-weight: 400;
-  font-size: 10px;
   word-break: break-all;
+  margin-right: 6px;
 }
 .panel-item-text-flex {
   margin-left: 8px;
@@ -14207,21 +14425,78 @@ ${indentData}`);
 
   // federjs/FederView/InfoPanel/index.ts
   var InfoPanel = class {
-    constructor(styles = {}, viewParams = {}) {
-      const divD3 = create_default("div");
-      this.div = divD3.node();
-      Object.assign(divD3.style, Object.assign({}, defaultTInfoPanelStyles, styles));
+    constructor(node, styles = {}) {
+      const divD3 = select_default2(node).append("div");
+      this.container = divD3;
+      Object.assign(divD3.node().style, Object.assign({}, defaultTInfoPanelStyles, styles));
     }
     static initClass() {
       const styleCss = document.createElement("style");
       styleCss.innerHTML = cssDefinition;
       document.getElementsByTagName("head").item(0).appendChild(styleCss);
     }
-    setContext(context, isFlex = false) {
-      const container = select_default2(this.div);
+    setContent(content) {
+      const container = this.container;
       container.selectAll("*").remove();
+      const { themeColor = "#FFFFFF", fontSize = "10px" } = content;
+      container.style("font-size", fontSize);
+      container.style("color", themeColor);
+      if (content.content.length === 0) {
+        container.classed("hide", true);
+        return;
+      }
+      container.classed("hide", false);
+      if (content.flex) {
+        container.style("display", "flex");
+        content.flexDirection && container.style("flex-direction", content.flexDirection);
+      }
+      if (content.hasBorder) {
+        container.classed("panel-border", true);
+        container.classed("panel-padding", true);
+        container.style("border-color", themeColor);
+      }
+      content.content.forEach((item) => {
+        const div = container.append("div");
+        div.classed("panel-item", true);
+        if (item.title || item.text) {
+          const span = div.append("span");
+          span.classed("panel-span", true);
+          if (item.title) {
+            const title = span.append("text");
+            title.classed("panel-item-title", true);
+            title.text(item.title);
+          }
+          if (item.text) {
+            const text = span.append("text");
+            text.classed("panel-item-text", true);
+            text.text(item.text);
+          }
+        } else if (item.image) {
+          div.classed("panel-img", true);
+          div.style("background-image", `url(${item.image})`);
+          div.style("border", `1px solid ${themeColor}`);
+        } else if (item.images) {
+          div.classed("panel-img-gallery", true);
+          item.images.forEach((url) => {
+            const imgDiv = div.append("div");
+            imgDiv.classed("panel-img-gallery-item", true);
+            imgDiv.style("background-image", `url(${url})`);
+          });
+        } else if (item.option) {
+          div.classed("panel-item-option", true);
+          const optionIcon = div.append("div");
+          optionIcon.classed("panel-item-option-icon", true);
+          optionIcon.classed("panel-item-option-icon-active", !!item.option.isActive);
+          const optionLabel = div.append("div");
+          optionLabel.classed("panel-item-option-label", true);
+          optionLabel.text(item.option.text);
+          item.option.callback && div.on("click", () => item.option.callback());
+        }
+      });
     }
-    setPosition(pos = null) {
+    setPosition(posStyle) {
+      const container = this.container;
+      Object.assign(container.node().style, posStyle);
     }
   };
 
@@ -14386,7 +14661,7 @@ ${indentData}`);
       pointsList,
       hasFill = false,
       hasStroke = false,
-      isStrokeLinearGradient = true
+      isStrokeLinearGradient = false
     } = _b, styles = __objRest(_b, [
       "ctx",
       "pointsList",
@@ -14464,6 +14739,7 @@ ${indentData}`);
   var defaultViewParamsHnsw = {
     width: 800,
     height: 480,
+    padding: [80, 200, 60, 220],
     canvasScale: 2,
     layerDotNum: 20,
     layerDotFill: "#ffffff",
@@ -14507,7 +14783,11 @@ ${indentData}`);
     mouseThresholdR: 6,
     clickedNodeStroke: "#FFFC85",
     clickedNodeStrokeWidth: 1.5,
-    overviewNodesR: [1.5, 2, 2.5, 3]
+    overviewNodesR: [1.5, 2, 2.5, 3],
+    tipLineOffset: [60, -20],
+    tipLineAngle: Math.PI / 3,
+    tipLineColor: "#FFFC85",
+    tipLineWidth: 2
   };
   var defaultViewParamsHnsw_default = defaultViewParamsHnsw;
 
@@ -14941,13 +15221,48 @@ ${indentData}`);
     renderClickedNode.call(this);
   }
 
+  // federjs/FederView/hnswView/infoPanelStyles.ts
+  var staticPanelStyles = ({ height, padding }) => ({
+    position: "absolute",
+    left: "16px",
+    top: "10px",
+    width: `${padding[3] + 10}px`,
+    "max-height": `${height - 20}px`,
+    overflow: "auto",
+    borderColor: "#FFFFFF",
+    backgroundColor: hexWithOpacity("#000000", 0.6)
+  });
+  var clickedPanelStyles = ({ height, padding }) => ({
+    position: "absolute",
+    right: "16px",
+    top: "10px",
+    width: `${padding[1] - 10}px`,
+    "max-height": `${height - 20}px`,
+    overflow: "auto",
+    borderColor: "#FFFFFF",
+    backgroundColor: hexWithOpacity("#000000", 0.6)
+  });
+  var hoveredPanelStyles = ({}) => ({
+    position: "absolute",
+    width: "300px",
+    paddingLeft: "6px",
+    left: 0,
+    top: 0
+  });
+
+  // federjs/FederView/hnswView/initPanels.ts
+  function initPanels() {
+    InfoPanel.initClass();
+    this.staticPanel = new InfoPanel(this.node, staticPanelStyles(this.viewParams));
+    this.clickedPanel = new InfoPanel(this.node, clickedPanelStyles(this.viewParams));
+    this.hoveredPanel = new InfoPanel(this.node, hoveredPanelStyles(this.viewParams));
+  }
+
   // federjs/FederView/hnswView/HnswSearchView/index.ts
   var HnswSearchView = class {
-    constructor(visData, viewParams) {
-      this.staticPanel = new InfoPanel();
-      this.clickedPanel = new InfoPanel();
-      this.hoveredPanel = new InfoPanel();
+    constructor(visData, viewParams, actionData) {
       this.viewParams = Object.assign({}, defaultViewParamsHnsw_default, viewParams);
+      this.actionData = actionData;
       this.searchTransitionDuration = visData.searchTransitionDuration;
       this.searchTarget = visData.searchTarget;
       this.entryNodesLevels = visData.entryNodesLevels;
@@ -14964,10 +15279,10 @@ ${indentData}`);
       this.init();
     }
     init() {
-      console.log("this", this);
       this.initCanvas();
       this.initTimerController();
       this.initEventListener();
+      initPanels.call(this);
     }
     initTimerController() {
       const timeControllerView = new TimeControllerView_default(this.node);
@@ -15013,8 +15328,35 @@ ${indentData}`);
     render() {
       this.initView();
     }
+    updateStaticPanel() {
+      return __async(this, null, function* () {
+        const { targetMedia } = this.actionData;
+        let mediaContent = null;
+        if (!!targetMedia) {
+          mediaContent = {};
+          if (this.viewParams.mediaType === "image" /* image */)
+            mediaContent.image = targetMedia;
+          else if (this.viewParams.mediaType === "text" /* text */)
+            mediaContent.text = targetMedia;
+        }
+        this.staticPanel.setContent({
+          themeColor: "#FFFFFF",
+          hasBorder: true,
+          content: [{ title: "HNSW - Search" }, mediaContent].filter((a2) => a2)
+        });
+      });
+    }
+    updateClickedPanel() {
+      return __async(this, null, function* () {
+      });
+    }
+    updateHoveredPanel() {
+      return __async(this, null, function* () {
+      });
+    }
     initView() {
       this.timer.start();
+      this.updateStaticPanel();
       const mouse2level = (x3, y3) => this.searchLayerPosLevels.findIndex((points) => contains_default(points, [x3, y3]));
       const { mouseThresholdR, canvasScale } = this.viewParams;
       const threshold = Math.pow(mouseThresholdR * canvasScale, 2);
@@ -15055,6 +15397,35 @@ ${indentData}`);
       };
     }
   };
+
+  // federjs/FederView/hnswView/renderTipLine.ts
+  function renderTipLine(startPos, reverse = false) {
+    const {
+      canvasScale,
+      tipLineOffset,
+      tipLineAngle,
+      tipLineColor,
+      tipLineWidth
+    } = this.viewParams;
+    const t = reverse ? -1 : 1;
+    const middlePointX = startPos[0] + t * Math.abs(tipLineOffset[1]) * canvasScale / Math.tan(tipLineAngle);
+    const middlePointY = startPos[1] + t * tipLineOffset[1] * canvasScale;
+    const endPosX = startPos[0] + t * tipLineOffset[0] * canvasScale;
+    const endPosY = startPos[1] + t * tipLineOffset[1] * canvasScale;
+    const points = [
+      startPos,
+      [middlePointX, middlePointY],
+      [endPosX, endPosY]
+    ];
+    drawLines({
+      ctx: this.ctx,
+      pointsList: [points],
+      hasStroke: true,
+      strokeStyle: tipLineColor,
+      lineWidth: tipLineWidth * canvasScale
+    });
+    return [endPosX, endPosY];
+  }
 
   // federjs/FederView/hnswView/HnswOverview/renderLinks.ts
   function renderLinks2(baseLinks, pathFromEntryLinks, path2NeighborLinks) {
@@ -15188,18 +15559,22 @@ ${indentData}`);
   // federjs/FederView/hnswView/HnswOverview/index.ts
   var HnswOverview = class {
     constructor(visData, viewParams) {
-      this.staticPanel = new InfoPanel();
-      this.clickedPanel = new InfoPanel();
-      this.hoveredPanel = new InfoPanel();
       this.viewParams = Object.assign({}, defaultViewParamsHnsw_default, viewParams);
       this.overviewNodesLevels = visData.overviewNodesLevels;
       this.overviewLayerPosLevels = visData.overviewLayerPosLevels;
+      this.M = visData.M;
+      this.efConstruction = visData.efConstruction;
+      this.ntotal = visData.ntotal;
+      this.nlevels = visData.nlevels;
+      this.nodesCount = visData.nodesCount;
+      this.linksCount = visData.linksCount;
       this.init();
     }
     init() {
       this.initIdWithLevel2node();
       this.initCanvas();
       this.initEventListener();
+      initPanels.call(this);
     }
     initIdWithLevel2node() {
       const idWithLevel2node = {};
@@ -15217,8 +15592,91 @@ ${indentData}`);
     render() {
       this.initView();
     }
+    updateStaticPanel() {
+      return __async(this, null, function* () {
+        this.staticPanel.setContent({
+          themeColor: "#FFFFFF",
+          hasBorder: true,
+          content: [
+            {
+              title: "HNSW"
+            },
+            { text: `M = ${this.M}, ef_construction = ${this.efConstruction}` },
+            {
+              text: `${this.ntotal} vectors, ${this.nlevels}-layer hierarchical graph (only visual the top-${this.overviewNodesLevels.length} layers).`
+            },
+            ...this.nodesCount.map((c2, level) => {
+              return {
+                title: `Level ${level}`,
+                text: `${c2} vectors, ${this.linksCount[level]} links`
+              };
+            }).reverse()
+          ]
+        });
+      });
+    }
+    updateClickedPanel() {
+      return __async(this, null, function* () {
+        const node = this.clickedNode;
+        if (!node) {
+          this.clickedPanel.setContent({ content: [] });
+          return;
+        }
+        const mediaContent = {};
+        if (this.viewParams.mediaType === "image" /* image */)
+          mediaContent.image = yield this.viewParams.mediaContent(node.id);
+        else if (this.viewParams.mediaType === "text" /* text */)
+          mediaContent.text = yield this.viewParams.mediaContent(node.id);
+        const pathFromEntryTexts = this.overviewNodesLevels.map(({ level }) => `level ${level}: ` + node.pathFromEntry.filter((idWithLevel) => parseNodeIdWidthLevel(idWithLevel)[0] === level).map((idWithLevel) => parseNodeIdWidthLevel(idWithLevel)[1]).join(" => ")).reverse();
+        const linkedNodeText = node.links.join(", ");
+        this.clickedPanel.setContent({
+          themeColor: "#FFFC85",
+          hasBorder: true,
+          content: [
+            { title: `Level ${node.level}` },
+            { title: `Row No. ${node.id}` },
+            mediaContent,
+            { title: `Shortest path from the entry:` },
+            ...pathFromEntryTexts.map((text) => ({ text })),
+            { title: `Linked vectors:` },
+            { text: linkedNodeText }
+          ]
+        });
+      });
+    }
+    updateHoveredPanel(hoveredPanelPos, reverse = false) {
+      return __async(this, null, function* () {
+        if (!hoveredPanelPos) {
+          this.hoveredPanel.setContent({ content: [] });
+        }
+        if (reverse)
+          this.hoveredPanel.setPosition({
+            left: null,
+            right: `${this.viewParams.width - hoveredPanelPos[0]}px`,
+            top: `${hoveredPanelPos[1] - 4}px`
+          });
+        else
+          this.hoveredPanel.setPosition({
+            left: `${hoveredPanelPos[0]}px`,
+            top: `${hoveredPanelPos[1] - 4}px`
+          });
+        const mediaContent = {};
+        if (this.viewParams.mediaType === "image" /* image */)
+          mediaContent.image = yield this.viewParams.mediaContent(this.hoveredNode.id);
+        else if (this.viewParams.mediaType === "text" /* text */)
+          mediaContent.text = yield this.viewParams.mediaContent(this.hoveredNode.id);
+        this.hoveredPanel.setContent({
+          themeColor: "#FFFC85",
+          hasBorder: false,
+          flex: true,
+          flexDirection: reverse ? "row-reverse" : "row",
+          content: [{ text: `No. ${this.hoveredNode.id}` }, mediaContent]
+        });
+      });
+    }
     initView() {
       this.renderView();
+      this.updateStaticPanel();
       const mouse2level = (x3, y3) => this.overviewLayerPosLevels.findIndex((points) => contains_default(points, [x3, y3]));
       const { mouseThresholdR, canvasScale } = this.viewParams;
       const threshold = Math.pow(mouseThresholdR * canvasScale, 2);
@@ -15234,10 +15692,12 @@ ${indentData}`);
           if (clickedNode != this.clickedNode) {
             this.clickedNode = clickedNode;
             this.renderView();
+            this.updateClickedPanel();
           }
         } else {
           this.clickedNode = null;
           this.renderView();
+          this.updateClickedPanel();
         }
       };
       this.mouseMoveHandler = ({ x: x3, y: y3 }) => {
@@ -15298,6 +15758,14 @@ ${indentData}`);
         renderLinks2.call(this, baseLinks, pathFromEntryLinks, path2NeighborLinks);
       }
       renderNodes2.call(this);
+      if (!!this.hoveredNode) {
+        const nodePos = this.hoveredNode.overviewPos;
+        const origin = vecMultiply(vecAdd(this.overviewLayerPosLevels[0][0], this.overviewLayerPosLevels[0][2]), 0.5);
+        const reverse = this.hoveredNode.overviewPos[0] < origin[0];
+        const tooltipPos = renderTipLine.call(this, nodePos, reverse);
+        this.updateHoveredPanel(vecMultiply(tooltipPos, 1 / this.viewParams.canvasScale), reverse);
+      } else
+        this.updateHoveredPanel(null);
     }
   };
 
@@ -15979,8 +16447,8 @@ ${indentData}`);
     ["ivfflat" /* ivfflat */ + "overview" /* overview */ + "default" /* default */]: IvfflatOverview
   };
   var FederView = class {
-    constructor({ indexType, actionType, viewType, visData }, viewParams) {
-      this.view = new viewMap[indexType + actionType + viewType](visData, viewParams);
+    constructor({ indexType, actionType, viewType, visData, actionData }, viewParams) {
+      this.view = new viewMap[indexType + actionType + viewType](visData, viewParams, actionData);
     }
     get node() {
       return this.view.node;
@@ -15994,6 +16462,18 @@ ${indentData}`);
   var local = true;
   var hnswSource = "hnswlib";
   var hnswIndexFilePath = local ? "data/hnswlib_hnsw_voc_17k.index" : "https://assets.zilliz.com/hnswlib_hnsw_voc_17k_1f1dfd63a9.index";
+  var imgNamesFilePath = "https://assets.zilliz.com/voc_names_4cee9440b1.csv";
+  var getRowId2name = () => __async(void 0, null, function* () {
+    const data = yield csv2(imgNamesFilePath);
+    const rowId2name = (rowId) => data[rowId].name;
+    return rowId2name;
+  });
+  var name2imgUrl = (name) => `https://assets.zilliz.com/voc2012/JPEGImages/${name}`;
+  var getRowId2imgUrl = () => __async(void 0, null, function* () {
+    const rowId2name = yield getRowId2name();
+    const rowId2imgUrl = (rowId) => name2imgUrl(rowId2name(rowId));
+    return rowId2imgUrl;
+  });
 
   // test/index.js
   var testVector = Array(512).fill(0).map((_) => Math.random());
@@ -16004,6 +16484,7 @@ ${indentData}`);
   };
   window.addEventListener("DOMContentLoaded", () => __async(void 0, null, function* () {
     const arrayBuffer = yield fetch(hnswIndexFilePath).then((res) => res.arrayBuffer());
+    const rowId2imgUrl = yield getRowId2imgUrl();
     const federIndex = new FederIndex(hnswSource);
     federIndex.initByArrayBuffer(arrayBuffer);
     const federLayout = new FederLayout(federIndex);
@@ -16011,13 +16492,17 @@ ${indentData}`);
       actionType: "search",
       actionData: {
         target: testVector,
+        targetMedia: rowId2imgUrl(12345),
         searchParams: testSearchParams
       },
       viewType: "default",
       layoutParams: {}
     });
     console.log("visDataAll", visDataAll);
-    const viewParams = {};
+    const viewParams = {
+      mediaType: "image",
+      mediaContent: rowId2imgUrl
+    };
     const federView = new FederView(visDataAll, viewParams);
     console.log("federView", federView);
     document.querySelector("#container").appendChild(federView.node);

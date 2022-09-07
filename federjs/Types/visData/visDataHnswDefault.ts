@@ -5,6 +5,7 @@ import {
   TCoord,
   TId,
   TSearchParams,
+  TViewParams,
 } from 'Types';
 import { TIndexMetaHnswGraphNode } from 'Types/indexMeta';
 
@@ -35,6 +36,12 @@ export interface TVisDataHnswGraph {
 export interface TVisDataHnswOverview {
   overviewNodesLevels: TVisDataHnswGraph[];
   overviewLayerPosLevels: TCoord[][];
+  M: number;
+  efConstruction: number;
+  ntotal: number;
+  nlevels: number;
+  nodesCount: number[];
+  linksCount: number[];
 }
 
 export interface TVisDataHnswNode {
@@ -80,11 +87,17 @@ export interface TVisDataHnswSearchView {
   searchLinkShowTime: TId2ShowTime;
   searchTransitionDuration: number;
   searchParams: TSearchParams;
+  M?: number;
+  efConstruction?: number;
+  ntotal?: number;
+  nodesCount?: number[];
+  linksCount?: number[];
 }
 
-export interface TViewParamsHnsw {
+export interface TViewParamsHnsw extends TViewParams {
   width: number;
   height: number;
+  padding: [number, number, number, number];
   canvasScale: number;
 
   layerDotNum: number;
@@ -123,6 +136,11 @@ export interface TViewParamsHnsw {
   clickedNodeStrokeWidth: number;
 
   overviewNodesR: number[];
+
+  tipLineOffset?: TCoord;
+  tipLineAngle?: number;
+  tipLineColor?: string;
+  tipLineWidth?: number;
 }
 
 export interface TLayoutParamsHnsw {

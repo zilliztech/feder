@@ -64,7 +64,16 @@ export enum EHnswLinkType {
   Fine = 4,
 }
 
-export type TViewParams = any;
+export enum EMediaType {
+  null = 'null',
+  image = 'image',
+  text = 'text',
+}
+
+export type TViewParams = {
+  mediaType: EMediaType;
+  mediaContent: (rowId: TId) => string;
+};
 
 export type TLayoutParams = any;
 

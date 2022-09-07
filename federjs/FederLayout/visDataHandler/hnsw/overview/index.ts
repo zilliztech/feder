@@ -16,7 +16,17 @@ export const overviewLayoutHandler = (
   layoutParams: TLayoutParamsHnsw
 ) => {
   const { numForceIterations } = layoutParams;
-  const { overviewGraphLayers, entryPointId, M, nOverviewLevels } = indexMeta;
+  const {
+    overviewGraphLayers,
+    entryPointId,
+    M,
+    efConstruction,
+    ntotal,
+    nOverviewLevels,
+    nlevels,
+    nodesCount,
+    linksCount,
+  } = indexMeta;
   return new Promise<TVisDataHnswOverview>(async (resolve) => {
     const overviewNodesLevels = addPathFromEntry(
       overviewGraphLayers,
@@ -77,6 +87,12 @@ export const overviewLayoutHandler = (
     resolve({
       overviewNodesLevels: overviewNodesLevels.reverse(),
       overviewLayerPosLevels: layerPosLevels,
+      M,
+      efConstruction,
+      ntotal,
+      nlevels,
+      nodesCount,
+      linksCount,
     });
   });
 };

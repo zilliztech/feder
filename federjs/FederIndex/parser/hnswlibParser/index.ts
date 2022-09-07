@@ -85,10 +85,13 @@ const read_data_level0_memory_ = (
   const vectors = [];
   const externalLabel = [];
   for (let i = 0; i < index.cur_element_count; i++) {
-    linkLists_level0_count.push(reader.readLevelOCount());
+    const linkListsCount = reader.readLevelOCount();
+    linkLists_level0_count.push(linkListsCount);
     isDeleted.push(reader.readIsDeleted());
     reader.readIsReused(); // Unknown use.
-    linkLists_level0.push(reader.readUint32Array(index.maxM0_));
+    linkLists_level0.push(
+      reader.readUint32Array(index.maxM0_).slice(0, linkListsCount)
+    );
     vectors.push(reader.readFloat32Array(index.dim));
     externalLabel.push(reader.readUint64());
     // console.log(isDeleted, linkLists_level0_count);

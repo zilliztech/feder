@@ -4,6 +4,7 @@ import { TViewParamsHnsw } from 'Types/visData';
 export const defaultViewParamsHnsw = {
   width: 800,
   height: 480,
+  padding: [80, 200, 60, 220],
   canvasScale: 2,
 
   layerDotNum: 20,
@@ -54,5 +55,10 @@ export const defaultViewParamsHnsw = {
   clickedNodeStrokeWidth: 1.5,
 
   overviewNodesR: [1.5, 2, 2.5, 3],
+
+  tipLineOffset: [60, -20],
+  tipLineAngle: Math.PI / 3,
+  tipLineColor: '#FFFC85',
+  tipLineWidth: 2,
 } as TViewParamsHnsw;
 export default defaultViewParamsHnsw;
