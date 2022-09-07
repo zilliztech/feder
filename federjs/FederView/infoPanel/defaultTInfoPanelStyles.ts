@@ -1,5 +1,6 @@
 export const defaultTInfoPanelStyles = {
   position: 'absolute',
+  color: '#ffffff',
 };
 
 export const cssDefinition = `
@@ -7,9 +8,8 @@ export const cssDefinition = `
   border-style: dashed;
   border-width: 1px;
 }
-.panel {
+.panel-padding {
   padding: 6px 8px;
-  font-size: 12px;
 }
 .hide {
   opacity: 0;
@@ -23,18 +23,23 @@ export const cssDefinition = `
   background-size: cover;
   margin-bottom: 12px;
   border-radius: 4px;
+  margin-right: 6px;
 }
 .panel-item-display-flex {
   display: flex;
 }
+.panel-span {
+  margin-bottom: 3px;
+}
 .panel-item-title {
   font-weight: 600;
-  margin-bottom: 3px;
+  font-size: 12px;
+  margin-right: 10px;
 }
 .panel-item-text {
   font-weight: 400;
-  font-size: 10px;
   word-break: break-all;
+  margin-right: 6px;
 }
 .panel-item-text-flex {
   margin-left: 8px;

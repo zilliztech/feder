@@ -1,4 +1,5 @@
 import {
+  TAcitonData,
   TId2ShowTime,
   TViewParamsHnsw,
   TVisDataHnswLink,
@@ -8,14 +9,15 @@ import {
 } from 'Types/visData';
 import TViewHandler from 'FederView/types';
 
-import InfoPanel from 'FederView/InfoPanel';
+import InfoPanel, { TInfoPanelContentItem } from 'FederView/InfoPanel';
 import * as d3 from 'd3';
 import TimeControllerView from './TimeControllerView';
 import defaultViewParamsHnsw from '../defaultViewParamsHnsw';
 import TimerController from './TimerController';
 import transitionSearchView from './transitionSearchView';
-import { TCoord, TId, TSearchParams } from 'Types';
+import { EMediaType, TCoord, TId, TSearchParams } from 'Types';
 import { getDisL2Square } from 'Utils/distFunc';
+import initPanels from '../initPanels';
 
 export default class HnswSearchView implements TViewHandler {
   node: HTMLElement;
@@ -43,12 +45,18 @@ export default class HnswSearchView implements TViewHandler {
   clickedNode: TVisDataHnswNode;
   hoveredLevel: number;
   hoveredNode: TVisDataHnswNode;
-  constructor(visData: TVisDataHnswSearchView, viewParams: TViewParamsHnsw) {
-    this.staticPanel = new InfoPanel();
-    this.clickedPanel = new InfoPanel();
-    this.hoveredPanel = new InfoPanel();
+  actionData: TAcitonData;
+  constructor(
+    visData: TVisDataHnswSearchView,
+    viewParams: TViewParamsHnsw,
+    actionData: TAcitonData
+  ) {
+    // this.staticPanel = new InfoPanel();
+    // this.clickedPanel = new InfoPanel();
+    // this.hoveredPanel = new InfoPanel();
 
     this.viewParams = Object.assign({}, defaultViewParamsHnsw, viewParams);
+    this.actionData = actionData;
 
     this.searchTransitionDuration = visData.searchTransitionDuration;
     this.searchTarget = visData.searchTarget;
@@ -70,10 +78,10 @@ export default class HnswSearchView implements TViewHandler {
     this.init();
   }
   init() {
-    console.log('this', this);
     this.initCanvas();
     this.initTimerController();
     this.initEventListener();
+    initPanels.call(this);
   }
   initTimerController() {
     const timeControllerView = new TimeControllerView(this.node);
@@ -128,8 +136,28 @@ export default class HnswSearchView implements TViewHandler {
   render() {
     this.initView();
   }
+  async updateStaticPanel() {
+    const { targetMedia } = this.actionData;
+    let mediaContent = null;
+    if (!!targetMedia) {
+      mediaContent = {} as TInfoPanelContentItem;
+      if (this.viewParams.mediaType === EMediaType.image)
+        mediaContent.image = targetMedia;
+      else if (this.viewParams.mediaType === EMediaType.text)
+        mediaContent.text = targetMedia;
+    }
+
+    this.staticPanel.setContent({
+      themeColor: '#FFFFFF',
+      hasBorder: true,
+      content: [{ title: 'HNSW - Search' }, mediaContent].filter((a) => a),
+    });
+  }
+  async updateClickedPanel() {}
+  async updateHoveredPanel() {}
   initView() {
     this.timer.start();
+    this.updateStaticPanel();
 
     const mouse2level = (x: number, y: number) =>
       this.searchLayerPosLevels.findIndex((points) =>

@@ -34,16 +34,28 @@ export default class FederLayoutHnsw implements TFederLayoutHandler {
     ) as TVisData;
   }
 
-  computeSearchViewVisData(
+  async computeSearchViewVisData(
     viewType: EViewType,
     searchRecords: TSearchRecordsHnsw,
-    layoutParams: TLayoutParamsHnsw
+    layoutParams: TLayoutParamsHnsw,
+    indexMeta: TIndexMetaHnsw
   ) {
     const searchViewLayoutHandler = searchViewLayoutHandlerMap[viewType];
 
-    return searchViewLayoutHandler(
+    const visData = (await searchViewLayoutHandler(
       searchRecords,
       Object.assign({}, defaultHnswLayoutParams, layoutParams)
-    ) as TVisData;
+    )) as TVisData;
+
+    const { M, efConstruction, ntotal, nodesCount, linksCount } = indexMeta;
+    Object.assign(visData, {
+      M,
+      efConstruction,
+      ntotal,
+      nodesCount,
+      linksCount,
+    });
+
+    return visData;
   }
 }

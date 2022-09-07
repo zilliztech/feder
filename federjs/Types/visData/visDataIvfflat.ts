@@ -1,4 +1,4 @@
-import { EProjectMethod, TCoord, TId, TVec } from 'Types';
+import { EProjectMethod, TCoord, TId, TVec, TViewParams } from 'Types';
 
 export interface TVisDataIvfflatOverview {
   overviewClusters: TVisDataIvfflatOverviewCluster[];
@@ -83,7 +83,7 @@ export interface TLayoutParamsIvfflat {
   projectPadding?: [number, number, number, number];
 }
 
-export interface TViewParamsIvfflat {
+export interface TViewParamsIvfflat extends TViewParams {
   width: number;
   height: number;
   canvasScale: number;

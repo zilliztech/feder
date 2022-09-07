@@ -21,12 +21,13 @@ const viewMap = {
 export class FederView {
   view: ViewHandler;
   constructor(
-    { indexType, actionType, viewType, visData }: TVisDataAll,
-    viewParams: TViewParams
+    { indexType, actionType, viewType, visData, actionData }: TVisDataAll,
+    viewParams: any
   ) {
     this.view = new viewMap[indexType + actionType + viewType](
       visData,
-      viewParams
+      viewParams,
+      actionData
     );
   }
   get node() {

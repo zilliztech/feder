@@ -4,27 +4,30 @@ import {
   parseNodeIdWidthLevel,
 } from 'FederLayout/visDataHandler/hnsw/utils';
 import clearCanvas from 'FederView/clearCanvas';
-import InfoPanel from 'FederView/InfoPanel';
+import InfoPanel, { TInfoPanelContentItem } from 'FederView/InfoPanel';
 import TViewHandler from 'FederView/types';
-import { TCoord, TD3Link, TId } from 'Types';
+import { EMediaType, TCoord, TD3Link, TId } from 'Types';
 import {
   TViewParamsHnsw,
   TVisDataHnswGraph,
   TVisDataHnswGraphNode,
   TVisDataHnswOverview,
 } from 'Types/visData';
-import { getDisL2Square } from 'Utils/distFunc';
+import { getDisL2Square, vecAdd, vecMultiply } from 'Utils/distFunc';
 import defaultViewParamsHnsw from '../defaultViewParamsHnsw';
 import renderLayer from '../HnswSearchView/renderLayer';
+import initPanels from '../initPanels';
+import renderTipLine from '../renderTipLine';
 import renderLinks from './renderLinks';
 import renderNodes from './renderNodes';
-
 export default class HnswOverview implements TViewHandler {
   node: HTMLElement;
   staticPanel: InfoPanel;
   clickedPanel: InfoPanel;
   hoveredPanel: InfoPanel;
   viewParams: TViewParamsHnsw;
+  M: number;
+  efConstruction: number;
   overviewNodesLevels: TVisDataHnswGraph[];
   overviewLayerPosLevels: TCoord[][];
   idWithLevel2node: { [idWithLevel: TId]: TVisDataHnswGraphNode };
@@ -36,15 +39,21 @@ export default class HnswOverview implements TViewHandler {
   clickedNode: TVisDataHnswGraphNode;
   hoveredNode: TVisDataHnswGraphNode;
   hoveredLevel: number;
+  ntotal: number;
+  nlevels: number;
+  nodesCount: number[];
+  linksCount: number[];
   constructor(visData: TVisDataHnswOverview, viewParams: TViewParamsHnsw) {
-    this.staticPanel = new InfoPanel();
-    this.clickedPanel = new InfoPanel();
-    this.hoveredPanel = new InfoPanel();
-
     this.viewParams = Object.assign({}, defaultViewParamsHnsw, viewParams);
 
     this.overviewNodesLevels = visData.overviewNodesLevels;
     this.overviewLayerPosLevels = visData.overviewLayerPosLevels;
+    this.M = visData.M;
+    this.efConstruction = visData.efConstruction;
+    this.ntotal = visData.ntotal;
+    this.nlevels = visData.nlevels;
+    this.nodesCount = visData.nodesCount;
+    this.linksCount = visData.linksCount;
 
     this.init();
   }
@@ -52,6 +61,7 @@ export default class HnswOverview implements TViewHandler {
     this.initIdWithLevel2node();
     this.initCanvas();
     this.initEventListener();
+    initPanels.call(this);
   }
   initIdWithLevel2node() {
     const idWithLevel2node = {} as {
@@ -80,9 +90,108 @@ export default class HnswOverview implements TViewHandler {
   render(): void {
     this.initView();
   }
+  async updateStaticPanel() {
+    this.staticPanel.setContent({
+      themeColor: '#FFFFFF',
+      hasBorder: true,
+      content: [
+        {
+          title: 'HNSW',
+        },
+        { text: `M = ${this.M}, ef_construction = ${this.efConstruction}` },
+        {
+          text: `${this.ntotal} vectors, ${this.nlevels}-layer hierarchical graph (only visual the top-${this.overviewNodesLevels.length} layers).`,
+        },
+        ...this.nodesCount
+          .map((c, level) => {
+            return {
+              title: `Level ${level}`,
+              text: `${c} vectors, ${this.linksCount[level]} links`,
+            };
+          })
+          .reverse(),
+      ],
+    });
+  }
+  async updateClickedPanel() {
+    const node = this.clickedNode;
+    if (!node) {
+      this.clickedPanel.setContent({ content: [] });
+      return;
+    }
+
+    const mediaContent = {} as TInfoPanelContentItem;
+    if (this.viewParams.mediaType === EMediaType.image)
+      mediaContent.image = await this.viewParams.mediaContent(node.id);
+    else if (this.viewParams.mediaType === EMediaType.text)
+      mediaContent.text = await this.viewParams.mediaContent(node.id);
+
+    const pathFromEntryTexts = this.overviewNodesLevels
+      .map(
+        ({ level }) =>
+          `level ${level}: ` +
+          node.pathFromEntry
+            .filter(
+              (idWithLevel) => parseNodeIdWidthLevel(idWithLevel)[0] === level
+            )
+            .map((idWithLevel) => parseNodeIdWidthLevel(idWithLevel)[1])
+            .join(' => ')
+      )
+      .reverse();
+
+    const linkedNodeText = node.links.join(', ');
+    this.clickedPanel.setContent({
+      themeColor: '#FFFC85',
+      hasBorder: true,
+      content: [
+        { title: `Level ${node.level}` },
+        { title: `Row No. ${node.id}` },
+        mediaContent,
+        { title: `Shortest path from the entry:` },
+        ...pathFromEntryTexts.map((text) => ({ text })),
+        { title: `Linked vectors:` },
+        { text: linkedNodeText },
+      ],
+    });
+  }
+  async updateHoveredPanel(hoveredPanelPos: TCoord, reverse = false) {
+    if (!hoveredPanelPos) {
+      this.hoveredPanel.setContent({ content: [] });
+    }
+    if (reverse)
+      this.hoveredPanel.setPosition({
+        left: null,
+        right: `${this.viewParams.width - hoveredPanelPos[0]}px`,
+        top: `${hoveredPanelPos[1] - 4}px`,
+      });
+    else
+      this.hoveredPanel.setPosition({
+        left: `${hoveredPanelPos[0]}px`,
+        top: `${hoveredPanelPos[1] - 4}px`,
+      });
+
+    const mediaContent = {} as TInfoPanelContentItem;
+    if (this.viewParams.mediaType === EMediaType.image)
+      mediaContent.image = await this.viewParams.mediaContent(
+        this.hoveredNode.id
+      );
+    else if (this.viewParams.mediaType === EMediaType.text)
+      mediaContent.text = await this.viewParams.mediaContent(
+        this.hoveredNode.id
+      );
+
+    this.hoveredPanel.setContent({
+      themeColor: '#FFFC85',
+      hasBorder: false,
+      flex: true,
+      flexDirection: reverse ? 'row-reverse' : 'row',
+      content: [{ text: `No. ${this.hoveredNode.id}` }, mediaContent],
+    });
+  }
   initView() {
     // event;
     this.renderView();
+    this.updateStaticPanel();
 
     const mouse2level = (x: number, y: number) =>
       this.overviewLayerPosLevels.findIndex((points) =>
@@ -106,10 +215,12 @@ export default class HnswOverview implements TViewHandler {
         if (clickedNode != this.clickedNode) {
           this.clickedNode = clickedNode;
           this.renderView();
+          this.updateClickedPanel();
         }
       } else {
         this.clickedNode = null;
         this.renderView();
+        this.updateClickedPanel();
       }
     };
     this.mouseMoveHandler = ({ x, y }: { x: number; y: number }) => {
@@ -193,11 +304,21 @@ export default class HnswOverview implements TViewHandler {
 
     renderNodes.call(this);
 
-    // for level
-    // layer
-    // links
-    // pathFromEntry
-    // path2neighbor
-    // node
+    if (!!this.hoveredNode) {
+      const nodePos = this.hoveredNode.overviewPos;
+      const origin = vecMultiply(
+        vecAdd(
+          this.overviewLayerPosLevels[0][0],
+          this.overviewLayerPosLevels[0][2]
+        ),
+        0.5
+      );
+      const reverse = this.hoveredNode.overviewPos[0] < origin[0];
+      const tooltipPos = renderTipLine.call(this, nodePos, reverse);
+      this.updateHoveredPanel(
+        vecMultiply(tooltipPos, 1 / this.viewParams.canvasScale) as TCoord,
+        reverse
+      );
+    } else this.updateHoveredPanel(null);
   }
 }

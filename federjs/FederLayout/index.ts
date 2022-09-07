@@ -71,7 +71,7 @@ export class FederLayout {
       viewType,
       searchRecords,
       layoutParams,
-      this.indexMeta // ivf searchVisData depends on overviewVisData, hnsw not
+      this.indexMeta
     );
   }
 

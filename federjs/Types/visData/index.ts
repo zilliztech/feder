@@ -22,7 +22,7 @@ export interface TVisDataAll {
 
 export interface TAcitonData {
   target?: TVec;
-  targetUrl?: string;
+  targetMedia?: string;
   searchParams?: TSearchParams;
   metaParams?: TMetaParams;
 }
