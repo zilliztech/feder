@@ -1324,7 +1324,7 @@
     "node_modules/ml-array-min/lib/index.js"(exports, module) {
       "use strict";
       var isAnyArray = require_lib2();
-      function min2(input, options = {}) {
+      function min3(input, options = {}) {
         if (!isAnyArray.isAnyArray(input)) {
           throw new TypeError("input must be an array");
         }
@@ -1345,7 +1345,7 @@
         }
         return minValue;
       }
-      module.exports = min2;
+      module.exports = min3;
     }
   });
 
@@ -1355,12 +1355,12 @@
       "use strict";
       var isAnyArray = require_lib2();
       var max2 = require_lib3();
-      var min2 = require_lib4();
+      var min3 = require_lib4();
       function _interopDefaultLegacy(e) {
         return e && typeof e === "object" && "default" in e ? e : { "default": e };
       }
       var max__default = /* @__PURE__ */ _interopDefaultLegacy(max2);
-      var min__default = /* @__PURE__ */ _interopDefaultLegacy(min2);
+      var min__default = /* @__PURE__ */ _interopDefaultLegacy(min3);
       function rescale(input, options = {}) {
         if (!isAnyArray.isAnyArray(input)) {
           throw new TypeError("input must be an array");
@@ -2497,18 +2497,18 @@ ${indentData}`);
           if (typeof options !== "object") {
             throw new TypeError("options must be an object");
           }
-          const { min: min2 = 0, max: max2 = 1e3, random = Math.random } = options;
-          if (!Number.isInteger(min2))
+          const { min: min3 = 0, max: max2 = 1e3, random = Math.random } = options;
+          if (!Number.isInteger(min3))
             throw new TypeError("min must be an integer");
           if (!Number.isInteger(max2))
             throw new TypeError("max must be an integer");
-          if (min2 >= max2)
+          if (min3 >= max2)
             throw new RangeError("min must be smaller than max");
-          let interval2 = max2 - min2;
+          let interval2 = max2 - min3;
           let matrix = new Matrix(rows, columns);
           for (let i = 0; i < rows; i++) {
             for (let j = 0; j < columns; j++) {
-              let value = min2 + Math.round(random() * interval2);
+              let value = min3 + Math.round(random() * interval2);
               matrix.set(i, j, value);
             }
           }
@@ -2519,9 +2519,9 @@ ${indentData}`);
             columns = rows;
           if (value === void 0)
             value = 1;
-          let min2 = Math.min(rows, columns);
+          let min3 = Math.min(rows, columns);
           let matrix = this.zeros(rows, columns);
-          for (let i = 0; i < min2; i++) {
+          for (let i = 0; i < min3; i++) {
             matrix.set(i, i, value);
           }
           return matrix;
@@ -2532,9 +2532,9 @@ ${indentData}`);
             rows = l;
           if (columns === void 0)
             columns = rows;
-          let min2 = Math.min(l, rows, columns);
+          let min3 = Math.min(l, rows, columns);
           let matrix = this.zeros(rows, columns);
-          for (let i = 0; i < min2; i++) {
+          for (let i = 0; i < min3; i++) {
             matrix.set(i, i, data[i]);
           }
           return matrix;
@@ -2993,37 +2993,37 @@ ${indentData}`);
           }
           switch (by) {
             case "row": {
-              const min2 = new Array(this.rows).fill(Number.POSITIVE_INFINITY);
+              const min3 = new Array(this.rows).fill(Number.POSITIVE_INFINITY);
               for (let row = 0; row < this.rows; row++) {
                 for (let column = 0; column < this.columns; column++) {
-                  if (this.get(row, column) < min2[row]) {
-                    min2[row] = this.get(row, column);
+                  if (this.get(row, column) < min3[row]) {
+                    min3[row] = this.get(row, column);
                   }
                 }
               }
-              return min2;
+              return min3;
             }
             case "column": {
-              const min2 = new Array(this.columns).fill(Number.POSITIVE_INFINITY);
+              const min3 = new Array(this.columns).fill(Number.POSITIVE_INFINITY);
               for (let row = 0; row < this.rows; row++) {
                 for (let column = 0; column < this.columns; column++) {
-                  if (this.get(row, column) < min2[column]) {
-                    min2[column] = this.get(row, column);
+                  if (this.get(row, column) < min3[column]) {
+                    min3[column] = this.get(row, column);
                   }
                 }
               }
-              return min2;
+              return min3;
             }
             case void 0: {
-              let min2 = this.get(0, 0);
+              let min3 = this.get(0, 0);
               for (let row = 0; row < this.rows; row++) {
                 for (let column = 0; column < this.columns; column++) {
-                  if (this.get(row, column) < min2) {
-                    min2 = this.get(row, column);
+                  if (this.get(row, column) < min3) {
+                    min3 = this.get(row, column);
                   }
                 }
               }
-              return min2;
+              return min3;
             }
             default:
               throw new Error(`invalid option: ${by}`);
@@ -3149,9 +3149,9 @@ ${indentData}`);
           return idx;
         }
         diag() {
-          let min2 = Math.min(this.rows, this.columns);
+          let min3 = Math.min(this.rows, this.columns);
           let diag = [];
-          for (let i = 0; i < min2; i++) {
+          for (let i = 0; i < min3; i++) {
             diag.push(this.get(i, i));
           }
           return diag;
@@ -3384,18 +3384,18 @@ ${indentData}`);
           if (typeof options !== "object") {
             throw new TypeError("options must be an object");
           }
-          const { min: min2 = 0, max: max2 = 1 } = options;
-          if (!Number.isFinite(min2))
+          const { min: min3 = 0, max: max2 = 1 } = options;
+          if (!Number.isFinite(min3))
             throw new TypeError("min must be a number");
           if (!Number.isFinite(max2))
             throw new TypeError("max must be a number");
-          if (min2 >= max2)
+          if (min3 >= max2)
             throw new RangeError("min must be smaller than max");
           let newMatrix = new Matrix(this.rows, this.columns);
           for (let i = 0; i < this.rows; i++) {
             const row = this.getRow(i);
             if (row.length > 0) {
-              rescale__default["default"](row, { min: min2, max: max2, output: row });
+              rescale__default["default"](row, { min: min3, max: max2, output: row });
             }
             newMatrix.setRow(i, row);
           }
@@ -3405,19 +3405,19 @@ ${indentData}`);
           if (typeof options !== "object") {
             throw new TypeError("options must be an object");
           }
-          const { min: min2 = 0, max: max2 = 1 } = options;
-          if (!Number.isFinite(min2))
+          const { min: min3 = 0, max: max2 = 1 } = options;
+          if (!Number.isFinite(min3))
             throw new TypeError("min must be a number");
           if (!Number.isFinite(max2))
             throw new TypeError("max must be a number");
-          if (min2 >= max2)
+          if (min3 >= max2)
             throw new RangeError("min must be smaller than max");
           let newMatrix = new Matrix(this.rows, this.columns);
           for (let i = 0; i < this.columns; i++) {
             const column = this.getColumn(i);
             if (column.length) {
               rescale__default["default"](column, {
-                min: min2,
+                min: min3,
                 max: max2,
                 output: column
               });
@@ -3577,9 +3577,9 @@ ${indentData}`);
           return newMatrix;
         }
         trace() {
-          let min2 = Math.min(this.rows, this.columns);
+          let min3 = Math.min(this.rows, this.columns);
           let trace = 0;
-          for (let i = 0; i < min2; i++) {
+          for (let i = 0; i < min3; i++) {
             trace += this.get(i, i);
           }
           return trace;
@@ -7735,17 +7735,17 @@ ${indentData}`);
 
   // node_modules/d3-array/src/extent.js
   function extent(values, valueof) {
-    let min2;
+    let min3;
     let max2;
     if (valueof === void 0) {
       for (const value of values) {
         if (value != null) {
-          if (min2 === void 0) {
+          if (min3 === void 0) {
             if (value >= value)
-              min2 = max2 = value;
+              min3 = max2 = value;
           } else {
-            if (min2 > value)
-              min2 = value;
+            if (min3 > value)
+              min3 = value;
             if (max2 < value)
               max2 = value;
           }
@@ -7755,19 +7755,19 @@ ${indentData}`);
       let index2 = -1;
       for (let value of values) {
         if ((value = valueof(value, ++index2, values)) != null) {
-          if (min2 === void 0) {
+          if (min3 === void 0) {
             if (value >= value)
-              min2 = max2 = value;
+              min3 = max2 = value;
           } else {
-            if (min2 > value)
-              min2 = value;
+            if (min3 > value)
+              min3 = value;
             if (max2 < value)
               max2 = value;
           }
         }
       }
     }
-    return [min2, max2];
+    return [min3, max2];
   }
 
   // node_modules/d3-array/src/ticks.js
@@ -7822,22 +7822,42 @@ ${indentData}`);
     return stop < start2 ? -step1 : step1;
   }
 
+  // node_modules/d3-array/src/min.js
+  function min(values, valueof) {
+    let min3;
+    if (valueof === void 0) {
+      for (const value of values) {
+        if (value != null && (min3 > value || min3 === void 0 && value >= value)) {
+          min3 = value;
+        }
+      }
+    } else {
+      let index2 = -1;
+      for (let value of values) {
+        if ((value = valueof(value, ++index2, values)) != null && (min3 > value || min3 === void 0 && value >= value)) {
+          min3 = value;
+        }
+      }
+    }
+    return min3;
+  }
+
   // node_modules/d3-array/src/minIndex.js
   function minIndex(values, valueof) {
-    let min2;
+    let min3;
     let minIndex2 = -1;
     let index2 = -1;
     if (valueof === void 0) {
       for (const value of values) {
         ++index2;
-        if (value != null && (min2 > value || min2 === void 0 && value >= value)) {
-          min2 = value, minIndex2 = index2;
+        if (value != null && (min3 > value || min3 === void 0 && value >= value)) {
+          min3 = value, minIndex2 = index2;
         }
       }
     } else {
       for (let value of values) {
-        if ((value = valueof(value, ++index2, values)) != null && (min2 > value || min2 === void 0 && value >= value)) {
-          min2 = value, minIndex2 = index2;
+        if ((value = valueof(value, ++index2, values)) != null && (min3 > value || min3 === void 0 && value >= value)) {
+          min3 = value, minIndex2 = index2;
         }
       }
     }
@@ -9321,7 +9341,7 @@ ${indentData}`);
     if (o instanceof Hsl)
       return o;
     o = o.rgb();
-    var r = o.r / 255, g = o.g / 255, b = o.b / 255, min2 = Math.min(r, g, b), max2 = Math.max(r, g, b), h = NaN, s = max2 - min2, l = (max2 + min2) / 2;
+    var r = o.r / 255, g = o.g / 255, b = o.b / 255, min3 = Math.min(r, g, b), max2 = Math.max(r, g, b), h = NaN, s = max2 - min3, l = (max2 + min3) / 2;
     if (s) {
       if (r === max2)
         h = (g - b) / s + (g < b) * 6;
@@ -9329,7 +9349,7 @@ ${indentData}`);
         h = (b - r) / s + 2;
       else
         h = (r - g) / s + 4;
-      s /= l < 0.5 ? max2 + min2 : 2 - max2 - min2;
+      s /= l < 0.5 ? max2 + min3 : 2 - max2 - min3;
       h *= 60;
     } else {
       s = l > 0 && l < 1 ? 0 : h;
@@ -10559,7 +10579,7 @@ ${indentData}`);
   selection_default.prototype.transition = transition_default2;
 
   // node_modules/d3-brush/src/brush.js
-  var { abs, max, min } = Math;
+  var { abs, max, min: min2 } = Math;
   function number1(e) {
     return [+e[0], +e[1]];
   }
@@ -15227,7 +15247,7 @@ ${indentData}`);
     left: "16px",
     top: "10px",
     width: `${padding[3] + 10}px`,
-    "max-height": `${height - 20}px`,
+    "max-height": `${height - 110}px`,
     overflow: "auto",
     borderColor: "#FFFFFF",
     backgroundColor: hexWithOpacity("#000000", 0.6)
@@ -15273,6 +15293,11 @@ ${indentData}`);
       this.searchNodeShowTime = visData.searchNodeShowTime;
       this.searchLinkShowTime = visData.searchLinkShowTime;
       this.searchParams = visData.searchParams;
+      this.M = visData.M;
+      this.ntotal = visData.ntotal;
+      this.efConstruction = visData.efConstruction;
+      this.nodesCount = visData.nodesCount;
+      this.linksCount = visData.linksCount;
       const id2node = {};
       this.searchNodesLevels.forEach((nodes) => nodes.forEach((node) => id2node[node.id] = node));
       this.id2node = id2node;
@@ -15339,10 +15364,41 @@ ${indentData}`);
           else if (this.viewParams.mediaType === "text" /* text */)
             mediaContent.text = targetMedia;
         }
+        const ntotalContent = {
+          text: `${this.ntotal} vectors, including ${this.searchNodesLevels.length} layers.`
+        };
+        const metaContent = {
+          text: `M = ${this.M}, ef_contruction = ${this.efConstruction}.`
+        };
+        const searchParamsContent = {
+          text: `k = ${this.searchParams.k}, ef_search = ${this.searchParams.ef}.`
+        };
+        const numVisitedVector = Array.from(new Set(this.searchNodesLevels.reduce((acc, nodes) => acc.concat(nodes.map((node) => node.id)), []))).length;
+        const statisticsContent = {
+          text: `${numVisitedVector} vectors were visited during search.`
+        };
+        const searchDetailContent = this.searchNodesLevels.map((nodes, i) => {
+          const part1 = {
+            title: `Level ${i}`,
+            text: `min-dist: ${min(nodes, (node) => node.dist).toFixed(3)}`
+          };
+          const part2 = {
+            text: `${nodes.length} / ${this.nodesCount[i]} vectors, ${this.searchLinksLevels[i].length} / ${this.linksCount[i]} links.`
+          };
+          return [part1, part2];
+        }).reverse().reduce((acc, cur) => acc.concat(cur), []);
         this.staticPanel.setContent({
           themeColor: "#FFFFFF",
           hasBorder: true,
-          content: [{ title: "HNSW - Search" }, mediaContent].filter((a2) => a2)
+          content: [
+            { title: "HNSW - Search" },
+            mediaContent,
+            metaContent,
+            searchParamsContent,
+            ntotalContent,
+            statisticsContent,
+            ...searchDetailContent
+          ].filter((a2) => a2)
         });
       });
     }
