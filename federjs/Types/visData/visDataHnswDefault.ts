@@ -48,6 +48,7 @@ export interface TVisDataHnswNode {
   id: TId;
   type: EHnswNodeType;
   dist: number;
+  source?: TId;
   forcePos?: TCoord;
   x?: number;
   y?: number;

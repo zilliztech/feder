@@ -181,9 +181,7 @@ export default class HnswSearchView implements TViewHandler {
       .map((nodes, i) => {
         const part1 = {
           title: `Level ${i}`,
-          text: `min-dist: ${d3
-            .min(nodes, (node) => node.dist)
-            .toFixed(3)}`,
+          text: `min-dist: ${d3.min(nodes, (node) => node.dist).toFixed(3)}`,
         };
         const part2 = {
           text:
@@ -208,8 +206,69 @@ export default class HnswSearchView implements TViewHandler {
       ].filter((a) => a),
     });
   }
-  async updateClickedPanel() {}
-  async updateHoveredPanel() {}
+  async updateClickedPanel() {
+    const node = this.clickedNode;
+    if (!node) {
+      this.clickedPanel.setContent({ content: [] });
+      return;
+    }
+
+    const mediaContent = {} as TInfoPanelContentItem;
+    if (this.viewParams.mediaType === EMediaType.image)
+      mediaContent.image = await this.viewParams.mediaContent(node.id);
+    else if (this.viewParams.mediaType === EMediaType.text)
+      mediaContent.text = await this.viewParams.mediaContent(node.id);
+
+    const vector = await this.viewParams.getVectorById(node.id);
+    const vectorString = vector.map((v) => v.toFixed(6)).join(', ');
+
+    this.clickedPanel.setContent({
+      themeColor: '#FFFC85',
+      hasBorder: true,
+      content: [
+        { title: `Level ${this.clickedLevel}` },
+        { text: `Row No. ${node.id}` },
+        { text: `Distance: ${node.dist.toFixed(3)}` },
+        mediaContent,
+        { title: `Vector:` },
+        { text: vectorString },
+      ],
+    });
+  }
+  async updateHoveredPanel(hoveredPanelPos: TCoord, reverse = false) {
+    if (!hoveredPanelPos) {
+      this.hoveredPanel.setContent({ content: [] });
+    }
+    if (reverse)
+      this.hoveredPanel.setPosition({
+        left: null,
+        right: `${this.viewParams.width - hoveredPanelPos[0]}px`,
+        top: `${hoveredPanelPos[1] - 4}px`,
+      });
+    else
+      this.hoveredPanel.setPosition({
+        left: `${hoveredPanelPos[0]}px`,
+        top: `${hoveredPanelPos[1] - 4}px`,
+      });
+
+    const mediaContent = {} as TInfoPanelContentItem;
+    if (this.viewParams.mediaType === EMediaType.image)
+      mediaContent.image = await this.viewParams.mediaContent(
+        this.hoveredNode.id
+      );
+    else if (this.viewParams.mediaType === EMediaType.text)
+      mediaContent.text = await this.viewParams.mediaContent(
+        this.hoveredNode.id
+      );
+
+    this.hoveredPanel.setContent({
+      themeColor: '#FFFC85',
+      hasBorder: false,
+      flex: true,
+      flexDirection: reverse ? 'row-reverse' : 'row',
+      content: [{ title: `No. ${this.hoveredNode.id}` }, mediaContent],
+    });
+  }
   initView() {
     this.timer.start();
     this.updateStaticPanel();
@@ -236,11 +295,13 @@ export default class HnswSearchView implements TViewHandler {
         const clickedNode = mouse2node(x, y, this.clickedLevel);
         if (clickedNode !== this.clickedNode) {
           this.clickedNode = clickedNode;
+          this.updateClickedPanel();
           if (!this.timer.isPlaying)
             transitionSearchView.call(this, this.timer.currentT);
         }
       } else {
         this.clickedNode = null;
+        this.updateClickedPanel();
       }
     };
     this.mouseMoveHandler = ({ x, y }: { x: number; y: number }) => {

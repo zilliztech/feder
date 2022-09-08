@@ -96,6 +96,7 @@ export const parseVisRecords = ({
           id: id,
           type: id2nodeType[id],
           dist: id2dist[id],
+          source: sourceMap[id],
         } as TVisDataHnswNode)
     );
     const links = Object.keys(linkId2linkType).map((linkId) => {

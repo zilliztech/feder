@@ -11,6 +11,9 @@ import renderLinks from './renderLinks';
 import renderInProcessLinks from './renderInProcessLinks';
 import renderEntryAndTargetLinks from './renderEntryAndTargetLinks';
 import renderClickedNode from './renderClickedNode';
+import { vecAdd, vecMultiply } from 'Utils/distFunc';
+import renderTipLine from '../renderTipLine';
+import { TCoord } from 'Types';
 
 export default function transitionSearchView(this: HnswSearchView, t: number) {
   clearCanvas.call(this);
@@ -79,4 +82,19 @@ export default function transitionSearchView(this: HnswSearchView, t: number) {
     renderNodes.call(this, showNodes, level);
   }
   renderClickedNode.call(this);
+
+  if (!!this.hoveredNode) {
+    const nodePos = this.hoveredNode.searchViewPosLevels[this.hoveredLevel];
+    const origin = vecMultiply(
+      vecAdd(this.searchLayerPosLevels[0][0], this.searchLayerPosLevels[0][2]),
+      0.5
+    );
+    const reverse =
+      this.hoveredNode.searchViewPosLevels[this.hoveredLevel][0] < origin[0];
+    const tooltipPos = renderTipLine.call(this, nodePos, reverse);
+    this.updateHoveredPanel(
+      vecMultiply(tooltipPos, 1 / this.viewParams.canvasScale) as TCoord,
+      reverse
+    );
+  } else this.updateHoveredPanel(null);
 }
