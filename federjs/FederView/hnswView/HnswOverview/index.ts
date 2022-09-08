@@ -127,6 +127,9 @@ export default class HnswOverview implements TViewHandler {
       mediaContent.text = await this.viewParams.mediaContent(node.id);
 
     const pathFromEntryTexts = this.overviewNodesLevels
+      .filter((_, level) => {
+        return level >= this.clickedLevel
+      })
       .map(
         ({ level }) =>
           `level ${level}: ` +
@@ -157,6 +160,7 @@ export default class HnswOverview implements TViewHandler {
   async updateHoveredPanel(hoveredPanelPos: TCoord, reverse = false) {
     if (!hoveredPanelPos) {
       this.hoveredPanel.setContent({ content: [] });
+      return;
     }
     if (reverse)
       this.hoveredPanel.setPosition({

@@ -39,7 +39,7 @@ export const cssDefinition = `
 }
 .panel-item-text {
   font-weight: 400;
-  word-break: break-all;
+  word-break: keep-all;
   margin-right: 6px;
 }
 .panel-item-text-flex {
@@ -83,9 +83,3 @@ export const cssDefinition = `
   margin-left: 6px;
 }
 `;
-
-export const defaultInfoPanelStyles_Overview = {};
-
-export const defaultTInfoPanelStyles_Detail = {};
-
-export const defaultTInfoPanelStyles_Tooltip = {};

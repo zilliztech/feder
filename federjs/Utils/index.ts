@@ -10,3 +10,16 @@ export const getPercentile = (items: any[], key: string, p: number): number => {
 export const fixedNumber = (p: number, n: number): string => {
   return p.toFixed(n);
 };
+
+export const randomSelect = (arr: any[], k: number) => {
+  const res = new Set();
+  k = Math.min(arr.length, k);
+  while (k > 0) {
+    const itemIndex = Math.floor(Math.random() * arr.length);
+    if (!res.has(itemIndex)) {
+      res.add(itemIndex);
+      k -= 1;
+    }
+  }
+  return Array.from(res).map((i: number) => arr[i]);
+};

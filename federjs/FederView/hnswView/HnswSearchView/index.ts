@@ -56,10 +56,6 @@ export default class HnswSearchView implements TViewHandler {
     viewParams: TViewParamsHnsw,
     actionData: TAcitonData
   ) {
-    // this.staticPanel = new InfoPanel();
-    // this.clickedPanel = new InfoPanel();
-    // this.hoveredPanel = new InfoPanel();
-
     this.viewParams = Object.assign({}, defaultViewParamsHnsw, viewParams);
     this.actionData = actionData;
 
@@ -238,6 +234,7 @@ export default class HnswSearchView implements TViewHandler {
   async updateHoveredPanel(hoveredPanelPos: TCoord, reverse = false) {
     if (!hoveredPanelPos) {
       this.hoveredPanel.setContent({ content: [] });
+      return
     }
     if (reverse)
       this.hoveredPanel.setPosition({

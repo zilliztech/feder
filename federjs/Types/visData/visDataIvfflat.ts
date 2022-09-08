@@ -2,6 +2,8 @@ import { EProjectMethod, TCoord, TId, TVec, TViewParams } from 'Types';
 
 export interface TVisDataIvfflatOverview {
   overviewClusters: TVisDataIvfflatOverviewCluster[];
+  nlist: number;
+  ntotal: number;
 }
 
 export interface TVisDataIvfflatOverviewCluster {
