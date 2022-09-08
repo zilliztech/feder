@@ -6,3 +6,7 @@ export const getPercentile = (items: any[], key: string, p: number): number => {
   const k = Math.round(p * (items.length - 1));
   return items[k][key];
 };
+
+export const fixedNumber = (p: number, n: number): string => {
+  return p.toFixed(n);
+};

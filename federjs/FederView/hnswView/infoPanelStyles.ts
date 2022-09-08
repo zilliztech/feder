@@ -5,7 +5,7 @@ export const staticPanelStyles = ({ height, padding }) => ({
   left: '16px',
   top: '10px',
   width: `${padding[3] + 10}px`,
-  'max-height': `${height - 20}px`,
+  'max-height': `${height - 110}px`,
   overflow: 'auto',
   borderColor: '#FFFFFF',
   backgroundColor: hexWithOpacity('#000000', 0.6),
