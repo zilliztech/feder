@@ -1,9 +1,8 @@
 import { EProjectMethod, EViewType } from 'Types';
-import { TIndexMeta } from 'Types/indexMeta';
+import { TIndexMetaIvfflat } from 'Types/indexMeta';
 import { TSearchRecords } from 'Types/searchRecords';
 import {
   TLayoutParamsIvfflat,
-  TVisData,
   TVisDataIvfflatOverview,
   TVisDataIvfflatOverviewCluster,
   TVisDataIvfflatSearchView,
@@ -40,7 +39,7 @@ export default class FederLayoutIvfflat implements TFederLayoutHandler {
   overviewClusters: TVisDataIvfflatOverviewCluster;
   async computeOverviewVisData(
     viewType: EViewType,
-    indexMeta: TIndexMeta,
+    indexMeta: TIndexMetaIvfflat,
     _layoutParams: TLayoutParamsIvfflat
   ): Promise<TVisDataIvfflatOverview> {
     const layoutParams = Object.assign(
@@ -52,13 +51,14 @@ export default class FederLayoutIvfflat implements TFederLayoutHandler {
     const overviewLayoutFunc = overviewLayoutFuncMap[viewType];
     const overviewClusters = await overviewLayoutFunc(indexMeta, layoutParams);
     this.overviewClusters = overviewClusters;
-    return { overviewClusters };
+    const {nlist, ntotal} = indexMeta;
+    return { overviewClusters, nlist, ntotal };
   }
   async computeSearchViewVisData(
     viewType: EViewType,
     searchRecords: TSearchRecords,
     _layoutParams: TLayoutParamsIvfflat,
-    indexMeta: TIndexMeta
+    indexMeta: TIndexMetaIvfflat
   ): Promise<TVisDataIvfflatSearchView> {
     const layoutParams = Object.assign(
       {},

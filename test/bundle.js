@@ -155,22 +155,22 @@
         return sum2(input) / input.length;
       }
       exports.mean = mean;
-      function max2(input) {
-        var max3 = 0;
+      function max3(input) {
+        var max4 = 0;
         for (var i = 0; i < input.length; i++) {
-          max3 = input[i] > max3 ? input[i] : max3;
+          max4 = input[i] > max4 ? input[i] : max4;
         }
-        return max3;
+        return max4;
       }
-      exports.max = max2;
+      exports.max = max3;
       function max2d(input) {
-        var max3 = 0;
+        var max4 = 0;
         for (var i = 0; i < input.length; i++) {
           for (var j = 0; j < input[i].length; j++) {
-            max3 = input[i][j] > max3 ? input[i][j] : max3;
+            max4 = input[i][j] > max4 ? input[i][j] : max4;
           }
         }
-        return max3;
+        return max4;
       }
       exports.max2d = max2d;
       function rejectionSample(nSamples, poolSize, random) {
@@ -701,12 +701,12 @@
       }
       exports.normalize = normalize2;
       var normFns = (_a = {}, _a["max"] = function(xs) {
-        var max2 = -Infinity;
+        var max3 = -Infinity;
         for (var i = 0; i < xs.length; i++) {
-          max2 = xs[i] > max2 ? xs[i] : max2;
+          max3 = xs[i] > max3 ? xs[i] : max3;
         }
         return xs.map(function(x3) {
-          return x3 / max2;
+          return x3 / max3;
         });
       }, _a["l1"] = function(xs) {
         var sum2 = 0;
@@ -1294,7 +1294,7 @@
     "node_modules/ml-array-max/lib/index.js"(exports, module) {
       "use strict";
       var isAnyArray = require_lib2();
-      function max2(input, options = {}) {
+      function max3(input, options = {}) {
         if (!isAnyArray.isAnyArray(input)) {
           throw new TypeError("input must be an array");
         }
@@ -1315,7 +1315,7 @@
         }
         return maxValue;
       }
-      module.exports = max2;
+      module.exports = max3;
     }
   });
 
@@ -1354,12 +1354,12 @@
     "node_modules/ml-array-rescale/lib/index.js"(exports, module) {
       "use strict";
       var isAnyArray = require_lib2();
-      var max2 = require_lib3();
+      var max3 = require_lib3();
       var min3 = require_lib4();
       function _interopDefaultLegacy(e) {
         return e && typeof e === "object" && "default" in e ? e : { "default": e };
       }
-      var max__default = /* @__PURE__ */ _interopDefaultLegacy(max2);
+      var max__default = /* @__PURE__ */ _interopDefaultLegacy(max3);
       var min__default = /* @__PURE__ */ _interopDefaultLegacy(min3);
       function rescale(input, options = {}) {
         if (!isAnyArray.isAnyArray(input)) {
@@ -2178,14 +2178,14 @@ ${indentData}`);
         };
       }
       function checkRowIndex(matrix, index2, outer) {
-        let max2 = outer ? matrix.rows : matrix.rows - 1;
-        if (index2 < 0 || index2 > max2) {
+        let max3 = outer ? matrix.rows : matrix.rows - 1;
+        if (index2 < 0 || index2 > max3) {
           throw new RangeError("Row index out of range");
         }
       }
       function checkColumnIndex(matrix, index2, outer) {
-        let max2 = outer ? matrix.columns : matrix.columns - 1;
-        if (index2 < 0 || index2 > max2) {
+        let max3 = outer ? matrix.columns : matrix.columns - 1;
+        if (index2 < 0 || index2 > max3) {
           throw new RangeError("Column index out of range");
         }
       }
@@ -2497,14 +2497,14 @@ ${indentData}`);
           if (typeof options !== "object") {
             throw new TypeError("options must be an object");
           }
-          const { min: min3 = 0, max: max2 = 1e3, random = Math.random } = options;
+          const { min: min3 = 0, max: max3 = 1e3, random = Math.random } = options;
           if (!Number.isInteger(min3))
             throw new TypeError("min must be an integer");
-          if (!Number.isInteger(max2))
+          if (!Number.isInteger(max3))
             throw new TypeError("max must be an integer");
-          if (min3 >= max2)
+          if (min3 >= max3)
             throw new RangeError("min must be smaller than max");
-          let interval2 = max2 - min3;
+          let interval2 = max3 - min3;
           let matrix = new Matrix(rows, columns);
           for (let i = 0; i < rows; i++) {
             for (let j = 0; j < columns; j++) {
@@ -2936,37 +2936,37 @@ ${indentData}`);
           }
           switch (by) {
             case "row": {
-              const max2 = new Array(this.rows).fill(Number.NEGATIVE_INFINITY);
+              const max3 = new Array(this.rows).fill(Number.NEGATIVE_INFINITY);
               for (let row = 0; row < this.rows; row++) {
                 for (let column = 0; column < this.columns; column++) {
-                  if (this.get(row, column) > max2[row]) {
-                    max2[row] = this.get(row, column);
+                  if (this.get(row, column) > max3[row]) {
+                    max3[row] = this.get(row, column);
                   }
                 }
               }
-              return max2;
+              return max3;
             }
             case "column": {
-              const max2 = new Array(this.columns).fill(Number.NEGATIVE_INFINITY);
+              const max3 = new Array(this.columns).fill(Number.NEGATIVE_INFINITY);
               for (let row = 0; row < this.rows; row++) {
                 for (let column = 0; column < this.columns; column++) {
-                  if (this.get(row, column) > max2[column]) {
-                    max2[column] = this.get(row, column);
+                  if (this.get(row, column) > max3[column]) {
+                    max3[column] = this.get(row, column);
                   }
                 }
               }
-              return max2;
+              return max3;
             }
             case void 0: {
-              let max2 = this.get(0, 0);
+              let max3 = this.get(0, 0);
               for (let row = 0; row < this.rows; row++) {
                 for (let column = 0; column < this.columns; column++) {
-                  if (this.get(row, column) > max2) {
-                    max2 = this.get(row, column);
+                  if (this.get(row, column) > max3) {
+                    max3 = this.get(row, column);
                   }
                 }
               }
-              return max2;
+              return max3;
             }
             default:
               throw new Error(`invalid option: ${by}`);
@@ -3384,18 +3384,18 @@ ${indentData}`);
           if (typeof options !== "object") {
             throw new TypeError("options must be an object");
           }
-          const { min: min3 = 0, max: max2 = 1 } = options;
+          const { min: min3 = 0, max: max3 = 1 } = options;
           if (!Number.isFinite(min3))
             throw new TypeError("min must be a number");
-          if (!Number.isFinite(max2))
+          if (!Number.isFinite(max3))
             throw new TypeError("max must be a number");
-          if (min3 >= max2)
+          if (min3 >= max3)
             throw new RangeError("min must be smaller than max");
           let newMatrix = new Matrix(this.rows, this.columns);
           for (let i = 0; i < this.rows; i++) {
             const row = this.getRow(i);
             if (row.length > 0) {
-              rescale__default["default"](row, { min: min3, max: max2, output: row });
+              rescale__default["default"](row, { min: min3, max: max3, output: row });
             }
             newMatrix.setRow(i, row);
           }
@@ -3405,12 +3405,12 @@ ${indentData}`);
           if (typeof options !== "object") {
             throw new TypeError("options must be an object");
           }
-          const { min: min3 = 0, max: max2 = 1 } = options;
+          const { min: min3 = 0, max: max3 = 1 } = options;
           if (!Number.isFinite(min3))
             throw new TypeError("min must be a number");
-          if (!Number.isFinite(max2))
+          if (!Number.isFinite(max3))
             throw new TypeError("max must be a number");
-          if (min3 >= max2)
+          if (min3 >= max3)
             throw new RangeError("min must be smaller than max");
           let newMatrix = new Matrix(this.rows, this.columns);
           for (let i = 0; i < this.columns; i++) {
@@ -3418,7 +3418,7 @@ ${indentData}`);
             if (column.length) {
               rescale__default["default"](column, {
                 min: min3,
-                max: max2,
+                max: max3,
                 output: column
               });
             }
@@ -6243,8 +6243,8 @@ ${indentData}`);
           var eWeights = utils.reshape2d(csrMatrix.values, nPoints, this.nNeighbors);
           var embedding = initTransform(eIndices, eWeights, this.embedding);
           var nEpochs = this.nEpochs ? this.nEpochs / 3 : graph.nRows <= 1e4 ? 100 : 30;
-          var graphMax = graph.getValues().reduce(function(max2, val) {
-            return val > max2 ? val : max2;
+          var graphMax = graph.getValues().reduce(function(max3, val) {
+            return val > max3 ? val : max3;
           }, 0);
           graph = graph.map(function(value) {
             return value < graphMax / nEpochs ? 0 : value;
@@ -6472,9 +6472,9 @@ ${indentData}`);
         };
         UMAP3.prototype.makeEpochsPerSample = function(weights, nEpochs) {
           var result = utils.filled(weights.length, -1);
-          var max2 = utils.max(weights);
+          var max3 = utils.max(weights);
           var nSamples = weights.map(function(w) {
-            return w / max2 * nEpochs;
+            return w / max3 * nEpochs;
           });
           nSamples.forEach(function(n, i) {
             if (n > 0)
@@ -7767,18 +7767,18 @@ ${indentData}`);
   // node_modules/d3-array/src/extent.js
   function extent(values, valueof) {
     let min3;
-    let max2;
+    let max3;
     if (valueof === void 0) {
       for (const value of values) {
         if (value != null) {
           if (min3 === void 0) {
             if (value >= value)
-              min3 = max2 = value;
+              min3 = max3 = value;
           } else {
             if (min3 > value)
               min3 = value;
-            if (max2 < value)
-              max2 = value;
+            if (max3 < value)
+              max3 = value;
           }
         }
       }
@@ -7788,17 +7788,17 @@ ${indentData}`);
         if ((value = valueof(value, ++index2, values)) != null) {
           if (min3 === void 0) {
             if (value >= value)
-              min3 = max2 = value;
+              min3 = max3 = value;
           } else {
             if (min3 > value)
               min3 = value;
-            if (max2 < value)
-              max2 = value;
+            if (max3 < value)
+              max3 = value;
           }
         }
       }
     }
-    return [min3, max2];
+    return [min3, max3];
   }
 
   // node_modules/d3-array/src/ticks.js
@@ -7851,6 +7851,26 @@ ${indentData}`);
     else if (error >= e2)
       step1 *= 2;
     return stop < start2 ? -step1 : step1;
+  }
+
+  // node_modules/d3-array/src/max.js
+  function max(values, valueof) {
+    let max3;
+    if (valueof === void 0) {
+      for (const value of values) {
+        if (value != null && (max3 < value || max3 === void 0 && value >= value)) {
+          max3 = value;
+        }
+      }
+    } else {
+      let index2 = -1;
+      for (let value of values) {
+        if ((value = valueof(value, ++index2, values)) != null && (max3 < value || max3 === void 0 && value >= value)) {
+          max3 = value;
+        }
+      }
+    }
+    return max3;
   }
 
   // node_modules/d3-array/src/min.js
@@ -9372,15 +9392,15 @@ ${indentData}`);
     if (o instanceof Hsl)
       return o;
     o = o.rgb();
-    var r = o.r / 255, g = o.g / 255, b = o.b / 255, min3 = Math.min(r, g, b), max2 = Math.max(r, g, b), h = NaN, s = max2 - min3, l = (max2 + min3) / 2;
+    var r = o.r / 255, g = o.g / 255, b = o.b / 255, min3 = Math.min(r, g, b), max3 = Math.max(r, g, b), h = NaN, s = max3 - min3, l = (max3 + min3) / 2;
     if (s) {
-      if (r === max2)
+      if (r === max3)
         h = (g - b) / s + (g < b) * 6;
-      else if (g === max2)
+      else if (g === max3)
         h = (b - r) / s + 2;
       else
         h = (r - g) / s + 4;
-      s /= l < 0.5 ? max2 + min3 : 2 - max2 - min3;
+      s /= l < 0.5 ? max3 + min3 : 2 - max3 - min3;
       h *= 60;
     } else {
       s = l > 0 && l < 1 ? 0 : h;
@@ -10610,7 +10630,7 @@ ${indentData}`);
   selection_default.prototype.transition = transition_default2;
 
   // node_modules/d3-brush/src/brush.js
-  var { abs, max, min: min2 } = Math;
+  var { abs, max: max2, min: min2 } = Math;
   function number1(e) {
     return [+e[0], +e[1]];
   }
@@ -13293,9 +13313,9 @@ ${indentData}`);
   }
 
   // node_modules/d3-format/src/precisionRound.js
-  function precisionRound_default(step, max2) {
-    step = Math.abs(step), max2 = Math.abs(max2) - step;
-    return Math.max(0, exponent_default(max2) - exponent_default(step)) + 1;
+  function precisionRound_default(step, max3) {
+    step = Math.abs(step), max3 = Math.abs(max3) - step;
+    return Math.max(0, exponent_default(max3) - exponent_default(step)) + 1;
   }
 
   // node_modules/d3-polygon/src/centroid.js
@@ -14161,6 +14181,18 @@ ${indentData}`);
     const k = Math.round(p * (items.length - 1));
     return items[k][key];
   };
+  var randomSelect = (arr, k) => {
+    const res = /* @__PURE__ */ new Set();
+    k = Math.min(arr.length, k);
+    while (k > 0) {
+      const itemIndex = Math.floor(Math.random() * arr.length);
+      if (!res.has(itemIndex)) {
+        res.add(itemIndex);
+        k -= 1;
+      }
+    }
+    return Array.from(res).map((i) => arr[i]);
+  };
 
   // federjs/FederLayout/visDataHandler/ivfflat/search/finePolar.ts
   var ivfflatSearchViewLayoutFinePolar = ({
@@ -14305,7 +14337,8 @@ ${indentData}`);
         const overviewLayoutFunc = overviewLayoutFuncMap[viewType];
         const overviewClusters = yield overviewLayoutFunc(indexMeta, layoutParams);
         this.overviewClusters = overviewClusters;
-        return { overviewClusters };
+        const { nlist, ntotal } = indexMeta;
+        return { overviewClusters, nlist, ntotal };
       });
     }
     computeSearchViewVisData(viewType, searchRecords, _layoutParams, indexMeta) {
@@ -14430,7 +14463,7 @@ ${indentData}`);
 }
 .panel-item-text {
   font-weight: 400;
-  word-break: break-all;
+  word-break: keep-all;
   margin-right: 6px;
 }
 .panel-item-text-flex {
@@ -15311,32 +15344,34 @@ ${indentData}`);
   }
 
   // federjs/FederView/hnswView/infoPanelStyles.ts
-  var staticPanelStyles = ({ height, padding }) => ({
+  var staticPanelStyles = ({ width, height, padding }) => ({
     position: "absolute",
     left: "16px",
-    top: "10px",
-    width: `${padding[3] + 10}px`,
+    top: "16px",
+    width: padding ? `${padding[3] + 10}px` : `${width * 0.3}px`,
     "max-height": `${height - 110}px`,
     overflow: "auto",
     borderColor: "#FFFFFF",
     backgroundColor: hexWithOpacity("#000000", 0.6)
   });
-  var clickedPanelStyles = ({ height, padding }) => ({
+  var clickedPanelStyles = ({ width, height, padding }) => ({
     position: "absolute",
     right: "16px",
-    top: "10px",
-    width: `${padding[1] - 10}px`,
+    top: "16px",
+    width: padding ? `${padding[1] - 10}px` : `${width * 0.3}px`,
     "max-height": `${height - 60}px`,
     overflow: "auto",
     borderColor: "#FFFFFF",
     backgroundColor: hexWithOpacity("#000000", 0.6)
   });
-  var hoveredPanelStyles = ({}) => ({
+  var hoveredPanelStyles = ({ width }) => ({
     position: "absolute",
-    width: "300px",
+    width: `${width * 0.3}px`,
     paddingLeft: "6px",
     left: 0,
-    top: 0
+    top: 0,
+    pointerEvents: "none",
+    backgroundColor: hexWithOpacity("#000000", 0.6)
   });
 
   // federjs/FederView/hnswView/initPanels.ts
@@ -15503,6 +15538,7 @@ ${indentData}`);
       return __async(this, null, function* () {
         if (!hoveredPanelPos) {
           this.hoveredPanel.setContent({ content: [] });
+          return;
         }
         if (reverse)
           this.hoveredPanel.setPosition({
@@ -15775,7 +15811,9 @@ ${indentData}`);
           mediaContent.image = yield this.viewParams.mediaContent(node.id);
         else if (this.viewParams.mediaType === "text" /* text */)
           mediaContent.text = yield this.viewParams.mediaContent(node.id);
-        const pathFromEntryTexts = this.overviewNodesLevels.map(({ level }) => `level ${level}: ` + node.pathFromEntry.filter((idWithLevel) => parseNodeIdWidthLevel(idWithLevel)[0] === level).map((idWithLevel) => parseNodeIdWidthLevel(idWithLevel)[1]).join(" => ")).reverse();
+        const pathFromEntryTexts = this.overviewNodesLevels.filter((_, level) => {
+          return level >= this.clickedLevel;
+        }).map(({ level }) => `level ${level}: ` + node.pathFromEntry.filter((idWithLevel) => parseNodeIdWidthLevel(idWithLevel)[0] === level).map((idWithLevel) => parseNodeIdWidthLevel(idWithLevel)[1]).join(" => ")).reverse();
         const linkedNodeText = node.links.join(", ");
         this.clickedPanel.setContent({
           themeColor: "#FFFC85",
@@ -15796,6 +15834,7 @@ ${indentData}`);
       return __async(this, null, function* () {
         if (!hoveredPanelPos) {
           this.hoveredPanel.setContent({ content: [] });
+          return;
         }
         if (reverse)
           this.hoveredPanel.setPosition({
@@ -16529,17 +16568,20 @@ ${indentData}`);
       this.mouseClickHandler = null;
       this.mouseLeaveHandler = null;
       this.overviewClusters = visData.overviewClusters;
+      this.ntotal = visData.ntotal;
+      this.nlist = visData.nlist;
       this.viewParams = Object.assign({}, defaultViewParamsIvfflat_default, viewParams);
       this.init();
     }
     init() {
       this.initCanvas();
+      initPanels.call(this);
       this.initEventListener();
     }
     initCanvas() {
-      const divD3 = create_default("div");
-      this.node = divD3.node();
       const { width, height, canvasScale } = this.viewParams;
+      const divD3 = create_default("div").style("position", "relative").style("width", `${width}px`).style("height", `${height}px`);
+      this.node = divD3.node();
       const canvasD3 = divD3.append("canvas").attr("width", width).attr("height", height);
       this.ctx = canvasD3.node().getContext("2d");
       this.ctx.scale(1 / canvasScale, 1 / canvasScale);
@@ -16567,6 +16609,7 @@ ${indentData}`);
     }
     initVoronoiView() {
       this.renderVoronoiView();
+      this.updateStaticPanel();
       this.mouseClickHandler = null;
       this.mouseMoveHandler = ({ x: x3, y: y3 }) => {
         const hoveredCluster = this.overviewClusters.find((cluster) => contains_default(cluster.OVPolyPoints, [x3, y3]));
@@ -16583,6 +16626,94 @@ ${indentData}`);
     renderVoronoiView() {
       clearCanvas.call(this);
       renderClusters2.call(this);
+      this.updateHoveredPanel();
+    }
+    updateStaticPanel() {
+      return __async(this, null, function* () {
+        const maxCount = max(this.overviewClusters, (cluster) => cluster.count);
+        const minCount = min(this.overviewClusters, (cluster) => cluster.count);
+        this.staticPanel.setContent({
+          themeColor: "#FFFFFF",
+          hasBorder: true,
+          content: [
+            { title: "IVFFlat" },
+            {
+              text: `${this.ntotal} vectors, divided into ${this.nlist} clusters.`
+            },
+            {
+              text: `The largest cluster has ${maxCount} vectors and the smallest cluster has only ${minCount} vectors.`
+            }
+          ]
+        });
+      });
+    }
+    updateHoveredPanel() {
+      return __async(this, null, function* () {
+        if (!this.hoveredCluster) {
+          this.hoveredPanel.setContent({ content: [] });
+          return;
+        }
+        if (this.viewParams.mediaType === "image" /* image */) {
+          const mediaContent = {};
+          mediaContent.images = [];
+          const representIds = randomSelect(this.hoveredCluster.ids, 9);
+          for (let i = 0; i < representIds.length; i++) {
+            const image = yield this.viewParams.mediaContent(representIds[i]);
+            mediaContent.images.push(image);
+          }
+          this.hoveredPanel.setContent({
+            themeColor: "#FFFC85",
+            hasBorder: true,
+            content: [
+              {
+                text: `cluster-${this.hoveredCluster.clusterId}`
+              },
+              {
+                text: `including ${this.hoveredCluster.count} vectors`
+              },
+              mediaContent
+            ]
+          });
+        } else if (this.viewParams.mediaType === "text" /* text */) {
+          const representIds = randomSelect(this.hoveredCluster.ids, 6);
+          const mediaContents = [];
+          for (let i = 0; i < representIds.length; i++) {
+            const text = yield this.viewParams.mediaContent(representIds[i]);
+            mediaContents.push({ text });
+          }
+          this.hoveredPanel.setContent({
+            themeColor: "#FFFC85",
+            hasBorder: true,
+            content: [
+              {
+                text: `cluster-${this.hoveredCluster.clusterId}`
+              },
+              {
+                text: `including ${this.hoveredCluster.count} vectors`
+              },
+              ...mediaContents
+            ]
+          });
+        }
+        const { width, height, canvasScale } = this.viewParams;
+        const pos = vecMultiply(this.hoveredCluster.OVPolyCentroid, 1 / canvasScale);
+        const posStyle = {};
+        if (pos[0] > width * 0.6) {
+          posStyle.left = null;
+          posStyle.right = `${width - pos[0] + 10}px`;
+        } else {
+          posStyle.left = `${pos[0] + 10}px`;
+          posStyle.right = null;
+        }
+        if (pos[1] > height * 0.55) {
+          posStyle.top = null;
+          posStyle.bottom = `${height - pos[1] + 6}px`;
+        } else {
+          posStyle.top = `${pos[1] + 6}px`;
+          posStyle.bottom = null;
+        }
+        this.hoveredPanel.setPosition(posStyle);
+      });
     }
   };
 
@@ -16608,8 +16739,8 @@ ${indentData}`);
 
   // test/config.js
   var local = true;
-  var hnswSource = "hnswlib";
-  var hnswIndexFilePath = local ? "data/hnswlib_hnsw_voc_17k.index" : "https://assets.zilliz.com/hnswlib_hnsw_voc_17k_1f1dfd63a9.index";
+  var ivfflatSource = "faiss";
+  var ivfflatIndexFilePath = local ? "data/faiss_ivf_flat_voc_17k.index" : "https://assets.zilliz.com/faiss_ivf_flat_voc_17k_ab112eec72.index";
   var imgNamesFilePath = "https://assets.zilliz.com/voc_names_4cee9440b1.csv";
   var getRowId2name = () => __async(void 0, null, function* () {
     const data = yield csv2(imgNamesFilePath);
@@ -16631,14 +16762,14 @@ ${indentData}`);
     nprobe: 4
   };
   window.addEventListener("DOMContentLoaded", () => __async(void 0, null, function* () {
-    const arrayBuffer = yield fetch(hnswIndexFilePath).then((res) => res.arrayBuffer());
+    const arrayBuffer = yield fetch(ivfflatIndexFilePath).then((res) => res.arrayBuffer());
     const rowId2imgUrl = yield getRowId2imgUrl();
-    const federIndex = new FederIndex(hnswSource);
+    const federIndex = new FederIndex(ivfflatSource);
     console.log(federIndex);
     federIndex.initByArrayBuffer(arrayBuffer);
     const federLayout = new FederLayout(federIndex);
     const visDataAll = yield federLayout.getVisData({
-      actionType: "search",
+      actionType: "overview",
       actionData: {
         target: testVector,
         targetMedia: rowId2imgUrl(12345),
