@@ -25,6 +25,7 @@ window.addEventListener('DOMContentLoaded', async () => {
   const rowId2imgUrl = await getRowId2imgUrl();
 
   const federIndex = new FederIndex(hnswSource);
+  console.log(federIndex);
 
   federIndex.initByArrayBuffer(arrayBuffer);
 
@@ -54,6 +55,7 @@ window.addEventListener('DOMContentLoaded', async () => {
   const viewParams = {
     mediaType: 'image',
     mediaContent: rowId2imgUrl,
+    getVectorById: (id) => federIndex.getVectorById(id),
   };
   const federView = new FederView(visDataAll, viewParams);
   console.log('federView', federView);

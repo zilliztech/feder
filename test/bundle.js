@@ -7480,6 +7480,30 @@ ${indentData}`);
     }
   };
 
+  // federjs/FederIndex/id2VectorHandler/index.ts
+  var getId2VectorHnsw = (index2) => {
+    const id2Vector = {};
+    index2.labels.forEach((label, i) => id2Vector[label] = index2.vectors[i]);
+    return id2Vector;
+  };
+  var getId2VectorIvfflat = (index2) => {
+    const id2Vector = {};
+    index2.invlists.data.forEach(({ ids, vectors }) => {
+      ids.forEach((id2, i) => id2Vector[id2] = vectors[i]);
+    });
+    return id2Vector;
+  };
+  var getId2VectorMap = {
+    ["hnsw" /* hnsw */]: getId2VectorHnsw,
+    ["ivfflat" /* ivfflat */]: getId2VectorIvfflat
+  };
+  function id2VectorHandler(index2) {
+    const indexType = index2.indexType;
+    const getId2Vector = getId2VectorMap[indexType];
+    const id2Vector = getId2Vector(index2);
+    return id2Vector;
+  }
+
   // federjs/FederIndex/index.ts
   var FederIndex = class {
     constructor(sourceType) {
@@ -7490,6 +7514,7 @@ ${indentData}`);
       this.indexType = this.index.indexType;
       this.searchHandler = new SearchHandler(this.indexType);
       this.metaHandler = new MetaHandler(this.indexType);
+      this.id2vector = id2VectorHandler(this.index);
     }
     getIndexType() {
       return __async(this, null, function* () {
@@ -7508,6 +7533,11 @@ ${indentData}`);
           target,
           searchParams
         });
+      });
+    }
+    getVectorById(id2) {
+      return __async(this, null, function* () {
+        return Array.from(this.id2vector[id2]);
       });
     }
   };
@@ -7639,7 +7669,8 @@ ${indentData}`);
       const nodes = Object.keys(id2nodeType).map((id2) => ({
         id: id2,
         type: id2nodeType[id2],
-        dist: id2dist[id2]
+        dist: id2dist[id2],
+        source: sourceMap[id2]
       }));
       const links = Object.keys(linkId2linkType).map((linkId) => {
         const [source, target] = parseLinkId(linkId);
@@ -14375,7 +14406,7 @@ ${indentData}`);
   opacity: 0;
 }
 .panel-item {
-  margin-bottom: 6px;
+  margin-bottom: 4px;
 }
 .panel-img {
   width: 150px;
@@ -14395,6 +14426,7 @@ ${indentData}`);
   font-weight: 600;
   font-size: 12px;
   margin-right: 10px;
+  background: rgba(0,0,0,0.8);
 }
 .panel-item-text {
   font-weight: 400;
@@ -15208,6 +15240,35 @@ ${indentData}`);
     });
   }
 
+  // federjs/FederView/hnswView/renderTipLine.ts
+  function renderTipLine(startPos, reverse = false) {
+    const {
+      canvasScale,
+      tipLineOffset,
+      tipLineAngle,
+      tipLineColor,
+      tipLineWidth
+    } = this.viewParams;
+    const t = reverse ? -1 : 1;
+    const middlePointX = startPos[0] + t * Math.abs(tipLineOffset[1]) * canvasScale / Math.tan(tipLineAngle);
+    const middlePointY = startPos[1] + t * tipLineOffset[1] * canvasScale;
+    const endPosX = startPos[0] + t * tipLineOffset[0] * canvasScale;
+    const endPosY = startPos[1] + t * tipLineOffset[1] * canvasScale;
+    const points = [
+      startPos,
+      [middlePointX, middlePointY],
+      [endPosX, endPosY]
+    ];
+    drawLines({
+      ctx: this.ctx,
+      pointsList: [points],
+      hasStroke: true,
+      strokeStyle: tipLineColor,
+      lineWidth: tipLineWidth * canvasScale
+    });
+    return [endPosX, endPosY];
+  }
+
   // federjs/FederView/hnswView/HnswSearchView/transitionSearchView.ts
   function transitionSearchView(t) {
     clearCanvas.call(this);
@@ -15239,6 +15300,14 @@ ${indentData}`);
       renderNodes.call(this, showNodes, level);
     }
     renderClickedNode.call(this);
+    if (!!this.hoveredNode) {
+      const nodePos = this.hoveredNode.searchViewPosLevels[this.hoveredLevel];
+      const origin = vecMultiply(vecAdd(this.searchLayerPosLevels[0][0], this.searchLayerPosLevels[0][2]), 0.5);
+      const reverse = this.hoveredNode.searchViewPosLevels[this.hoveredLevel][0] < origin[0];
+      const tooltipPos = renderTipLine.call(this, nodePos, reverse);
+      this.updateHoveredPanel(vecMultiply(tooltipPos, 1 / this.viewParams.canvasScale), reverse);
+    } else
+      this.updateHoveredPanel(null);
   }
 
   // federjs/FederView/hnswView/infoPanelStyles.ts
@@ -15257,7 +15326,7 @@ ${indentData}`);
     right: "16px",
     top: "10px",
     width: `${padding[1] - 10}px`,
-    "max-height": `${height - 20}px`,
+    "max-height": `${height - 60}px`,
     overflow: "auto",
     borderColor: "#FFFFFF",
     backgroundColor: hexWithOpacity("#000000", 0.6)
@@ -15404,10 +15473,60 @@ ${indentData}`);
     }
     updateClickedPanel() {
       return __async(this, null, function* () {
+        const node = this.clickedNode;
+        if (!node) {
+          this.clickedPanel.setContent({ content: [] });
+          return;
+        }
+        const mediaContent = {};
+        if (this.viewParams.mediaType === "image" /* image */)
+          mediaContent.image = yield this.viewParams.mediaContent(node.id);
+        else if (this.viewParams.mediaType === "text" /* text */)
+          mediaContent.text = yield this.viewParams.mediaContent(node.id);
+        const vector = yield this.viewParams.getVectorById(node.id);
+        const vectorString = vector.map((v2) => v2.toFixed(6)).join(", ");
+        this.clickedPanel.setContent({
+          themeColor: "#FFFC85",
+          hasBorder: true,
+          content: [
+            { title: `Level ${this.clickedLevel}` },
+            { text: `Row No. ${node.id}` },
+            { text: `Distance: ${node.dist.toFixed(3)}` },
+            mediaContent,
+            { title: `Vector:` },
+            { text: vectorString }
+          ]
+        });
       });
     }
-    updateHoveredPanel() {
+    updateHoveredPanel(hoveredPanelPos, reverse = false) {
       return __async(this, null, function* () {
+        if (!hoveredPanelPos) {
+          this.hoveredPanel.setContent({ content: [] });
+        }
+        if (reverse)
+          this.hoveredPanel.setPosition({
+            left: null,
+            right: `${this.viewParams.width - hoveredPanelPos[0]}px`,
+            top: `${hoveredPanelPos[1] - 4}px`
+          });
+        else
+          this.hoveredPanel.setPosition({
+            left: `${hoveredPanelPos[0]}px`,
+            top: `${hoveredPanelPos[1] - 4}px`
+          });
+        const mediaContent = {};
+        if (this.viewParams.mediaType === "image" /* image */)
+          mediaContent.image = yield this.viewParams.mediaContent(this.hoveredNode.id);
+        else if (this.viewParams.mediaType === "text" /* text */)
+          mediaContent.text = yield this.viewParams.mediaContent(this.hoveredNode.id);
+        this.hoveredPanel.setContent({
+          themeColor: "#FFFC85",
+          hasBorder: false,
+          flex: true,
+          flexDirection: reverse ? "row-reverse" : "row",
+          content: [{ title: `No. ${this.hoveredNode.id}` }, mediaContent]
+        });
       });
     }
     initView() {
@@ -15427,11 +15546,13 @@ ${indentData}`);
           const clickedNode = mouse2node(x3, y3, this.clickedLevel);
           if (clickedNode !== this.clickedNode) {
             this.clickedNode = clickedNode;
+            this.updateClickedPanel();
             if (!this.timer.isPlaying)
               transitionSearchView.call(this, this.timer.currentT);
           }
         } else {
           this.clickedNode = null;
+          this.updateClickedPanel();
         }
       };
       this.mouseMoveHandler = ({ x: x3, y: y3 }) => {
@@ -15453,35 +15574,6 @@ ${indentData}`);
       };
     }
   };
-
-  // federjs/FederView/hnswView/renderTipLine.ts
-  function renderTipLine(startPos, reverse = false) {
-    const {
-      canvasScale,
-      tipLineOffset,
-      tipLineAngle,
-      tipLineColor,
-      tipLineWidth
-    } = this.viewParams;
-    const t = reverse ? -1 : 1;
-    const middlePointX = startPos[0] + t * Math.abs(tipLineOffset[1]) * canvasScale / Math.tan(tipLineAngle);
-    const middlePointY = startPos[1] + t * tipLineOffset[1] * canvasScale;
-    const endPosX = startPos[0] + t * tipLineOffset[0] * canvasScale;
-    const endPosY = startPos[1] + t * tipLineOffset[1] * canvasScale;
-    const points = [
-      startPos,
-      [middlePointX, middlePointY],
-      [endPosX, endPosY]
-    ];
-    drawLines({
-      ctx: this.ctx,
-      pointsList: [points],
-      hasStroke: true,
-      strokeStyle: tipLineColor,
-      lineWidth: tipLineWidth * canvasScale
-    });
-    return [endPosX, endPosY];
-  }
 
   // federjs/FederView/hnswView/HnswOverview/renderLinks.ts
   function renderLinks2(baseLinks, pathFromEntryLinks, path2NeighborLinks) {
@@ -15726,7 +15818,7 @@ ${indentData}`);
           hasBorder: false,
           flex: true,
           flexDirection: reverse ? "row-reverse" : "row",
-          content: [{ text: `No. ${this.hoveredNode.id}` }, mediaContent]
+          content: [{ title: `No. ${this.hoveredNode.id}` }, mediaContent]
         });
       });
     }
@@ -16542,6 +16634,7 @@ ${indentData}`);
     const arrayBuffer = yield fetch(hnswIndexFilePath).then((res) => res.arrayBuffer());
     const rowId2imgUrl = yield getRowId2imgUrl();
     const federIndex = new FederIndex(hnswSource);
+    console.log(federIndex);
     federIndex.initByArrayBuffer(arrayBuffer);
     const federLayout = new FederLayout(federIndex);
     const visDataAll = yield federLayout.getVisData({
@@ -16557,7 +16650,8 @@ ${indentData}`);
     console.log("visDataAll", visDataAll);
     const viewParams = {
       mediaType: "image",
-      mediaContent: rowId2imgUrl
+      mediaContent: rowId2imgUrl,
+      getVectorById: (id2) => federIndex.getVectorById(id2)
     };
     const federView = new FederView(visDataAll, viewParams);
     console.log("federView", federView);

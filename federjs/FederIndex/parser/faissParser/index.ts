@@ -4,12 +4,10 @@ import readDirectMap from './readDirectMap';
 import readIndexHeader from './readIndexHeader';
 
 import { EIndexType } from 'Types';
-
-enum EFaissIndexHeader {
-  ivfflat = 'IwFl',
-  flatL2 = 'IxF2',
-  flatIR = 'IxFI',
-}
+import {
+  EFaissIndexHeader,
+  TIndexStructureIvfflat,
+} from 'Types/indexStructure';
 
 const readIvfHeader = (reader, index) => {
   readIndexHeader(reader, index);
@@ -50,9 +48,8 @@ const readIndex = (reader) => {
   return index;
 };
 
-export const faissIndexParser = (arraybuffer) => {
+export const faissIndexParser = (arraybuffer: ArrayBuffer) => {
   const faissFileReader = new FaissFileReader(arraybuffer);
   const index = readIndex(faissFileReader);
-  return index;
+  return index as TIndexStructureIvfflat;
 };
-

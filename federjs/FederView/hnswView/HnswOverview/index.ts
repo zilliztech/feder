@@ -185,7 +185,7 @@ export default class HnswOverview implements TViewHandler {
       hasBorder: false,
       flex: true,
       flexDirection: reverse ? 'row-reverse' : 'row',
-      content: [{ text: `No. ${this.hoveredNode.id}` }, mediaContent],
+      content: [{ title: `No. ${this.hoveredNode.id}` }, mediaContent],
     });
   }
   initView() {

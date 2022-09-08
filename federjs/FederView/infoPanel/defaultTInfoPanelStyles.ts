@@ -15,7 +15,7 @@ export const cssDefinition = `
   opacity: 0;
 }
 .panel-item {
-  margin-bottom: 6px;
+  margin-bottom: 4px;
 }
 .panel-img {
   width: 150px;
@@ -35,6 +35,7 @@ export const cssDefinition = `
   font-weight: 600;
   font-size: 12px;
   margin-right: 10px;
+  background: rgba(0,0,0,0.8);
 }
 .panel-item-text {
   font-weight: 400;
