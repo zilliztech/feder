@@ -1,5 +1,6 @@
 import ViewHandler from 'FederView/types';
 import {
+  TAcitonData,
   TViewParamsIvfflat,
   TVisDataIvfflatSearchView,
   TVisDataIvfflatSearchViewCluster,
@@ -13,15 +14,14 @@ import * as d3 from 'd3';
 import { TCoord } from 'Types';
 import { getDisL2Square } from 'Utils/distFunc';
 import clearCanvas from '../../clearCanvas';
-import transitionClustersExit from './transitionClustersExit';
-import transitionNodesEnter from './transitionNodesEnter';
-import transitionNodesMove from './transitionNodesMove';
-import transitionTargetMove from './transitionTargetMove';
 import renderPolarAxis from './renderPolarAxis';
-import transitionPolarAxisEnter from './transtionPolarAxisEnter';
 import defaltViewParamsIvfflat from '../defaultViewParamsIvfflat';
 import InfoPanel from 'FederView/InfoPanel';
 import initPanels from 'FederView/hnswView/initPanels';
+import updateHoveredPanelNodeView from './updateHoveredPanelNodeView';
+import updateHoveredPanelVoronoiView from './updateHoveredPanelVoronoiView';
+import updateStaticPanel from './updateStaticPanel';
+import switchView from './switchView';
 
 export enum EStepType {
   voronoi = 'voronoi',
@@ -50,10 +50,14 @@ export default class IvfflatSearchView implements ViewHandler {
   mouseLeaveHandler: () => void = null;
   colorScheme: string[];
   nprobe: number;
+  actionData: TAcitonData;
+  nlist: number;
+  ntotal: number;
 
   constructor(
     visData: TVisDataIvfflatSearchView,
-    viewParams: TViewParamsIvfflat
+    viewParams: TViewParamsIvfflat,
+    actionData: TAcitonData
   ) {
     const {
       searchViewClusters,
@@ -61,12 +65,17 @@ export default class IvfflatSearchView implements ViewHandler {
       targetNode,
       polarOrigin,
       polarR,
+      nlist,
+      ntotal,
     } = visData;
+    this.actionData = actionData;
     this.searchViewClusters = searchViewClusters;
     this.searchViewNodes = searchViewNodes;
     this.targetNode = targetNode;
     this.polarOrigin = polarOrigin;
     this.polarR = polarR;
+    this.nlist = nlist;
+    this.ntotal = ntotal;
     this.viewParams = Object.assign({}, defaltViewParamsIvfflat, viewParams);
     this.init();
   }
@@ -86,9 +95,13 @@ export default class IvfflatSearchView implements ViewHandler {
       .map((i) => d3.hsl((360 * i) / this.nprobe, 1, 0.5).formatHex());
   }
   initCanvas() {
-    const divD3 = d3.create('div');
-    this.node = divD3.node();
     const { width, height, canvasScale } = this.viewParams;
+    const divD3 = d3
+      .create('div')
+      .style('width', `${width}px`)
+      .style('height', `${height}px`)
+      .style('position', 'relative');
+    this.node = divD3.node();
     const canvasD3 = divD3
       .append('canvas')
       .attr('width', width)
@@ -98,31 +111,29 @@ export default class IvfflatSearchView implements ViewHandler {
   }
   initEventListener() {
     const { canvasScale } = this.viewParams;
-    this.node.addEventListener('mousemove', (e) => {
+    this.ctx.canvas.addEventListener('mousemove', (e) => {
       const { offsetX, offsetY } = e;
       const x = offsetX * canvasScale;
       const y = offsetY * canvasScale;
       this.mouseMoveHandler && this.mouseMoveHandler({ x, y });
     });
-    this.node.addEventListener('click', (e) => {
+    this.ctx.canvas.addEventListener('click', (e) => {
       const { offsetX, offsetY } = e;
       const x = offsetX * canvasScale;
       const y = offsetY * canvasScale;
       this.mouseClickHandler && this.mouseClickHandler({ x, y });
     });
-    this.node.addEventListener('mouseleave', () => {
+    this.ctx.canvas.addEventListener('mouseleave', () => {
       this.mouseLeaveHandler && this.mouseLeaveHandler();
     });
   }
 
   render() {
-    this.updateStaticPanel(EStepType.voronoi);
+    updateStaticPanel.call(this, EStepType.voronoi);
     this.initVoronoiView();
     // this.initPolarView();
     // this.initProjectView();
   }
-
-  updateStaticPanel(newStepType: EStepType) {}
 
   initVoronoiView() {
     this.stepType = EStepType.voronoi;
@@ -136,18 +147,20 @@ export default class IvfflatSearchView implements ViewHandler {
       if (hoveredCluster !== this.hoveredCluster) {
         this.hoveredCluster = hoveredCluster;
         this.renderVoronoiView();
+        updateHoveredPanelVoronoiView.call(this);
       }
     };
     this.mouseLeaveHandler = () => {
       this.hoveredCluster = null;
       this.renderVoronoiView();
+      updateHoveredPanelVoronoiView.call(this);
     };
   }
+
   renderVoronoiView() {
     clearCanvas.call(this);
     renderClusters.call(this);
     renderTarget.call(this);
-    // updatePanel
   }
 
   initPolarView() {
@@ -181,12 +194,14 @@ export default class IvfflatSearchView implements ViewHandler {
       if (hoveredNode !== this.hoveredNode) {
         this.hoveredNode = hoveredNode;
         this.renderNodesView();
+        updateHoveredPanelNodeView.call(this);
       }
     };
 
     this.mouseLeaveHandler = () => {
       this.hoveredNode = null;
       this.renderNodesView();
+      updateHoveredPanelNodeView.call(this);
     };
   }
   renderNodesView() {
@@ -196,134 +211,7 @@ export default class IvfflatSearchView implements ViewHandler {
     renderTarget.call(this);
     // updatePanel
   }
-
   switchView(newStepType: EStepType) {
-    console.log(this.stepType, newStepType);
-    if (newStepType === this.stepType) return;
-
-    this.updateStaticPanel(newStepType);
-
-    const {
-      transitionClustersExitTime,
-      transitionReplaceTime,
-      transitionNodesEnterTime,
-      transitionNodesMoveTime,
-    } = this.viewParams;
-
-    const allTime =
-      transitionClustersExitTime +
-      transitionReplaceTime +
-      transitionNodesEnterTime;
-
-    if (newStepType === EStepType.voronoi) {
-      // node => voronoi
-      const timer = d3.timer((elapsed) => {
-        if (elapsed > allTime) {
-          timer.stop();
-          this.stepType = newStepType;
-          this.initVoronoiView();
-        } else {
-          clearCanvas.call(this);
-          // nodes exit and clusters enter
-          const reverse = true;
-          transitionClustersExit.call(
-            this,
-            elapsed - transitionNodesEnterTime,
-            reverse
-          );
-          this.stepType === EStepType.polar &&
-            transitionPolarAxisEnter.call(this, elapsed, reverse);
-          transitionNodesEnter.call(this, elapsed, this.stepType, reverse);
-          transitionTargetMove.call(
-            this,
-            elapsed,
-            transitionNodesEnterTime,
-            this.stepType,
-            EStepType.polar
-          );
-          transitionTargetMove.call(
-            this,
-            elapsed - transitionNodesEnterTime,
-            transitionReplaceTime,
-            EStepType.polar,
-            EStepType.polar
-          );
-          transitionTargetMove.call(
-            this,
-            elapsed - transitionNodesEnterTime - transitionReplaceTime,
-            transitionClustersExitTime,
-            EStepType.polar,
-            newStepType
-          );
-        }
-      });
-    } else if (this.stepType === EStepType.voronoi) {
-      // voronoi => node
-      const timer = d3.timer((elapsed) => {
-        if (elapsed > allTime) {
-          timer.stop();
-          this.stepType = newStepType;
-          this.initNodesView();
-        } else {
-          clearCanvas.call(this);
-          transitionClustersExit.call(this, elapsed);
-          newStepType === EStepType.polar &&
-            transitionPolarAxisEnter.call(
-              this,
-              elapsed - transitionClustersExitTime - transitionReplaceTime
-            );
-          transitionNodesEnter.call(
-            this,
-            elapsed - transitionClustersExitTime,
-            newStepType
-          );
-          transitionTargetMove.call(
-            this,
-            elapsed,
-            transitionClustersExitTime,
-            this.stepType,
-            EStepType.polar
-          );
-          transitionTargetMove.call(
-            this,
-            elapsed - transitionClustersExitTime,
-            transitionReplaceTime,
-            EStepType.polar,
-            EStepType.polar
-          );
-          transitionTargetMove.call(
-            this,
-            elapsed - transitionClustersExitTime - transitionReplaceTime,
-            transitionNodesEnterTime,
-            EStepType.polar,
-            newStepType
-          );
-        }
-      });
-    } else {
-      // node => node
-      const timer = d3.timer((elapsed) => {
-        if (elapsed > transitionNodesMoveTime) {
-          timer.stop();
-          this.stepType = newStepType;
-          this.initNodesView();
-        } else {
-          clearCanvas.call(this);
-          transitionPolarAxisEnter.call(
-            this,
-            elapsed,
-            newStepType === EStepType.project
-          );
-          transitionNodesMove.call(this, elapsed);
-          transitionTargetMove.call(
-            this,
-            elapsed,
-            transitionClustersExitTime,
-            this.stepType,
-            newStepType
-          );
-        }
-      });
-    }
+    switchView.call(this, newStepType);
   }
 }

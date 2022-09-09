@@ -65,6 +65,8 @@ export interface TVisDataIvfflatSearchView {
   targetNode: TVisDataIvfflatSearchViewTargetNode;
   polarOrigin: TCoord;
   polarR: number;
+  nlist: number;
+  ntotal: number;
 }
 
 export interface TLayoutParamsIvfflat {

@@ -90,6 +90,14 @@ export default class FederLayoutIvfflat implements TFederLayoutHandler {
           .overviewClusters
       : this.overviewClusters;
 
-    return searchViewLayoutFunc(overviewClusters, searchRecords, layoutParams);
+    const searchRes = await searchViewLayoutFunc(
+      overviewClusters,
+      searchRecords,
+      layoutParams
+    );
+
+    const { nlist, ntotal } = indexMeta;
+
+    return Object.assign(searchRes, { nlist, ntotal });
   }
 }
