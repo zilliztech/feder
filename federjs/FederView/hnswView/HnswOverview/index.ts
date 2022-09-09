@@ -122,13 +122,13 @@ export default class HnswOverview implements TViewHandler {
 
     const mediaContent = {} as TInfoPanelContentItem;
     if (this.viewParams.mediaType === EMediaType.image)
-      mediaContent.image = await this.viewParams.mediaContent(node.id);
+      mediaContent.image = this.viewParams.mediaContent(node.id);
     else if (this.viewParams.mediaType === EMediaType.text)
-      mediaContent.text = await this.viewParams.mediaContent(node.id);
+      mediaContent.text = this.viewParams.mediaContent(node.id);
 
     const pathFromEntryTexts = this.overviewNodesLevels
       .filter((_, level) => {
-        return level >= this.clickedLevel
+        return level >= this.clickedLevel;
       })
       .map(
         ({ level }) =>
@@ -176,11 +176,11 @@ export default class HnswOverview implements TViewHandler {
 
     const mediaContent = {} as TInfoPanelContentItem;
     if (this.viewParams.mediaType === EMediaType.image)
-      mediaContent.image = await this.viewParams.mediaContent(
+      mediaContent.image = this.viewParams.mediaContent(
         this.hoveredNode.id
       );
     else if (this.viewParams.mediaType === EMediaType.text)
-      mediaContent.text = await this.viewParams.mediaContent(
+      mediaContent.text = this.viewParams.mediaContent(
         this.hoveredNode.id
       );
 

@@ -9,15 +9,17 @@ import {
 } from 'Types/visData';
 import TViewHandler from 'FederView/types';
 
-import InfoPanel, { TInfoPanelContentItem } from 'FederView/InfoPanel';
+import InfoPanel from 'FederView/InfoPanel';
 import * as d3 from 'd3';
 import TimeControllerView from './TimeControllerView';
 import defaultViewParamsHnsw from '../defaultViewParamsHnsw';
 import TimerController from './TimerController';
 import transitionSearchView from './transitionSearchView';
-import { EMediaType, TCoord, TId, TSearchParams } from 'Types';
+import { TCoord, TId, TSearchParams } from 'Types';
 import { getDisL2Square } from 'Utils/distFunc';
 import initPanels from '../initPanels';
+import updateStaticPanel from './updateStaticPanel';
+import updateClickedPanel from './updateClickedPanel';
 
 export default class HnswSearchView implements TViewHandler {
   node: HTMLElement;
@@ -143,132 +145,10 @@ export default class HnswSearchView implements TViewHandler {
   render() {
     this.initView();
   }
-  async updateStaticPanel() {
-    const { targetMedia } = this.actionData;
-    let mediaContent = null;
-    if (!!targetMedia) {
-      mediaContent = {} as TInfoPanelContentItem;
-      if (this.viewParams.mediaType === EMediaType.image)
-        mediaContent.image = targetMedia;
-      else if (this.viewParams.mediaType === EMediaType.text)
-        mediaContent.text = targetMedia;
-    }
-    const ntotalContent = {
-      text: `${this.ntotal} vectors, including ${this.searchNodesLevels.length} layers.`,
-    };
-    const metaContent = {
-      text: `M = ${this.M}, ef_contruction = ${this.efConstruction}.`,
-    };
-    const searchParamsContent = {
-      text: `k = ${this.searchParams.k}, ef_search = ${this.searchParams.ef}.`,
-    };
-    const numVisitedVector = Array.from(
-      new Set(
-        this.searchNodesLevels.reduce(
-          (acc, nodes) => acc.concat(nodes.map((node) => node.id)),
-          [] as TId[]
-        )
-      )
-    ).length;
-    const statisticsContent = {
-      text: `${numVisitedVector} vectors were visited during search.`,
-    };
-    const searchDetailContent = this.searchNodesLevels
-      .map((nodes, i) => {
-        const part1 = {
-          title: `Level ${i}`,
-          text: `min-dist: ${d3.min(nodes, (node) => node.dist).toFixed(3)}`,
-        };
-        const part2 = {
-          text:
-            `${nodes.length} / ${this.nodesCount[i]} vectors, ` +
-            `${this.searchLinksLevels[i].length} / ${this.linksCount[i]} links.`,
-        };
-        return [part1, part2];
-      })
-      .reverse()
-      .reduce((acc, cur) => acc.concat(cur), []);
-    this.staticPanel.setContent({
-      themeColor: '#FFFFFF',
-      hasBorder: true,
-      content: [
-        { title: 'HNSW - Search' },
-        mediaContent,
-        metaContent,
-        searchParamsContent,
-        ntotalContent,
-        statisticsContent,
-        ...searchDetailContent,
-      ].filter((a) => a),
-    });
-  }
-  async updateClickedPanel() {
-    const node = this.clickedNode;
-    if (!node) {
-      this.clickedPanel.setContent({ content: [] });
-      return;
-    }
 
-    const mediaContent = {} as TInfoPanelContentItem;
-    if (this.viewParams.mediaType === EMediaType.image)
-      mediaContent.image = await this.viewParams.mediaContent(node.id);
-    else if (this.viewParams.mediaType === EMediaType.text)
-      mediaContent.text = await this.viewParams.mediaContent(node.id);
-
-    const vector = await this.viewParams.getVectorById(node.id);
-    const vectorString = vector.map((v) => v.toFixed(6)).join(', ');
-
-    this.clickedPanel.setContent({
-      themeColor: '#FFFC85',
-      hasBorder: true,
-      content: [
-        { title: `Level ${this.clickedLevel}` },
-        { text: `Row No. ${node.id}` },
-        { text: `Distance: ${node.dist.toFixed(3)}` },
-        mediaContent,
-        { title: `Vector:` },
-        { text: vectorString },
-      ],
-    });
-  }
-  async updateHoveredPanel(hoveredPanelPos: TCoord, reverse = false) {
-    if (!hoveredPanelPos) {
-      this.hoveredPanel.setContent({ content: [] });
-      return
-    }
-    if (reverse)
-      this.hoveredPanel.setPosition({
-        left: null,
-        right: `${this.viewParams.width - hoveredPanelPos[0]}px`,
-        top: `${hoveredPanelPos[1] - 4}px`,
-      });
-    else
-      this.hoveredPanel.setPosition({
-        left: `${hoveredPanelPos[0]}px`,
-        top: `${hoveredPanelPos[1] - 4}px`,
-      });
-
-    const mediaContent = {} as TInfoPanelContentItem;
-    if (this.viewParams.mediaType === EMediaType.image)
-      mediaContent.image = await this.viewParams.mediaContent(
-        this.hoveredNode.id
-      );
-    else if (this.viewParams.mediaType === EMediaType.text)
-      mediaContent.text = await this.viewParams.mediaContent(
-        this.hoveredNode.id
-      );
-
-    this.hoveredPanel.setContent({
-      themeColor: '#FFFC85',
-      hasBorder: false,
-      flex: true,
-      flexDirection: reverse ? 'row-reverse' : 'row',
-      content: [{ title: `No. ${this.hoveredNode.id}` }, mediaContent],
-    });
-  }
   initView() {
     this.timer.start();
-    this.updateStaticPanel();
+    updateStaticPanel.call(this);
 
     const mouse2level = (x: number, y: number) =>
       this.searchLayerPosLevels.findIndex((points) =>
@@ -292,13 +172,13 @@ export default class HnswSearchView implements TViewHandler {
         const clickedNode = mouse2node(x, y, this.clickedLevel);
         if (clickedNode !== this.clickedNode) {
           this.clickedNode = clickedNode;
-          this.updateClickedPanel();
+          updateClickedPanel.call(this);
           if (!this.timer.isPlaying)
             transitionSearchView.call(this, this.timer.currentT);
         }
       } else {
         this.clickedNode = null;
-        this.updateClickedPanel();
+        updateClickedPanel.call(this);
       }
     };
     this.mouseMoveHandler = ({ x, y }: { x: number; y: number }) => {
@@ -318,6 +198,5 @@ export default class HnswSearchView implements TViewHandler {
       this.hoveredLevel = -1;
       this.hoveredNode = null;
     };
-    // transitionSearchView.call(this, this.timer.currentT);
   }
 }

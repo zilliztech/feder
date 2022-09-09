@@ -67,7 +67,7 @@ export const cssDefinition = `
   display: flex;
   align-items: center;
   cursor: pointer;
-  // pointer-events: auto;
+  pointer-events: auto;
 }
 .panel-item-option-icon {
   width: 6px;

@@ -9,6 +9,7 @@ export const staticPanelStyles = ({ width, height, padding }) => ({
   overflow: 'auto',
   borderColor: '#FFFFFF',
   backgroundColor: hexWithOpacity('#000000', 0.6),
+  pointerEvents: 'none',
 });
 
 export const clickedPanelStyles = ({ width, height, padding }) => ({
