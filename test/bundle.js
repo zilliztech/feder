@@ -7506,8 +7506,11 @@ ${indentData}`);
 
   // federjs/FederIndex/index.ts
   var FederIndex = class {
-    constructor(sourceType) {
+    constructor(sourceType, arrayBuffer = null) {
       this.parser = new Parser(sourceType);
+      if (!!arrayBuffer) {
+        this.initByArrayBuffer(arrayBuffer);
+      }
     }
     initByArrayBuffer(arrayBuffer) {
       this.index = this.parser.parse(arrayBuffer);
@@ -15387,8 +15390,7 @@ ${indentData}`);
     "max-height": `${height - 110}px`,
     overflow: "auto",
     borderColor: "#FFFFFF",
-    backgroundColor: hexWithOpacity("#000000", 0.6),
-    pointerEvents: "none"
+    backgroundColor: hexWithOpacity("#000000", 0.6)
   });
   var clickedPanelStyles = ({ width, height, padding }) => ({
     position: "absolute",
@@ -15405,9 +15407,7 @@ ${indentData}`);
     width: `${width * 0.3}px`,
     paddingLeft: "6px",
     left: 0,
-    top: 0,
-    pointerEvents: "none",
-    backgroundColor: hexWithOpacity("#000000", 0.6)
+    top: 0
   });
 
   // federjs/FederView/hnswView/initPanels.ts
@@ -15615,6 +15615,7 @@ ${indentData}`);
       };
       this.mouseLeaveHandler = () => {
         this.hoveredLevel = -1;
+        this.hoveredNode = null;
         this.hoveredNode = null;
       };
     }
@@ -15907,6 +15908,9 @@ ${indentData}`);
         }
       };
       this.mouseLeaveHandler = () => {
+        this.hoveredLevel = -1;
+        this.hoveredNode = null;
+        this.renderView();
       };
     }
     initEventListener() {
@@ -16139,6 +16143,53 @@ ${indentData}`);
   };
   var defaultViewParamsIvfflat_default = defaltViewParamsIvfflat;
 
+  // federjs/FederView/ivfflatView/infoPanelStyles.ts
+  var staticPanelStyles2 = ({
+    width,
+    height,
+    padding
+  }) => ({
+    position: "absolute",
+    left: "16px",
+    top: "16px",
+    width: padding ? `${padding[3] + 10}px` : `${width * 0.3}px`,
+    "max-height": `${height - 110}px`,
+    overflow: "auto",
+    borderColor: "#FFFFFF",
+    backgroundColor: hexWithOpacity("#000000", 0.6)
+  });
+  var clickedPanelStyles2 = ({
+    width,
+    height,
+    padding
+  }) => ({
+    position: "absolute",
+    right: "16px",
+    top: "16px",
+    width: padding ? `${padding[1] - 10}px` : `${width * 0.3}px`,
+    "max-height": `${height - 60}px`,
+    overflow: "auto",
+    borderColor: "#FFFFFF",
+    backgroundColor: hexWithOpacity("#000000", 0.6)
+  });
+  var hoveredPanelStyles2 = ({ width }) => ({
+    position: "absolute",
+    width: `${width * 0.3}px`,
+    paddingLeft: "6px",
+    left: 0,
+    top: 0,
+    pointerEvents: "none",
+    backgroundColor: hexWithOpacity("#000000", 0.6)
+  });
+
+  // federjs/FederView/ivfflatView/initPanels.ts
+  function initPanels2() {
+    InfoPanel.initClass();
+    this.staticPanel = new InfoPanel(this.node, staticPanelStyles2(this.viewParams));
+    this.clickedPanel = new InfoPanel(this.node, clickedPanelStyles2(this.viewParams));
+    this.hoveredPanel = new InfoPanel(this.node, hoveredPanelStyles2(this.viewParams));
+  }
+
   // federjs/FederView/ivfflatView/IvfflatSearchView/updateHoveredPanelNodeView.ts
   function updateHoveredPanelNodeView() {
     return __async(this, null, function* () {
@@ -16227,7 +16278,7 @@ ${indentData}`);
         });
       }
       const { width, height, canvasScale } = this.viewParams;
-      const pos = vecMultiply(this.hoveredCluster.OVPolyCentroid, 1 / canvasScale);
+      const pos = vecMultiply(this.hoveredCluster.SVPolyCentroid, 1 / canvasScale);
       const posStyle = {};
       if (pos[0] > width * 0.6) {
         posStyle.left = null;
@@ -16650,7 +16701,7 @@ ${indentData}`);
     init() {
       this.initColorScheme();
       this.initCanvas();
-      initPanels.call(this);
+      initPanels2.call(this);
       this.initEventListener();
     }
     initColorScheme() {
@@ -16882,7 +16933,7 @@ ${indentData}`);
     }
     init() {
       this.initCanvas();
-      initPanels.call(this);
+      initPanels2.call(this);
       this.initEventListener();
     }
     initCanvas() {
@@ -16959,6 +17010,8 @@ ${indentData}`);
 
   // test/config.js
   var local = true;
+  var hnswSource = "hnswlib";
+  var hnswIndexFilePath = local ? "data/hnswlib_hnsw_voc_17k.index" : "https://assets.zilliz.com/hnswlib_hnsw_voc_17k_1f1dfd63a9.index";
   var ivfflatSource = "faiss";
   var ivfflatIndexFilePath = local ? "data/faiss_ivf_flat_voc_17k.index" : "https://assets.zilliz.com/faiss_ivf_flat_voc_17k_ab112eec72.index";
   var imgNamesFilePath = "https://assets.zilliz.com/voc_names_4cee9440b1.csv";
@@ -16982,13 +17035,22 @@ ${indentData}`);
     nprobe: 4
   };
   window.addEventListener("DOMContentLoaded", () => __async(void 0, null, function* () {
-    const arrayBuffer = yield fetch(ivfflatIndexFilePath).then((res) => res.arrayBuffer());
     const rowId2imgUrl = yield getRowId2imgUrl();
-    const federIndex = new FederIndex(ivfflatSource);
-    console.log(federIndex);
-    federIndex.initByArrayBuffer(arrayBuffer);
-    const federLayout = new FederLayout(federIndex);
-    const visDataAll = yield federLayout.getVisData({
+    const faissIvfflatArrayBuffer = yield fetch(ivfflatIndexFilePath).then((res) => res.arrayBuffer());
+    const ivfflatFederIndex = new FederIndex(ivfflatSource, faissIvfflatArrayBuffer);
+    const ivfflatFederLayout = new FederLayout(ivfflatFederIndex);
+    const ivfflatViewParams = {
+      mediaType: "image",
+      mediaContent: rowId2imgUrl,
+      getVectorById: (id2) => ivfflatFederIndex.getVectorById(id2)
+    };
+    const ivfflatOverviewVisData = yield ivfflatFederLayout.getVisData({
+      actionType: "overview"
+    });
+    const ivfflatOverview = new FederView(ivfflatOverviewVisData, ivfflatViewParams);
+    ivfflatOverview.render();
+    document.querySelector("#container").appendChild(ivfflatOverview.node);
+    const ivfflatSearchVisData = yield ivfflatFederLayout.getVisData({
       actionType: "search",
       actionData: {
         target: testVector,
@@ -16998,15 +17060,35 @@ ${indentData}`);
       viewType: "default",
       layoutParams: {}
     });
-    console.log("visDataAll", visDataAll);
-    const viewParams = {
+    const ivfflatSearchView = new FederView(ivfflatSearchVisData, ivfflatViewParams);
+    ivfflatSearchView.render();
+    document.querySelector("#container").appendChild(ivfflatSearchView.node);
+    const hnswlibHnswArrayBuffer = yield fetch(hnswIndexFilePath).then((res) => res.arrayBuffer());
+    const hnswFederIndex = new FederIndex(hnswSource, hnswlibHnswArrayBuffer);
+    const hnswFederLayout = new FederLayout(hnswFederIndex);
+    const hnswViewParams = {
       mediaType: "image",
       mediaContent: rowId2imgUrl,
-      getVectorById: (id2) => federIndex.getVectorById(id2)
+      getVectorById: (id2) => hnswFederIndex.getVectorById(id2)
     };
-    const federView = new FederView(visDataAll, viewParams);
-    console.log("federView", federView);
-    document.querySelector("#container").appendChild(federView.node);
-    federView.render();
+    const hnswOverviewVisData = yield hnswFederLayout.getVisData({
+      actionType: "overview"
+    });
+    const hnswOverview = new FederView(hnswOverviewVisData, hnswViewParams);
+    hnswOverview.render();
+    document.querySelector("#container").appendChild(hnswOverview.node);
+    const hnswSearchVisData = yield hnswFederLayout.getVisData({
+      actionType: "search",
+      actionData: {
+        target: testVector,
+        targetMedia: rowId2imgUrl(12345),
+        searchParams: testSearchParams
+      },
+      viewType: "default",
+      layoutParams: {}
+    });
+    const hnswSearchView = new FederView(hnswSearchVisData, hnswViewParams);
+    hnswSearchView.render();
+    document.querySelector("#container").appendChild(hnswSearchView.node);
   }));
 })();

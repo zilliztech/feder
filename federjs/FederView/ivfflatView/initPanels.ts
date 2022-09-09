@@ -1,13 +1,13 @@
 import InfoPanel from 'FederView/InfoPanel';
-import HnswOverview from '../hnswView/HnswOverview';
-import HnswSearchView from '../hnswView/HnswSearchView';
 import {
   clickedPanelStyles,
   hoveredPanelStyles,
   staticPanelStyles,
 } from './infoPanelStyles';
+import IvfflatOverview from './IvfflatOverview';
+import IvfflatSearchView from './IvfflatSearchView';
 
-export default function initPanels(this: HnswSearchView | HnswOverview) {
+export default function initPanels(this: IvfflatOverview | IvfflatSearchView) {
   InfoPanel.initClass();
   this.staticPanel = new InfoPanel(
     this.node,

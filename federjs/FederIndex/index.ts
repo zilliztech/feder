@@ -20,8 +20,11 @@ export class FederIndex {
   private searchHandler: SearchHandler;
   private metaHandler: MetaHandler;
   private id2vector: { [id: TId]: TVec };
-  constructor(sourceType: ESourceType) {
+  constructor(sourceType: ESourceType, arrayBuffer: ArrayBuffer = null) {
     this.parser = new Parser(sourceType);
+    if (!!arrayBuffer) {
+      this.initByArrayBuffer(arrayBuffer);
+    }
   }
   initByArrayBuffer(arrayBuffer: ArrayBuffer) {
     this.index = this.parser.parse(arrayBuffer);

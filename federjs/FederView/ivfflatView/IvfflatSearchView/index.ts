@@ -17,7 +17,7 @@ import clearCanvas from '../../clearCanvas';
 import renderPolarAxis from './renderPolarAxis';
 import defaltViewParamsIvfflat from '../defaultViewParamsIvfflat';
 import InfoPanel from 'FederView/InfoPanel';
-import initPanels from 'FederView/hnswView/initPanels';
+import initPanels from '../initPanels';
 import updateHoveredPanelNodeView from './updateHoveredPanelNodeView';
 import updateHoveredPanelVoronoiView from './updateHoveredPanelVoronoiView';
 import updateStaticPanel from './updateStaticPanel';
