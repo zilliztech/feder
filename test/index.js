@@ -18,27 +18,33 @@ const testSearchParams = {
 };
 
 window.addEventListener('DOMContentLoaded', async () => {
-  const arrayBuffer = await fetch(ivfflatIndexFilePath).then((res) =>
-    res.arrayBuffer()
-  );
-
   const rowId2imgUrl = await getRowId2imgUrl();
 
-  const federIndex = new FederIndex(ivfflatSource);
-  console.log(federIndex);
+  const faissIvfflatArrayBuffer = await fetch(ivfflatIndexFilePath).then(
+    (res) => res.arrayBuffer()
+  );
+  const ivfflatFederIndex = new FederIndex(
+    ivfflatSource,
+    faissIvfflatArrayBuffer
+  );
+  const ivfflatFederLayout = new FederLayout(ivfflatFederIndex);
 
-  federIndex.initByArrayBuffer(arrayBuffer);
+  const ivfflatViewParams = {
+    mediaType: 'image',
+    mediaContent: rowId2imgUrl,
+    getVectorById: (id) => ivfflatFederIndex.getVectorById(id),
+  };
+  const ivfflatOverviewVisData = await ivfflatFederLayout.getVisData({
+    actionType: 'overview',
+  });
+  const ivfflatOverview = new FederView(
+    ivfflatOverviewVisData,
+    ivfflatViewParams
+  );
+  ivfflatOverview.render();
+  document.querySelector('#container').appendChild(ivfflatOverview.node);
 
-  // console.log('federIndex', federIndex);
-
-  const federLayout = new FederLayout(federIndex);
-
-  // const visData = await federLayout.getVisData({
-  //   actionType: 'overview',
-  //   viewType: "normal",
-  // })
-
-  const visDataAll = await federLayout.getVisData({
+  const ivfflatSearchVisData = await ivfflatFederLayout.getVisData({
     actionType: 'search', // 'overview' | 'search'
     actionData: {
       target: testVector,
@@ -49,18 +55,43 @@ window.addEventListener('DOMContentLoaded', async () => {
     viewType: 'default',
     layoutParams: {},
   });
+  const ivfflatSearchView = new FederView(
+    ivfflatSearchVisData,
+    ivfflatViewParams
+  );
+  ivfflatSearchView.render();
+  document.querySelector('#container').appendChild(ivfflatSearchView.node);
 
-  console.log('visDataAll', visDataAll);
+  const hnswlibHnswArrayBuffer = await fetch(hnswIndexFilePath).then((res) =>
+    res.arrayBuffer()
+  );
+  const hnswFederIndex = new FederIndex(hnswSource, hnswlibHnswArrayBuffer);
+  const hnswFederLayout = new FederLayout(hnswFederIndex);
 
-  const viewParams = {
+  const hnswViewParams = {
     mediaType: 'image',
     mediaContent: rowId2imgUrl,
-    getVectorById: (id) => federIndex.getVectorById(id),
+    getVectorById: (id) => hnswFederIndex.getVectorById(id),
   };
+  const hnswOverviewVisData = await hnswFederLayout.getVisData({
+    actionType: 'overview',
+  });
+  const hnswOverview = new FederView(hnswOverviewVisData, hnswViewParams);
+  hnswOverview.render();
+  document.querySelector('#container').appendChild(hnswOverview.node);
 
-  const federView = new FederView(visDataAll, viewParams);
-  console.log('federView', federView);
-
-  document.querySelector('#container').appendChild(federView.node);
-  federView.render();
+  const hnswSearchVisData = await hnswFederLayout.getVisData({
+    actionType: 'search', // 'overview' | 'search'
+    actionData: {
+      target: testVector,
+      targetMedia: rowId2imgUrl(12345),
+      searchParams: testSearchParams,
+    },
+    // viewType: 'default' | 'default'
+    viewType: 'default',
+    layoutParams: {},
+  });
+  const hnswSearchView = new FederView(hnswSearchVisData, hnswViewParams);
+  hnswSearchView.render();
+  document.querySelector('#container').appendChild(hnswSearchView.node);
 });

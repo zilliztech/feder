@@ -176,13 +176,9 @@ export default class HnswOverview implements TViewHandler {
 
     const mediaContent = {} as TInfoPanelContentItem;
     if (this.viewParams.mediaType === EMediaType.image)
-      mediaContent.image = this.viewParams.mediaContent(
-        this.hoveredNode.id
-      );
+      mediaContent.image = this.viewParams.mediaContent(this.hoveredNode.id);
     else if (this.viewParams.mediaType === EMediaType.text)
-      mediaContent.text = this.viewParams.mediaContent(
-        this.hoveredNode.id
-      );
+      mediaContent.text = this.viewParams.mediaContent(this.hoveredNode.id);
 
     this.hoveredPanel.setContent({
       themeColor: '#FFFC85',
@@ -237,7 +233,11 @@ export default class HnswOverview implements TViewHandler {
         }
       }
     };
-    this.mouseLeaveHandler = () => {};
+    this.mouseLeaveHandler = () => {
+      this.hoveredLevel = -1;
+      this.hoveredNode = null;
+      this.renderView();
+    };
   }
   initEventListener() {
     const { canvasScale } = this.viewParams;

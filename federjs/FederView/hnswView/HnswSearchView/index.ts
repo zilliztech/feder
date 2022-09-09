@@ -197,6 +197,7 @@ export default class HnswSearchView implements TViewHandler {
     this.mouseLeaveHandler = () => {
       this.hoveredLevel = -1;
       this.hoveredNode = null;
+      this.hoveredNode = null;
     };
   }
 }

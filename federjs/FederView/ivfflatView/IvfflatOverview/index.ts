@@ -1,6 +1,6 @@
 import * as d3 from 'd3';
 import clearCanvas from 'FederView/clearCanvas';
-import initPanels from 'FederView/hnswView/initPanels';
+import initPanels from '../initPanels';
 import InfoPanel from 'FederView/InfoPanel';
 import ViewHandler from 'FederView/types';
 import {

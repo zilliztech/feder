@@ -53,7 +53,7 @@ export default async function updateHoveredPanelVoronoiView(
   }
 
   const { width, height, canvasScale } = this.viewParams;
-  const pos = vecMultiply(this.hoveredCluster.OVPolyCentroid, 1 / canvasScale);
+  const pos = vecMultiply(this.hoveredCluster.SVPolyCentroid, 1 / canvasScale);
   const posStyle = {} as TDivPosStyle;
   if (pos[0] > width * 0.6) {
     posStyle.left = null;
