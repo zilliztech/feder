@@ -20,6 +20,8 @@ import transitionTargetMove from './transitionTargetMove';
 import renderPolarAxis from './renderPolarAxis';
 import transitionPolarAxisEnter from './transtionPolarAxisEnter';
 import defaltViewParamsIvfflat from '../defaultViewParamsIvfflat';
+import InfoPanel from 'FederView/InfoPanel';
+import initPanels from 'FederView/hnswView/initPanels';
 
 export enum EStepType {
   voronoi = 'voronoi',
@@ -35,6 +37,9 @@ export default class IvfflatSearchView implements ViewHandler {
   polarR: number;
   viewParams: TViewParamsIvfflat;
   node: HTMLElement;
+  staticPanel: InfoPanel;
+  clickedPanel: InfoPanel;
+  hoveredPanel: InfoPanel;
   hoveredCluster: TVisDataIvfflatSearchViewCluster = null;
   hoveredNode: TVisDataIvfflatSearchViewNode = null;
   ctx: CanvasRenderingContext2D;
@@ -68,6 +73,7 @@ export default class IvfflatSearchView implements ViewHandler {
   init(): void {
     this.initColorScheme();
     this.initCanvas();
+    initPanels.call(this);
     this.initEventListener();
     // this.initPanel();
   }
@@ -110,10 +116,13 @@ export default class IvfflatSearchView implements ViewHandler {
   }
 
   render() {
+    this.updateStaticPanel(EStepType.voronoi);
     this.initVoronoiView();
     // this.initPolarView();
     // this.initProjectView();
   }
+
+  updateStaticPanel(newStepType: EStepType) {}
 
   initVoronoiView() {
     this.stepType = EStepType.voronoi;
@@ -191,6 +200,8 @@ export default class IvfflatSearchView implements ViewHandler {
   switchView(newStepType: EStepType) {
     console.log(this.stepType, newStepType);
     if (newStepType === this.stepType) return;
+
+    this.updateStaticPanel(newStepType);
 
     const {
       transitionClustersExitTime,

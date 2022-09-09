@@ -14358,7 +14358,7 @@ ${indentData}`);
           }
         }
         const shouldUpdateOverviewVisData = !this.overviewClusters || !isSameLayoutParams;
-        const overviewClusters = shouldUpdateOverviewVisData ? yield this.computeOverviewVisData(viewType, indexMeta, layoutParams) : this.overviewClusters;
+        const overviewClusters = shouldUpdateOverviewVisData ? (yield this.computeOverviewVisData(viewType, indexMeta, layoutParams)).overviewClusters : this.overviewClusters;
         return searchViewLayoutFunc(overviewClusters, searchRecords, layoutParams);
       });
     }
@@ -16376,6 +16376,7 @@ ${indentData}`);
     init() {
       this.initColorScheme();
       this.initCanvas();
+      initPanels.call(this);
       this.initEventListener();
     }
     initColorScheme() {
@@ -16409,7 +16410,10 @@ ${indentData}`);
       });
     }
     render() {
+      this.updateStaticPanel("voronoi" /* voronoi */);
       this.initVoronoiView();
+    }
+    updateStaticPanel(newStepType) {
     }
     initVoronoiView() {
       this.stepType = "voronoi" /* voronoi */;
@@ -16471,6 +16475,7 @@ ${indentData}`);
       console.log(this.stepType, newStepType);
       if (newStepType === this.stepType)
         return;
+      this.updateStaticPanel(newStepType);
       const {
         transitionClustersExitTime,
         transitionReplaceTime,
@@ -16769,7 +16774,7 @@ ${indentData}`);
     federIndex.initByArrayBuffer(arrayBuffer);
     const federLayout = new FederLayout(federIndex);
     const visDataAll = yield federLayout.getVisData({
-      actionType: "overview",
+      actionType: "search",
       actionData: {
         target: testVector,
         targetMedia: rowId2imgUrl(12345),
