@@ -191,13 +191,17 @@ export default class HnswSearchView implements TViewHandler {
             transitionSearchView.call(this, this.timer.currentT);
         }
       } else {
-        this.hoveredLevel = null;
+        this.hoveredLevel = -1;
+        this.hoveredNode = null;
+        if (!this.timer.isPlaying)
+          transitionSearchView.call(this, this.timer.currentT);
       }
     };
     this.mouseLeaveHandler = () => {
       this.hoveredLevel = -1;
       this.hoveredNode = null;
-      this.hoveredNode = null;
+      if (!this.timer.isPlaying)
+        transitionSearchView.call(this, this.timer.currentT);
     };
   }
 }

@@ -32,6 +32,8 @@ window.addEventListener('DOMContentLoaded', async () => {
   const ivfflatViewParams = {
     mediaType: 'image',
     mediaContent: rowId2imgUrl,
+    // mediaType: 'text',
+    // mediaContent: (id) => `this is content of No.${id}`,
     getVectorById: (id) => ivfflatFederIndex.getVectorById(id),
   };
   const ivfflatOverviewVisData = await ivfflatFederLayout.getVisData({
@@ -48,7 +50,6 @@ window.addEventListener('DOMContentLoaded', async () => {
     actionType: 'search', // 'overview' | 'search'
     actionData: {
       target: testVector,
-      targetMedia: rowId2imgUrl(12345),
       searchParams: testSearchParams,
     },
     // viewType: 'default' | 'default'
@@ -71,6 +72,8 @@ window.addEventListener('DOMContentLoaded', async () => {
   const hnswViewParams = {
     mediaType: 'image',
     mediaContent: rowId2imgUrl,
+    // mediaType: 'text',
+    // mediaContent: (id) => `this is content of No.${id}`,
     getVectorById: (id) => hnswFederIndex.getVectorById(id),
   };
   const hnswOverviewVisData = await hnswFederLayout.getVisData({
@@ -84,7 +87,6 @@ window.addEventListener('DOMContentLoaded', async () => {
     actionType: 'search', // 'overview' | 'search'
     actionData: {
       target: testVector,
-      targetMedia: rowId2imgUrl(12345),
       searchParams: testSearchParams,
     },
     // viewType: 'default' | 'default'

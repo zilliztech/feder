@@ -15610,13 +15610,17 @@ ${indentData}`);
               transitionSearchView.call(this, this.timer.currentT);
           }
         } else {
-          this.hoveredLevel = null;
+          this.hoveredLevel = -1;
+          this.hoveredNode = null;
+          if (!this.timer.isPlaying)
+            transitionSearchView.call(this, this.timer.currentT);
         }
       };
       this.mouseLeaveHandler = () => {
         this.hoveredLevel = -1;
         this.hoveredNode = null;
-        this.hoveredNode = null;
+        if (!this.timer.isPlaying)
+          transitionSearchView.call(this, this.timer.currentT);
       };
     }
   };
@@ -15905,6 +15909,10 @@ ${indentData}`);
             this.hoveredNode = hoveredNode;
             this.renderView();
           }
+        } else {
+          this.hoveredLevel = -1;
+          this.hoveredNode = null;
+          this.renderView();
         }
       };
       this.mouseLeaveHandler = () => {
@@ -17054,7 +17062,6 @@ ${indentData}`);
       actionType: "search",
       actionData: {
         target: testVector,
-        targetMedia: rowId2imgUrl(12345),
         searchParams: testSearchParams
       },
       viewType: "default",
@@ -17081,7 +17088,6 @@ ${indentData}`);
       actionType: "search",
       actionData: {
         target: testVector,
-        targetMedia: rowId2imgUrl(12345),
         searchParams: testSearchParams
       },
       viewType: "default",
