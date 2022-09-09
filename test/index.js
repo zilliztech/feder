@@ -39,7 +39,7 @@ window.addEventListener('DOMContentLoaded', async () => {
   // })
 
   const visDataAll = await federLayout.getVisData({
-    actionType: 'overview', // 'overview' | 'search'
+    actionType: 'search', // 'overview' | 'search'
     actionData: {
       target: testVector,
       targetMedia: rowId2imgUrl(12345),

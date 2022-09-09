@@ -51,7 +51,7 @@ export default class FederLayoutIvfflat implements TFederLayoutHandler {
     const overviewLayoutFunc = overviewLayoutFuncMap[viewType];
     const overviewClusters = await overviewLayoutFunc(indexMeta, layoutParams);
     this.overviewClusters = overviewClusters;
-    const {nlist, ntotal} = indexMeta;
+    const { nlist, ntotal } = indexMeta;
     return { overviewClusters, nlist, ntotal };
   }
   async computeSearchViewVisData(
@@ -86,7 +86,8 @@ export default class FederLayoutIvfflat implements TFederLayoutHandler {
       !this.overviewClusters || !isSameLayoutParams;
 
     const overviewClusters = shouldUpdateOverviewVisData
-      ? await this.computeOverviewVisData(viewType, indexMeta, layoutParams)
+      ? (await this.computeOverviewVisData(viewType, indexMeta, layoutParams))
+          .overviewClusters
       : this.overviewClusters;
 
     return searchViewLayoutFunc(overviewClusters, searchRecords, layoutParams);
