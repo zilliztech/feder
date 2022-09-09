@@ -61,7 +61,7 @@ export class FederLayout {
     viewType: EViewType;
     layoutParams: TLayoutParams;
   }) {
-    // todo cache
+    // [todo] cache
     const searchRecords = await this.federIndex.getSearchRecords(
       actionData.target,
       actionData.searchParams

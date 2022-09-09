@@ -1,5 +1,7 @@
 //Minimum Heap
-class PriorityQueue {
+export default class PriorityQueue<T> {
+  private _key: (item: T) => number;
+  private _tree: T[];
   constructor(arr = [], key = null) {
     if (typeof key == 'string') {
       this._key = (item) => item[key];
@@ -7,7 +9,7 @@ class PriorityQueue {
     this._tree = [];
     arr.forEach((d) => this.add(d));
   }
-  add(item) {
+  add(item: T) {
     this._tree.push(item);
     let id = this._tree.length - 1;
     while (id) {
@@ -62,11 +64,11 @@ class PriorityQueue {
   _isLeaf(id) {
     return id >= this._firstLeaf;
   }
-  _getValue(id) {
+  _getValue(id: number) {
     if (this._key) {
       return this._key(this._tree[id]);
     } else {
-      return this._tree[id];
+      return this._tree[id] as number;
     }
   }
   _swap(id0, id1) {
@@ -74,5 +76,3 @@ class PriorityQueue {
     [tree[id0], tree[id1]] = [tree[id1], tree[id0]];
   }
 }
-
-export default PriorityQueue;

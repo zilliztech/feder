@@ -7132,7 +7132,7 @@ ${indentData}`);
     return getDisL2;
   };
 
-  // federjs/Utils/PriorityQueue.js
+  // federjs/Utils/PriorityQueue.ts
   var PriorityQueue = class {
     constructor(arr = [], key = null) {
       if (typeof key == "string") {
@@ -7211,7 +7211,6 @@ ${indentData}`);
       [tree[id0], tree[id1]] = [tree[id1], tree[id0]];
     }
   };
-  var PriorityQueue_default = PriorityQueue;
 
   // federjs/FederIndex/searchHandler/hnswSearch/searchLevel0.ts
   var searchLevelO = ({
@@ -7225,8 +7224,8 @@ ${indentData}`);
     disfunc,
     labels
   }) => {
-    const top_candidates = new PriorityQueue_default([], (d) => d[0]);
-    const candidates = new PriorityQueue_default([], (d) => d[0]);
+    const top_candidates = new PriorityQueue([], (d) => d[0]);
+    const candidates = new PriorityQueue([], (d) => d[0]);
     const vis_records_level_0 = [];
     const visited = /* @__PURE__ */ new Set();
     let lowerBound;
