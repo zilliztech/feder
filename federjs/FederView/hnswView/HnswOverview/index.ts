@@ -231,6 +231,10 @@ export default class HnswOverview implements TViewHandler {
           this.hoveredNode = hoveredNode;
           this.renderView();
         }
+      } else {
+        this.hoveredLevel = -1;
+        this.hoveredNode = null;
+        this.renderView();
       }
     };
     this.mouseLeaveHandler = () => {
