@@ -1,11 +1,12 @@
 import { FederIndex } from '../dist/index.js';
 import fs from 'fs';
 import { hnswIndexFilePath, hnswSource, outputDirPath } from './config.js';
+import path from 'path';
 
 export async function test_federIndex_hnswlib_hnsw() {
   const federIndex = new FederIndex(hnswSource);
 
-  const arrayBuffer = fs.readFileSync(hnswIndexFilePath).buffer;
+  const arrayBuffer = fs.readFileSync(path.join("./test", hnswIndexFilePath)).buffer;
   federIndex.initByArrayBuffer(arrayBuffer);
 
   await test_getIndexMeta(federIndex);

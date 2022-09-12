@@ -6,7 +6,7 @@ export const getHnswIndexMeta = (
   index: TIndexStructureHnsw,
   metaParams: TMetaParams
 ) => {
-  const { numOverviewLevel = 10 } = metaParams;
+  const { numOverviewLevel = 3 } = metaParams;
   const nOverviewLevels = Math.min(numOverviewLevel, index.maxLevel);
   const overviewGraphLayers = Array(nOverviewLevels)
     .fill(0)
@@ -24,6 +24,29 @@ export const getHnswIndexMeta = (
         .filter((a) => a);
       return { level, nodes };
     });
+  const nodesCount = Array(index.maxLevel)
+    .fill(0)
+    .map(
+      (_, level) =>
+        index.linkLists_levels.filter((linkLists) => linkLists.length > level)
+          .length
+    );
+  nodesCount.unshift(index.linkLists_level_0.length);
+
+  const linksCount = Array(index.maxLevel)
+    .fill(0)
+    .map((_, level) =>
+      index.linkLists_levels
+        .filter((linkLists) => linkLists.length > level)
+        .reduce((acc, linkLists) => acc + linkLists[level].length, 0)
+    );
+  linksCount.unshift(
+    index.linkLists_level_0.reduce(
+      (acc, linkLists) => acc + linkLists.length,
+      0
+    )
+  );
+
   const indexMeta = {
     efConstruction: index.ef_construction,
     M: index.M,
@@ -32,6 +55,8 @@ export const getHnswIndexMeta = (
     nOverviewLevels,
     entryPointId: index.enterPoint,
     overviewGraphLayers,
+    nodesCount,
+    linksCount,
   } as TIndexMetaHnsw;
 
   return indexMeta;

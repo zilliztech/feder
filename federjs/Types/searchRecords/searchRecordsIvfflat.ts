@@ -1,9 +1,9 @@
-import { TVec, TId } from "Types";
+import { TVec, TId, TSearchParams } from "Types";
 
 export interface TSearchRecordsIvfflatCoarseCluster {
   clusterId: TId;
   distance: number;
-  vector: TVec;
+  vector?: TVec;
 }
 
 export interface TSearchRecordsIvfflatFineNode {
@@ -18,4 +18,6 @@ export interface TSearchRecordsIvfflat {
   nprobeClusterIds: TId[];
   fineSearchRecords: TSearchRecordsIvfflatFineNode[];
   topKVectorIds: TId[];
+  searchParams: TSearchParams;
+  target: TVec;
 }

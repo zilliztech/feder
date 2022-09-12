@@ -19,4 +19,6 @@ export interface TIndexMetaHnsw {
   entryPointId: TId;
   nOverviewLevels: number;
   overviewGraphLayers: TIndexMetaHnswGraph[];
+  nodesCount: number[];
+  linksCount: number[];
 }

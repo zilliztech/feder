@@ -1,6 +1,6 @@
 import { TViewParams } from 'Types';
 import { TVisData } from 'Types/visData';
-import TViewHandler from '../ViewHandler';
+import TViewHandler from '../types';
 
 import InfoPanel from 'FederView/InfoPanel';
 
@@ -14,8 +14,8 @@ export default class HnswSearchHnsw3dView implements TViewHandler {
     this.clickedPanel = new InfoPanel();
     this.hoveredPanel = new InfoPanel();
 
-    this.init(visData, viewParams);
+    this.init();
   }
-  init(visData: TVisData, viewParams: TViewParams) {}
+  init() {}
   render() {}
 }

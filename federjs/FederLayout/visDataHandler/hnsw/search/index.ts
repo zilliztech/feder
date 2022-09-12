@@ -1,34 +1,46 @@
-import { TSearchRecordsHnsw } from "Types/searchRecords";
-import { EHnswLinkType, TCoord } from "Types";
-import parseVisRecords from "./parseVisRecords";
-import forceSearchView from "./forceSearchView";
-import transformHandler from "./transformHandler";
-import computeSearchViewTransition from "./computeSearchViewTransition";
-import * as d3 from "d3";
+import { TSearchRecordsHnsw } from 'Types/searchRecords';
+import { EHnswLinkType, TCoord, TId } from 'Types';
+import parseVisRecords from './parseVisRecords';
+import forceSearchView from './forceSearchView';
+import transformHandler from './transformHandler';
+import computeSearchViewTransition from './computeSearchViewTransition';
+import * as d3 from 'd3';
+import {
+  TLayoutParamsHnsw,
+  TVisDataHnswNode,
+  TVisDataHnswParsedDataLevel,
+  TVisDataHnswSearchView,
+  TVisDataHnswTargetNode,
+} from 'Types/visData';
 
 export const searchViewLayoutHandler = async (
   searchRecords: TSearchRecordsHnsw,
-  layoutParams: any
-) => {
-  const visData = parseVisRecords(searchRecords);
+  layoutParams: TLayoutParamsHnsw
+): Promise<TVisDataHnswSearchView> => {
+  const parsedData = parseVisRecords(searchRecords);
+  // "links" will be changed by d3.
+  const parsedDataCopy = JSON.parse(
+    JSON.stringify(parsedData)
+  ) as TVisDataHnswParsedDataLevel[];
 
   const {
     targetR,
     canvasScale = 1,
     targetOrigin,
     searchViewNodeBasicR,
+    searchViewNodeRStep,
     searchInterLevelTime,
     searchIntraLevelTime,
-    forceIterations,
+    numForceIterations,
   } = layoutParams;
 
   const id2forcePos = await forceSearchView(
-    visData,
+    parsedData,
     targetOrigin,
-    forceIterations
+    numForceIterations
   );
 
-  const searchNodesLevels = visData.map((levelData) => levelData.nodes);
+  const searchNodesLevels = parsedData.map((levelData) => levelData.nodes);
   searchNodesLevels.forEach((levelData) =>
     levelData.forEach((node) => {
       node.forcePos = id2forcePos[node.id];
@@ -38,46 +50,38 @@ export const searchViewLayoutHandler = async (
   );
   const { layerPosLevels, transformFunc } = transformHandler(
     searchNodesLevels.reduce((acc, node) => acc.concat(node), []),
+    searchNodesLevels.length,
     layoutParams
   );
 
   const searchTarget = {
-    id: "target",
+    id: 'target',
     r: targetR * canvasScale,
     searchViewPosLevels: d3
-      .range(visData.length)
+      .range(parsedData.length)
       .map((i) => transformFunc(...(targetOrigin as TCoord), i)),
-  };
+  } as TVisDataHnswTargetNode;
 
   searchNodesLevels.forEach((nodes, level) => {
     nodes.forEach((node) => {
       node.searchViewPosLevels = d3
         .range(level + 1)
         .map((i) => transformFunc(...(node.forcePos as TCoord), i));
-      node.r = (searchViewNodeBasicR + node.type * 0.5) * canvasScale;
+      node.r =
+        (searchViewNodeBasicR + node.type * searchViewNodeRStep) * canvasScale;
     });
   });
 
-  const id2searchNode = {};
+  const id2searchNode = {} as { [id: TId]: TVisDataHnswNode };
   searchNodesLevels.forEach((levelData) =>
     levelData.forEach((node) => (id2searchNode[node.id] = node))
   );
 
-  const searchLinksLevels = parseVisRecords(searchRecords).map((levelData) =>
+  const searchLinksLevels = parsedDataCopy.map((levelData) =>
     levelData.links.filter((link) => link.type !== EHnswLinkType.None)
   );
-  searchLinksLevels.forEach((levelData) =>
-    levelData.forEach((link) => {
-      const sourceId = link.source;
-      const targetId = link.target;
-      const sourceNode = id2searchNode[sourceId];
-      const targetNode = id2searchNode[targetId];
-      link.source = sourceNode;
-      link.target = targetNode;
-    })
-  );
 
-  const entryNodesLevels = visData.map((levelData) =>
+  const entryNodesLevels = parsedData.map((levelData) =>
     levelData.entryIds.map((id) => id2searchNode[id])
   );
 
@@ -90,8 +94,6 @@ export const searchViewLayoutHandler = async (
     });
 
   return {
-    visData,
-    id2forcePos,
     searchTarget,
     entryNodesLevels,
     searchNodesLevels,

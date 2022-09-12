@@ -1,5 +1,5 @@
 export type TVec = number[];
-export type TId = number;
+export type TId = number | string;
 export type TCoord = [number, number];
 
 export enum ESourceType {
@@ -64,6 +64,33 @@ export enum EHnswLinkType {
   Fine = 4,
 }
 
-export type TViewParams = any;
+export enum EMediaType {
+  null = 'null',
+  image = 'image',
+  text = 'text',
+}
+
+export type TViewParams = {
+  mediaType: EMediaType;
+  mediaContent: (rowId: TId) => string;
+  getVectorById: (id: TId) => Promise<TVec>;
+};
 
 export type TLayoutParams = any;
+
+export enum EProjectMethod {
+  umap = 'umap',
+  tsne = 'tsne',
+  pca = 'pca',
+  mds = 'mds',
+}
+
+export interface TD3Link {
+  source: TId;
+  target: TId;
+}
+
+export interface TD3Node {
+  x?: number;
+  y?: number;
+}

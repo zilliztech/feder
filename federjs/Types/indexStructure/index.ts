@@ -3,6 +3,7 @@ import {
   TIndexStructureHnswDetail,
 } from './indexStructureHnsw';
 import { TIndexStructureIvfflat } from './indexStructureIvfflat';
+export * from './indexStructureIvfflat';
 
 type TIndexStructure = TIndexStructureHnsw | TIndexStructureIvfflat;
 

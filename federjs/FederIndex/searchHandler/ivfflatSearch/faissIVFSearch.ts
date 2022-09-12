@@ -8,15 +8,15 @@ export const faissIVFSearch = ({ index, csListIds, target }) => {
         csListIds.includes(listId)
           ? cur.ids.map((id, ofs) => ({
               id,
-              listId,
-              dis: disFunc(cur.vectors[ofs], target),
-              // vec: cur.vectors[ofs]
+              clusterId: listId,
+              distance: disFunc(cur.vectors[ofs], target),
+              vector: Array.from(cur.vectors[ofs]),
             }))
           : []
       ),
     []
   );
-  distances.sort((a, b) => a.dis - b.dis);
+  distances.sort((a, b) => a.distance - b.distance);
   return distances;
 };
 

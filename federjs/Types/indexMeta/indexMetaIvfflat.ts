@@ -3,7 +3,7 @@ import { TVec, TId } from "Types";
 export interface TIndexMetaIvfflatCluster {
   clusterId: TId;
   ids: TId[];
-  centroidVectors: TVec[];
+  centroidVector: TVec;
 }
 
 export interface TIndexMetaIvfflat {
