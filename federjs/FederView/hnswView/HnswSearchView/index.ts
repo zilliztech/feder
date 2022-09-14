@@ -58,8 +58,6 @@ export default class HnswSearchView implements TViewHandler {
     viewParams: TViewParamsHnsw,
     actionData: TAcitonData
   ) {
-    if (!viewParams.mediaContent && !!viewParams.mediaCallback)
-      viewParams.mediaContent = viewParams.mediaCallback;
     this.viewParams = Object.assign({}, defaultViewParamsHnsw, viewParams);
     this.actionData = actionData;
 

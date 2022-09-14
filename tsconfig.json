@@ -2,7 +2,8 @@
   "compilerOptions": {
     "target": "esnext",
     "baseUrl": "federjs",
-    "moduleResolution": "node"
+    "moduleResolution": "node",
+    "allowSyntheticDefaultImports": true
   },
   "include": ["federjs"]
 }
