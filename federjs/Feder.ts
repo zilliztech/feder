@@ -2,6 +2,7 @@ import * as d3 from 'd3';
 import {
   EActionType,
   EIndexType,
+  EMediaType,
   ESourceType,
   EViewType,
   TId,
@@ -37,8 +38,15 @@ export class Feder {
     const { viewType = EViewType.default } = viewParams;
     this.viewType = viewType;
 
+    // Compatible with feder_v0.x
     if (!viewParams.mediaContent && !!viewParams.mediaCallback)
       viewParams.mediaContent = viewParams.mediaCallback;
+    if (viewParams.mediaType === 'img') viewParams.mediaType = EMediaType.image;
+    if (!!viewParams.projectSeed && !viewParams?.projectParams?.projectSeed)
+      viewParams.projectParams = Object.assign({}, viewParams.projectParams, {
+        projectSeed: viewParams.projectSeed,
+      });
+
     this.viewParams = viewParams;
 
     this.searchParams = {};

@@ -71,10 +71,10 @@ export const test_feder_separate = async () => {
   const hnswFederLayout = new FederLayout(hnswFederIndex);
 
   const hnswViewParams = {
-    mediaType: 'image',
-    mediaContent: rowId2imgUrl,
-    // mediaType: 'text',
-    // mediaContent: (id) => `this is content of No.${id}`,
+    // mediaType: 'image',
+    // mediaContent: rowId2imgUrl,
+    mediaType: 'text',
+    mediaContent: (id) => `this is content of No.${id}`,
     getVectorById: (id) => hnswFederIndex.getVectorById(id),
   };
   const hnswOverviewVisData = await hnswFederLayout.getVisData({

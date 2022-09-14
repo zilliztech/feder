@@ -17,7 +17,8 @@ const testSearchParams = {
   nprobe: 4,
 };
 
-export const test_feder_all_in_one = () => {
+export const test_feder_all_in_one = async () => {
+  const mediaCallback = await getRowId2imgUrl();
   const feder = new Feder({
     source: ivfflatSource,
     filePath: ivfflatIndexFilePath,
@@ -32,6 +33,8 @@ export const test_feder_all_in_one = () => {
     },
   });
   feder.overview();
-  const view = feder.searchById(112);
+  const view = feder
+    .setSearchParams({ nprobe: 7, k: 8 })
+    .searchByRandTestVec(112);
   setTimeout(() => console.log(view.federView), 10000);
 };

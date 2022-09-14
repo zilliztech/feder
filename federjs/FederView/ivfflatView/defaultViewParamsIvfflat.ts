@@ -42,6 +42,11 @@ export const defaltViewParamsIvfflat = {
   transitionNodesMoveTime: 800,
 
   mediaContentCount: 9,
+  staticPanelWidth: 240,
+  hoveredPanelWidth: 250,
+  clickedPanelWidth: 210,
+
+  getVectorById: async () => []
 } as TViewParamsIvfflat;
 
 export default defaltViewParamsIvfflat;

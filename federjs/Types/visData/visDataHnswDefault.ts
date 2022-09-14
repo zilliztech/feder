@@ -142,6 +142,10 @@ export interface TViewParamsHnsw extends TViewParams {
   tipLineAngle?: number;
   tipLineColor?: string;
   tipLineWidth?: number;
+
+  staticPanelWidth?: number;
+  hoveredPanelWidth: number;
+  clickedPanelWidth: number;
 }
 
 export interface TLayoutParamsHnsw {

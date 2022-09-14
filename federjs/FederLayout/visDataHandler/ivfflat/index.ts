@@ -33,6 +33,7 @@ const layoutParamsIvfflatDefault = {
   nonTopkNodeR: 3,
   minVoronoiRadius: 5,
   projectPadding: [20, 30, 20, 30],
+  staticPanelWidth: 240,
 };
 export default class FederLayoutIvfflat implements TFederLayoutHandler {
   overviewLayoutParams: TLayoutParamsIvfflat = {};
