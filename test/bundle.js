@@ -6750,6 +6750,665 @@ ${indentData}`);
     }
   });
 
+  // node_modules/seedrandom/lib/alea.js
+  var require_alea = __commonJS({
+    "node_modules/seedrandom/lib/alea.js"(exports, module) {
+      (function(global, module2, define2) {
+        function Alea(seed) {
+          var me = this, mash = Mash();
+          me.next = function() {
+            var t = 2091639 * me.s0 + me.c * 23283064365386963e-26;
+            me.s0 = me.s1;
+            me.s1 = me.s2;
+            return me.s2 = t - (me.c = t | 0);
+          };
+          me.c = 1;
+          me.s0 = mash(" ");
+          me.s1 = mash(" ");
+          me.s2 = mash(" ");
+          me.s0 -= mash(seed);
+          if (me.s0 < 0) {
+            me.s0 += 1;
+          }
+          me.s1 -= mash(seed);
+          if (me.s1 < 0) {
+            me.s1 += 1;
+          }
+          me.s2 -= mash(seed);
+          if (me.s2 < 0) {
+            me.s2 += 1;
+          }
+          mash = null;
+        }
+        function copy2(f, t) {
+          t.c = f.c;
+          t.s0 = f.s0;
+          t.s1 = f.s1;
+          t.s2 = f.s2;
+          return t;
+        }
+        function impl(seed, opts) {
+          var xg = new Alea(seed), state = opts && opts.state, prng = xg.next;
+          prng.int32 = function() {
+            return xg.next() * 4294967296 | 0;
+          };
+          prng.double = function() {
+            return prng() + (prng() * 2097152 | 0) * 11102230246251565e-32;
+          };
+          prng.quick = prng;
+          if (state) {
+            if (typeof state == "object")
+              copy2(state, xg);
+            prng.state = function() {
+              return copy2(xg, {});
+            };
+          }
+          return prng;
+        }
+        function Mash() {
+          var n = 4022871197;
+          var mash = function(data) {
+            data = String(data);
+            for (var i = 0; i < data.length; i++) {
+              n += data.charCodeAt(i);
+              var h = 0.02519603282416938 * n;
+              n = h >>> 0;
+              h -= n;
+              h *= n;
+              n = h >>> 0;
+              h -= n;
+              n += h * 4294967296;
+            }
+            return (n >>> 0) * 23283064365386963e-26;
+          };
+          return mash;
+        }
+        if (module2 && module2.exports) {
+          module2.exports = impl;
+        } else if (define2 && define2.amd) {
+          define2(function() {
+            return impl;
+          });
+        } else {
+          this.alea = impl;
+        }
+      })(exports, typeof module == "object" && module, typeof define == "function" && define);
+    }
+  });
+
+  // node_modules/seedrandom/lib/xor128.js
+  var require_xor128 = __commonJS({
+    "node_modules/seedrandom/lib/xor128.js"(exports, module) {
+      (function(global, module2, define2) {
+        function XorGen(seed) {
+          var me = this, strseed = "";
+          me.x = 0;
+          me.y = 0;
+          me.z = 0;
+          me.w = 0;
+          me.next = function() {
+            var t = me.x ^ me.x << 11;
+            me.x = me.y;
+            me.y = me.z;
+            me.z = me.w;
+            return me.w ^= me.w >>> 19 ^ t ^ t >>> 8;
+          };
+          if (seed === (seed | 0)) {
+            me.x = seed;
+          } else {
+            strseed += seed;
+          }
+          for (var k = 0; k < strseed.length + 64; k++) {
+            me.x ^= strseed.charCodeAt(k) | 0;
+            me.next();
+          }
+        }
+        function copy2(f, t) {
+          t.x = f.x;
+          t.y = f.y;
+          t.z = f.z;
+          t.w = f.w;
+          return t;
+        }
+        function impl(seed, opts) {
+          var xg = new XorGen(seed), state = opts && opts.state, prng = function() {
+            return (xg.next() >>> 0) / 4294967296;
+          };
+          prng.double = function() {
+            do {
+              var top = xg.next() >>> 11, bot = (xg.next() >>> 0) / 4294967296, result = (top + bot) / (1 << 21);
+            } while (result === 0);
+            return result;
+          };
+          prng.int32 = xg.next;
+          prng.quick = prng;
+          if (state) {
+            if (typeof state == "object")
+              copy2(state, xg);
+            prng.state = function() {
+              return copy2(xg, {});
+            };
+          }
+          return prng;
+        }
+        if (module2 && module2.exports) {
+          module2.exports = impl;
+        } else if (define2 && define2.amd) {
+          define2(function() {
+            return impl;
+          });
+        } else {
+          this.xor128 = impl;
+        }
+      })(exports, typeof module == "object" && module, typeof define == "function" && define);
+    }
+  });
+
+  // node_modules/seedrandom/lib/xorwow.js
+  var require_xorwow = __commonJS({
+    "node_modules/seedrandom/lib/xorwow.js"(exports, module) {
+      (function(global, module2, define2) {
+        function XorGen(seed) {
+          var me = this, strseed = "";
+          me.next = function() {
+            var t = me.x ^ me.x >>> 2;
+            me.x = me.y;
+            me.y = me.z;
+            me.z = me.w;
+            me.w = me.v;
+            return (me.d = me.d + 362437 | 0) + (me.v = me.v ^ me.v << 4 ^ (t ^ t << 1)) | 0;
+          };
+          me.x = 0;
+          me.y = 0;
+          me.z = 0;
+          me.w = 0;
+          me.v = 0;
+          if (seed === (seed | 0)) {
+            me.x = seed;
+          } else {
+            strseed += seed;
+          }
+          for (var k = 0; k < strseed.length + 64; k++) {
+            me.x ^= strseed.charCodeAt(k) | 0;
+            if (k == strseed.length) {
+              me.d = me.x << 10 ^ me.x >>> 4;
+            }
+            me.next();
+          }
+        }
+        function copy2(f, t) {
+          t.x = f.x;
+          t.y = f.y;
+          t.z = f.z;
+          t.w = f.w;
+          t.v = f.v;
+          t.d = f.d;
+          return t;
+        }
+        function impl(seed, opts) {
+          var xg = new XorGen(seed), state = opts && opts.state, prng = function() {
+            return (xg.next() >>> 0) / 4294967296;
+          };
+          prng.double = function() {
+            do {
+              var top = xg.next() >>> 11, bot = (xg.next() >>> 0) / 4294967296, result = (top + bot) / (1 << 21);
+            } while (result === 0);
+            return result;
+          };
+          prng.int32 = xg.next;
+          prng.quick = prng;
+          if (state) {
+            if (typeof state == "object")
+              copy2(state, xg);
+            prng.state = function() {
+              return copy2(xg, {});
+            };
+          }
+          return prng;
+        }
+        if (module2 && module2.exports) {
+          module2.exports = impl;
+        } else if (define2 && define2.amd) {
+          define2(function() {
+            return impl;
+          });
+        } else {
+          this.xorwow = impl;
+        }
+      })(exports, typeof module == "object" && module, typeof define == "function" && define);
+    }
+  });
+
+  // node_modules/seedrandom/lib/xorshift7.js
+  var require_xorshift7 = __commonJS({
+    "node_modules/seedrandom/lib/xorshift7.js"(exports, module) {
+      (function(global, module2, define2) {
+        function XorGen(seed) {
+          var me = this;
+          me.next = function() {
+            var X2 = me.x, i = me.i, t, v2, w;
+            t = X2[i];
+            t ^= t >>> 7;
+            v2 = t ^ t << 24;
+            t = X2[i + 1 & 7];
+            v2 ^= t ^ t >>> 10;
+            t = X2[i + 3 & 7];
+            v2 ^= t ^ t >>> 3;
+            t = X2[i + 4 & 7];
+            v2 ^= t ^ t << 7;
+            t = X2[i + 7 & 7];
+            t = t ^ t << 13;
+            v2 ^= t ^ t << 9;
+            X2[i] = v2;
+            me.i = i + 1 & 7;
+            return v2;
+          };
+          function init2(me2, seed2) {
+            var j, w, X2 = [];
+            if (seed2 === (seed2 | 0)) {
+              w = X2[0] = seed2;
+            } else {
+              seed2 = "" + seed2;
+              for (j = 0; j < seed2.length; ++j) {
+                X2[j & 7] = X2[j & 7] << 15 ^ seed2.charCodeAt(j) + X2[j + 1 & 7] << 13;
+              }
+            }
+            while (X2.length < 8)
+              X2.push(0);
+            for (j = 0; j < 8 && X2[j] === 0; ++j)
+              ;
+            if (j == 8)
+              w = X2[7] = -1;
+            else
+              w = X2[j];
+            me2.x = X2;
+            me2.i = 0;
+            for (j = 256; j > 0; --j) {
+              me2.next();
+            }
+          }
+          init2(me, seed);
+        }
+        function copy2(f, t) {
+          t.x = f.x.slice();
+          t.i = f.i;
+          return t;
+        }
+        function impl(seed, opts) {
+          if (seed == null)
+            seed = +new Date();
+          var xg = new XorGen(seed), state = opts && opts.state, prng = function() {
+            return (xg.next() >>> 0) / 4294967296;
+          };
+          prng.double = function() {
+            do {
+              var top = xg.next() >>> 11, bot = (xg.next() >>> 0) / 4294967296, result = (top + bot) / (1 << 21);
+            } while (result === 0);
+            return result;
+          };
+          prng.int32 = xg.next;
+          prng.quick = prng;
+          if (state) {
+            if (state.x)
+              copy2(state, xg);
+            prng.state = function() {
+              return copy2(xg, {});
+            };
+          }
+          return prng;
+        }
+        if (module2 && module2.exports) {
+          module2.exports = impl;
+        } else if (define2 && define2.amd) {
+          define2(function() {
+            return impl;
+          });
+        } else {
+          this.xorshift7 = impl;
+        }
+      })(exports, typeof module == "object" && module, typeof define == "function" && define);
+    }
+  });
+
+  // node_modules/seedrandom/lib/xor4096.js
+  var require_xor4096 = __commonJS({
+    "node_modules/seedrandom/lib/xor4096.js"(exports, module) {
+      (function(global, module2, define2) {
+        function XorGen(seed) {
+          var me = this;
+          me.next = function() {
+            var w = me.w, X2 = me.X, i = me.i, t, v2;
+            me.w = w = w + 1640531527 | 0;
+            v2 = X2[i + 34 & 127];
+            t = X2[i = i + 1 & 127];
+            v2 ^= v2 << 13;
+            t ^= t << 17;
+            v2 ^= v2 >>> 15;
+            t ^= t >>> 12;
+            v2 = X2[i] = v2 ^ t;
+            me.i = i;
+            return v2 + (w ^ w >>> 16) | 0;
+          };
+          function init2(me2, seed2) {
+            var t, v2, i, j, w, X2 = [], limit = 128;
+            if (seed2 === (seed2 | 0)) {
+              v2 = seed2;
+              seed2 = null;
+            } else {
+              seed2 = seed2 + "\0";
+              v2 = 0;
+              limit = Math.max(limit, seed2.length);
+            }
+            for (i = 0, j = -32; j < limit; ++j) {
+              if (seed2)
+                v2 ^= seed2.charCodeAt((j + 32) % seed2.length);
+              if (j === 0)
+                w = v2;
+              v2 ^= v2 << 10;
+              v2 ^= v2 >>> 15;
+              v2 ^= v2 << 4;
+              v2 ^= v2 >>> 13;
+              if (j >= 0) {
+                w = w + 1640531527 | 0;
+                t = X2[j & 127] ^= v2 + w;
+                i = t == 0 ? i + 1 : 0;
+              }
+            }
+            if (i >= 128) {
+              X2[(seed2 && seed2.length || 0) & 127] = -1;
+            }
+            i = 127;
+            for (j = 4 * 128; j > 0; --j) {
+              v2 = X2[i + 34 & 127];
+              t = X2[i = i + 1 & 127];
+              v2 ^= v2 << 13;
+              t ^= t << 17;
+              v2 ^= v2 >>> 15;
+              t ^= t >>> 12;
+              X2[i] = v2 ^ t;
+            }
+            me2.w = w;
+            me2.X = X2;
+            me2.i = i;
+          }
+          init2(me, seed);
+        }
+        function copy2(f, t) {
+          t.i = f.i;
+          t.w = f.w;
+          t.X = f.X.slice();
+          return t;
+        }
+        ;
+        function impl(seed, opts) {
+          if (seed == null)
+            seed = +new Date();
+          var xg = new XorGen(seed), state = opts && opts.state, prng = function() {
+            return (xg.next() >>> 0) / 4294967296;
+          };
+          prng.double = function() {
+            do {
+              var top = xg.next() >>> 11, bot = (xg.next() >>> 0) / 4294967296, result = (top + bot) / (1 << 21);
+            } while (result === 0);
+            return result;
+          };
+          prng.int32 = xg.next;
+          prng.quick = prng;
+          if (state) {
+            if (state.X)
+              copy2(state, xg);
+            prng.state = function() {
+              return copy2(xg, {});
+            };
+          }
+          return prng;
+        }
+        if (module2 && module2.exports) {
+          module2.exports = impl;
+        } else if (define2 && define2.amd) {
+          define2(function() {
+            return impl;
+          });
+        } else {
+          this.xor4096 = impl;
+        }
+      })(exports, typeof module == "object" && module, typeof define == "function" && define);
+    }
+  });
+
+  // node_modules/seedrandom/lib/tychei.js
+  var require_tychei = __commonJS({
+    "node_modules/seedrandom/lib/tychei.js"(exports, module) {
+      (function(global, module2, define2) {
+        function XorGen(seed) {
+          var me = this, strseed = "";
+          me.next = function() {
+            var b = me.b, c2 = me.c, d = me.d, a2 = me.a;
+            b = b << 25 ^ b >>> 7 ^ c2;
+            c2 = c2 - d | 0;
+            d = d << 24 ^ d >>> 8 ^ a2;
+            a2 = a2 - b | 0;
+            me.b = b = b << 20 ^ b >>> 12 ^ c2;
+            me.c = c2 = c2 - d | 0;
+            me.d = d << 16 ^ c2 >>> 16 ^ a2;
+            return me.a = a2 - b | 0;
+          };
+          me.a = 0;
+          me.b = 0;
+          me.c = 2654435769 | 0;
+          me.d = 1367130551;
+          if (seed === Math.floor(seed)) {
+            me.a = seed / 4294967296 | 0;
+            me.b = seed | 0;
+          } else {
+            strseed += seed;
+          }
+          for (var k = 0; k < strseed.length + 20; k++) {
+            me.b ^= strseed.charCodeAt(k) | 0;
+            me.next();
+          }
+        }
+        function copy2(f, t) {
+          t.a = f.a;
+          t.b = f.b;
+          t.c = f.c;
+          t.d = f.d;
+          return t;
+        }
+        ;
+        function impl(seed, opts) {
+          var xg = new XorGen(seed), state = opts && opts.state, prng = function() {
+            return (xg.next() >>> 0) / 4294967296;
+          };
+          prng.double = function() {
+            do {
+              var top = xg.next() >>> 11, bot = (xg.next() >>> 0) / 4294967296, result = (top + bot) / (1 << 21);
+            } while (result === 0);
+            return result;
+          };
+          prng.int32 = xg.next;
+          prng.quick = prng;
+          if (state) {
+            if (typeof state == "object")
+              copy2(state, xg);
+            prng.state = function() {
+              return copy2(xg, {});
+            };
+          }
+          return prng;
+        }
+        if (module2 && module2.exports) {
+          module2.exports = impl;
+        } else if (define2 && define2.amd) {
+          define2(function() {
+            return impl;
+          });
+        } else {
+          this.tychei = impl;
+        }
+      })(exports, typeof module == "object" && module, typeof define == "function" && define);
+    }
+  });
+
+  // (disabled):crypto
+  var require_crypto = __commonJS({
+    "(disabled):crypto"() {
+    }
+  });
+
+  // node_modules/seedrandom/seedrandom.js
+  var require_seedrandom = __commonJS({
+    "node_modules/seedrandom/seedrandom.js"(exports, module) {
+      (function(global, pool, math) {
+        var width = 256, chunks = 6, digits = 52, rngname = "random", startdenom = math.pow(width, chunks), significance = math.pow(2, digits), overflow = significance * 2, mask = width - 1, nodecrypto;
+        function seedrandom2(seed, options, callback) {
+          var key = [];
+          options = options == true ? { entropy: true } : options || {};
+          var shortseed = mixkey(flatten(options.entropy ? [seed, tostring(pool)] : seed == null ? autoseed() : seed, 3), key);
+          var arc4 = new ARC4(key);
+          var prng = function() {
+            var n = arc4.g(chunks), d = startdenom, x3 = 0;
+            while (n < significance) {
+              n = (n + x3) * width;
+              d *= width;
+              x3 = arc4.g(1);
+            }
+            while (n >= overflow) {
+              n /= 2;
+              d /= 2;
+              x3 >>>= 1;
+            }
+            return (n + x3) / d;
+          };
+          prng.int32 = function() {
+            return arc4.g(4) | 0;
+          };
+          prng.quick = function() {
+            return arc4.g(4) / 4294967296;
+          };
+          prng.double = prng;
+          mixkey(tostring(arc4.S), pool);
+          return (options.pass || callback || function(prng2, seed2, is_math_call, state) {
+            if (state) {
+              if (state.S) {
+                copy2(state, arc4);
+              }
+              prng2.state = function() {
+                return copy2(arc4, {});
+              };
+            }
+            if (is_math_call) {
+              math[rngname] = prng2;
+              return seed2;
+            } else
+              return prng2;
+          })(prng, shortseed, "global" in options ? options.global : this == math, options.state);
+        }
+        function ARC4(key) {
+          var t, keylen = key.length, me = this, i = 0, j = me.i = me.j = 0, s = me.S = [];
+          if (!keylen) {
+            key = [keylen++];
+          }
+          while (i < width) {
+            s[i] = i++;
+          }
+          for (i = 0; i < width; i++) {
+            s[i] = s[j = mask & j + key[i % keylen] + (t = s[i])];
+            s[j] = t;
+          }
+          (me.g = function(count) {
+            var t2, r = 0, i2 = me.i, j2 = me.j, s2 = me.S;
+            while (count--) {
+              t2 = s2[i2 = mask & i2 + 1];
+              r = r * width + s2[mask & (s2[i2] = s2[j2 = mask & j2 + t2]) + (s2[j2] = t2)];
+            }
+            me.i = i2;
+            me.j = j2;
+            return r;
+          })(width);
+        }
+        function copy2(f, t) {
+          t.i = f.i;
+          t.j = f.j;
+          t.S = f.S.slice();
+          return t;
+        }
+        ;
+        function flatten(obj, depth) {
+          var result = [], typ = typeof obj, prop;
+          if (depth && typ == "object") {
+            for (prop in obj) {
+              try {
+                result.push(flatten(obj[prop], depth - 1));
+              } catch (e) {
+              }
+            }
+          }
+          return result.length ? result : typ == "string" ? obj : obj + "\0";
+        }
+        function mixkey(seed, key) {
+          var stringseed = seed + "", smear, j = 0;
+          while (j < stringseed.length) {
+            key[mask & j] = mask & (smear ^= key[mask & j] * 19) + stringseed.charCodeAt(j++);
+          }
+          return tostring(key);
+        }
+        function autoseed() {
+          try {
+            var out;
+            if (nodecrypto && (out = nodecrypto.randomBytes)) {
+              out = out(width);
+            } else {
+              out = new Uint8Array(width);
+              (global.crypto || global.msCrypto).getRandomValues(out);
+            }
+            return tostring(out);
+          } catch (e) {
+            var browser = global.navigator, plugins = browser && browser.plugins;
+            return [+new Date(), global, plugins, global.screen, tostring(pool)];
+          }
+        }
+        function tostring(a2) {
+          return String.fromCharCode.apply(0, a2);
+        }
+        mixkey(math.random(), pool);
+        if (typeof module == "object" && module.exports) {
+          module.exports = seedrandom2;
+          try {
+            nodecrypto = require_crypto();
+          } catch (ex) {
+          }
+        } else if (typeof define == "function" && define.amd) {
+          define(function() {
+            return seedrandom2;
+          });
+        } else {
+          math["seed" + rngname] = seedrandom2;
+        }
+      })(typeof self !== "undefined" ? self : exports, [], Math);
+    }
+  });
+
+  // node_modules/seedrandom/index.js
+  var require_seedrandom2 = __commonJS({
+    "node_modules/seedrandom/index.js"(exports, module) {
+      var alea = require_alea();
+      var xor128 = require_xor128();
+      var xorwow = require_xorwow();
+      var xorshift7 = require_xorshift7();
+      var xor4096 = require_xor4096();
+      var tychei = require_tychei();
+      var sr = require_seedrandom();
+      sr.alea = alea;
+      sr.xor128 = xor128;
+      sr.xorwow = xorwow;
+      sr.xorshift7 = xorshift7;
+      sr.xor4096 = xor4096;
+      sr.tychei = tychei;
+      module.exports = sr;
+    }
+  });
+
   // federjs/FederIndex/parser/FileReader.ts
   var FileReader = class {
     data;
@@ -7501,6 +8160,9 @@ ${indentData}`);
     }
     async getVectorById(id2) {
       return Array.from(this.id2vector[id2]);
+    }
+    async getVectorsCount() {
+      return Object.keys(this.id2vector).length;
     }
   };
 
@@ -9904,23 +10566,23 @@ ${indentData}`);
       throw new Error("transition not found");
     return schedule;
   }
-  function create(node, id2, self) {
+  function create(node, id2, self2) {
     var schedules = node.__transition, tween;
-    schedules[id2] = self;
-    self.timer = timer(schedule, 0, self.time);
+    schedules[id2] = self2;
+    self2.timer = timer(schedule, 0, self2.time);
     function schedule(elapsed) {
-      self.state = SCHEDULED;
-      self.timer.restart(start2, self.delay, self.time);
-      if (self.delay <= elapsed)
-        start2(elapsed - self.delay);
+      self2.state = SCHEDULED;
+      self2.timer.restart(start2, self2.delay, self2.time);
+      if (self2.delay <= elapsed)
+        start2(elapsed - self2.delay);
     }
     function start2(elapsed) {
       var i, j, n, o;
-      if (self.state !== SCHEDULED)
+      if (self2.state !== SCHEDULED)
         return stop();
       for (i in schedules) {
         o = schedules[i];
-        if (o.name !== self.name)
+        if (o.name !== self2.name)
           continue;
         if (o.state === STARTED)
           return timeout_default(start2);
@@ -9937,38 +10599,38 @@ ${indentData}`);
         }
       }
       timeout_default(function() {
-        if (self.state === STARTED) {
-          self.state = RUNNING;
-          self.timer.restart(tick, self.delay, self.time);
+        if (self2.state === STARTED) {
+          self2.state = RUNNING;
+          self2.timer.restart(tick, self2.delay, self2.time);
           tick(elapsed);
         }
       });
-      self.state = STARTING;
-      self.on.call("start", node, node.__data__, self.index, self.group);
-      if (self.state !== STARTING)
+      self2.state = STARTING;
+      self2.on.call("start", node, node.__data__, self2.index, self2.group);
+      if (self2.state !== STARTING)
         return;
-      self.state = STARTED;
-      tween = new Array(n = self.tween.length);
+      self2.state = STARTED;
+      tween = new Array(n = self2.tween.length);
       for (i = 0, j = -1; i < n; ++i) {
-        if (o = self.tween[i].value.call(node, node.__data__, self.index, self.group)) {
+        if (o = self2.tween[i].value.call(node, node.__data__, self2.index, self2.group)) {
           tween[++j] = o;
         }
       }
       tween.length = j + 1;
     }
     function tick(elapsed) {
-      var t = elapsed < self.duration ? self.ease.call(null, elapsed / self.duration) : (self.timer.restart(stop), self.state = ENDING, 1), i = -1, n = tween.length;
+      var t = elapsed < self2.duration ? self2.ease.call(null, elapsed / self2.duration) : (self2.timer.restart(stop), self2.state = ENDING, 1), i = -1, n = tween.length;
       while (++i < n) {
         tween[i].call(node, t);
       }
-      if (self.state === ENDING) {
-        self.on.call("end", node, node.__data__, self.index, self.group);
+      if (self2.state === ENDING) {
+        self2.on.call("end", node, node.__data__, self2.index, self2.group);
         stop();
       }
     }
     function stop() {
-      self.state = ENDED;
-      self.timer.stop();
+      self2.state = ENDED;
+      self2.timer.stop();
       delete schedules[id2];
       for (var i in schedules)
         return;
@@ -12019,185 +12681,6 @@ ${indentData}`);
     }
   }
 
-  // node_modules/d3-dsv/src/dsv.js
-  var EOL = {};
-  var EOF = {};
-  var QUOTE = 34;
-  var NEWLINE = 10;
-  var RETURN = 13;
-  function objectConverter(columns) {
-    return new Function("d", "return {" + columns.map(function(name, i) {
-      return JSON.stringify(name) + ": d[" + i + '] || ""';
-    }).join(",") + "}");
-  }
-  function customConverter(columns, f) {
-    var object = objectConverter(columns);
-    return function(row, i) {
-      return f(object(row), i, columns);
-    };
-  }
-  function inferColumns(rows) {
-    var columnSet = /* @__PURE__ */ Object.create(null), columns = [];
-    rows.forEach(function(row) {
-      for (var column in row) {
-        if (!(column in columnSet)) {
-          columns.push(columnSet[column] = column);
-        }
-      }
-    });
-    return columns;
-  }
-  function pad(value, width) {
-    var s = value + "", length = s.length;
-    return length < width ? new Array(width - length + 1).join(0) + s : s;
-  }
-  function formatYear(year) {
-    return year < 0 ? "-" + pad(-year, 6) : year > 9999 ? "+" + pad(year, 6) : pad(year, 4);
-  }
-  function formatDate(date) {
-    var hours = date.getUTCHours(), minutes = date.getUTCMinutes(), seconds = date.getUTCSeconds(), milliseconds = date.getUTCMilliseconds();
-    return isNaN(date) ? "Invalid Date" : formatYear(date.getUTCFullYear(), 4) + "-" + pad(date.getUTCMonth() + 1, 2) + "-" + pad(date.getUTCDate(), 2) + (milliseconds ? "T" + pad(hours, 2) + ":" + pad(minutes, 2) + ":" + pad(seconds, 2) + "." + pad(milliseconds, 3) + "Z" : seconds ? "T" + pad(hours, 2) + ":" + pad(minutes, 2) + ":" + pad(seconds, 2) + "Z" : minutes || hours ? "T" + pad(hours, 2) + ":" + pad(minutes, 2) + "Z" : "");
-  }
-  function dsv_default(delimiter) {
-    var reFormat = new RegExp('["' + delimiter + "\n\r]"), DELIMITER = delimiter.charCodeAt(0);
-    function parse(text, f) {
-      var convert, columns, rows = parseRows(text, function(row, i) {
-        if (convert)
-          return convert(row, i - 1);
-        columns = row, convert = f ? customConverter(row, f) : objectConverter(row);
-      });
-      rows.columns = columns || [];
-      return rows;
-    }
-    function parseRows(text, f) {
-      var rows = [], N = text.length, I = 0, n = 0, t, eof = N <= 0, eol = false;
-      if (text.charCodeAt(N - 1) === NEWLINE)
-        --N;
-      if (text.charCodeAt(N - 1) === RETURN)
-        --N;
-      function token() {
-        if (eof)
-          return EOF;
-        if (eol)
-          return eol = false, EOL;
-        var i, j = I, c2;
-        if (text.charCodeAt(j) === QUOTE) {
-          while (I++ < N && text.charCodeAt(I) !== QUOTE || text.charCodeAt(++I) === QUOTE)
-            ;
-          if ((i = I) >= N)
-            eof = true;
-          else if ((c2 = text.charCodeAt(I++)) === NEWLINE)
-            eol = true;
-          else if (c2 === RETURN) {
-            eol = true;
-            if (text.charCodeAt(I) === NEWLINE)
-              ++I;
-          }
-          return text.slice(j + 1, i - 1).replace(/""/g, '"');
-        }
-        while (I < N) {
-          if ((c2 = text.charCodeAt(i = I++)) === NEWLINE)
-            eol = true;
-          else if (c2 === RETURN) {
-            eol = true;
-            if (text.charCodeAt(I) === NEWLINE)
-              ++I;
-          } else if (c2 !== DELIMITER)
-            continue;
-          return text.slice(j, i);
-        }
-        return eof = true, text.slice(j, N);
-      }
-      while ((t = token()) !== EOF) {
-        var row = [];
-        while (t !== EOL && t !== EOF)
-          row.push(t), t = token();
-        if (f && (row = f(row, n++)) == null)
-          continue;
-        rows.push(row);
-      }
-      return rows;
-    }
-    function preformatBody(rows, columns) {
-      return rows.map(function(row) {
-        return columns.map(function(column) {
-          return formatValue(row[column]);
-        }).join(delimiter);
-      });
-    }
-    function format2(rows, columns) {
-      if (columns == null)
-        columns = inferColumns(rows);
-      return [columns.map(formatValue).join(delimiter)].concat(preformatBody(rows, columns)).join("\n");
-    }
-    function formatBody(rows, columns) {
-      if (columns == null)
-        columns = inferColumns(rows);
-      return preformatBody(rows, columns).join("\n");
-    }
-    function formatRows(rows) {
-      return rows.map(formatRow).join("\n");
-    }
-    function formatRow(row) {
-      return row.map(formatValue).join(delimiter);
-    }
-    function formatValue(value) {
-      return value == null ? "" : value instanceof Date ? formatDate(value) : reFormat.test(value += "") ? '"' + value.replace(/"/g, '""') + '"' : value;
-    }
-    return {
-      parse,
-      parseRows,
-      format: format2,
-      formatBody,
-      formatRows,
-      formatRow,
-      formatValue
-    };
-  }
-
-  // node_modules/d3-dsv/src/csv.js
-  var csv = dsv_default(",");
-  var csvParse = csv.parse;
-  var csvParseRows = csv.parseRows;
-  var csvFormat = csv.format;
-  var csvFormatBody = csv.formatBody;
-  var csvFormatRows = csv.formatRows;
-  var csvFormatRow = csv.formatRow;
-  var csvFormatValue = csv.formatValue;
-
-  // node_modules/d3-dsv/src/tsv.js
-  var tsv = dsv_default("	");
-  var tsvParse = tsv.parse;
-  var tsvParseRows = tsv.parseRows;
-  var tsvFormat = tsv.format;
-  var tsvFormatBody = tsv.formatBody;
-  var tsvFormatRows = tsv.formatRows;
-  var tsvFormatRow = tsv.formatRow;
-  var tsvFormatValue = tsv.formatValue;
-
-  // node_modules/d3-fetch/src/text.js
-  function responseText(response) {
-    if (!response.ok)
-      throw new Error(response.status + " " + response.statusText);
-    return response.text();
-  }
-  function text_default3(input, init2) {
-    return fetch(input, init2).then(responseText);
-  }
-
-  // node_modules/d3-fetch/src/dsv.js
-  function dsvParse(parse) {
-    return function(input, init2, row) {
-      if (arguments.length === 2 && typeof init2 === "function")
-        row = init2, init2 = void 0;
-      return text_default3(input, init2).then(function(response) {
-        return parse(response, row);
-      });
-    };
-  }
-  var csv2 = dsvParse(csvParse);
-  var tsv2 = dsvParse(tsvParse);
-
   // node_modules/d3-force/src/center.js
   function center_default(x3, y3) {
     var nodes, strength = 1;
@@ -13934,6 +14417,7 @@ ${indentData}`);
   };
 
   // federjs/FederLayout/projector/index.ts
+  var import_seedrandom = __toESM(require_seedrandom2(), 1);
   var projectorMap = {
     ["umap" /* umap */]: umapProject
   };
@@ -13944,6 +14428,8 @@ ${indentData}`);
     if (!(method in projectorMap)) {
       console.error(`No projector for [${method}]`);
     }
+    if (!!params.projectSeed)
+      params.random = (0, import_seedrandom.default)(params.projectSeed);
     return projectorMap[method](params);
   };
   var projector_default = getProjector;
@@ -15473,8 +15959,6 @@ ${indentData}`);
     nodesCount;
     linksCount;
     constructor(visData, viewParams, actionData) {
-      if (!viewParams.mediaContent && !!viewParams.mediaCallback)
-        viewParams.mediaContent = viewParams.mediaCallback;
       this.viewParams = Object.assign({}, defaultViewParamsHnsw_default, viewParams);
       this.actionData = actionData;
       this.searchTransitionDuration = visData.searchTransitionDuration;
@@ -15752,8 +16236,6 @@ ${indentData}`);
     nodesCount;
     linksCount;
     constructor(visData, viewParams) {
-      if (!viewParams.mediaContent && !!viewParams.mediaCallback)
-        viewParams.mediaContent = viewParams.mediaCallback;
       this.viewParams = Object.assign({}, defaultViewParamsHnsw_default, viewParams);
       this.overviewNodesLevels = visData.overviewNodesLevels;
       this.overviewLayerPosLevels = visData.overviewLayerPosLevels;
@@ -16704,8 +17186,6 @@ ${indentData}`);
       this.polarR = polarR;
       this.nlist = nlist;
       this.ntotal = ntotal;
-      if (!viewParams.mediaContent && !!viewParams.mediaCallback)
-        viewParams.mediaContent = viewParams.mediaCallback;
       this.viewParams = Object.assign({}, defaultViewParamsIvfflat_default, viewParams);
       this.init();
     }
@@ -16933,8 +17413,6 @@ ${indentData}`);
       this.overviewClusters = visData.overviewClusters;
       this.ntotal = visData.ntotal;
       this.nlist = visData.nlist;
-      if (!viewParams.mediaContent && !!viewParams.mediaCallback)
-        viewParams.mediaContent = viewParams.mediaCallback;
       this.viewParams = Object.assign({}, defaultViewParamsIvfflat_default, viewParams);
       this.init();
     }
@@ -17016,94 +17494,186 @@ ${indentData}`);
     }
   };
 
+  // federjs/Utils/loading.ts
+  var loadingSvgId = "feder-loading";
+  var loadingWidth = 30;
+  var loadingStrokeWidth = 6;
+  var initLoadingStyle = () => {
+    const style = document.createElement("style");
+    style.type = "text/css";
+    style.innerHTML = `
+      @keyframes rotation {
+        from {
+          transform: translate(${loadingWidth / 2}px,${loadingWidth / 2}px) rotate(0deg);
+        }
+        to {
+          transform: translate(${loadingWidth / 2}px,${loadingWidth / 2}px) rotate(359deg);
+        }
+      }
+      .rotate {
+        animation: rotation 2s infinite linear;
+      }
+    `;
+    document.getElementsByTagName("head").item(0).appendChild(style);
+  };
+  var renderLoading = (domNode, width, height) => {
+    const dom = select_default2(domNode);
+    if (!dom.select(`#${loadingSvgId}`).empty())
+      return;
+    const svg = dom.append("svg").attr("id", loadingSvgId).attr("width", loadingWidth).attr("height", loadingWidth).style("position", "absolute").style("left", width / 2 - loadingWidth / 2).style("bottom", height / 2 - loadingWidth / 2).style("overflow", "visible");
+    const defsG = svg.append("defs");
+    const linearGradientId = `feder-loading-gradient`;
+    const linearGradient = defsG.append("linearGradient").attr("id", linearGradientId).attr("x1", 0).attr("y1", 0).attr("x2", 0).attr("y2", 1);
+    linearGradient.append("stop").attr("offset", "0%").style("stop-color", "#1E64FF");
+    linearGradient.append("stop").attr("offset", "100%").style("stop-color", "#061982");
+    const loadingCircle = svg.append("circle").attr("cx", loadingWidth / 2).attr("cy", loadingWidth / 2).attr("fill", "none").attr("r", loadingWidth / 2).attr("stroke", "#1E64FF").attr("stroke-width", loadingStrokeWidth);
+    const semiCircle = svg.append("path").attr("d", `M0,${-loadingWidth / 2} a ${loadingWidth / 2} ${loadingWidth / 2} 0 1 1 ${0} ${loadingWidth}`).attr("fill", "none").attr("stroke", `url(#${linearGradientId})`).attr("stroke-width", loadingStrokeWidth).classed("rotate", true);
+  };
+  var finishLoading = (domNode) => {
+    const dom = select_default2(domNode);
+    dom.selectAll(`#${loadingSvgId}`).remove();
+  };
+
+  // federjs/Feder.ts
+  var Feder = class {
+    domSelector;
+    initFederPromise;
+    federIndex;
+    viewParams;
+    federLayout;
+    indexType;
+    viewType;
+    searchParams;
+    constructor({
+      source,
+      filePath,
+      domSelector,
+      viewParams = {}
+    }) {
+      this.domSelector = domSelector;
+      const { viewType = "default" /* default */ } = viewParams;
+      this.viewType = viewType;
+      if (!viewParams.mediaContent && !!viewParams.mediaCallback)
+        viewParams.mediaContent = viewParams.mediaCallback;
+      this.viewParams = viewParams;
+      this.searchParams = {};
+      this.initFederPromise = new Promise(async (resolve) => {
+        const arrayBuffer = await fetch(filePath).then((res) => res.arrayBuffer());
+        this.federIndex = new FederIndex(source, arrayBuffer);
+        this.indexType = await this.federIndex.getIndexType();
+        this.federLayout = new FederLayout(this.federIndex);
+        resolve();
+      });
+      initLoadingStyle();
+    }
+    initDom() {
+      const { width = 800, height = 480 } = this.viewParams;
+      const node = create_default("div").style("position", "relative").style("width", width + "px").style("height", height + "px").node();
+      renderLoading(node, width, height);
+      return node;
+    }
+    overview() {
+      const node = this.initDom();
+      this.executeAction(node, "overview" /* overview */);
+      return node;
+    }
+    search(target = null, targetMedia = null) {
+      const node = this.initDom();
+      this.executeAction(node, "search" /* search */, {
+        target,
+        targetMedia,
+        searchParams: this.searchParams
+      });
+      return node;
+    }
+    executeAction(node, actionType, actionData = null) {
+      new Promise(async (resolve) => {
+        await this.initFederPromise;
+        const visData = await this.federLayout.getVisData({
+          actionType,
+          actionData,
+          viewType: this.viewType,
+          layoutParams: this.viewParams
+        });
+        const federView = new FederView(visData, this.viewParams);
+        node.federView = federView;
+        finishLoading(node);
+        node.appendChild(federView.node);
+        federView.render();
+        resolve();
+      });
+      if (this.domSelector) {
+        const container = select_default2(this.domSelector);
+        container.node().appendChild(node);
+      }
+    }
+    searchById(id2) {
+      const node = this.initDom();
+      new Promise(async () => {
+        await this.initFederPromise;
+        const target = await this.federIndex.getVectorById(id2);
+        const targetMedia = this.viewParams.mediaContent(id2);
+        this.executeAction(node, "search" /* search */, {
+          target,
+          targetMedia,
+          searchParams: this.searchParams
+        });
+      });
+      return node;
+    }
+    searchByRandTestVec() {
+      const node = this.initDom();
+      new Promise(async () => {
+        await this.initFederPromise;
+        const idCount = await this.federIndex.getVectorsCount();
+        const id2 = Math.floor(Math.random() * idCount);
+        const target = await this.federIndex.getVectorById(id2);
+        const targetMedia = this.viewParams.mediaContent(id2);
+        this.executeAction(node, "search" /* search */, {
+          target,
+          targetMedia,
+          searchParams: this.searchParams
+        });
+      });
+      return node;
+    }
+    setSearchParams(params) {
+      this.searchParams = Object.assign({}, this.searchParams, params);
+      return this;
+    }
+  };
+
   // test/config.js
   var local = true;
-  var hnswSource = "hnswlib";
-  var hnswIndexFilePath = local ? "data/hnswlib_hnsw_voc_17k.index" : "https://assets.zilliz.com/hnswlib_hnsw_voc_17k_1f1dfd63a9.index";
   var ivfflatSource = "faiss";
   var ivfflatIndexFilePath = local ? "data/faiss_ivf_flat_voc_17k.index" : "https://assets.zilliz.com/faiss_ivf_flat_voc_17k_ab112eec72.index";
-  var imgNamesFilePath = "https://assets.zilliz.com/voc_names_4cee9440b1.csv";
-  var getRowId2name = async () => {
-    const data = await csv2(imgNamesFilePath);
-    const rowId2name = (rowId) => data[rowId].name;
-    return rowId2name;
-  };
-  var name2imgUrl = (name) => `https://assets.zilliz.com/voc2012/JPEGImages/${name}`;
-  var getRowId2imgUrl = async () => {
-    const rowId2name = await getRowId2name();
-    const rowId2imgUrl = (rowId) => name2imgUrl(rowId2name(rowId));
-    return rowId2imgUrl;
-  };
 
   // test/test_feder_all_in_one.js
   var testVector = Array(512).fill(0).map((_) => Math.random());
+  var test_feder_all_in_one = () => {
+    const feder = new Feder({
+      source: ivfflatSource,
+      filePath: ivfflatIndexFilePath,
+      domSelector: "#container",
+      viewParams: {
+        width: 1200,
+        height: 800,
+        projectParams: { projectSeed: 12315 },
+        mediaType: "text",
+        mediaContent: (id2) => `this is text content of No.${id2}`,
+        mediaContentCount: 6
+      }
+    });
+    feder.overview();
+    const view = feder.searchById(112);
+    setTimeout(() => console.log(view.federView), 1e4);
+  };
 
   // test/test_feder_separate.js
   var testVector2 = Array(512).fill(0).map((_) => Math.random());
-  var testSearchParams = {
-    k: 4,
-    ef: 6,
-    nprobe: 4
-  };
-  var test_feder_separate = async () => {
-    const rowId2imgUrl = await getRowId2imgUrl();
-    const faissIvfflatArrayBuffer = await fetch(ivfflatIndexFilePath).then((res) => res.arrayBuffer());
-    const ivfflatFederIndex = new FederIndex(ivfflatSource, faissIvfflatArrayBuffer);
-    const ivfflatFederLayout = new FederLayout(ivfflatFederIndex);
-    const ivfflatViewParams = {
-      mediaType: "text",
-      mediaContent: (id2) => `this is content of No.${id2}`,
-      mediaContentCount: 5,
-      getVectorById: (id2) => ivfflatFederIndex.getVectorById(id2)
-    };
-    const ivfflatOverviewVisData = await ivfflatFederLayout.getVisData({
-      actionType: "overview"
-    });
-    const ivfflatOverview = new FederView(ivfflatOverviewVisData, ivfflatViewParams);
-    ivfflatOverview.render();
-    document.querySelector("#container").appendChild(ivfflatOverview.node);
-    const ivfflatSearchVisData = await ivfflatFederLayout.getVisData({
-      actionType: "search",
-      actionData: {
-        target: testVector2,
-        searchParams: testSearchParams
-      },
-      viewType: "default",
-      layoutParams: {}
-    });
-    const ivfflatSearchView = new FederView(ivfflatSearchVisData, ivfflatViewParams);
-    ivfflatSearchView.render();
-    document.querySelector("#container").appendChild(ivfflatSearchView.node);
-    const hnswlibHnswArrayBuffer = await fetch(hnswIndexFilePath).then((res) => res.arrayBuffer());
-    const hnswFederIndex = new FederIndex(hnswSource, hnswlibHnswArrayBuffer);
-    const hnswFederLayout = new FederLayout(hnswFederIndex);
-    const hnswViewParams = {
-      mediaType: "image",
-      mediaContent: rowId2imgUrl,
-      getVectorById: (id2) => hnswFederIndex.getVectorById(id2)
-    };
-    const hnswOverviewVisData = await hnswFederLayout.getVisData({
-      actionType: "overview"
-    });
-    const hnswOverview = new FederView(hnswOverviewVisData, hnswViewParams);
-    hnswOverview.render();
-    document.querySelector("#container").appendChild(hnswOverview.node);
-    const hnswSearchVisData = await hnswFederLayout.getVisData({
-      actionType: "search",
-      actionData: {
-        target: testVector2,
-        searchParams: testSearchParams
-      },
-      viewType: "default",
-      layoutParams: {}
-    });
-    const hnswSearchView = new FederView(hnswSearchVisData, hnswViewParams);
-    hnswSearchView.render();
-    document.querySelector("#container").appendChild(hnswSearchView.node);
-  };
 
   // test/index.js
   window.addEventListener("DOMContentLoaded", async () => {
-    test_feder_separate();
+    test_feder_all_in_one();
   });
 })();

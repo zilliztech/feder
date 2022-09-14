@@ -36,7 +36,11 @@ export class Feder {
     this.domSelector = domSelector;
     const { viewType = EViewType.default } = viewParams;
     this.viewType = viewType;
+
+    if (!viewParams.mediaContent && !!viewParams.mediaCallback)
+      viewParams.mediaContent = viewParams.mediaCallback;
     this.viewParams = viewParams;
+
     this.searchParams = {};
 
     this.initFederPromise = new Promise(async (resolve) => {
@@ -109,10 +113,43 @@ export class Feder {
       (container.node() as HTMLElement).appendChild(node);
     }
   }
-  searchById(id: TId) {}
-  searchByRandTestVec() {}
+  searchById(id: TId) {
+    const node = this.initDom();
+
+    new Promise(async () => {
+      await this.initFederPromise;
+      const target = await this.federIndex.getVectorById(id);
+      const targetMedia = this.viewParams.mediaContent(id);
+      this.executeAction(node, EActionType.search, {
+        target,
+        targetMedia,
+        searchParams: this.searchParams,
+      });
+    });
+
+    return node;
+  }
+  searchByRandTestVec() {
+    const node = this.initDom();
+
+    new Promise(async () => {
+      await this.initFederPromise;
+      const idCount = await this.federIndex.getVectorsCount();
+      const id = Math.floor(Math.random() * idCount);
+      const target = await this.federIndex.getVectorById(id);
+      const targetMedia = this.viewParams.mediaContent(id);
+      this.executeAction(node, EActionType.search, {
+        target,
+        targetMedia,
+        searchParams: this.searchParams,
+      });
+    });
+
+    return node;
+  }
   setSearchParams(params: TSearchParams) {
-    this.searchParams = params;
+    this.searchParams = Object.assign({}, this.searchParams, params);
+    return this;
   }
 }
 

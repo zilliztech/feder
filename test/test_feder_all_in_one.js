@@ -18,7 +18,6 @@ const testSearchParams = {
 };
 
 export const test_feder_all_in_one = () => {
-  const container = document.querySelector('#container');
   const feder = new Feder({
     source: ivfflatSource,
     filePath: ivfflatIndexFilePath,
@@ -26,12 +25,13 @@ export const test_feder_all_in_one = () => {
     viewParams: {
       width: 1200,
       height: 800,
+      projectParams: { projectSeed: 12315 },
       mediaType: 'text',
       mediaContent: (id) => `this is text content of No.${id}`,
       mediaContentCount: 6,
-    }
+    },
   });
   feder.overview();
-  const view  = feder.search(testVector, 'test');
-  setTimeout(() => console.log(view.federView), 10000)
+  const view = feder.searchById(112);
+  setTimeout(() => console.log(view.federView), 10000);
 };

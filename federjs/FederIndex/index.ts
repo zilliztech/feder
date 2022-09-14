@@ -49,4 +49,7 @@ export class FederIndex {
   async getVectorById(id: TId) {
     return Array.from(this.id2vector[id]);
   }
+  async getVectorsCount() {
+    return Object.keys(this.id2vector).length;
+  }
 }

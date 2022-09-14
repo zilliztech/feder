@@ -29,6 +29,7 @@ export interface TUmapProjectParams {
   minDist?: number;
   spread?: number;
   random?: any;
+  projectSeed?: any;
   distanceFn?: any;
 }
 

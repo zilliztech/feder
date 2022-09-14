@@ -1,5 +1,5 @@
 import { umapProject, TUmapProjectParams } from './umap';
-
+import seedrandom from 'seedrandom';
 import { EProjectMethod, TCoord, TVec } from 'Types';
 
 const projectorMap = {
@@ -18,6 +18,7 @@ export const getProjector = ({
   if (!(method in projectorMap)) {
     console.error(`No projector for [${method}]`);
   }
+  if (!!params.projectSeed) params.random = seedrandom(params.projectSeed);
   return projectorMap[method](params);
 };
 
