@@ -12681,6 +12681,185 @@ ${indentData}`);
     }
   }
 
+  // node_modules/d3-dsv/src/dsv.js
+  var EOL = {};
+  var EOF = {};
+  var QUOTE = 34;
+  var NEWLINE = 10;
+  var RETURN = 13;
+  function objectConverter(columns) {
+    return new Function("d", "return {" + columns.map(function(name, i) {
+      return JSON.stringify(name) + ": d[" + i + '] || ""';
+    }).join(",") + "}");
+  }
+  function customConverter(columns, f) {
+    var object = objectConverter(columns);
+    return function(row, i) {
+      return f(object(row), i, columns);
+    };
+  }
+  function inferColumns(rows) {
+    var columnSet = /* @__PURE__ */ Object.create(null), columns = [];
+    rows.forEach(function(row) {
+      for (var column in row) {
+        if (!(column in columnSet)) {
+          columns.push(columnSet[column] = column);
+        }
+      }
+    });
+    return columns;
+  }
+  function pad(value, width) {
+    var s = value + "", length = s.length;
+    return length < width ? new Array(width - length + 1).join(0) + s : s;
+  }
+  function formatYear(year) {
+    return year < 0 ? "-" + pad(-year, 6) : year > 9999 ? "+" + pad(year, 6) : pad(year, 4);
+  }
+  function formatDate(date) {
+    var hours = date.getUTCHours(), minutes = date.getUTCMinutes(), seconds = date.getUTCSeconds(), milliseconds = date.getUTCMilliseconds();
+    return isNaN(date) ? "Invalid Date" : formatYear(date.getUTCFullYear(), 4) + "-" + pad(date.getUTCMonth() + 1, 2) + "-" + pad(date.getUTCDate(), 2) + (milliseconds ? "T" + pad(hours, 2) + ":" + pad(minutes, 2) + ":" + pad(seconds, 2) + "." + pad(milliseconds, 3) + "Z" : seconds ? "T" + pad(hours, 2) + ":" + pad(minutes, 2) + ":" + pad(seconds, 2) + "Z" : minutes || hours ? "T" + pad(hours, 2) + ":" + pad(minutes, 2) + "Z" : "");
+  }
+  function dsv_default(delimiter) {
+    var reFormat = new RegExp('["' + delimiter + "\n\r]"), DELIMITER = delimiter.charCodeAt(0);
+    function parse(text, f) {
+      var convert, columns, rows = parseRows(text, function(row, i) {
+        if (convert)
+          return convert(row, i - 1);
+        columns = row, convert = f ? customConverter(row, f) : objectConverter(row);
+      });
+      rows.columns = columns || [];
+      return rows;
+    }
+    function parseRows(text, f) {
+      var rows = [], N = text.length, I = 0, n = 0, t, eof = N <= 0, eol = false;
+      if (text.charCodeAt(N - 1) === NEWLINE)
+        --N;
+      if (text.charCodeAt(N - 1) === RETURN)
+        --N;
+      function token() {
+        if (eof)
+          return EOF;
+        if (eol)
+          return eol = false, EOL;
+        var i, j = I, c2;
+        if (text.charCodeAt(j) === QUOTE) {
+          while (I++ < N && text.charCodeAt(I) !== QUOTE || text.charCodeAt(++I) === QUOTE)
+            ;
+          if ((i = I) >= N)
+            eof = true;
+          else if ((c2 = text.charCodeAt(I++)) === NEWLINE)
+            eol = true;
+          else if (c2 === RETURN) {
+            eol = true;
+            if (text.charCodeAt(I) === NEWLINE)
+              ++I;
+          }
+          return text.slice(j + 1, i - 1).replace(/""/g, '"');
+        }
+        while (I < N) {
+          if ((c2 = text.charCodeAt(i = I++)) === NEWLINE)
+            eol = true;
+          else if (c2 === RETURN) {
+            eol = true;
+            if (text.charCodeAt(I) === NEWLINE)
+              ++I;
+          } else if (c2 !== DELIMITER)
+            continue;
+          return text.slice(j, i);
+        }
+        return eof = true, text.slice(j, N);
+      }
+      while ((t = token()) !== EOF) {
+        var row = [];
+        while (t !== EOL && t !== EOF)
+          row.push(t), t = token();
+        if (f && (row = f(row, n++)) == null)
+          continue;
+        rows.push(row);
+      }
+      return rows;
+    }
+    function preformatBody(rows, columns) {
+      return rows.map(function(row) {
+        return columns.map(function(column) {
+          return formatValue(row[column]);
+        }).join(delimiter);
+      });
+    }
+    function format2(rows, columns) {
+      if (columns == null)
+        columns = inferColumns(rows);
+      return [columns.map(formatValue).join(delimiter)].concat(preformatBody(rows, columns)).join("\n");
+    }
+    function formatBody(rows, columns) {
+      if (columns == null)
+        columns = inferColumns(rows);
+      return preformatBody(rows, columns).join("\n");
+    }
+    function formatRows(rows) {
+      return rows.map(formatRow).join("\n");
+    }
+    function formatRow(row) {
+      return row.map(formatValue).join(delimiter);
+    }
+    function formatValue(value) {
+      return value == null ? "" : value instanceof Date ? formatDate(value) : reFormat.test(value += "") ? '"' + value.replace(/"/g, '""') + '"' : value;
+    }
+    return {
+      parse,
+      parseRows,
+      format: format2,
+      formatBody,
+      formatRows,
+      formatRow,
+      formatValue
+    };
+  }
+
+  // node_modules/d3-dsv/src/csv.js
+  var csv = dsv_default(",");
+  var csvParse = csv.parse;
+  var csvParseRows = csv.parseRows;
+  var csvFormat = csv.format;
+  var csvFormatBody = csv.formatBody;
+  var csvFormatRows = csv.formatRows;
+  var csvFormatRow = csv.formatRow;
+  var csvFormatValue = csv.formatValue;
+
+  // node_modules/d3-dsv/src/tsv.js
+  var tsv = dsv_default("	");
+  var tsvParse = tsv.parse;
+  var tsvParseRows = tsv.parseRows;
+  var tsvFormat = tsv.format;
+  var tsvFormatBody = tsv.formatBody;
+  var tsvFormatRows = tsv.formatRows;
+  var tsvFormatRow = tsv.formatRow;
+  var tsvFormatValue = tsv.formatValue;
+
+  // node_modules/d3-fetch/src/text.js
+  function responseText(response) {
+    if (!response.ok)
+      throw new Error(response.status + " " + response.statusText);
+    return response.text();
+  }
+  function text_default3(input, init2) {
+    return fetch(input, init2).then(responseText);
+  }
+
+  // node_modules/d3-fetch/src/dsv.js
+  function dsvParse(parse) {
+    return function(input, init2, row) {
+      if (arguments.length === 2 && typeof init2 === "function")
+        row = init2, init2 = void 0;
+      return text_default3(input, init2).then(function(response) {
+        return parse(response, row);
+      });
+    };
+  }
+  var csv2 = dsvParse(csvParse);
+  var tsv2 = dsvParse(tsvParse);
+
   // node_modules/d3-force/src/center.js
   function center_default(x3, y3) {
     var nodes, strength = 1;
@@ -14648,7 +14827,12 @@ ${indentData}`);
     polarOrigin,
     polarMaxR
   }) => new Promise((resolve) => {
-    const { numForceIterations, nonTopkNodeR, canvasScale, polarRadiusUpperBound } = layoutParams;
+    const {
+      numForceIterations,
+      nonTopkNodeR,
+      canvasScale,
+      polarRadiusUpperBound
+    } = layoutParams;
     const clusterId2cluster = {};
     searchViewClusters.forEach((cluster) => clusterId2cluster[cluster.clusterId] = cluster);
     const searchViewNodes = searchRecords.fineSearchRecords.map(({ id: id2, clusterId, distance }) => ({
@@ -14658,7 +14842,7 @@ ${indentData}`);
       inTopK: searchRecords.topKVectorIds.indexOf(id2) >= 0
     }));
     searchViewNodes.sort((a2, b) => a2.distance - b.distance);
-    const minDis = getPercentile(searchViewNodes, "distance", 0);
+    const minDis = searchViewNodes[Math.min(searchViewNodes.length - 1, 1)].distance;
     const maxDis = getPercentile(searchViewNodes, "distance", polarRadiusUpperBound);
     const r = linear2().domain([minDis, maxDis]).range([polarMaxR * 0.2, polarMaxR]).clamp(true);
     searchViewNodes.forEach((node) => {
@@ -14690,6 +14874,7 @@ ${indentData}`);
   }) => new Promise((resolve) => {
     const {
       projectPadding,
+      staticPanelWidth,
       width,
       height,
       canvasScale,
@@ -14708,10 +14893,14 @@ ${indentData}`);
     searchViewNodes.forEach((node, i) => {
       node.projection = searchviewNodesProjection[i];
     });
-    const x3 = linear2().domain(extent(searchViewNodes, (node) => node.projection[0])).range([
+    const xRange = targetNode.isLeft_coarseLevel ? [
       projectPadding[3] * canvasScale,
+      (width - projectPadding[1]) * canvasScale - staticPanelWidth * canvasScale
+    ] : [
+      projectPadding[3] * canvasScale + staticPanelWidth * canvasScale,
       (width - projectPadding[1]) * canvasScale
-    ]);
+    ];
+    const x3 = linear2().domain(extent(searchViewNodes, (node) => node.projection[0])).range(xRange);
     const y3 = linear2().domain(extent(searchViewNodes, (node) => node.projection[1])).range([
       projectPadding[0] * canvasScale,
       (height - projectPadding[2]) * canvasScale
@@ -14770,7 +14959,8 @@ ${indentData}`);
     polarRadiusUpperBound: 0.97,
     nonTopkNodeR: 3,
     minVoronoiRadius: 5,
-    projectPadding: [20, 30, 20, 30]
+    projectPadding: [20, 30, 20, 30],
+    staticPanelWidth: 240
   };
   var FederLayoutIvfflat = class {
     overviewLayoutParams = {};
@@ -15304,7 +15494,11 @@ ${indentData}`);
     tipLineAngle: Math.PI / 3,
     tipLineColor: "#FFFC85",
     tipLineWidth: 2,
-    mediaContentCount: 9
+    mediaContentCount: 9,
+    staticPanelWidth: 240,
+    hoveredPanelWidth: 250,
+    clickedPanelWidth: 210,
+    getVectorById: async () => []
   };
   var defaultViewParamsHnsw_default = defaultViewParamsHnsw;
 
@@ -15812,29 +16006,37 @@ ${indentData}`);
   }
 
   // federjs/FederView/hnswView/infoPanelStyles.ts
-  var staticPanelStyles = ({ width, height, padding }) => ({
+  var staticPanelStyles = ({
+    height,
+    staticPanelWidth
+  }) => ({
     position: "absolute",
     left: "16px",
     top: "16px",
-    width: padding ? `${padding[3] + 10}px` : `${width * 0.3}px`,
+    width: `${staticPanelWidth}px`,
     "max-height": `${height - 110}px`,
     overflow: "auto",
     borderColor: "#FFFFFF",
     backgroundColor: hexWithOpacity("#000000", 0.6)
   });
-  var clickedPanelStyles = ({ width, height, padding }) => ({
+  var clickedPanelStyles = ({
+    height,
+    clickedPanelWidth
+  }) => ({
     position: "absolute",
     right: "16px",
     top: "16px",
-    width: padding ? `${padding[1] - 10}px` : `${width * 0.3}px`,
+    width: `${clickedPanelWidth}px`,
     "max-height": `${height - 60}px`,
     overflow: "auto",
     borderColor: "#FFFFFF",
     backgroundColor: hexWithOpacity("#000000", 0.6)
   });
-  var hoveredPanelStyles = ({ width }) => ({
+  var hoveredPanelStyles = ({
+    hoveredPanelWidth
+  }) => ({
     position: "absolute",
-    width: `${width * 0.3}px`,
+    width: `${hoveredPanelWidth}px`,
     paddingLeft: "6px",
     left: 0,
     top: 0
@@ -16621,42 +16823,44 @@ ${indentData}`);
     transitionReplaceTime: 600,
     transitionNodesEnterTime: 800,
     transitionNodesMoveTime: 800,
-    mediaContentCount: 9
+    mediaContentCount: 9,
+    staticPanelWidth: 240,
+    hoveredPanelWidth: 250,
+    clickedPanelWidth: 210,
+    getVectorById: async () => []
   };
   var defaultViewParamsIvfflat_default = defaltViewParamsIvfflat;
 
   // federjs/FederView/ivfflatView/infoPanelStyles.ts
   var staticPanelStyles2 = ({
-    width,
     height,
-    padding
+    staticPanelWidth
   }) => ({
     position: "absolute",
     left: "16px",
     top: "16px",
-    width: padding ? `${padding[3] + 10}px` : `${width * 0.3}px`,
+    width: `${staticPanelWidth}px`,
     "max-height": `${height - 110}px`,
     overflow: "auto",
     borderColor: "#FFFFFF",
     backgroundColor: hexWithOpacity("#000000", 0.6)
   });
   var clickedPanelStyles2 = ({
-    width,
     height,
-    padding
+    clickedPanelWidth
   }) => ({
     position: "absolute",
     right: "16px",
     top: "16px",
-    width: padding ? `${padding[1] - 10}px` : `${width * 0.3}px`,
+    width: `${clickedPanelWidth}px`,
     "max-height": `${height - 60}px`,
     overflow: "auto",
     borderColor: "#FFFFFF",
     backgroundColor: hexWithOpacity("#000000", 0.6)
   });
-  var hoveredPanelStyles2 = ({ width }) => ({
+  var hoveredPanelStyles2 = ({ hoveredPanelWidth }) => ({
     position: "absolute",
-    width: `${width * 0.3}px`,
+    width: `${hoveredPanelWidth}px`,
     paddingLeft: "6px",
     left: 0,
     top: 0,
@@ -16689,6 +16893,7 @@ ${indentData}`);
       hasBorder: false,
       content: [
         { title: `Row No. ${node.id}` },
+        { text: `distance: ${node.distance.toFixed(3)}` },
         {
           text: `belong to cluster-${node.clusterId}`
         },
@@ -17494,186 +17699,94 @@ ${indentData}`);
     }
   };
 
-  // federjs/Utils/loading.ts
-  var loadingSvgId = "feder-loading";
-  var loadingWidth = 30;
-  var loadingStrokeWidth = 6;
-  var initLoadingStyle = () => {
-    const style = document.createElement("style");
-    style.type = "text/css";
-    style.innerHTML = `
-      @keyframes rotation {
-        from {
-          transform: translate(${loadingWidth / 2}px,${loadingWidth / 2}px) rotate(0deg);
-        }
-        to {
-          transform: translate(${loadingWidth / 2}px,${loadingWidth / 2}px) rotate(359deg);
-        }
-      }
-      .rotate {
-        animation: rotation 2s infinite linear;
-      }
-    `;
-    document.getElementsByTagName("head").item(0).appendChild(style);
-  };
-  var renderLoading = (domNode, width, height) => {
-    const dom = select_default2(domNode);
-    if (!dom.select(`#${loadingSvgId}`).empty())
-      return;
-    const svg = dom.append("svg").attr("id", loadingSvgId).attr("width", loadingWidth).attr("height", loadingWidth).style("position", "absolute").style("left", width / 2 - loadingWidth / 2).style("bottom", height / 2 - loadingWidth / 2).style("overflow", "visible");
-    const defsG = svg.append("defs");
-    const linearGradientId = `feder-loading-gradient`;
-    const linearGradient = defsG.append("linearGradient").attr("id", linearGradientId).attr("x1", 0).attr("y1", 0).attr("x2", 0).attr("y2", 1);
-    linearGradient.append("stop").attr("offset", "0%").style("stop-color", "#1E64FF");
-    linearGradient.append("stop").attr("offset", "100%").style("stop-color", "#061982");
-    const loadingCircle = svg.append("circle").attr("cx", loadingWidth / 2).attr("cy", loadingWidth / 2).attr("fill", "none").attr("r", loadingWidth / 2).attr("stroke", "#1E64FF").attr("stroke-width", loadingStrokeWidth);
-    const semiCircle = svg.append("path").attr("d", `M0,${-loadingWidth / 2} a ${loadingWidth / 2} ${loadingWidth / 2} 0 1 1 ${0} ${loadingWidth}`).attr("fill", "none").attr("stroke", `url(#${linearGradientId})`).attr("stroke-width", loadingStrokeWidth).classed("rotate", true);
-  };
-  var finishLoading = (domNode) => {
-    const dom = select_default2(domNode);
-    dom.selectAll(`#${loadingSvgId}`).remove();
-  };
-
-  // federjs/Feder.ts
-  var Feder = class {
-    domSelector;
-    initFederPromise;
-    federIndex;
-    viewParams;
-    federLayout;
-    indexType;
-    viewType;
-    searchParams;
-    constructor({
-      source,
-      filePath,
-      domSelector,
-      viewParams = {}
-    }) {
-      this.domSelector = domSelector;
-      const { viewType = "default" /* default */ } = viewParams;
-      this.viewType = viewType;
-      if (!viewParams.mediaContent && !!viewParams.mediaCallback)
-        viewParams.mediaContent = viewParams.mediaCallback;
-      this.viewParams = viewParams;
-      this.searchParams = {};
-      this.initFederPromise = new Promise(async (resolve) => {
-        const arrayBuffer = await fetch(filePath).then((res) => res.arrayBuffer());
-        this.federIndex = new FederIndex(source, arrayBuffer);
-        this.indexType = await this.federIndex.getIndexType();
-        this.federLayout = new FederLayout(this.federIndex);
-        resolve();
-      });
-      initLoadingStyle();
-    }
-    initDom() {
-      const { width = 800, height = 480 } = this.viewParams;
-      const node = create_default("div").style("position", "relative").style("width", width + "px").style("height", height + "px").node();
-      renderLoading(node, width, height);
-      return node;
-    }
-    overview() {
-      const node = this.initDom();
-      this.executeAction(node, "overview" /* overview */);
-      return node;
-    }
-    search(target = null, targetMedia = null) {
-      const node = this.initDom();
-      this.executeAction(node, "search" /* search */, {
-        target,
-        targetMedia,
-        searchParams: this.searchParams
-      });
-      return node;
-    }
-    executeAction(node, actionType, actionData = null) {
-      new Promise(async (resolve) => {
-        await this.initFederPromise;
-        const visData = await this.federLayout.getVisData({
-          actionType,
-          actionData,
-          viewType: this.viewType,
-          layoutParams: this.viewParams
-        });
-        const federView = new FederView(visData, this.viewParams);
-        node.federView = federView;
-        finishLoading(node);
-        node.appendChild(federView.node);
-        federView.render();
-        resolve();
-      });
-      if (this.domSelector) {
-        const container = select_default2(this.domSelector);
-        container.node().appendChild(node);
-      }
-    }
-    searchById(id2) {
-      const node = this.initDom();
-      new Promise(async () => {
-        await this.initFederPromise;
-        const target = await this.federIndex.getVectorById(id2);
-        const targetMedia = this.viewParams.mediaContent(id2);
-        this.executeAction(node, "search" /* search */, {
-          target,
-          targetMedia,
-          searchParams: this.searchParams
-        });
-      });
-      return node;
-    }
-    searchByRandTestVec() {
-      const node = this.initDom();
-      new Promise(async () => {
-        await this.initFederPromise;
-        const idCount = await this.federIndex.getVectorsCount();
-        const id2 = Math.floor(Math.random() * idCount);
-        const target = await this.federIndex.getVectorById(id2);
-        const targetMedia = this.viewParams.mediaContent(id2);
-        this.executeAction(node, "search" /* search */, {
-          target,
-          targetMedia,
-          searchParams: this.searchParams
-        });
-      });
-      return node;
-    }
-    setSearchParams(params) {
-      this.searchParams = Object.assign({}, this.searchParams, params);
-      return this;
-    }
-  };
-
   // test/config.js
   var local = true;
+  var hnswSource = "hnswlib";
+  var hnswIndexFilePath = local ? "data/hnswlib_hnsw_voc_17k.index" : "https://assets.zilliz.com/hnswlib_hnsw_voc_17k_1f1dfd63a9.index";
   var ivfflatSource = "faiss";
   var ivfflatIndexFilePath = local ? "data/faiss_ivf_flat_voc_17k.index" : "https://assets.zilliz.com/faiss_ivf_flat_voc_17k_ab112eec72.index";
+  var imgNamesFilePath = "https://assets.zilliz.com/voc_names_4cee9440b1.csv";
+  var getRowId2name = async () => {
+    const data = await csv2(imgNamesFilePath);
+    const rowId2name = (rowId) => data[rowId].name;
+    return rowId2name;
+  };
+  var name2imgUrl = (name) => `https://assets.zilliz.com/voc2012/JPEGImages/${name}`;
+  var getRowId2imgUrl = async () => {
+    const rowId2name = await getRowId2name();
+    const rowId2imgUrl = (rowId) => name2imgUrl(rowId2name(rowId));
+    return rowId2imgUrl;
+  };
 
   // test/test_feder_all_in_one.js
   var testVector = Array(512).fill(0).map((_) => Math.random());
-  var test_feder_all_in_one = () => {
-    const feder = new Feder({
-      source: ivfflatSource,
-      filePath: ivfflatIndexFilePath,
-      domSelector: "#container",
-      viewParams: {
-        width: 1200,
-        height: 800,
-        projectParams: { projectSeed: 12315 },
-        mediaType: "text",
-        mediaContent: (id2) => `this is text content of No.${id2}`,
-        mediaContentCount: 6
-      }
-    });
-    feder.overview();
-    const view = feder.searchById(112);
-    setTimeout(() => console.log(view.federView), 1e4);
-  };
 
   // test/test_feder_separate.js
   var testVector2 = Array(512).fill(0).map((_) => Math.random());
+  var testSearchParams = {
+    k: 4,
+    ef: 6,
+    nprobe: 4
+  };
+  var test_feder_separate = async () => {
+    const rowId2imgUrl = await getRowId2imgUrl();
+    const faissIvfflatArrayBuffer = await fetch(ivfflatIndexFilePath).then((res) => res.arrayBuffer());
+    const ivfflatFederIndex = new FederIndex(ivfflatSource, faissIvfflatArrayBuffer);
+    const ivfflatFederLayout = new FederLayout(ivfflatFederIndex);
+    const ivfflatViewParams = {
+      mediaType: "text",
+      mediaContent: (id2) => `this is content of No.${id2}`,
+      mediaContentCount: 5,
+      getVectorById: (id2) => ivfflatFederIndex.getVectorById(id2)
+    };
+    const ivfflatOverviewVisData = await ivfflatFederLayout.getVisData({
+      actionType: "overview"
+    });
+    const ivfflatOverview = new FederView(ivfflatOverviewVisData, ivfflatViewParams);
+    ivfflatOverview.render();
+    document.querySelector("#container").appendChild(ivfflatOverview.node);
+    const ivfflatSearchVisData = await ivfflatFederLayout.getVisData({
+      actionType: "search",
+      actionData: {
+        target: testVector2,
+        searchParams: testSearchParams
+      },
+      viewType: "default",
+      layoutParams: {}
+    });
+    const ivfflatSearchView = new FederView(ivfflatSearchVisData, ivfflatViewParams);
+    ivfflatSearchView.render();
+    document.querySelector("#container").appendChild(ivfflatSearchView.node);
+    const hnswlibHnswArrayBuffer = await fetch(hnswIndexFilePath).then((res) => res.arrayBuffer());
+    const hnswFederIndex = new FederIndex(hnswSource, hnswlibHnswArrayBuffer);
+    const hnswFederLayout = new FederLayout(hnswFederIndex);
+    const hnswViewParams = {
+      mediaType: "text",
+      mediaContent: (id2) => `this is content of No.${id2}`,
+      getVectorById: (id2) => hnswFederIndex.getVectorById(id2)
+    };
+    const hnswOverviewVisData = await hnswFederLayout.getVisData({
+      actionType: "overview"
+    });
+    const hnswOverview = new FederView(hnswOverviewVisData, hnswViewParams);
+    hnswOverview.render();
+    document.querySelector("#container").appendChild(hnswOverview.node);
+    const hnswSearchVisData = await hnswFederLayout.getVisData({
+      actionType: "search",
+      actionData: {
+        target: testVector2,
+        searchParams: testSearchParams
+      },
+      viewType: "default",
+      layoutParams: {}
+    });
+    const hnswSearchView = new FederView(hnswSearchVisData, hnswViewParams);
+    hnswSearchView.render();
+    document.querySelector("#container").appendChild(hnswSearchView.node);
+  };
 
   // test/index.js
   window.addEventListener("DOMContentLoaded", async () => {
-    test_feder_all_in_one();
+    test_feder_separate();
   });
 })();

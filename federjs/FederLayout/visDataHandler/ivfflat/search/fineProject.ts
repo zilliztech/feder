@@ -22,6 +22,7 @@ export const ivfflatSearchViewLayoutFineProject = ({
   new Promise<void>((resolve) => {
     const {
       projectPadding,
+      staticPanelWidth,
       width,
       height,
       canvasScale,
@@ -44,13 +45,20 @@ export const ivfflatSearchViewLayoutFineProject = ({
       node.projection = searchviewNodesProjection[i];
     });
 
+    const xRange = targetNode.isLeft_coarseLevel
+      ? [
+          projectPadding[3] * canvasScale,
+          (width - projectPadding[1]) * canvasScale -
+            staticPanelWidth * canvasScale,
+        ]
+      : [
+          projectPadding[3] * canvasScale + staticPanelWidth * canvasScale,
+          (width - projectPadding[1]) * canvasScale,
+        ];
     const x = d3
       .scaleLinear()
       .domain(d3.extent(searchViewNodes, (node) => node.projection[0]))
-      .range([
-        projectPadding[3] * canvasScale,
-        (width - projectPadding[1]) * canvasScale,
-      ]);
+      .range(xRange);
     const y = d3
       .scaleLinear()
       .domain(d3.extent(searchViewNodes, (node) => node.projection[1]))

@@ -26,7 +26,6 @@ const getId2VectorMap = {
 
 export default function id2VectorHandler(index: TIndexStructure) {
   const indexType = index.indexType;
-
   const getId2Vector = getId2VectorMap[indexType];
   const id2Vector = getId2Vector(index);
   return id2Vector;

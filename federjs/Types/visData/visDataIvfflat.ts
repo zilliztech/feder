@@ -85,6 +85,7 @@ export interface TLayoutParamsIvfflat {
   polarRadiusUpperBound?: number;
 
   projectPadding?: [number, number, number, number];
+  staticPanelWidth?: number;
 }
 
 export interface TViewParamsIvfflat extends TViewParams {
@@ -127,4 +128,8 @@ export interface TViewParamsIvfflat extends TViewParams {
   transitionReplaceTime: number;
   transitionNodesEnterTime: number;
   transitionNodesMoveTime: number;
+
+  staticPanelWidth?: number;
+  hoveredPanelWidth: number;
+  clickedPanelWidth: number;
 }

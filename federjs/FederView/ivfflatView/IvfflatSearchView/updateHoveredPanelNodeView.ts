@@ -21,6 +21,7 @@ export default async function updateHoveredPanelNodeView(
     hasBorder: false,
     content: [
       { title: `Row No. ${node.id}` },
+      { text: `distance: ${node.distance.toFixed(3)}` },
       {
         text: `belong to cluster-${node.clusterId}`,
       },

@@ -62,5 +62,11 @@ export const defaultViewParamsHnsw = {
   tipLineWidth: 2,
 
   mediaContentCount: 9,
+
+  staticPanelWidth: 240,
+  hoveredPanelWidth: 250,
+  clickedPanelWidth: 210,
+
+  getVectorById: async () => [],
 } as TViewParamsHnsw;
 export default defaultViewParamsHnsw;
