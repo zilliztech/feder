@@ -71,8 +71,10 @@ export enum EMediaType {
 }
 
 export type TViewParams = {
-  mediaType: EMediaType;
-  mediaContent: (rowId: TId) => string;
+  mediaType?: EMediaType;
+  mediaContent?: (rowId: TId) => string;
+  mediaCallback?: (rowId: TId) => string;
+  mediaContentCount?: number;
   getVectorById: (id: TId) => Promise<TVec>;
 };
 
