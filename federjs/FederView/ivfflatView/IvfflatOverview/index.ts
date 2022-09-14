@@ -34,6 +34,8 @@ export default class IvfflatOverview implements ViewHandler {
     this.overviewClusters = visData.overviewClusters;
     this.ntotal = visData.ntotal;
     this.nlist = visData.nlist;
+    if (!viewParams.mediaContent && !!viewParams.mediaCallback)
+      viewParams.mediaContent = viewParams.mediaCallback;
     this.viewParams = Object.assign({}, defaltViewParamsIvfflat, viewParams);
     this.init();
   }

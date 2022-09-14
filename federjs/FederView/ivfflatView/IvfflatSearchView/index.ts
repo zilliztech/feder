@@ -76,6 +76,8 @@ export default class IvfflatSearchView implements ViewHandler {
     this.polarR = polarR;
     this.nlist = nlist;
     this.ntotal = ntotal;
+    if (!viewParams.mediaContent && !!viewParams.mediaCallback)
+      viewParams.mediaContent = viewParams.mediaCallback;
     this.viewParams = Object.assign({}, defaltViewParamsIvfflat, viewParams);
     this.init();
   }

@@ -12,9 +12,12 @@ export default async function updateHoveredPanelVoronoiView(
     return;
   }
 
+  const representIds = randomSelect(
+    this.hoveredCluster.ids,
+    this.viewParams.mediaContentCount
+  );
   if (this.viewParams.mediaType === EMediaType.image) {
     const mediaContent = {} as TInfoPanelContentItem;
-    const representIds = randomSelect(this.hoveredCluster.ids, 9);
     mediaContent.images = representIds.map((id) =>
       this.viewParams.mediaContent(id)
     );
@@ -32,7 +35,6 @@ export default async function updateHoveredPanelVoronoiView(
       ],
     });
   } else if (this.viewParams.mediaType === EMediaType.text) {
-    const representIds = randomSelect(this.hoveredCluster.ids, 6);
     const mediaContents = representIds.map(
       (id) =>
         ({ text: this.viewParams.mediaContent(id) } as TInfoPanelContentItem)

@@ -40,6 +40,8 @@ export const defaltViewParamsIvfflat = {
   transitionReplaceTime: 600,
   transitionNodesEnterTime: 800,
   transitionNodesMoveTime: 800,
+
+  mediaContentCount: 9,
 } as TViewParamsIvfflat;
 
 export default defaltViewParamsIvfflat;
