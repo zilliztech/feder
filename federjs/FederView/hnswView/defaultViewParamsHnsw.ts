@@ -60,5 +60,7 @@ export const defaultViewParamsHnsw = {
   tipLineAngle: Math.PI / 3,
   tipLineColor: '#FFFC85',
   tipLineWidth: 2,
+
+  mediaContentCount: 9,
 } as TViewParamsHnsw;
 export default defaultViewParamsHnsw;

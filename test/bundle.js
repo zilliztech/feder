@@ -3,34 +3,8 @@
   var __defProp = Object.defineProperty;
   var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
   var __getOwnPropNames = Object.getOwnPropertyNames;
-  var __getOwnPropSymbols = Object.getOwnPropertySymbols;
   var __getProtoOf = Object.getPrototypeOf;
   var __hasOwnProp = Object.prototype.hasOwnProperty;
-  var __propIsEnum = Object.prototype.propertyIsEnumerable;
-  var __defNormalProp = (obj, key, value) => key in obj ? __defProp(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
-  var __spreadValues = (a2, b) => {
-    for (var prop in b || (b = {}))
-      if (__hasOwnProp.call(b, prop))
-        __defNormalProp(a2, prop, b[prop]);
-    if (__getOwnPropSymbols)
-      for (var prop of __getOwnPropSymbols(b)) {
-        if (__propIsEnum.call(b, prop))
-          __defNormalProp(a2, prop, b[prop]);
-      }
-    return a2;
-  };
-  var __objRest = (source, exclude) => {
-    var target = {};
-    for (var prop in source)
-      if (__hasOwnProp.call(source, prop) && exclude.indexOf(prop) < 0)
-        target[prop] = source[prop];
-    if (source != null && __getOwnPropSymbols)
-      for (var prop of __getOwnPropSymbols(source)) {
-        if (exclude.indexOf(prop) < 0 && __propIsEnum.call(source, prop))
-          target[prop] = source[prop];
-      }
-    return target;
-  };
   var __commonJS = (cb, mod) => function __require() {
     return mod || (0, cb[__getOwnPropNames(cb)[0]])((mod = { exports: {} }).exports, mod), mod.exports;
   };
@@ -43,26 +17,6 @@
     return to;
   };
   var __toESM = (mod, isNodeMode, target) => (target = mod != null ? __create(__getProtoOf(mod)) : {}, __copyProps(isNodeMode || !mod || !mod.__esModule ? __defProp(target, "default", { value: mod, enumerable: true }) : target, mod));
-  var __async = (__this, __arguments, generator) => {
-    return new Promise((resolve, reject) => {
-      var fulfilled = (value) => {
-        try {
-          step(generator.next(value));
-        } catch (e) {
-          reject(e);
-        }
-      };
-      var rejected = (value) => {
-        try {
-          step(generator.throw(value));
-        } catch (e) {
-          reject(e);
-        }
-      };
-      var step = (x3) => x3.done ? resolve(x3.value) : Promise.resolve(x3.value).then(fulfilled, rejected);
-      step((generator = generator.apply(__this, __arguments)).next());
-    });
-  };
 
   // node_modules/umap-js/dist/utils.js
   var require_utils = __commonJS({
@@ -6798,6 +6752,9 @@ ${indentData}`);
 
   // federjs/FederIndex/parser/FileReader.ts
   var FileReader = class {
+    data;
+    dataview;
+    p;
     constructor(arrayBuffer) {
       this.data = arrayBuffer;
       this.dataview = new DataView(arrayBuffer);
@@ -7105,6 +7062,7 @@ ${indentData}`);
     ["faiss" /* faiss */]: faissIndexParser
   };
   var Parser = class {
+    parse;
     constructor(indexType) {
       this.parse = parserMap[indexType];
     }
@@ -7134,6 +7092,8 @@ ${indentData}`);
 
   // federjs/Utils/PriorityQueue.ts
   var PriorityQueue = class {
+    _key;
+    _tree;
     constructor(arr = [], key = null) {
       if (typeof key == "string") {
         this._key = (item) => item[key];
@@ -7414,6 +7374,7 @@ ${indentData}`);
     ["ivfflat" /* ivfflat */]: faissIVFFlatSearch
   };
   var SearchHandler = class {
+    search;
     constructor(indexType) {
       this.search = searchFuncMap[indexType];
     }
@@ -7471,6 +7432,7 @@ ${indentData}`);
     ["ivfflat" /* ivfflat */]: ivfflatMeta_default
   };
   var MetaHandler = class {
+    metaFunc;
     constructor(indexType) {
       this.metaFunc = metaFuncMap[indexType];
     }
@@ -7505,6 +7467,12 @@ ${indentData}`);
 
   // federjs/FederIndex/index.ts
   var FederIndex = class {
+    index;
+    indexType;
+    parser;
+    searchHandler;
+    metaHandler;
+    id2vector;
     constructor(sourceType, arrayBuffer = null) {
       this.parser = new Parser(sourceType);
       if (!!arrayBuffer) {
@@ -7518,29 +7486,21 @@ ${indentData}`);
       this.metaHandler = new MetaHandler(this.indexType);
       this.id2vector = id2VectorHandler(this.index);
     }
-    getIndexType() {
-      return __async(this, null, function* () {
-        return this.indexType;
+    async getIndexType() {
+      return this.indexType;
+    }
+    async getIndexMeta(metaParams = {}) {
+      return this.metaHandler.getMeta(this.index, metaParams);
+    }
+    async getSearchRecords(target, searchParams = {}) {
+      return this.searchHandler.search({
+        index: this.index,
+        target,
+        searchParams
       });
     }
-    getIndexMeta() {
-      return __async(this, arguments, function* (metaParams = {}) {
-        return this.metaHandler.getMeta(this.index, metaParams);
-      });
-    }
-    getSearchRecords(_0) {
-      return __async(this, arguments, function* (target, searchParams = {}) {
-        return this.searchHandler.search({
-          index: this.index,
-          target,
-          searchParams
-        });
-      });
-    }
-    getVectorById(id2) {
-      return __async(this, null, function* () {
-        return Array.from(this.id2vector[id2]);
-      });
+    async getVectorById(id2) {
+      return Array.from(this.id2vector[id2]);
     }
   };
 
@@ -13731,7 +13691,7 @@ ${indentData}`);
   var computeSearchViewTransition_default = computeSearchViewTransition;
 
   // federjs/FederLayout/visDataHandler/hnsw/search/index.ts
-  var searchViewLayoutHandler = (searchRecords, layoutParams) => __async(void 0, null, function* () {
+  var searchViewLayoutHandler = async (searchRecords, layoutParams) => {
     const parsedData = parseVisRecords_default(searchRecords);
     const parsedDataCopy = JSON.parse(JSON.stringify(parsedData));
     const {
@@ -13744,7 +13704,7 @@ ${indentData}`);
       searchIntraLevelTime,
       numForceIterations
     } = layoutParams;
-    const id2forcePos = yield forceSearchView_default(parsedData, targetOrigin, numForceIterations);
+    const id2forcePos = await forceSearchView_default(parsedData, targetOrigin, numForceIterations);
     const searchNodesLevels = parsedData.map((levelData) => levelData.nodes);
     searchNodesLevels.forEach((levelData) => levelData.forEach((node) => {
       node.forcePos = id2forcePos[node.id];
@@ -13785,7 +13745,7 @@ ${indentData}`);
       searchTransitionDuration: duration,
       searchParams: searchRecords.searchParams
     };
-  });
+  };
 
   // federjs/FederLayout/visDataHandler/hnsw/overview/addPathFromEntry.ts
   function addPathFromEntry(overviewGraphLayers, entryPointId) {
@@ -13879,7 +13839,7 @@ ${indentData}`);
       nodesCount,
       linksCount
     } = indexMeta;
-    return new Promise((resolve) => __async(void 0, null, function* () {
+    return new Promise(async (resolve) => {
       const overviewNodesLevels = addPathFromEntry(overviewGraphLayers, entryPointId);
       let id2pos = {};
       for (let i = 0; i < overviewNodesLevels.length; i++) {
@@ -13892,7 +13852,7 @@ ${indentData}`);
           }
         });
         const links = nodes.reduce((acc, cur) => acc.concat(cur.links.map((target) => ({ source: cur.id, target }))), []);
-        yield forceLevel({ nodes, links, numForceIterations });
+        await forceLevel({ nodes, links, numForceIterations });
         i < overviewNodesLevels.length - 1 && scaleNodes({ nodes, M });
         id2pos = {};
         nodes.forEach((node) => {
@@ -13915,7 +13875,7 @@ ${indentData}`);
         nodesCount,
         linksCount
       });
-    }));
+    });
   };
   var overview_default = overviewLayoutHandler;
   var removeD3DataAttribute = (overviewNodesLevels) => {
@@ -13945,20 +13905,18 @@ ${indentData}`);
       const overviewLayoutHandler2 = overviewLayoutHandlerMap[viewType];
       return overviewLayoutHandler2(indexMeta, Object.assign({}, defaultLayoutParamsHnsw_default, layoutParams));
     }
-    computeSearchViewVisData(viewType, searchRecords, layoutParams, indexMeta) {
-      return __async(this, null, function* () {
-        const searchViewLayoutHandler2 = searchViewLayoutHandlerMap[viewType];
-        const visData = yield searchViewLayoutHandler2(searchRecords, Object.assign({}, defaultLayoutParamsHnsw_default, layoutParams));
-        const { M, efConstruction, ntotal, nodesCount, linksCount } = indexMeta;
-        Object.assign(visData, {
-          M,
-          efConstruction,
-          ntotal,
-          nodesCount,
-          linksCount
-        });
-        return visData;
+    async computeSearchViewVisData(viewType, searchRecords, layoutParams, indexMeta) {
+      const searchViewLayoutHandler2 = searchViewLayoutHandlerMap[viewType];
+      const visData = await searchViewLayoutHandler2(searchRecords, Object.assign({}, defaultLayoutParamsHnsw_default, layoutParams));
+      const { M, efConstruction, ntotal, nodesCount, linksCount } = indexMeta;
+      Object.assign(visData, {
+        M,
+        efConstruction,
+        ntotal,
+        nodesCount,
+        linksCount
       });
+      return visData;
     }
   };
 
@@ -14087,7 +14045,7 @@ ${indentData}`);
   };
 
   // federjs/FederLayout/visDataHandler/ivfflat/search/coarseVoronoi.ts
-  var ivfflatSearchViewLayoutCoarseVoronoi = (overviewClusters, searchRecords, layoutParams) => new Promise((resolve) => __async(void 0, null, function* () {
+  var ivfflatSearchViewLayoutCoarseVoronoi = (overviewClusters, searchRecords, layoutParams) => new Promise(async (resolve) => {
     const { nprobe, k } = searchRecords.searchParams;
     const searchViewClusters = JSON.parse(JSON.stringify(overviewClusters));
     searchViewClusters.forEach((cluster) => {
@@ -14170,7 +14128,7 @@ ${indentData}`);
       });
       resolve({ searchViewClusters, targetNode, polarOrigin, polarMaxR });
     });
-  }));
+  });
   var coarseVoronoi_default = ivfflatSearchViewLayoutCoarseVoronoi;
 
   // federjs/Utils/index.ts
@@ -14286,23 +14244,23 @@ ${indentData}`);
 
   // federjs/FederLayout/visDataHandler/ivfflat/search/index.ts
   var IvfflatSearchViewLayout = (overviewClusters, searchRecords, layoutParams) => {
-    return new Promise((resolve) => __async(void 0, null, function* () {
-      const { searchViewClusters, targetNode, polarOrigin, polarMaxR } = yield coarseVoronoi_default(overviewClusters, searchRecords, layoutParams);
-      const searchViewNodes = yield finePolar_default({
+    return new Promise(async (resolve) => {
+      const { searchViewClusters, targetNode, polarOrigin, polarMaxR } = await coarseVoronoi_default(overviewClusters, searchRecords, layoutParams);
+      const searchViewNodes = await finePolar_default({
         searchViewClusters,
         searchRecords,
         layoutParams,
         polarOrigin,
         polarMaxR
       });
-      yield fineProject_default({
+      await fineProject_default({
         searchViewNodes,
         searchRecords,
         layoutParams,
         targetNode
       });
       resolve({ searchViewClusters, searchViewNodes, targetNode, polarOrigin, polarR: polarMaxR });
-    }));
+    });
   };
   var search_default = IvfflatSearchViewLayout;
 
@@ -14329,42 +14287,37 @@ ${indentData}`);
     projectPadding: [20, 30, 20, 30]
   };
   var FederLayoutIvfflat = class {
-    constructor() {
-      this.overviewLayoutParams = {};
+    overviewLayoutParams = {};
+    overviewClusters;
+    async computeOverviewVisData(viewType, indexMeta, _layoutParams) {
+      const layoutParams = Object.assign({}, layoutParamsIvfflatDefault, _layoutParams);
+      this.overviewLayoutParams = layoutParams;
+      const overviewLayoutFunc = overviewLayoutFuncMap[viewType];
+      const overviewClusters = await overviewLayoutFunc(indexMeta, layoutParams);
+      this.overviewClusters = overviewClusters;
+      const { nlist, ntotal } = indexMeta;
+      return { overviewClusters, nlist, ntotal };
     }
-    computeOverviewVisData(viewType, indexMeta, _layoutParams) {
-      return __async(this, null, function* () {
-        const layoutParams = Object.assign({}, layoutParamsIvfflatDefault, _layoutParams);
-        this.overviewLayoutParams = layoutParams;
-        const overviewLayoutFunc = overviewLayoutFuncMap[viewType];
-        const overviewClusters = yield overviewLayoutFunc(indexMeta, layoutParams);
-        this.overviewClusters = overviewClusters;
-        const { nlist, ntotal } = indexMeta;
-        return { overviewClusters, nlist, ntotal };
-      });
-    }
-    computeSearchViewVisData(viewType, searchRecords, _layoutParams, indexMeta) {
-      return __async(this, null, function* () {
-        const layoutParams = Object.assign({}, layoutParamsIvfflatDefault, _layoutParams);
-        const searchViewLayoutFunc = searchViewLayoutFuncMap[viewType];
-        let isSameLayoutParams = true;
-        if (Object.keys(this.overviewLayoutParams).length !== Object.keys(layoutParams).length) {
-          isSameLayoutParams = false;
-        } else {
-          for (let paramKey in this.overviewLayoutParams) {
-            if (this.overviewLayoutParams[paramKey] !== layoutParams[paramKey]) {
-              isSameLayoutParams = false;
-              console.log("paramKey");
-              break;
-            }
+    async computeSearchViewVisData(viewType, searchRecords, _layoutParams, indexMeta) {
+      const layoutParams = Object.assign({}, layoutParamsIvfflatDefault, _layoutParams);
+      const searchViewLayoutFunc = searchViewLayoutFuncMap[viewType];
+      let isSameLayoutParams = true;
+      if (Object.keys(this.overviewLayoutParams).length !== Object.keys(layoutParams).length) {
+        isSameLayoutParams = false;
+      } else {
+        for (let paramKey in this.overviewLayoutParams) {
+          if (this.overviewLayoutParams[paramKey] !== layoutParams[paramKey]) {
+            isSameLayoutParams = false;
+            console.log("paramKey");
+            break;
           }
         }
-        const shouldUpdateOverviewVisData = !this.overviewClusters || !isSameLayoutParams;
-        const overviewClusters = shouldUpdateOverviewVisData ? (yield this.computeOverviewVisData(viewType, indexMeta, layoutParams)).overviewClusters : this.overviewClusters;
-        const searchRes = yield searchViewLayoutFunc(overviewClusters, searchRecords, layoutParams);
-        const { nlist, ntotal } = indexMeta;
-        return Object.assign(searchRes, { nlist, ntotal });
-      });
+      }
+      const shouldUpdateOverviewVisData = !this.overviewClusters || !isSameLayoutParams;
+      const overviewClusters = shouldUpdateOverviewVisData ? (await this.computeOverviewVisData(viewType, indexMeta, layoutParams)).overviewClusters : this.overviewClusters;
+      const searchRes = await searchViewLayoutFunc(overviewClusters, searchRecords, layoutParams);
+      const { nlist, ntotal } = indexMeta;
+      return Object.assign(searchRes, { nlist, ntotal });
     }
   };
 
@@ -14374,55 +14327,54 @@ ${indentData}`);
     ["ivfflat" /* ivfflat */]: FederLayoutIvfflat
   };
   var FederLayout = class {
+    federIndex;
+    indexType;
+    federLayoutHandler;
+    getIndexMetaPromise;
+    indexMeta;
     constructor(federIndex) {
       this.federIndex = federIndex;
       this.indexType = federIndex.indexType;
       this.federLayoutHandler = new federLayoutHandlerMap[federIndex.indexType]();
-      this.getIndexMetaPromise = new Promise((resolve) => __async(this, null, function* () {
-        this.indexMeta = yield this.federIndex.getIndexMeta();
+      this.getIndexMetaPromise = new Promise(async (resolve) => {
+        this.indexMeta = await this.federIndex.getIndexMeta();
         resolve();
-      }));
-    }
-    getOverviewVisData(_0) {
-      return __async(this, arguments, function* ({
-        viewType,
-        layoutParams = {}
-      }) {
-        yield this.getIndexMetaPromise;
-        return this.federLayoutHandler.computeOverviewVisData(viewType, this.indexMeta, layoutParams);
       });
     }
-    getSearchViewVisData(_0) {
-      return __async(this, arguments, function* ({
-        actionData = {},
-        viewType,
-        layoutParams = {}
-      }) {
-        const searchRecords = yield this.federIndex.getSearchRecords(actionData.target, actionData.searchParams);
-        console.log("searchRecords got!");
-        return this.federLayoutHandler.computeSearchViewVisData(viewType, searchRecords, layoutParams, this.indexMeta);
-      });
+    async getOverviewVisData({
+      viewType,
+      layoutParams = {}
+    }) {
+      await this.getIndexMetaPromise;
+      return this.federLayoutHandler.computeOverviewVisData(viewType, this.indexMeta, layoutParams);
     }
-    getVisData(_0) {
-      return __async(this, arguments, function* ({
+    async getSearchViewVisData({
+      actionData = {},
+      viewType,
+      layoutParams = {}
+    }) {
+      const searchRecords = await this.federIndex.getSearchRecords(actionData.target, actionData.searchParams);
+      console.log("searchRecords got!");
+      return this.federLayoutHandler.computeSearchViewVisData(viewType, searchRecords, layoutParams, this.indexMeta);
+    }
+    async getVisData({
+      actionType,
+      actionData,
+      viewType = "default" /* default */,
+      layoutParams = {}
+    }) {
+      const visData = actionType === "search" /* search */ ? await this.getSearchViewVisData({
+        actionData,
+        viewType,
+        layoutParams
+      }) : await this.getOverviewVisData({ actionData, viewType, layoutParams });
+      return {
+        indexType: this.indexType,
         actionType,
         actionData,
-        viewType = "default" /* default */,
-        layoutParams = {}
-      }) {
-        const visData = actionType === "search" /* search */ ? yield this.getSearchViewVisData({
-          actionData,
-          viewType,
-          layoutParams
-        }) : yield this.getOverviewVisData({ actionData, viewType, layoutParams });
-        return {
-          indexType: this.indexType,
-          actionType,
-          actionData,
-          viewType,
-          visData
-        };
-      });
+        viewType,
+        visData
+      };
     }
   };
 
@@ -14514,6 +14466,7 @@ ${indentData}`);
 
   // federjs/FederView/InfoPanel/index.ts
   var InfoPanel = class {
+    container;
     constructor(node, styles = {}) {
       const divD3 = select_default2(node).append("div");
       this.container = divD3;
@@ -14591,6 +14544,10 @@ ${indentData}`);
 
   // federjs/FederView/hnswView/HnswSearchHnsw3dView.ts
   var HnswSearchHnsw3dView = class {
+    node;
+    staticPanel;
+    clickedPanel;
+    hoveredPanel;
     constructor(visData, viewParams) {
       this.staticPanel = new InfoPanel();
       this.clickedPanel = new InfoPanel();
@@ -14618,6 +14575,11 @@ ${indentData}`);
   var pauseIconGap = rectW * 0.15;
   var pauseIconX = (rectW - pauseIconWidth * 2 - pauseIconGap) / 2;
   var TimeControllerView = class {
+    moveSilderBar;
+    playPauseIconG;
+    playPauseG;
+    sliderBar;
+    resetG;
     constructor(domSelector) {
       this.render(domSelector);
       this.moveSilderBar = () => {
@@ -14723,18 +14685,13 @@ ${indentData}`);
     drawFunc();
     ctx.restore();
   };
-  var drawPolygons = (_a) => {
-    var _b = _a, {
-      ctx,
-      pointsList,
-      hasFill = false,
-      hasStroke = false
-    } = _b, styles = __objRest(_b, [
-      "ctx",
-      "pointsList",
-      "hasFill",
-      "hasStroke"
-    ]);
+  var drawPolygons = ({
+    ctx,
+    pointsList,
+    hasFill = false,
+    hasStroke = false,
+    ...styles
+  }) => {
     const drawFunc = () => {
       pointsList.forEach((points) => {
         const path = new Path2D(points2path(points, true));
@@ -14742,22 +14699,16 @@ ${indentData}`);
         hasStroke && ctx.stroke(path);
       });
     };
-    draw(__spreadValues({ ctx, drawFunc }, styles));
+    draw({ ctx, drawFunc, ...styles });
   };
-  var drawLines = (_a) => {
-    var _b = _a, {
-      ctx,
-      pointsList,
-      hasFill = false,
-      hasStroke = false,
-      isStrokeLinearGradient = false
-    } = _b, styles = __objRest(_b, [
-      "ctx",
-      "pointsList",
-      "hasFill",
-      "hasStroke",
-      "isStrokeLinearGradient"
-    ]);
+  var drawLines = ({
+    ctx,
+    pointsList,
+    hasFill = false,
+    hasStroke = false,
+    isStrokeLinearGradient = false,
+    ...styles
+  }) => {
     pointsList.forEach((points) => {
       const path = new Path2D(points2path(points, false));
       const gradientPos = [...points[0], ...points[points.length - 1]];
@@ -14765,21 +14716,16 @@ ${indentData}`);
         hasFill && ctx.fill(path);
         hasStroke && ctx.stroke(path);
       };
-      draw(__spreadValues({ ctx, drawFunc, isStrokeLinearGradient, gradientPos }, styles));
+      draw({ ctx, drawFunc, isStrokeLinearGradient, gradientPos, ...styles });
     });
   };
-  var drawCircles = (_a) => {
-    var _b = _a, {
-      ctx,
-      circles,
-      hasFill = false,
-      hasStroke = false
-    } = _b, styles = __objRest(_b, [
-      "ctx",
-      "circles",
-      "hasFill",
-      "hasStroke"
-    ]);
+  var drawCircles = ({
+    ctx,
+    circles,
+    hasFill = false,
+    hasStroke = false,
+    ...styles
+  }) => {
     const drawFunc = () => {
       circles.forEach(([x3, y3, r]) => {
         ctx.beginPath();
@@ -14788,20 +14734,15 @@ ${indentData}`);
         hasStroke && ctx.stroke();
       });
     };
-    draw(__spreadValues({ ctx, drawFunc }, styles));
+    draw({ ctx, drawFunc, ...styles });
   };
-  var drawEllipses = (_a) => {
-    var _b = _a, {
-      ctx,
-      ellipses,
-      hasFill = false,
-      hasStroke = false
-    } = _b, styles = __objRest(_b, [
-      "ctx",
-      "ellipses",
-      "hasFill",
-      "hasStroke"
-    ]);
+  var drawEllipses = ({
+    ctx,
+    ellipses,
+    hasFill = false,
+    hasStroke = false,
+    ...styles
+  }) => {
     const drawFunc = () => {
       ellipses.forEach(([x3, y3, rx, ry]) => {
         ctx.beginPath();
@@ -14810,7 +14751,7 @@ ${indentData}`);
         hasStroke && ctx.stroke();
       });
     };
-    draw(__spreadValues({ ctx, drawFunc }, styles));
+    draw({ ctx, drawFunc, ...styles });
   };
   var shortenLine = (point_0, point_1, d = 10) => {
     const length = getDisL2(point_0, point_1);
@@ -14876,12 +14817,22 @@ ${indentData}`);
     tipLineOffset: [60, -20],
     tipLineAngle: Math.PI / 3,
     tipLineColor: "#FFFC85",
-    tipLineWidth: 2
+    tipLineWidth: 2,
+    mediaContentCount: 9
   };
   var defaultViewParamsHnsw_default = defaultViewParamsHnsw;
 
   // federjs/FederView/hnswView/HnswSearchView/TimerController.ts
   var TimerController = class {
+    callback;
+    speed;
+    duration;
+    playCallback;
+    pauseCallback;
+    tAlready = 0;
+    t = 0;
+    timer = null;
+    isPlaying = false;
     constructor({
       duration,
       speed = 1,
@@ -14889,10 +14840,6 @@ ${indentData}`);
       playCallback,
       pauseCallback
     }) {
-      this.tAlready = 0;
-      this.t = 0;
-      this.timer = null;
-      this.isPlaying = false;
       this.callback = callback;
       this.speed = speed;
       this.duration = duration;
@@ -15307,35 +15254,33 @@ ${indentData}`);
   }
 
   // federjs/FederView/hnswView/HnswSearchView/updateHoveredPanel.ts
-  function updateHoveredPanel(hoveredPanelPos, reverse = false) {
-    return __async(this, null, function* () {
-      if (!hoveredPanelPos) {
-        this.hoveredPanel.setContent({ content: [] });
-        return;
-      }
-      if (reverse)
-        this.hoveredPanel.setPosition({
-          left: null,
-          right: `${this.viewParams.width - hoveredPanelPos[0]}px`,
-          top: `${hoveredPanelPos[1] - 4}px`
-        });
-      else
-        this.hoveredPanel.setPosition({
-          left: `${hoveredPanelPos[0]}px`,
-          top: `${hoveredPanelPos[1] - 4}px`
-        });
-      const mediaContent = {};
-      if (this.viewParams.mediaType === "image" /* image */)
-        mediaContent.image = this.viewParams.mediaContent(this.hoveredNode.id);
-      else if (this.viewParams.mediaType === "text" /* text */)
-        mediaContent.text = this.viewParams.mediaContent(this.hoveredNode.id);
-      this.hoveredPanel.setContent({
-        themeColor: "#FFFC85",
-        hasBorder: false,
-        flex: true,
-        flexDirection: reverse ? "row-reverse" : "row",
-        content: [{ title: `No. ${this.hoveredNode.id}` }, mediaContent]
+  async function updateHoveredPanel(hoveredPanelPos, reverse = false) {
+    if (!hoveredPanelPos) {
+      this.hoveredPanel.setContent({ content: [] });
+      return;
+    }
+    if (reverse)
+      this.hoveredPanel.setPosition({
+        left: null,
+        right: `${this.viewParams.width - hoveredPanelPos[0]}px`,
+        top: `${hoveredPanelPos[1] - 4}px`
       });
+    else
+      this.hoveredPanel.setPosition({
+        left: `${hoveredPanelPos[0]}px`,
+        top: `${hoveredPanelPos[1] - 4}px`
+      });
+    const mediaContent = {};
+    if (this.viewParams.mediaType === "image" /* image */)
+      mediaContent.image = this.viewParams.mediaContent(this.hoveredNode.id);
+    else if (this.viewParams.mediaType === "text" /* text */)
+      mediaContent.text = this.viewParams.mediaContent(this.hoveredNode.id);
+    this.hoveredPanel.setContent({
+      themeColor: "#FFFC85",
+      hasBorder: false,
+      flex: true,
+      flexDirection: reverse ? "row-reverse" : "row",
+      content: [{ title: `No. ${this.hoveredNode.id}` }, mediaContent]
     });
   }
 
@@ -15418,89 +15363,118 @@ ${indentData}`);
   }
 
   // federjs/FederView/hnswView/HnswSearchView/updateStaticPanel.ts
-  function updateStaticPanel() {
-    return __async(this, null, function* () {
-      const { targetMedia } = this.actionData;
-      let mediaContent = null;
-      if (!!targetMedia) {
-        mediaContent = {};
-        if (this.viewParams.mediaType === "image" /* image */)
-          mediaContent.image = targetMedia;
-        else if (this.viewParams.mediaType === "text" /* text */)
-          mediaContent.text = targetMedia;
-      }
-      const ntotalContent = {
-        text: `${this.ntotal} vectors, including ${this.searchNodesLevels.length} layers.`
+  async function updateStaticPanel() {
+    const { targetMedia } = this.actionData;
+    let mediaContent = null;
+    if (!!targetMedia) {
+      mediaContent = {};
+      if (this.viewParams.mediaType === "image" /* image */)
+        mediaContent.image = targetMedia;
+      else if (this.viewParams.mediaType === "text" /* text */)
+        mediaContent.text = targetMedia;
+    }
+    const ntotalContent = {
+      text: `${this.ntotal} vectors, including ${this.searchNodesLevels.length} layers.`
+    };
+    const metaContent = {
+      text: `M = ${this.M}, ef_contruction = ${this.efConstruction}.`
+    };
+    const searchParamsContent = {
+      text: `k = ${this.searchParams.k}, ef_search = ${this.searchParams.ef}.`
+    };
+    const numVisitedVector = Array.from(new Set(this.searchNodesLevels.reduce((acc, nodes) => acc.concat(nodes.map((node) => node.id)), []))).length;
+    const statisticsContent = {
+      text: `${numVisitedVector} vectors were visited during search.`
+    };
+    const searchDetailContent = this.searchNodesLevels.map((nodes, i) => {
+      const part1 = {
+        title: `Level ${i}`,
+        text: `min-dist: ${min(nodes, (node) => node.dist).toFixed(3)}`
       };
-      const metaContent = {
-        text: `M = ${this.M}, ef_contruction = ${this.efConstruction}.`
+      const part2 = {
+        text: `${nodes.length} / ${this.nodesCount[i]} vectors, ${this.searchLinksLevels[i].length} / ${this.linksCount[i]} links.`
       };
-      const searchParamsContent = {
-        text: `k = ${this.searchParams.k}, ef_search = ${this.searchParams.ef}.`
-      };
-      const numVisitedVector = Array.from(new Set(this.searchNodesLevels.reduce((acc, nodes) => acc.concat(nodes.map((node) => node.id)), []))).length;
-      const statisticsContent = {
-        text: `${numVisitedVector} vectors were visited during search.`
-      };
-      const searchDetailContent = this.searchNodesLevels.map((nodes, i) => {
-        const part1 = {
-          title: `Level ${i}`,
-          text: `min-dist: ${min(nodes, (node) => node.dist).toFixed(3)}`
-        };
-        const part2 = {
-          text: `${nodes.length} / ${this.nodesCount[i]} vectors, ${this.searchLinksLevels[i].length} / ${this.linksCount[i]} links.`
-        };
-        return [part1, part2];
-      }).reverse().reduce((acc, cur) => acc.concat(cur), []);
-      this.staticPanel.setContent({
-        themeColor: "#FFFFFF",
-        hasBorder: true,
-        content: [
-          { title: "HNSW - Search" },
-          mediaContent,
-          metaContent,
-          searchParamsContent,
-          ntotalContent,
-          statisticsContent,
-          ...searchDetailContent
-        ].filter((a2) => a2)
-      });
+      return [part1, part2];
+    }).reverse().reduce((acc, cur) => acc.concat(cur), []);
+    this.staticPanel.setContent({
+      themeColor: "#FFFFFF",
+      hasBorder: true,
+      content: [
+        { title: "HNSW - Search" },
+        mediaContent,
+        metaContent,
+        searchParamsContent,
+        ntotalContent,
+        statisticsContent,
+        ...searchDetailContent
+      ].filter((a2) => a2)
     });
   }
 
   // federjs/FederView/hnswView/HnswSearchView/updateClickedPanel.ts
-  function updateClickedPanel() {
-    return __async(this, null, function* () {
-      const node = this.clickedNode;
-      if (!node) {
-        this.clickedPanel.setContent({ content: [] });
-        return;
-      }
-      const mediaContent = {};
-      if (this.viewParams.mediaType === "image" /* image */)
-        mediaContent.image = this.viewParams.mediaContent(node.id);
-      else if (this.viewParams.mediaType === "text" /* text */)
-        mediaContent.text = this.viewParams.mediaContent(node.id);
-      const vector = yield this.viewParams.getVectorById(node.id);
-      const vectorString = vector.map((v2) => v2.toFixed(6)).join(", ");
-      this.clickedPanel.setContent({
-        themeColor: "#FFFC85",
-        hasBorder: true,
-        content: [
-          { title: `Level ${this.clickedLevel}` },
-          { text: `Row No. ${node.id}` },
-          { text: `Distance: ${node.dist.toFixed(3)}` },
-          mediaContent,
-          { title: `Vector:` },
-          { text: vectorString }
-        ]
-      });
+  async function updateClickedPanel() {
+    const node = this.clickedNode;
+    if (!node) {
+      this.clickedPanel.setContent({ content: [] });
+      return;
+    }
+    const mediaContent = {};
+    if (this.viewParams.mediaType === "image" /* image */)
+      mediaContent.image = this.viewParams.mediaContent(node.id);
+    else if (this.viewParams.mediaType === "text" /* text */)
+      mediaContent.text = this.viewParams.mediaContent(node.id);
+    const vector = await this.viewParams.getVectorById(node.id);
+    const vectorString = vector.map((v2) => v2.toFixed(6)).join(", ");
+    this.clickedPanel.setContent({
+      themeColor: "#FFFC85",
+      hasBorder: true,
+      content: [
+        { title: `Level ${this.clickedLevel}` },
+        { text: `Row No. ${node.id}` },
+        { text: `Distance: ${node.dist.toFixed(3)}` },
+        mediaContent,
+        { title: `Vector:` },
+        { text: vectorString }
+      ]
     });
   }
 
   // federjs/FederView/hnswView/HnswSearchView/index.ts
   var HnswSearchView = class {
+    node;
+    staticPanel;
+    clickedPanel;
+    hoveredPanel;
+    viewParams;
+    ctx;
+    timer;
+    searchTransitionDuration;
+    mouseMoveHandler;
+    mouseClickHandler;
+    mouseLeaveHandler;
+    searchTarget;
+    entryNodesLevels;
+    searchNodesLevels;
+    searchLinksLevels;
+    searchLayerPosLevels;
+    searchTargetShowTime;
+    searchNodeShowTime;
+    searchLinkShowTime;
+    searchParams;
+    id2node;
+    clickedLevel;
+    clickedNode;
+    hoveredLevel;
+    hoveredNode;
+    actionData;
+    M;
+    ntotal;
+    efConstruction;
+    nodesCount;
+    linksCount;
     constructor(visData, viewParams, actionData) {
+      if (!viewParams.mediaContent && !!viewParams.mediaCallback)
+        viewParams.mediaContent = viewParams.mediaCallback;
       this.viewParams = Object.assign({}, defaultViewParamsHnsw_default, viewParams);
       this.actionData = actionData;
       this.searchTransitionDuration = visData.searchTransitionDuration;
@@ -15711,7 +15685,7 @@ ${indentData}`);
         shadowBlur: nodeShadowBlur * canvasScale
       });
     });
-    const neighborNodes = (highlightNode == null ? void 0 : highlightNode.links.map((nodeId) => this.idWithLevel2node[getNodeIdWithLevel(nodeId, highlightNode.level)])) || [];
+    const neighborNodes = highlightNode?.links.map((nodeId) => this.idWithLevel2node[getNodeIdWithLevel(nodeId, highlightNode.level)]) || [];
     drawEllipses({
       ctx: this.ctx,
       ellipses: neighborNodes.map((node) => [
@@ -15724,7 +15698,7 @@ ${indentData}`);
       shadowColor: targetNodeFill,
       shadowBlur: nodeShadowBlur * canvasScale
     });
-    const nodesInPathFromPath = (highlightNode == null ? void 0 : highlightNode.pathFromEntry.map((idWithLevel) => this.idWithLevel2node[idWithLevel]).filter((node) => node.id !== highlightNode.id)) || [];
+    const nodesInPathFromPath = highlightNode?.pathFromEntry.map((idWithLevel) => this.idWithLevel2node[idWithLevel]).filter((node) => node.id !== highlightNode.id) || [];
     drawEllipses({
       ctx: this.ctx,
       ellipses: nodesInPathFromPath.map((node) => [
@@ -15755,7 +15729,31 @@ ${indentData}`);
 
   // federjs/FederView/hnswView/HnswOverview/index.ts
   var HnswOverview = class {
+    node;
+    staticPanel;
+    clickedPanel;
+    hoveredPanel;
+    viewParams;
+    M;
+    efConstruction;
+    overviewNodesLevels;
+    overviewLayerPosLevels;
+    idWithLevel2node;
+    ctx;
+    mouseMoveHandler;
+    mouseClickHandler;
+    mouseLeaveHandler;
+    clickedLevel;
+    clickedNode;
+    hoveredNode;
+    hoveredLevel;
+    ntotal;
+    nlevels;
+    nodesCount;
+    linksCount;
     constructor(visData, viewParams) {
+      if (!viewParams.mediaContent && !!viewParams.mediaCallback)
+        viewParams.mediaContent = viewParams.mediaCallback;
       this.viewParams = Object.assign({}, defaultViewParamsHnsw_default, viewParams);
       this.overviewNodesLevels = visData.overviewNodesLevels;
       this.overviewLayerPosLevels = visData.overviewLayerPosLevels;
@@ -15789,89 +15787,83 @@ ${indentData}`);
     render() {
       this.initView();
     }
-    updateStaticPanel() {
-      return __async(this, null, function* () {
-        this.staticPanel.setContent({
-          themeColor: "#FFFFFF",
-          hasBorder: true,
-          content: [
-            {
-              title: "HNSW"
-            },
-            { text: `M = ${this.M}, ef_construction = ${this.efConstruction}` },
-            {
-              text: `${this.ntotal} vectors, ${this.nlevels}-layer hierarchical graph (only visual the top-${this.overviewNodesLevels.length} layers).`
-            },
-            ...this.nodesCount.map((c2, level) => {
-              return {
-                title: `Level ${level}`,
-                text: `${c2} vectors, ${this.linksCount[level]} links`
-              };
-            }).reverse()
-          ]
-        });
+    async updateStaticPanel() {
+      this.staticPanel.setContent({
+        themeColor: "#FFFFFF",
+        hasBorder: true,
+        content: [
+          {
+            title: "HNSW"
+          },
+          { text: `M = ${this.M}, ef_construction = ${this.efConstruction}` },
+          {
+            text: `${this.ntotal} vectors, ${this.nlevels}-layer hierarchical graph (only visual the top-${this.overviewNodesLevels.length} layers).`
+          },
+          ...this.nodesCount.map((c2, level) => {
+            return {
+              title: `Level ${level}`,
+              text: `${c2} vectors, ${this.linksCount[level]} links`
+            };
+          }).reverse()
+        ]
       });
     }
-    updateClickedPanel() {
-      return __async(this, null, function* () {
-        const node = this.clickedNode;
-        if (!node) {
-          this.clickedPanel.setContent({ content: [] });
-          return;
-        }
-        const mediaContent = {};
-        if (this.viewParams.mediaType === "image" /* image */)
-          mediaContent.image = this.viewParams.mediaContent(node.id);
-        else if (this.viewParams.mediaType === "text" /* text */)
-          mediaContent.text = this.viewParams.mediaContent(node.id);
-        const pathFromEntryTexts = this.overviewNodesLevels.filter((_, level) => {
-          return level >= this.clickedLevel;
-        }).map(({ level }) => `level ${level}: ` + node.pathFromEntry.filter((idWithLevel) => parseNodeIdWidthLevel(idWithLevel)[0] === level).map((idWithLevel) => parseNodeIdWidthLevel(idWithLevel)[1]).join(" => ")).reverse();
-        const linkedNodeText = node.links.join(", ");
-        this.clickedPanel.setContent({
-          themeColor: "#FFFC85",
-          hasBorder: true,
-          content: [
-            { title: `Level ${node.level}` },
-            { title: `Row No. ${node.id}` },
-            mediaContent,
-            { title: `Shortest path from the entry:` },
-            ...pathFromEntryTexts.map((text) => ({ text })),
-            { title: `Linked vectors:` },
-            { text: linkedNodeText }
-          ]
-        });
+    async updateClickedPanel() {
+      const node = this.clickedNode;
+      if (!node) {
+        this.clickedPanel.setContent({ content: [] });
+        return;
+      }
+      const mediaContent = {};
+      if (this.viewParams.mediaType === "image" /* image */)
+        mediaContent.image = this.viewParams.mediaContent(node.id);
+      else if (this.viewParams.mediaType === "text" /* text */)
+        mediaContent.text = this.viewParams.mediaContent(node.id);
+      const pathFromEntryTexts = this.overviewNodesLevels.filter((_, level) => {
+        return level >= this.clickedLevel;
+      }).map(({ level }) => `level ${level}: ` + node.pathFromEntry.filter((idWithLevel) => parseNodeIdWidthLevel(idWithLevel)[0] === level).map((idWithLevel) => parseNodeIdWidthLevel(idWithLevel)[1]).join(" => ")).reverse();
+      const linkedNodeText = node.links.join(", ");
+      this.clickedPanel.setContent({
+        themeColor: "#FFFC85",
+        hasBorder: true,
+        content: [
+          { title: `Level ${node.level}` },
+          { title: `Row No. ${node.id}` },
+          mediaContent,
+          { title: `Shortest path from the entry:` },
+          ...pathFromEntryTexts.map((text) => ({ text })),
+          { title: `Linked vectors:` },
+          { text: linkedNodeText }
+        ]
       });
     }
-    updateHoveredPanel(hoveredPanelPos, reverse = false) {
-      return __async(this, null, function* () {
-        if (!hoveredPanelPos) {
-          this.hoveredPanel.setContent({ content: [] });
-          return;
-        }
-        if (reverse)
-          this.hoveredPanel.setPosition({
-            left: null,
-            right: `${this.viewParams.width - hoveredPanelPos[0]}px`,
-            top: `${hoveredPanelPos[1] - 4}px`
-          });
-        else
-          this.hoveredPanel.setPosition({
-            left: `${hoveredPanelPos[0]}px`,
-            top: `${hoveredPanelPos[1] - 4}px`
-          });
-        const mediaContent = {};
-        if (this.viewParams.mediaType === "image" /* image */)
-          mediaContent.image = this.viewParams.mediaContent(this.hoveredNode.id);
-        else if (this.viewParams.mediaType === "text" /* text */)
-          mediaContent.text = this.viewParams.mediaContent(this.hoveredNode.id);
-        this.hoveredPanel.setContent({
-          themeColor: "#FFFC85",
-          hasBorder: false,
-          flex: true,
-          flexDirection: reverse ? "row-reverse" : "row",
-          content: [{ title: `No. ${this.hoveredNode.id}` }, mediaContent]
+    async updateHoveredPanel(hoveredPanelPos, reverse = false) {
+      if (!hoveredPanelPos) {
+        this.hoveredPanel.setContent({ content: [] });
+        return;
+      }
+      if (reverse)
+        this.hoveredPanel.setPosition({
+          left: null,
+          right: `${this.viewParams.width - hoveredPanelPos[0]}px`,
+          top: `${hoveredPanelPos[1] - 4}px`
         });
+      else
+        this.hoveredPanel.setPosition({
+          left: `${hoveredPanelPos[0]}px`,
+          top: `${hoveredPanelPos[1] - 4}px`
+        });
+      const mediaContent = {};
+      if (this.viewParams.mediaType === "image" /* image */)
+        mediaContent.image = this.viewParams.mediaContent(this.hoveredNode.id);
+      else if (this.viewParams.mediaType === "text" /* text */)
+        mediaContent.text = this.viewParams.mediaContent(this.hoveredNode.id);
+      this.hoveredPanel.setContent({
+        themeColor: "#FFFC85",
+        hasBorder: false,
+        flex: true,
+        flexDirection: reverse ? "row-reverse" : "row",
+        content: [{ title: `No. ${this.hoveredNode.id}` }, mediaContent]
       });
     }
     initView() {
@@ -15947,7 +15939,7 @@ ${indentData}`);
           source: getNodeIdWithLevel(node.id, level),
           target: getNodeIdWithLevel(targetId, level)
         }))), []) : [];
-        const pathFromEntryLinks = (highlightNode == null ? void 0 : highlightNode.pathFromEntry.map((idWithLevel, k) => {
+        const pathFromEntryLinks = highlightNode?.pathFromEntry.map((idWithLevel, k) => {
           const [_level, id2] = parseNodeIdWidthLevel(idWithLevel);
           if (k > 0 && _level === level) {
             return {
@@ -15956,7 +15948,7 @@ ${indentData}`);
             };
           }
           return null;
-        }).filter((a2) => a2)) || [];
+        }).filter((a2) => a2) || [];
         const path2NeighborLinks = highlightNode && level === highlightNode.level ? highlightNode.links.map((neighborId) => ({
           source: highlightNode.idWithLevel,
           target: getNodeIdWithLevel(neighborId, highlightNode.level)
@@ -16146,7 +16138,8 @@ ${indentData}`);
     transitionClustersExitTime: 800,
     transitionReplaceTime: 600,
     transitionNodesEnterTime: 800,
-    transitionNodesMoveTime: 800
+    transitionNodesMoveTime: 800,
+    mediaContentCount: 9
   };
   var defaultViewParamsIvfflat_default = defaltViewParamsIvfflat;
 
@@ -16198,198 +16191,191 @@ ${indentData}`);
   }
 
   // federjs/FederView/ivfflatView/IvfflatSearchView/updateHoveredPanelNodeView.ts
-  function updateHoveredPanelNodeView() {
-    return __async(this, null, function* () {
-      if (!this.hoveredNode) {
-        this.hoveredPanel.setContent({ content: [] });
-        return;
-      }
-      const node = this.hoveredNode;
+  async function updateHoveredPanelNodeView() {
+    if (!this.hoveredNode) {
+      this.hoveredPanel.setContent({ content: [] });
+      return;
+    }
+    const node = this.hoveredNode;
+    const mediaContent = {};
+    if (this.viewParams.mediaType === "image" /* image */)
+      mediaContent.image = this.viewParams.mediaContent(node.id);
+    else if (this.viewParams.mediaType === "text" /* text */)
+      mediaContent.text = this.viewParams.mediaContent(node.id);
+    this.hoveredPanel.setContent({
+      themeColor: "#FFFC85",
+      hasBorder: false,
+      content: [
+        { title: `Row No. ${node.id}` },
+        {
+          text: `belong to cluster-${node.clusterId}`
+        },
+        mediaContent
+      ]
+    });
+    const { width, height, canvasScale } = this.viewParams;
+    const pos = this.stepType === "polar" /* polar */ ? node.polarPos : node.projectPos;
+    const nodePos = vecMultiply(pos, 1 / canvasScale);
+    const posStyle = {};
+    if (nodePos[0] > width * 0.6) {
+      posStyle.left = null;
+      posStyle.right = `${width - nodePos[0] + 10}px`;
+    } else {
+      posStyle.left = `${nodePos[0] + 10}px`;
+      posStyle.right = null;
+    }
+    if (nodePos[1] > height * 0.55) {
+      posStyle.top = null;
+      posStyle.bottom = `${height - nodePos[1] + 6}px`;
+    } else {
+      posStyle.top = `${nodePos[1] + 6}px`;
+      posStyle.bottom = null;
+    }
+    this.hoveredPanel.setPosition(posStyle);
+  }
+
+  // federjs/FederView/ivfflatView/IvfflatSearchView/updateHoveredPanelVoronoiView.ts
+  async function updateHoveredPanelVoronoiView() {
+    if (!this.hoveredCluster) {
+      this.hoveredPanel.setContent({ content: [] });
+      return;
+    }
+    const representIds = randomSelect(this.hoveredCluster.ids, this.viewParams.mediaContentCount);
+    if (this.viewParams.mediaType === "image" /* image */) {
       const mediaContent = {};
-      if (this.viewParams.mediaType === "image" /* image */)
-        mediaContent.image = this.viewParams.mediaContent(node.id);
-      else if (this.viewParams.mediaType === "text" /* text */)
-        mediaContent.text = this.viewParams.mediaContent(node.id);
+      mediaContent.images = representIds.map((id2) => this.viewParams.mediaContent(id2));
       this.hoveredPanel.setContent({
         themeColor: "#FFFC85",
-        hasBorder: false,
+        hasBorder: true,
         content: [
-          { title: `Row No. ${node.id}` },
           {
-            text: `belong to cluster-${node.clusterId}`
+            text: `cluster-${this.hoveredCluster.clusterId}`
+          },
+          {
+            text: `including ${this.hoveredCluster.count} vectors`
           },
           mediaContent
         ]
       });
-      const { width, height, canvasScale } = this.viewParams;
-      const pos = this.stepType === "polar" /* polar */ ? node.polarPos : node.projectPos;
-      const nodePos = vecMultiply(pos, 1 / canvasScale);
-      const posStyle = {};
-      if (nodePos[0] > width * 0.6) {
-        posStyle.left = null;
-        posStyle.right = `${width - nodePos[0] + 10}px`;
-      } else {
-        posStyle.left = `${nodePos[0] + 10}px`;
-        posStyle.right = null;
-      }
-      if (nodePos[1] > height * 0.55) {
-        posStyle.top = null;
-        posStyle.bottom = `${height - nodePos[1] + 6}px`;
-      } else {
-        posStyle.top = `${nodePos[1] + 6}px`;
-        posStyle.bottom = null;
-      }
-      this.hoveredPanel.setPosition(posStyle);
-    });
-  }
-
-  // federjs/FederView/ivfflatView/IvfflatSearchView/updateHoveredPanelVoronoiView.ts
-  function updateHoveredPanelVoronoiView() {
-    return __async(this, null, function* () {
-      if (!this.hoveredCluster) {
-        this.hoveredPanel.setContent({ content: [] });
-        return;
-      }
-      if (this.viewParams.mediaType === "image" /* image */) {
-        const mediaContent = {};
-        const representIds = randomSelect(this.hoveredCluster.ids, 9);
-        mediaContent.images = representIds.map((id2) => this.viewParams.mediaContent(id2));
-        this.hoveredPanel.setContent({
-          themeColor: "#FFFC85",
-          hasBorder: true,
-          content: [
-            {
-              text: `cluster-${this.hoveredCluster.clusterId}`
-            },
-            {
-              text: `including ${this.hoveredCluster.count} vectors`
-            },
-            mediaContent
-          ]
-        });
-      } else if (this.viewParams.mediaType === "text" /* text */) {
-        const representIds = randomSelect(this.hoveredCluster.ids, 6);
-        const mediaContents = representIds.map((id2) => ({ text: this.viewParams.mediaContent(id2) }));
-        this.hoveredPanel.setContent({
-          themeColor: "#FFFC85",
-          hasBorder: true,
-          content: [
-            {
-              text: `cluster-${this.hoveredCluster.clusterId}`
-            },
-            {
-              text: `including ${this.hoveredCluster.count} vectors`
-            },
-            ...mediaContents
-          ]
-        });
-      }
-      const { width, height, canvasScale } = this.viewParams;
-      const pos = vecMultiply(this.hoveredCluster.SVPolyCentroid, 1 / canvasScale);
-      const posStyle = {};
-      if (pos[0] > width * 0.6) {
-        posStyle.left = null;
-        posStyle.right = `${width - pos[0] + 10}px`;
-      } else {
-        posStyle.left = `${pos[0] + 10}px`;
-        posStyle.right = null;
-      }
-      if (pos[1] > height * 0.55) {
-        posStyle.top = null;
-        posStyle.bottom = `${height - pos[1] + 6}px`;
-      } else {
-        posStyle.top = `${pos[1] + 6}px`;
-        posStyle.bottom = null;
-      }
-      this.hoveredPanel.setPosition(posStyle);
-    });
+    } else if (this.viewParams.mediaType === "text" /* text */) {
+      const mediaContents = representIds.map((id2) => ({ text: this.viewParams.mediaContent(id2) }));
+      this.hoveredPanel.setContent({
+        themeColor: "#FFFC85",
+        hasBorder: true,
+        content: [
+          {
+            text: `cluster-${this.hoveredCluster.clusterId}`
+          },
+          {
+            text: `including ${this.hoveredCluster.count} vectors`
+          },
+          ...mediaContents
+        ]
+      });
+    }
+    const { width, height, canvasScale } = this.viewParams;
+    const pos = vecMultiply(this.hoveredCluster.SVPolyCentroid, 1 / canvasScale);
+    const posStyle = {};
+    if (pos[0] > width * 0.6) {
+      posStyle.left = null;
+      posStyle.right = `${width - pos[0] + 10}px`;
+    } else {
+      posStyle.left = `${pos[0] + 10}px`;
+      posStyle.right = null;
+    }
+    if (pos[1] > height * 0.55) {
+      posStyle.top = null;
+      posStyle.bottom = `${height - pos[1] + 6}px`;
+    } else {
+      posStyle.top = `${pos[1] + 6}px`;
+      posStyle.bottom = null;
+    }
+    this.hoveredPanel.setPosition(posStyle);
   }
 
   // federjs/FederView/ivfflatView/IvfflatSearchView/updateStaticPanel.ts
-  function updateStaticPanel2(newStepType) {
-    return __async(this, null, function* () {
-      const headerContent = {
-        title: "IVF_Flat Search"
-      };
-      const { targetMedia } = this.actionData;
-      let mediaContent = null;
-      if (!!targetMedia) {
-        mediaContent = {};
-        if (this.viewParams.mediaType === "image" /* image */)
-          mediaContent.image = targetMedia;
-        else if (this.viewParams.mediaType === "text" /* text */)
-          mediaContent.text = targetMedia;
-      }
-      const switchViewOptionContents = [
-        {
-          option: {
-            isActive: newStepType === "voronoi" /* voronoi */,
-            text: `Coarse Search`,
-            callback: () => this.switchView("voronoi" /* voronoi */)
-          }
-        },
-        {
-          option: {
-            isActive: newStepType === "polar" /* polar */,
-            text: `Fine Search (Distance)`,
-            callback: () => this.switchView("polar" /* polar */)
-          }
-        },
-        {
-          option: {
-            isActive: newStepType === "project" /* project */,
-            text: `Fine Search (project)`,
-            callback: () => this.switchView("project" /* project */)
-          }
+  async function updateStaticPanel2(newStepType) {
+    const headerContent = {
+      title: "IVF_Flat Search"
+    };
+    const { targetMedia } = this.actionData;
+    let mediaContent = null;
+    if (!!targetMedia) {
+      mediaContent = {};
+      if (this.viewParams.mediaType === "image" /* image */)
+        mediaContent.image = targetMedia;
+      else if (this.viewParams.mediaType === "text" /* text */)
+        mediaContent.text = targetMedia;
+    }
+    const switchViewOptionContents = [
+      {
+        option: {
+          isActive: newStepType === "voronoi" /* voronoi */,
+          text: `Coarse Search`,
+          callback: () => this.switchView("voronoi" /* voronoi */)
         }
+      },
+      {
+        option: {
+          isActive: newStepType === "polar" /* polar */,
+          text: `Fine Search (Distance)`,
+          callback: () => this.switchView("polar" /* polar */)
+        }
+      },
+      {
+        option: {
+          isActive: newStepType === "project" /* project */,
+          text: `Fine Search (project)`,
+          callback: () => this.switchView("project" /* project */)
+        }
+      }
+    ];
+    let viewContents = [];
+    if (newStepType === "voronoi" /* voronoi */) {
+      viewContents = [
+        {
+          text: `${this.ntotal} vectors, divided into ${this.nlist} clusters.`
+        },
+        {
+          text: `Find the ${this.nprobe} (nprobe = ${this.nprobe}) closest clusters.`
+        },
+        ...this.searchViewClusters.filter((cluster) => cluster.inNprobe).map((cluster) => ({
+          text: `cluster-${cluster.clusterId} (${cluster.count} vectors) dist: ${cluster.distance.toFixed(3)}.`
+        }))
       ];
-      let viewContents = [];
-      if (newStepType === "voronoi" /* voronoi */) {
-        viewContents = [
-          {
-            text: `${this.ntotal} vectors, divided into ${this.nlist} clusters.`
-          },
-          {
-            text: `Find the ${this.nprobe} (nprobe = ${this.nprobe}) closest clusters.`
-          },
-          ...this.searchViewClusters.filter((cluster) => cluster.inNprobe).map((cluster) => ({
-            text: `cluster-${cluster.clusterId} (${cluster.count} vectors) dist: ${cluster.distance.toFixed(3)}.`
-          }))
-        ];
-      } else {
-        const k = this.actionData.searchParams.k;
-        const numNprobeTotalVectors = this.searchViewClusters.filter((cluster) => cluster.inNprobe).reduce((acc, cluster) => acc + cluster.count, 0);
-        const description = newStepType === "polar" /* polar */ ? `Find the ${k} (k=${k}) vectors closest to the target from these ${this.nprobe} (nprobe=${this.nprobe}) clusters, ${numNprobeTotalVectors} vectors in total.` : `Projection of all ${numNprobeTotalVectors} vectors in the ${this.nprobe} (nprobe=${this.nprobe}) clusters use UMAP.`;
-        let mediaContents = [];
-        const { mediaType, mediaContent: mediaContent2 } = this.viewParams;
-        if (mediaType === "image" /* image */) {
-          const images = this.searchViewNodes.filter((node) => node.inTopK).map((node) => mediaContent2(node.id));
-          mediaContents = [{ images }];
-        } else if (mediaType === "text" /* text */) {
-          mediaContents = this.searchViewNodes.filter((node) => node.inTopK).map((node) => ({ text: mediaContent2(node.id) }));
-        }
-        viewContents = [
-          {
-            text: description
-          },
-          ...mediaContents
-        ];
+    } else {
+      const k = this.actionData.searchParams.k;
+      const numNprobeTotalVectors = this.searchViewClusters.filter((cluster) => cluster.inNprobe).reduce((acc, cluster) => acc + cluster.count, 0);
+      const description = newStepType === "polar" /* polar */ ? `Find the ${k} (k=${k}) vectors closest to the target from these ${this.nprobe} (nprobe=${this.nprobe}) clusters, ${numNprobeTotalVectors} vectors in total.` : `Projection of all ${numNprobeTotalVectors} vectors in the ${this.nprobe} (nprobe=${this.nprobe}) clusters use UMAP.`;
+      let mediaContents = [];
+      const { mediaType, mediaContent: mediaContent2 } = this.viewParams;
+      if (mediaType === "image" /* image */) {
+        const images = this.searchViewNodes.filter((node) => node.inTopK).map((node) => mediaContent2(node.id));
+        mediaContents = [{ images }];
+      } else if (mediaType === "text" /* text */) {
+        mediaContents = this.searchViewNodes.filter((node) => node.inTopK).map((node) => ({ text: mediaContent2(node.id) }));
       }
-      this.staticPanel.setContent({
-        themeColor: "#FFFFFF",
-        hasBorder: true,
-        content: [
-          headerContent,
-          mediaContent,
-          ...switchViewOptionContents,
-          ...viewContents
-        ].filter((a2) => a2)
-      });
-      if (this.targetNode.isLeft_coarseLevel)
-        this.staticPanel.setPosition({ left: null, right: "16px" });
-      else
-        this.staticPanel.setPosition({ left: "16px" });
+      viewContents = [
+        {
+          text: description
+        },
+        ...mediaContents
+      ];
+    }
+    this.staticPanel.setContent({
+      themeColor: "#FFFFFF",
+      hasBorder: true,
+      content: [
+        headerContent,
+        mediaContent,
+        ...switchViewOptionContents,
+        ...viewContents
+      ].filter((a2) => a2)
     });
+    if (this.targetNode.isLeft_coarseLevel)
+      this.staticPanel.setPosition({ left: null, right: "16px" });
+    else
+      this.staticPanel.setPosition({ left: "16px" });
   }
 
   // federjs/FederView/ivfflatView/IvfflatSearchView/transitionClustersExit.ts
@@ -16678,13 +16664,29 @@ ${indentData}`);
 
   // federjs/FederView/ivfflatView/IvfflatSearchView/index.ts
   var IvfflatSearchView8 = class {
+    searchViewClusters;
+    searchViewNodes;
+    targetNode;
+    polarOrigin;
+    polarR;
+    viewParams;
+    node;
+    staticPanel;
+    clickedPanel;
+    hoveredPanel;
+    hoveredCluster = null;
+    hoveredNode = null;
+    ctx;
+    stepType = "voronoi" /* voronoi */;
+    mouseMoveHandler = null;
+    mouseClickHandler = null;
+    mouseLeaveHandler = null;
+    colorScheme;
+    nprobe;
+    actionData;
+    nlist;
+    ntotal;
     constructor(visData, viewParams, actionData) {
-      this.hoveredCluster = null;
-      this.hoveredNode = null;
-      this.stepType = "voronoi" /* voronoi */;
-      this.mouseMoveHandler = null;
-      this.mouseClickHandler = null;
-      this.mouseLeaveHandler = null;
       const {
         searchViewClusters,
         searchViewNodes,
@@ -16702,6 +16704,8 @@ ${indentData}`);
       this.polarR = polarR;
       this.nlist = nlist;
       this.ntotal = ntotal;
+      if (!viewParams.mediaContent && !!viewParams.mediaCallback)
+        viewParams.mediaContent = viewParams.mediaCallback;
       this.viewParams = Object.assign({}, defaultViewParamsIvfflat_default, viewParams);
       this.init();
     }
@@ -16844,97 +16848,93 @@ ${indentData}`);
   }
 
   // federjs/FederView/ivfflatView/IvfflatOverview/updateHoveredPanel.ts
-  function updateHoveredPanel2() {
-    return __async(this, null, function* () {
-      if (!this.hoveredCluster) {
-        this.hoveredPanel.setContent({ content: [] });
-        return;
-      }
-      if (this.viewParams.mediaType === "image" /* image */) {
-        const mediaContent = {};
-        const representIds = randomSelect(this.hoveredCluster.ids, 9);
-        mediaContent.images = representIds.map((id2) => this.viewParams.mediaContent(id2));
-        this.hoveredPanel.setContent({
-          themeColor: "#FFFC85",
-          hasBorder: true,
-          content: [
-            {
-              text: `cluster-${this.hoveredCluster.clusterId}`
-            },
-            {
-              text: `including ${this.hoveredCluster.count} vectors`
-            },
-            mediaContent
-          ]
-        });
-      } else if (this.viewParams.mediaType === "text" /* text */) {
-        const representIds = randomSelect(this.hoveredCluster.ids, 6);
-        const mediaContents = representIds.map((id2) => ({ text: this.viewParams.mediaContent(id2) }));
-        this.hoveredPanel.setContent({
-          themeColor: "#FFFC85",
-          hasBorder: true,
-          content: [
-            {
-              text: `cluster-${this.hoveredCluster.clusterId}`
-            },
-            {
-              text: `including ${this.hoveredCluster.count} vectors`
-            },
-            ...mediaContents
-          ]
-        });
-      }
-      const { width, height, canvasScale } = this.viewParams;
-      const pos = vecMultiply(this.hoveredCluster.OVPolyCentroid, 1 / canvasScale);
-      const posStyle = {};
-      if (pos[0] > width * 0.6) {
-        posStyle.left = null;
-        posStyle.right = `${width - pos[0] + 10}px`;
-      } else {
-        posStyle.left = `${pos[0] + 10}px`;
-        posStyle.right = null;
-      }
-      if (pos[1] > height * 0.55) {
-        posStyle.top = null;
-        posStyle.bottom = `${height - pos[1] + 6}px`;
-      } else {
-        posStyle.top = `${pos[1] + 6}px`;
-        posStyle.bottom = null;
-      }
-      this.hoveredPanel.setPosition(posStyle);
+  async function updateHoveredPanel2() {
+    if (!this.hoveredCluster) {
+      this.hoveredPanel.setContent({ content: [] });
+      return;
+    }
+    let mediaContents = [];
+    const representIds = randomSelect(this.hoveredCluster.ids, this.viewParams.mediaContentCount);
+    if (this.viewParams.mediaType === "image" /* image */) {
+      const mediaContent = {};
+      mediaContent.images = representIds.map((id2) => this.viewParams.mediaContent(id2));
+      mediaContents.push(mediaContent);
+    } else if (this.viewParams.mediaType === "text" /* text */) {
+      mediaContents = representIds.map((id2) => ({ text: this.viewParams.mediaContent(id2) }));
+    }
+    this.hoveredPanel.setContent({
+      themeColor: "#FFFC85",
+      hasBorder: true,
+      content: [
+        {
+          text: `cluster-${this.hoveredCluster.clusterId}`
+        },
+        {
+          text: `including ${this.hoveredCluster.count} vectors`
+        },
+        ...mediaContents
+      ]
     });
+    const { width, height, canvasScale } = this.viewParams;
+    const pos = vecMultiply(this.hoveredCluster.OVPolyCentroid, 1 / canvasScale);
+    const posStyle = {};
+    if (pos[0] > width * 0.6) {
+      posStyle.left = null;
+      posStyle.right = `${width - pos[0] + 10}px`;
+    } else {
+      posStyle.left = `${pos[0] + 10}px`;
+      posStyle.right = null;
+    }
+    if (pos[1] > height * 0.55) {
+      posStyle.top = null;
+      posStyle.bottom = `${height - pos[1] + 6}px`;
+    } else {
+      posStyle.top = `${pos[1] + 6}px`;
+      posStyle.bottom = null;
+    }
+    this.hoveredPanel.setPosition(posStyle);
   }
 
   // federjs/FederView/ivfflatView/IvfflatOverview/updateStaticPanel.ts
-  function updateStaticPanel3() {
-    return __async(this, null, function* () {
-      const maxCount = max(this.overviewClusters, (cluster) => cluster.count);
-      const minCount = min(this.overviewClusters, (cluster) => cluster.count);
-      this.staticPanel.setContent({
-        themeColor: "#FFFFFF",
-        hasBorder: true,
-        content: [
-          { title: "IVFFlat" },
-          {
-            text: `${this.ntotal} vectors, divided into ${this.nlist} clusters.`
-          },
-          {
-            text: `The largest cluster has ${maxCount} vectors and the smallest cluster has only ${minCount} vectors.`
-          }
-        ]
-      });
+  async function updateStaticPanel3() {
+    const maxCount = max(this.overviewClusters, (cluster) => cluster.count);
+    const minCount = min(this.overviewClusters, (cluster) => cluster.count);
+    this.staticPanel.setContent({
+      themeColor: "#FFFFFF",
+      hasBorder: true,
+      content: [
+        { title: "IVFFlat" },
+        {
+          text: `${this.ntotal} vectors, divided into ${this.nlist} clusters.`
+        },
+        {
+          text: `The largest cluster has ${maxCount} vectors and the smallest cluster has only ${minCount} vectors.`
+        }
+      ]
     });
   }
 
   // federjs/FederView/ivfflatView/IvfflatOverview/index.ts
   var IvfflatOverview = class {
+    node;
+    staticPanel;
+    clickedPanel;
+    hoveredPanel;
+    overviewClusters;
+    viewParams;
+    ctx;
+    mouseMoveHandler = null;
+    mouseClickHandler = null;
+    mouseLeaveHandler = null;
+    hoveredCluster;
+    ntotal;
+    nlist;
     constructor(visData, viewParams) {
-      this.mouseMoveHandler = null;
-      this.mouseClickHandler = null;
-      this.mouseLeaveHandler = null;
       this.overviewClusters = visData.overviewClusters;
       this.ntotal = visData.ntotal;
       this.nlist = visData.nlist;
+      if (!viewParams.mediaContent && !!viewParams.mediaCallback)
+        viewParams.mediaContent = viewParams.mediaCallback;
       this.viewParams = Object.assign({}, defaultViewParamsIvfflat_default, viewParams);
       this.init();
     }
@@ -17004,6 +17004,7 @@ ${indentData}`);
     ["ivfflat" /* ivfflat */ + "overview" /* overview */ + "default" /* default */]: IvfflatOverview
   };
   var FederView = class {
+    view;
     constructor({ indexType, actionType, viewType, visData, actionData }, viewParams) {
       this.view = new viewMap[indexType + actionType + viewType](visData, viewParams, actionData);
     }
@@ -17022,45 +17023,49 @@ ${indentData}`);
   var ivfflatSource = "faiss";
   var ivfflatIndexFilePath = local ? "data/faiss_ivf_flat_voc_17k.index" : "https://assets.zilliz.com/faiss_ivf_flat_voc_17k_ab112eec72.index";
   var imgNamesFilePath = "https://assets.zilliz.com/voc_names_4cee9440b1.csv";
-  var getRowId2name = () => __async(void 0, null, function* () {
-    const data = yield csv2(imgNamesFilePath);
+  var getRowId2name = async () => {
+    const data = await csv2(imgNamesFilePath);
     const rowId2name = (rowId) => data[rowId].name;
     return rowId2name;
-  });
+  };
   var name2imgUrl = (name) => `https://assets.zilliz.com/voc2012/JPEGImages/${name}`;
-  var getRowId2imgUrl = () => __async(void 0, null, function* () {
-    const rowId2name = yield getRowId2name();
+  var getRowId2imgUrl = async () => {
+    const rowId2name = await getRowId2name();
     const rowId2imgUrl = (rowId) => name2imgUrl(rowId2name(rowId));
     return rowId2imgUrl;
-  });
+  };
 
-  // test/index.js
+  // test/test_feder_all_in_one.js
   var testVector = Array(512).fill(0).map((_) => Math.random());
+
+  // test/test_feder_separate.js
+  var testVector2 = Array(512).fill(0).map((_) => Math.random());
   var testSearchParams = {
     k: 4,
     ef: 6,
     nprobe: 4
   };
-  window.addEventListener("DOMContentLoaded", () => __async(void 0, null, function* () {
-    const rowId2imgUrl = yield getRowId2imgUrl();
-    const faissIvfflatArrayBuffer = yield fetch(ivfflatIndexFilePath).then((res) => res.arrayBuffer());
+  var test_feder_separate = async () => {
+    const rowId2imgUrl = await getRowId2imgUrl();
+    const faissIvfflatArrayBuffer = await fetch(ivfflatIndexFilePath).then((res) => res.arrayBuffer());
     const ivfflatFederIndex = new FederIndex(ivfflatSource, faissIvfflatArrayBuffer);
     const ivfflatFederLayout = new FederLayout(ivfflatFederIndex);
     const ivfflatViewParams = {
-      mediaType: "image",
-      mediaContent: rowId2imgUrl,
+      mediaType: "text",
+      mediaContent: (id2) => `this is content of No.${id2}`,
+      mediaContentCount: 5,
       getVectorById: (id2) => ivfflatFederIndex.getVectorById(id2)
     };
-    const ivfflatOverviewVisData = yield ivfflatFederLayout.getVisData({
+    const ivfflatOverviewVisData = await ivfflatFederLayout.getVisData({
       actionType: "overview"
     });
     const ivfflatOverview = new FederView(ivfflatOverviewVisData, ivfflatViewParams);
     ivfflatOverview.render();
     document.querySelector("#container").appendChild(ivfflatOverview.node);
-    const ivfflatSearchVisData = yield ivfflatFederLayout.getVisData({
+    const ivfflatSearchVisData = await ivfflatFederLayout.getVisData({
       actionType: "search",
       actionData: {
-        target: testVector,
+        target: testVector2,
         searchParams: testSearchParams
       },
       viewType: "default",
@@ -17069,7 +17074,7 @@ ${indentData}`);
     const ivfflatSearchView = new FederView(ivfflatSearchVisData, ivfflatViewParams);
     ivfflatSearchView.render();
     document.querySelector("#container").appendChild(ivfflatSearchView.node);
-    const hnswlibHnswArrayBuffer = yield fetch(hnswIndexFilePath).then((res) => res.arrayBuffer());
+    const hnswlibHnswArrayBuffer = await fetch(hnswIndexFilePath).then((res) => res.arrayBuffer());
     const hnswFederIndex = new FederIndex(hnswSource, hnswlibHnswArrayBuffer);
     const hnswFederLayout = new FederLayout(hnswFederIndex);
     const hnswViewParams = {
@@ -17077,16 +17082,16 @@ ${indentData}`);
       mediaContent: rowId2imgUrl,
       getVectorById: (id2) => hnswFederIndex.getVectorById(id2)
     };
-    const hnswOverviewVisData = yield hnswFederLayout.getVisData({
+    const hnswOverviewVisData = await hnswFederLayout.getVisData({
       actionType: "overview"
     });
     const hnswOverview = new FederView(hnswOverviewVisData, hnswViewParams);
     hnswOverview.render();
     document.querySelector("#container").appendChild(hnswOverview.node);
-    const hnswSearchVisData = yield hnswFederLayout.getVisData({
+    const hnswSearchVisData = await hnswFederLayout.getVisData({
       actionType: "search",
       actionData: {
-        target: testVector,
+        target: testVector2,
         searchParams: testSearchParams
       },
       viewType: "default",
@@ -17095,5 +17100,10 @@ ${indentData}`);
     const hnswSearchView = new FederView(hnswSearchVisData, hnswViewParams);
     hnswSearchView.render();
     document.querySelector("#container").appendChild(hnswSearchView.node);
-  }));
+  };
+
+  // test/index.js
+  window.addEventListener("DOMContentLoaded", async () => {
+    test_feder_separate();
+  });
 })();

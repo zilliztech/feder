@@ -44,6 +44,8 @@ export default class HnswOverview implements TViewHandler {
   nodesCount: number[];
   linksCount: number[];
   constructor(visData: TVisDataHnswOverview, viewParams: TViewParamsHnsw) {
+    if (!viewParams.mediaContent && !!viewParams.mediaCallback)
+      viewParams.mediaContent = viewParams.mediaCallback;
     this.viewParams = Object.assign({}, defaultViewParamsHnsw, viewParams);
 
     this.overviewNodesLevels = visData.overviewNodesLevels;
