@@ -15395,6 +15395,22 @@ ${indentData}`);
       draw({ ctx, drawFunc, isStrokeLinearGradient, gradientPos, ...styles });
     });
   };
+  var drawRect = ({
+    ctx,
+    x: x3 = 0,
+    y: y3 = 0,
+    width,
+    height,
+    hasFill = false,
+    hasStroke = false,
+    ...styles
+  }) => {
+    const drawFunc = () => {
+      hasFill && ctx.fillRect(x3, y3, width, height);
+      hasStroke && ctx.strokeRect(x3, y3, width, height);
+    };
+    draw({ ctx, drawFunc, ...styles });
+  };
   var drawCircles = ({
     ctx,
     circles,
@@ -15596,7 +15612,15 @@ ${indentData}`);
   // federjs/FederView/clearCanvas.ts
   function clearCanvas() {
     const { width, height, canvasScale } = this.viewParams;
-    this.ctx.clearRect(0, 0, width * canvasScale, height * canvasScale);
+    drawRect({
+      ctx: this.ctx,
+      x: 0,
+      y: 0,
+      width: width * canvasScale,
+      height: height * canvasScale,
+      hasFill: true,
+      fillStyle: "#000000"
+    });
   }
 
   // federjs/FederView/hnswView/HnswSearchView/renderNodes.ts

@@ -137,7 +137,7 @@ export class Feder {
 
     return node;
   }
-  searchByRandTestVec() {
+  searchRandTestVec() {
     const node = this.initDom();
 
     new Promise(async () => {
