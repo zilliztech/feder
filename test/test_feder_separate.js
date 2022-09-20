@@ -20,49 +20,49 @@ const testSearchParams = {
 export const test_feder_separate = async () => {
   const rowId2imgUrl = await getRowId2imgUrl();
 
-  const faissIvfflatArrayBuffer = await fetch(ivfflatIndexFilePath).then(
-    (res) => res.arrayBuffer()
-  );
-  const ivfflatFederIndex = new FederIndex(
-    ivfflatSource,
-    faissIvfflatArrayBuffer
-  );
-  const ivfflatFederLayout = new FederLayout(ivfflatFederIndex);
+  // const faissIvfflatArrayBuffer = await fetch(ivfflatIndexFilePath).then(
+  //   (res) => res.arrayBuffer()
+  // );
+  // const ivfflatFederIndex = new FederIndex(
+  //   ivfflatSource,
+  //   faissIvfflatArrayBuffer
+  // );
+  // const ivfflatFederLayout = new FederLayout(ivfflatFederIndex);
 
-  const ivfflatViewParams = {
-    // mediaType: 'image',
-    // mediaContent: rowId2imgUrl,
-    mediaType: 'text',
-    mediaContent: (id) => `this is content of No.${id}`,
-    mediaContentCount: 5,
-    getVectorById: (id) => ivfflatFederIndex.getVectorById(id),
-  };
-  const ivfflatOverviewVisData = await ivfflatFederLayout.getVisData({
-    actionType: 'overview',
-  });
-  const ivfflatOverview = new FederView(
-    ivfflatOverviewVisData,
-    ivfflatViewParams
-  );
-  ivfflatOverview.render();
-  document.querySelector('#container').appendChild(ivfflatOverview.node);
+  // const ivfflatViewParams = {
+  //   // mediaType: 'image',
+  //   // mediaContent: rowId2imgUrl,
+  //   mediaType: 'text',
+  //   mediaContent: (id) => `this is content of No.${id}`,
+  //   mediaContentCount: 5,
+  //   getVectorById: (id) => ivfflatFederIndex.getVectorById(id),
+  // };
+  // const ivfflatOverviewVisData = await ivfflatFederLayout.getVisData({
+  //   actionType: 'overview',
+  // });
+  // const ivfflatOverview = new FederView(
+  //   ivfflatOverviewVisData,
+  //   ivfflatViewParams
+  // );
+  // ivfflatOverview.render();
+  // document.querySelector('#container').appendChild(ivfflatOverview.node);
 
-  const ivfflatSearchVisData = await ivfflatFederLayout.getVisData({
-    actionType: 'search', // 'overview' | 'search'
-    actionData: {
-      target: testVector,
-      searchParams: testSearchParams,
-    },
-    // viewType: 'default' | 'default'
-    viewType: 'default',
-    layoutParams: {},
-  });
-  const ivfflatSearchView = new FederView(
-    ivfflatSearchVisData,
-    ivfflatViewParams
-  );
-  ivfflatSearchView.render();
-  document.querySelector('#container').appendChild(ivfflatSearchView.node);
+  // const ivfflatSearchVisData = await ivfflatFederLayout.getVisData({
+  //   actionType: 'search', // 'overview' | 'search'
+  //   actionData: {
+  //     target: testVector,
+  //     searchParams: testSearchParams,
+  //   },
+  //   // viewType: 'default' | 'default'
+  //   viewType: 'default',
+  //   layoutParams: {},
+  // });
+  // const ivfflatSearchView = new FederView(
+  //   ivfflatSearchVisData,
+  //   ivfflatViewParams
+  // );
+  // ivfflatSearchView.render();
+  // document.querySelector('#container').appendChild(ivfflatSearchView.node);
 
   const hnswlibHnswArrayBuffer = await fetch(hnswIndexFilePath).then((res) =>
     res.arrayBuffer()
@@ -77,12 +77,12 @@ export const test_feder_separate = async () => {
     mediaContent: (id) => `this is content of No.${id}`,
     getVectorById: (id) => hnswFederIndex.getVectorById(id),
   };
-  const hnswOverviewVisData = await hnswFederLayout.getVisData({
-    actionType: 'overview',
-  });
-  const hnswOverview = new FederView(hnswOverviewVisData, hnswViewParams);
-  hnswOverview.render();
-  document.querySelector('#container').appendChild(hnswOverview.node);
+  // const hnswOverviewVisData = await hnswFederLayout.getVisData({
+  //   actionType: 'overview',
+  // });
+  // const hnswOverview = new FederView(hnswOverviewVisData, hnswViewParams);
+  // hnswOverview.render();
+  // document.querySelector('#container').appendChild(hnswOverview.node);
 
   const hnswSearchVisData = await hnswFederLayout.getVisData({
     actionType: 'search', // 'overview' | 'search'
@@ -90,8 +90,8 @@ export const test_feder_separate = async () => {
       target: testVector,
       searchParams: testSearchParams,
     },
-    // viewType: 'default' | 'default'
-    viewType: 'default',
+    // viewType: 'default' | 'hnsw3d'
+    viewType: 'hnsw3d',
     layoutParams: {},
   });
   const hnswSearchView = new FederView(hnswSearchVisData, hnswViewParams);
