@@ -53897,9 +53897,17 @@
             layer: `${i}-${i + 1}`
           };
           this.dashedLines.push(mesh);
+          const dashedMaterial2 = new import_three2.MeshLineMaterial({
+            color: new Color2(_HnswSearchHnsw3dView.colors.targetWhite),
+            lineWidth: 10,
+            dashed: true,
+            dashArray: 0.025,
+            dashRatio: 0.5,
+            transparent: true
+          });
           const longerDashedLineGeometry = new import_three2.MeshLine();
           longerDashedLineGeometry.setPoints([0, y0 + 1200, 0, 0, y0 - 400, 0]);
-          const longerDashedLine = new Mesh(longerDashedLineGeometry, dashedMaterial);
+          const longerDashedLine = new Mesh(longerDashedLineGeometry, dashedMaterial2);
           longerDashedLine.userData = {
             layer: `${i}-${i + 1}`,
             longer: true
@@ -54092,7 +54100,7 @@
             line.material.uniforms.dashOffset.value -= 0.01;
           });
           this.longerDashedLineMap.forEach((line) => {
-            line.material.uniforms.dashOffset.value -= 0.01;
+            line.material.uniforms.dashOffset.value -= 25e-4;
           });
         }
         this.controller.update();

@@ -971,11 +971,19 @@ export default class HnswSearchHnsw3dView implements TViewHandler {
         };
         this.dashedLines.push(mesh);
 
+        const dashedMaterial2= new MeshLineMaterial({
+          color: new THREE.Color(HnswSearchHnsw3dView.colors.targetWhite),
+          lineWidth: 10,
+          dashed: true,
+          dashArray: 0.025,
+          dashRatio: 0.5,
+          transparent: true,
+        });
         const longerDashedLineGeometry = new MeshLine();
         longerDashedLineGeometry.setPoints([0, y0 + 1200, 0, 0, y0 - 400, 0]);
         const longerDashedLine = new THREE.Mesh(
           longerDashedLineGeometry,
-          dashedMaterial
+          dashedMaterial2
         );
         longerDashedLine.userData = {
           layer: `${i}-${i + 1}`,
@@ -1225,7 +1233,7 @@ export default class HnswSearchHnsw3dView implements TViewHandler {
           line.material.uniforms.dashOffset.value -= 0.01;
         });
         this.longerDashedLineMap.forEach((line) => {
-          (line.material as any).uniforms.dashOffset.value -= 0.01;
+          (line.material as any).uniforms.dashOffset.value -= 0.0025;
         });
       }
       this.controller.update();
