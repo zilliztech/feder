@@ -35,10 +35,27 @@
     "@jridgewell/resolve-uri" "^3.0.3"
     "@jridgewell/sourcemap-codec" "^1.4.10"
 
+"@types/animejs@^3.1.5":
+  version "3.1.5"
+  resolved "https://registry.npmmirror.com/@types/animejs/-/animejs-3.1.5.tgz#3cb6c7b90069c6e2969a392eb65ec6311e92c1ab"
+  integrity sha512-4i3i1YuNaNEPoHBJY78uzYu8qKIwyx96G04tnVtNhRMQC9I1Xhg6fY9GeWmZAzudaesKKrPkQgTCthT1zSGYyg==
+
 "@types/istanbul-lib-coverage@^2.0.1":
   version "2.0.4"
   resolved "https://registry.npmmirror.com/@types/istanbul-lib-coverage/-/istanbul-lib-coverage-2.0.4.tgz#8467d4b3c087805d63580480890791277ce35c44"
   integrity sha512-z/QT1XN4K4KYuslS23k62yDIDLwLFkzxOuMplDtObz0+y7VqJCaO2o+SPwHCvLFZh7xazvvoor2tA/hPz9ee7g==
+
+"@types/three@^0.143.2":
+  version "0.143.2"
+  resolved "https://registry.npmmirror.com/@types/three/-/three-0.143.2.tgz#e3c3d121cbe6b868e226d91ea24896b7cdc5d4eb"
+  integrity sha512-HjsRWvd6rsXViFeOdU97/pHNDQknzJbFI0/5MrQ0joOlK0uixQH40sDJs/LwkNHhFYUvVENXAUQdKDeiQChHDw==
+  dependencies:
+    "@types/webxr" "*"
+
+"@types/webxr@*":
+  version "0.5.0"
+  resolved "https://registry.npmmirror.com/@types/webxr/-/webxr-0.5.0.tgz#aae1cef3210d88fd4204f8c33385a0bbc4da07c9"
+  integrity sha512-IUMDPSXnYIbEO2IereEFcgcqfDREOgmbGqtrMpVPpACTU6pltYLwHgVkrnYv0XhWEcjio9sYEfIEzgn3c7nDqA==
 
 "@zilliz/feder@^0.2.4":
   version "0.2.4"
@@ -69,6 +86,11 @@ amdefine@>=0.0.4:
   version "1.0.1"
   resolved "https://registry.npmmirror.com/amdefine/-/amdefine-1.0.1.tgz#4a5282ac164729e93619bcfd3ad151f817ce91f5"
   integrity sha512-S2Hw0TtNkMJhIabBwIojKL9YHO5T0n5eNqWJ7Lrlel/zDbftQpxpapi8tZs3X1HWa+u+QeydGmzzNU0m09+Rcg==
+
+animejs@^3.2.1:
+  version "3.2.1"
+  resolved "https://registry.npmmirror.com/animejs/-/animejs-3.2.1.tgz#de9fe2e792f44a777a7fdf6ae160e26604b0cdda"
+  integrity sha512-sWno3ugFryK5nhiDm/2BKeFCpZv7vzerWUcUPyAZLDhMek3+S/p418ldZJbJXo5ZUOpfm2kP2XRO4NJcULMy9A==
 
 ansi-regex@^5.0.1:
   version "5.0.1"
@@ -1214,6 +1236,16 @@ test-exclude@^6.0.0:
     "@istanbuljs/schema" "^0.1.2"
     glob "^7.1.4"
     minimatch "^3.0.4"
+
+three.meshline@^1.4.0:
+  version "1.4.0"
+  resolved "https://registry.npmmirror.com/three.meshline/-/three.meshline-1.4.0.tgz#2a483cbd99cd5f74cf6ee5c253a9a4b4a8169178"
+  integrity sha512-A8IsiMrWP8zmHisGDAJ76ZD7t/dOF/oCe/FUKNE6Bu01ZYEx8N6IlU/1Plb2aOZtAuWM2A8s8qS3hvY0OFuvOw==
+
+three@^0.143.0:
+  version "0.143.0"
+  resolved "https://registry.npmmirror.com/three/-/three-0.143.0.tgz#1455bca132cc2b20beb7f41d313e10c29e5ed9df"
+  integrity sha512-oKcAGYHhJ46TGEuHjodo2n6TY2R6lbvrkp+feKZxqsUL/WkH7GKKaeu6RHeyb2Xjfk2dPLRKLsOP0KM2VgT8Zg==
 
 through2@~0.4.1:
   version "0.4.2"
