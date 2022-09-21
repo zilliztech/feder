@@ -86,6 +86,7 @@ export class FederLayout {
     viewType?: EViewType;
     layoutParams?: TLayoutParams;
   }) {
+    debugger;
     const visData =
       actionType === EActionType.search
         ? await this.getSearchViewVisData({

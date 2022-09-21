@@ -1,6 +1,6 @@
 import * as d3 from 'd3';
 
-const local = true;
+const local = false;
 
 export const hnswSource = 'hnswlib';
 export const hnswIndexFilePath = local

@@ -78,6 +78,7 @@ export type TViewParams = {
   getVectorById: (id: TId) => Promise<TVec>;
 };
 
+
 export type TLayoutParams = any;
 
 export enum EProjectMethod {
