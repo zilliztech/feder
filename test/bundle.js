@@ -43369,8 +43369,6 @@ ${indentData}`);
 
   // federjs/FederLayout/visDataHandler/hnsw/search/hnsw3d.ts
   var searchViewLayoutHandler3d = async (searchRecords, layoutParams) => {
-    debugger;
-    console.log(searchRecords);
     const visData = parseVisRecords_default(searchRecords);
     const {
       targetR,
@@ -44051,7 +44049,6 @@ ${indentData}`);
       viewType = "default" /* default */,
       layoutParams = {}
     }) {
-      debugger;
       const visData = actionType === "search" /* search */ ? await this.getSearchViewVisData({
         actionData,
         viewType,
@@ -63798,7 +63795,6 @@ ${indentData}`);
     }
     init_(visData, viewParams) {
       this.visData = visData;
-      console.log(visData);
       const searchRecords = this.visData.searchRecords;
       console.log(searchRecords);
       this.node = document.createElement("div");
@@ -63885,7 +63881,6 @@ ${indentData}`);
       this.nextBtn = this.playerUi.querySelector(".next");
       this.originCamBtn = this.playerUi.querySelector(".origin-cam");
       this.playBtn.addEventListener("click", () => {
-        console.log("play");
         this.play();
       });
       this.resetBtn.addEventListener("click", () => {
@@ -63893,12 +63888,10 @@ ${indentData}`);
         this.slider.value = "0";
       });
       this.prevBtn.addEventListener("click", () => {
-        console.log("prev");
         this.currentSceneIndex = Math.max(0, this.currentSceneIndex - 1);
         this.slider.value = this.currentSceneIndex.toString();
       });
       this.nextBtn.addEventListener("click", () => {
-        console.log("next");
         this.currentSceneIndex = Math.min(this.currentSceneIndex + 1, this.scenes.length - 1);
         this.slider.value = `${this.currentSceneIndex}`;
       });
@@ -63925,6 +63918,9 @@ ${indentData}`);
       this.slider = slider;
     }
     play() {
+      if (this.selectedLayer !== -1) {
+        this?.layerUi?.children[this.selectedLayer]?.children[0]?.click();
+      }
       this.played = !this.played;
       if (this.played) {
         this.playBtn.innerHTML = _HnswSearchHnsw3dView.stopHtml;
@@ -64330,6 +64326,22 @@ ${indentData}`);
       this.renderer.readRenderTargetPixels(this.pickingTarget, 0, 0, 1, 1, pixelBuffer);
       const id2 = pixelBuffer[0] << 16 | pixelBuffer[1] << 8 | pixelBuffer[2];
       return id2;
+    }
+    getPickedObject(x3, y3) {
+      let id2 = this.pick(x3, y3);
+      const obj = this.pickingMap.get(id2);
+      if (obj && obj.visible === true && obj.name && !obj?.name?.startsWith("plane")) {
+        let nodeId = parseInt(obj.name);
+        if (nodeId === NaN) {
+          return -1;
+        }
+        for (let i = 0; i < this.scene.children.length; i++) {
+          if (this.scene.children[i].name === obj.name && this.scene.children[i].visible === true) {
+            return nodeId;
+          }
+        }
+      }
+      return -1;
     }
     createPlaneGradientTexture() {
       const canvas = document.createElement("canvas");
@@ -67208,6 +67220,10 @@ ${indentData}`);
     });
     const hnswSearchView = new FederView(hnswSearchVisData, hnswViewParams);
     hnswSearchView.render();
+    hnswSearchView.view.canvas.addEventListener("mousemove", (e) => {
+      const id2 = hnswSearchView.view.getPickedObject(e.offsetX, e.offsetY);
+      console.log(id2);
+    });
     document.querySelector("#container").appendChild(hnswSearchView.node);
   };
 

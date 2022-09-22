@@ -411,7 +411,6 @@ export default class HnswSearchHnsw3dView implements TViewHandler {
 
   init_(visData: TVisData, viewParams: TViewParamsHnsw3d) {
     this.visData = visData as TVisDataHnsw3d;
-    console.log(visData);
     const searchRecords = this.visData.searchRecords;
     console.log(searchRecords);
     this.node = document.createElement('div');
@@ -506,8 +505,6 @@ export default class HnswSearchHnsw3dView implements TViewHandler {
       '.origin-cam'
     ) as HTMLDivElement;
     this.playBtn.addEventListener('click', () => {
-      console.log('play');
-
       this.play();
     });
     this.resetBtn.addEventListener('click', () => {
@@ -515,12 +512,10 @@ export default class HnswSearchHnsw3dView implements TViewHandler {
       this.slider.value = '0';
     });
     this.prevBtn.addEventListener('click', () => {
-      console.log('prev');
       this.currentSceneIndex = Math.max(0, this.currentSceneIndex - 1);
       this.slider.value = this.currentSceneIndex.toString();
     });
     this.nextBtn.addEventListener('click', () => {
-      console.log('next');
       this.currentSceneIndex = Math.min(
         this.currentSceneIndex + 1,
         this.scenes.length - 1
@@ -553,6 +548,13 @@ export default class HnswSearchHnsw3dView implements TViewHandler {
     this.slider = slider;
   }
   play() {
+    if (this.selectedLayer !== -1) {
+      (
+        this?.layerUi?.children[this.selectedLayer]
+          ?.children[0] as HTMLDivElement
+      )?.click();
+    }
+    // this.startTransition();
     this.played = !this.played;
     if (this.played) {
       this.playBtn.innerHTML = HnswSearchHnsw3dView.stopHtml;
@@ -1144,6 +1146,37 @@ export default class HnswSearchHnsw3dView implements TViewHandler {
     );
     const id = (pixelBuffer[0] << 16) | (pixelBuffer[1] << 8) | pixelBuffer[2];
     return id;
+  }
+
+  getPickedObject(x: number, y: number) {
+    let id = this.pick(x, y);
+    //console.log(id);
+    const obj = this.pickingMap.get(id);
+
+    //if not picking a plane
+    if (
+      obj &&
+      obj.visible === true &&
+      obj.name &&
+      !obj?.name?.startsWith('plane')
+    ) {
+      let nodeId = parseInt(obj.name);
+      if (nodeId === NaN) {
+        return -1;
+      }
+      //iterate current scene
+      for (let i = 0; i < this.scene.children.length; i++) {
+        if (
+          this.scene.children[i].name === obj.name &&
+          this.scene.children[i].visible === true
+        ) {
+          return nodeId;
+        }
+      }
+      
+    }
+
+    return -1;
   }
 
   createPlaneGradientTexture() {
