@@ -9,8 +9,6 @@ export const searchViewLayoutHandler3d = async (
   searchRecords: TSearchRecordsHnsw,
   layoutParams: any
 ) => {
-  debugger;
-  console.log(searchRecords);
   const visData = parseVisRecords(searchRecords);
   const {
     targetR,

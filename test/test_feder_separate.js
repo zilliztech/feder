@@ -96,5 +96,9 @@ export const test_feder_separate = async () => {
   });
   const hnswSearchView = new FederView(hnswSearchVisData, hnswViewParams);
   hnswSearchView.render();
+  hnswSearchView.view.canvas.addEventListener('mousemove', (e) => {
+    const id = hnswSearchView.view.getPickedObject(e.offsetX, e.offsetY);
+    console.log(id);
+  });
   document.querySelector('#container').appendChild(hnswSearchView.node);
 };
