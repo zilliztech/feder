@@ -63743,12 +63743,10 @@ ${indentData}`);
       this.node.appendChild(this.layerUi);
     }
     startTransition() {
-      debugger;
       if (this.lastSelectedLayer !== this.selectedLayer) {
         for (let i = 0; i < this.scene.children.length; i++) {
           const child = this.scene.children[i];
           if (child.userData.longer) {
-            debugger;
             const layer = parseInt(child.userData.layer.split("-")[1]);
             if (this.selectedLayer === layer) {
               child.visible = true;
@@ -64290,7 +64288,6 @@ ${indentData}`);
       const pickingPlaneMaterial = new MeshBasicMaterial({
         vertexColors: true
       });
-      debugger;
       for (let i = 0; i < this.visData.searchRecords.searchRecords.length; i++) {
         let geometry = this.planes[i].clone().geometry.clone();
         let color2 = new Color2();

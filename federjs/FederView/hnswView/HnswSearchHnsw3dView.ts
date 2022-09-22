@@ -335,14 +335,12 @@ export default class HnswSearchHnsw3dView implements TViewHandler {
   }
 
   startTransition() {
-    debugger;
     if (this.lastSelectedLayer !== this.selectedLayer) {
       //iterate all the scene objects
       for (let i = 0; i < this.scene.children.length; i++) {
         const child = this.scene.children[i];
         //if the object userdata.longer is true
         if (child.userData.longer) {
-          debugger;
           const layer = parseInt(child.userData.layer.split('-')[1]);
           if (this.selectedLayer === layer) {
             child.visible = true;
@@ -1076,7 +1074,6 @@ export default class HnswSearchHnsw3dView implements TViewHandler {
     const pickingPlaneMaterial = new THREE.MeshBasicMaterial({
       vertexColors: true,
     });
-    debugger;
 
     //create a plane for each layer
     for (let i = 0; i < this.visData.searchRecords.searchRecords.length; i++) {
