@@ -36,31 +36,34 @@ export default class HnswSearchHnsw3dView implements TViewHandler {
     targetWhite: 0xffffff,
     labelGreen: 0x7fff7c,
   };
-  selectedLayer = -1;
-  lastSelectedLayer = -1;
-  intervalId: number;
+  selectedLayer = -1; //当前选择的layer
+  lastSelectedLayer = -1; //上一次选择的layer
+  intervalId: number; //播放时的定时器id
+  layerUi: HTMLDivElement; //layerui的dom节点
 
   //threejs stuff
-  longerLineMap = new Map<string, THREE.Mesh>();
-  longerDashedLineMap = new Map<string, THREE.Mesh>();
-  layerUi: HTMLDivElement;
-  scene: THREE.Scene;
-  camera: THREE.OrthographicCamera;
-  renderer: THREE.WebGLRenderer;
-  spheres: THREE.Mesh[] = [];
-  targetSpheres: THREE.Mesh[] = [];
-  planes: THREE.Mesh[] = [];
-  lines: THREE.Mesh[] = [];
-  controller: OrbitControls;
-  canvasWidth: number;
-  canvasHeight: number;
+  longerLineMap = new Map<string, THREE.Mesh>(); //value是层层之间的橙黄线的拉长版的map，key是layer1-layer2这样的形式
+  longerDashedLineMap = new Map<string, THREE.Mesh>(); //与longerLineMap的不同是他的value是层间target的相连斑点线
+  scene: THREE.Scene; //场景树
+  camera: THREE.OrthographicCamera; //相机
+  renderer: THREE.WebGLRenderer; //渲染器
+  targetSpheres: THREE.Mesh[] = []; //存储target节点
+  planes: THREE.Mesh[] = []; //存储平面
+  controller: OrbitControls; //手势调整相机
+  canvasWidth: number; //画布宽
+  canvasHeight: number; //画布高
+  //节点的xy范围，用于创建平面让所有节点在平面内部
   minX = Infinity;
   minY = Infinity;
   maxX = -Infinity;
   maxY = -Infinity;
+  //每一帧的scene
   scenes: THREE.Scene[] = [];
+  //拾取用的scene
   pickingScene: THREE.Scene;
+  //节点-id的映射
   sphere2id = new Map<THREE.Mesh, number>();
+  //默认相机
   static defaultCamera = {
     position: {
       isVector3: true,
@@ -77,15 +80,15 @@ export default class HnswSearchHnsw3dView implements TViewHandler {
     },
     zoom: 0.14239574134637464,
   };
-  dashedLines: THREE.Mesh<MeshLine, MeshLineMaterial>[] = [];
-  orangeLines: THREE.Mesh[] = [];
-  pickingTarget: THREE.WebGLRenderTarget;
+  dashedLines: THREE.Mesh<MeshLine, MeshLineMaterial>[] = []; //存放白色斑点线
+  orangeLines: THREE.Mesh[] = []; //存放橙黄色的线
+  pickingTarget: THREE.WebGLRenderTarget; //picking scene的rendertarget
   pickingMap: Map<
     number,
     THREE.Mesh<THREE.BufferGeometry, THREE.Material | THREE.Material[]>
-  >;
+  >; //一个map,key是拾取颜色，value是这个颜色对应的物体
   objectsPerLayer: Map<number, THREE.Mesh[]> = new Map(); //存储每一层的mesh，包括节点、连接线、plane
-  moveObjects: THREE.Mesh[] = [];
+  //播放器相关的dom
   playerUi: HTMLDivElement;
   playBtn: HTMLDivElement;
   resetBtn: HTMLDivElement;
@@ -105,9 +108,10 @@ export default class HnswSearchHnsw3dView implements TViewHandler {
   <path d="M24 19.8599C24 19.087 24.8777 18.6414 25.5017 19.0974L35.9565 26.7374C36.4728 27.1147 36.4728 27.8852 35.9565 28.2625L25.5017 35.9026C24.8777 36.3586 24 35.913 24 35.1401L24 19.8599Z" fill="white"/>
   </svg>
   `;
-  played: boolean;
-  currentSceneIndex: number;
   slider: HTMLInputElement;
+
+  played: boolean; //播放器的状态
+  currentSceneIndex: number; //当前播放的帧索引
 
   get k() {
     return this.visData.searchRecords.searchParams.k;
@@ -123,7 +127,11 @@ export default class HnswSearchHnsw3dView implements TViewHandler {
   //to be deleted
   init() {}
 
-  addCss() {
+  /**
+   * 添加css样式
+   */
+
+  private addCss() {
     //create a div element
     this.layerUi = document.createElement('div');
     //flex column display
@@ -242,7 +250,10 @@ export default class HnswSearchHnsw3dView implements TViewHandler {
     document.head.appendChild(style);
   }
 
-  createCircleDom() {
+  /**
+   * 添加layerui的圆点
+   */
+  private createCircleDom() {
     const circleDom = document.createElement('div');
     circleDom.classList.add('layer-ui-item');
     const parentDiv = document.createElement('div');
@@ -263,7 +274,10 @@ export default class HnswSearchHnsw3dView implements TViewHandler {
     return circleDom;
   }
 
-  setUpLayerUi() {
+  /**
+   * 设置layerui
+   */
+  private setUpLayerUi() {
     this.addCss();
     //create a div element
     this.layerUi = document.createElement('div');
@@ -334,6 +348,9 @@ export default class HnswSearchHnsw3dView implements TViewHandler {
     this.node.appendChild(this.layerUi);
   }
 
+  /**
+   * 开始视角凸显动画
+   */
   startTransition() {
     if (this.lastSelectedLayer !== this.selectedLayer) {
       //iterate all the scene objects
@@ -409,6 +426,11 @@ export default class HnswSearchHnsw3dView implements TViewHandler {
     }
   }
 
+  /**
+   * 初始化
+   * @param visData - layout环节计算好的数据
+   * @param viewParams - 视图参数
+   */
   init_(visData: TVisData, viewParams: TViewParamsHnsw3d) {
     this.visData = visData as TVisDataHnsw3d;
     const searchRecords = this.visData.searchRecords;
@@ -426,13 +448,16 @@ export default class HnswSearchHnsw3dView implements TViewHandler {
     this.setupScene();
     this.parseSearchRecords();
     this.setupPickingScene();
-    this.setupEventListeners();
+    //this.setupEventListeners();
     this.setupCamera();
     this.setupController();
     this.setupPlayerUi();
   }
 
-  setupPlayerUi() {
+  /**
+   * 设置播放器ui
+   */
+  private setupPlayerUi() {
     this.playerUi = document.createElement('div');
     this.playerUi.className = 'hnsw-search-hnsw3d-view-player-ui';
     this.node.appendChild(this.playerUi);
@@ -547,7 +572,8 @@ export default class HnswSearchHnsw3dView implements TViewHandler {
     row2.appendChild(slider);
     this.slider = slider;
   }
-  play() {
+
+  private play() {
     if (this.selectedLayer !== -1) {
       (
         this?.layerUi?.children[this.selectedLayer]
@@ -574,7 +600,7 @@ export default class HnswSearchHnsw3dView implements TViewHandler {
     }
   }
 
-  createLine(
+  private createLine(
     from: THREE.Vector3,
     to: THREE.Vector3,
     color: number | THREE.Texture,
@@ -602,7 +628,7 @@ export default class HnswSearchHnsw3dView implements TViewHandler {
     return mesh;
   }
 
-  createSphere(x: number, y: number, z: number, color: number) {
+  private createSphere(x: number, y: number, z: number, color: number) {
     const geometry = new THREE.SphereGeometry(20);
     const material = new THREE.MeshBasicMaterial({
       color: new THREE.Color(color),
@@ -612,16 +638,14 @@ export default class HnswSearchHnsw3dView implements TViewHandler {
     return sphere;
   }
 
-  stepTo(steps: number) {}
-
-  getPositionXZ(id: number) {
+  private getPositionXZ(id: number) {
     const { id2forcePos } = this.visData;
     const pos = id2forcePos[id];
     return { x: pos[0], z: pos[1] };
   }
 
   //change sphere color
-  changeSphereColor(sphere: THREE.Mesh, color: number) {
+  private changeSphereColor(sphere: THREE.Mesh, color: number) {
     //clone sphere
     const material = new THREE.MeshBasicMaterial({
       color: new THREE.Color(color),
@@ -634,14 +658,13 @@ export default class HnswSearchHnsw3dView implements TViewHandler {
     newSphere.userData = sphere.userData;
     this.scene.remove(sphere);
     this.scene.add(newSphere);
-    // (newSphere.material as MeshBasicMaterial).color = new THREE.Color(color);
   }
 
-  async wait(ms: number) {
+  private async wait(ms: number) {
     return new Promise((resolve) => setTimeout(resolve, ms));
   }
 
-  createGradientTexture(color1: number, color2: number) {
+  private createGradientTexture(color1: number, color2: number) {
     const canvas = document.createElement('canvas');
     canvas.width = 256;
     canvas.height = 256;
@@ -655,11 +678,14 @@ export default class HnswSearchHnsw3dView implements TViewHandler {
     return texture;
   }
 
-  parseSearchRecords() {
+  /**
+   * 解析searchRecords 为 scenes（每个scene对应一帧）
+   */
+  private parseSearchRecords() {
     let y0 = 0;
     const { searchRecords } = this.visData.searchRecords;
 
-    //建立id与sphere的映射
+    //建立每层id与sphere的映射
     let sphere2idArray: Map<
       THREE.Mesh<THREE.SphereGeometry, THREE.MeshBasicMaterial>,
       number
@@ -670,6 +696,7 @@ export default class HnswSearchHnsw3dView implements TViewHandler {
     >[] = [];
     let id2lineArray: Map<string, THREE.Mesh<any, MeshLineMaterial>>[] = [];
 
+    //先创建所有的sphere几何体，隐藏起来
     for (let i = 0; i < searchRecords.length; i++) {
       let records = searchRecords[i];
       const sphere2id = new Map<
@@ -694,6 +721,7 @@ export default class HnswSearchHnsw3dView implements TViewHandler {
             new THREE.Vector3(x1, y0, z1),
             0x000000
           );
+          //userData会存放层级信息
           line.userData = {
             layer: i,
           };
@@ -741,11 +769,12 @@ export default class HnswSearchHnsw3dView implements TViewHandler {
       id2lineArray.push(id2line);
     }
 
+    //开始创建每一帧scene推到this.scenes中
     y0 = 0;
     const topVisitedNodes: { id: number; distance: number }[] = [];
     for (let i = 0; i < searchRecords.length; i++) {
       const records = searchRecords[i];
-      const visited = new Set<number>();
+      const visited = new Set<number>(); //记录已经访问过的节点
 
       const firstRecord = records[0];
       let lastVisited = firstRecord[0];
@@ -774,6 +803,7 @@ export default class HnswSearchHnsw3dView implements TViewHandler {
         const line = id2lineArray[i].get(`${startNode}-${endNode}`);
 
         if (startNodeSphere) {
+          //如果在最后一层，而且新访问节点没有被访问过，则加入topVisitedNodes
           if (
             i === searchRecords.length - 1 &&
             !topVisitedNodes.find((v) => v.id === endNode)
@@ -786,8 +816,10 @@ export default class HnswSearchHnsw3dView implements TViewHandler {
             HnswSearchHnsw3dView.colors.searchedYellow
           );
           visited.add(startNode);
+          //当前进一步时,绘制黄线
           if (lastVisited !== startNode) {
             const line = id2lineArray[i].get(`${lastVisited}-${startNode}`);
+            //如果line存在，说明已经被绘制过了调整颜色即可
             if (line) {
               //create yellow texture
               const texture = this.createGradientTexture(
@@ -844,6 +876,7 @@ export default class HnswSearchHnsw3dView implements TViewHandler {
             }
           }
         }
+        //蓝线蓝点情况
         if (endNodeSphere && !visited.has(endNode)) {
           endNodeSphere.visible = true;
           this.changeSphereColor(
@@ -872,9 +905,10 @@ export default class HnswSearchHnsw3dView implements TViewHandler {
         }
 
         lastVisited = startNode;
-
+        //记录下这一帧
         this.scenes.push(this.scene.clone());
       }
+      //处理层与层之间的橙色节点、黄色节点、连接线
       let nextLevelMap = id2sphereArray[i + 1];
       if (nextLevelMap) {
         const nextLevelSphere = nextLevelMap.get(lastVisited);
@@ -1016,7 +1050,7 @@ export default class HnswSearchHnsw3dView implements TViewHandler {
     }
   }
 
-  createDashedLineTexture(
+  private createDashedLineTexture(
     backgroundColor = 0x00000000,
     color = 0xffffff00,
     dashSize = 20,
@@ -1040,7 +1074,10 @@ export default class HnswSearchHnsw3dView implements TViewHandler {
     return texture;
   }
 
-  setupPickingScene() {
+  /**
+   * 设置拾取场景
+   */
+  private setupPickingScene() {
     // create picking scene
     this.pickingScene = new THREE.Scene();
     this.pickingTarget = new THREE.WebGLRenderTarget(
@@ -1098,24 +1135,24 @@ export default class HnswSearchHnsw3dView implements TViewHandler {
     }
   }
 
-  //add event listener to the canvas
-  setupEventListeners() {
-    this.renderer.domElement.addEventListener('click', (event) => {
-      //pointer = { x: e.offsetX, y: e.offsetY };
+  // //add event listener to the canvas
+  // setupEventListeners() {
+  //   this.renderer.domElement.addEventListener('click', (event) => {
+  //     //pointer = { x: e.offsetX, y: e.offsetY };
 
-      let id = this.pick(event.offsetX, event.offsetY);
-      //console.log(id);
-      const obj = this.pickingMap.get(id);
-      console.log('picked', obj.userData, obj.name);
-      //if picking a plane
-      if (obj?.name?.startsWith('plane')) {
-        const layer = obj.userData.layer;
-        console.log(layer);
-      }
-    });
-  }
+  //     let id = this.pick(event.offsetX, event.offsetY);
+  //     //console.log(id);
+  //     const obj = this.pickingMap.get(id);
+  //     console.log('picked', obj.userData, obj.name);
+  //     //if picking a plane
+  //     if (obj?.name?.startsWith('plane')) {
+  //       const layer = obj.userData.layer;
+  //       console.log(layer);
+  //     }
+  //   });
+  // }
 
-  pick(x: number, y: number) {
+  private pick(x: number, y: number) {
     if (x < 0 || y < 0) return -1;
     const pixelRatio = this.renderer.getPixelRatio();
     // console.log(pixelRatio, x, y);
@@ -1173,9 +1210,7 @@ export default class HnswSearchHnsw3dView implements TViewHandler {
           return nodeId;
         }
       }
-      
     }
-
     return -1;
   }
 
@@ -1282,6 +1317,10 @@ export default class HnswSearchHnsw3dView implements TViewHandler {
     requestAnimationFrame(render);
   }
 
+
+  /**
+   * 设置控制器用于实现（平移、旋转、缩放）
+   */
   private setupController() {
     this.controller = new OrbitControls(this.camera, this.canvas);
     this.controller.enableZoom = true;
@@ -1290,6 +1329,9 @@ export default class HnswSearchHnsw3dView implements TViewHandler {
     this.controller.enableRotate = true;
   }
 
+  /**
+   * 设置相机
+   */
   private setupCamera() {
     this.camera = new THREE.OrthographicCamera(
       -this.canvas.width / 2,
@@ -1329,6 +1371,9 @@ export default class HnswSearchHnsw3dView implements TViewHandler {
     this.camera.updateProjectionMatrix();
   }
 
+  /**
+   * 设置场景
+   */
   private setupScene() {
     this.scene = new THREE.Scene();
     this.computeBoundries();
@@ -1336,6 +1381,9 @@ export default class HnswSearchHnsw3dView implements TViewHandler {
     this.scene.add(...this.planes);
   }
 
+  /**
+   * 设置renderer
+   */
   private setupRenderer() {
     this.renderer = new THREE.WebGLRenderer({
       canvas: this.canvas,
@@ -1344,6 +1392,9 @@ export default class HnswSearchHnsw3dView implements TViewHandler {
     this.renderer.setSize(this.canvas.width, this.canvas.height);
   }
 
+  /**
+   * 设置画布
+   */
   setupCanvas() {
     this.canvas = document.createElement('canvas');
     this.node.appendChild(this.canvas);
