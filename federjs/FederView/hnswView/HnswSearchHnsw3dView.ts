@@ -22,6 +22,9 @@ export const HNSW_NODE_TYPE = {
   Target: 4,
 };
 
+/**
+ *  HnswSearchHnsw3dView可视化hnsw搜索的3d view
+ */
 export default class HnswSearchHnsw3dView implements TViewHandler {
   node: HTMLElement;
   staticPanel: InfoPanel;
