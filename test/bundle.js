@@ -63510,16 +63510,14 @@ ${indentData}`);
     selectedLayer = -1;
     lastSelectedLayer = -1;
     intervalId;
+    layerUi;
     longerLineMap = /* @__PURE__ */ new Map();
     longerDashedLineMap = /* @__PURE__ */ new Map();
-    layerUi;
     scene;
     camera;
     renderer;
-    spheres = [];
     targetSpheres = [];
     planes = [];
-    lines = [];
     controller;
     canvasWidth;
     canvasHeight;
@@ -63535,16 +63533,15 @@ ${indentData}`);
     pickingTarget;
     pickingMap;
     objectsPerLayer = /* @__PURE__ */ new Map();
-    moveObjects = [];
     playerUi;
     playBtn;
     resetBtn;
     prevBtn;
     nextBtn;
     originCamBtn;
+    slider;
     played;
     currentSceneIndex;
-    slider;
     get k() {
       return this.visData.searchRecords.searchParams.k;
     }
@@ -63810,7 +63807,6 @@ ${indentData}`);
       this.setupScene();
       this.parseSearchRecords();
       this.setupPickingScene();
-      this.setupEventListeners();
       this.setupCamera();
       this.setupController();
       this.setupPlayerUi();
@@ -63967,8 +63963,6 @@ ${indentData}`);
       const sphere = new Mesh(geometry, material);
       sphere.position.set(x3, y3, z);
       return sphere;
-    }
-    stepTo(steps2) {
     }
     getPositionXZ(id2) {
       const { id2forcePos } = this.visData;
@@ -64236,24 +64230,6 @@ ${indentData}`);
         y0 += -400;
       }
     }
-    createDashedLineTexture(backgroundColor = 0, color2 = 4294967040, dashSize = 20, gapSize = 10) {
-      const canvas = document.createElement("canvas");
-      canvas.width = 128;
-      canvas.height = 1;
-      const context = canvas.getContext("2d");
-      context.fillStyle = `#${backgroundColor.toString(16)}`;
-      context.fillRect(0, 0, canvas.width, canvas.height);
-      context.strokeStyle = `#${color2.toString(16)}`;
-      context.lineWidth = 10;
-      context.beginPath();
-      context.setLineDash([dashSize, gapSize]);
-      context.moveTo(0, 0);
-      context.lineTo(canvas.width, canvas.height);
-      context.stroke();
-      const texture = new Texture(canvas);
-      texture.needsUpdate = true;
-      return texture;
-    }
     setupPickingScene() {
       this.pickingScene = new Scene();
       this.pickingTarget = new WebGLRenderTarget(this.renderer.domElement.width, this.renderer.domElement.height);
@@ -64301,17 +64277,6 @@ ${indentData}`);
         this.pickingMap.set(count, plane);
         count += 66;
       }
-    }
-    setupEventListeners() {
-      this.renderer.domElement.addEventListener("click", (event) => {
-        let id2 = this.pick(event.offsetX, event.offsetY);
-        const obj = this.pickingMap.get(id2);
-        console.log("picked", obj.userData, obj.name);
-        if (obj?.name?.startsWith("plane")) {
-          const layer = obj.userData.layer;
-          console.log(layer);
-        }
-      });
     }
     pick(x3, y3) {
       if (x3 < 0 || y3 < 0)
