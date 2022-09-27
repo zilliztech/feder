@@ -64230,24 +64230,6 @@ ${indentData}`);
         y0 += -400;
       }
     }
-    createDashedLineTexture(backgroundColor = 0, color2 = 4294967040, dashSize = 20, gapSize = 10) {
-      const canvas = document.createElement("canvas");
-      canvas.width = 128;
-      canvas.height = 1;
-      const context = canvas.getContext("2d");
-      context.fillStyle = `#${backgroundColor.toString(16)}`;
-      context.fillRect(0, 0, canvas.width, canvas.height);
-      context.strokeStyle = `#${color2.toString(16)}`;
-      context.lineWidth = 10;
-      context.beginPath();
-      context.setLineDash([dashSize, gapSize]);
-      context.moveTo(0, 0);
-      context.lineTo(canvas.width, canvas.height);
-      context.stroke();
-      const texture = new Texture(canvas);
-      texture.needsUpdate = true;
-      return texture;
-    }
     setupPickingScene() {
       this.pickingScene = new Scene();
       this.pickingTarget = new WebGLRenderTarget(this.renderer.domElement.width, this.renderer.domElement.height);

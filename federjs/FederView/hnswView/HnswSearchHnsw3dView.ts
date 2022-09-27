@@ -573,6 +573,9 @@ export default class HnswSearchHnsw3dView implements TViewHandler {
     this.slider = slider;
   }
 
+  /**
+   * 开始播放每一帧
+   */
   private play() {
     if (this.selectedLayer !== -1) {
       (
@@ -600,6 +603,14 @@ export default class HnswSearchHnsw3dView implements TViewHandler {
     }
   }
 
+  /**
+   * 创建一条线
+   * @param from 起始点坐标
+   * @param to 终点坐标
+   * @param color 颜色或者纹理
+   * @param width 宽度
+   * @returns 线
+   */
   private createLine(
     from: THREE.Vector3,
     to: THREE.Vector3,
@@ -628,6 +639,14 @@ export default class HnswSearchHnsw3dView implements TViewHandler {
     return mesh;
   }
 
+  /**
+   * 创建一个球
+   * @param x 球心x坐标
+   * @param y 球心y坐标
+   * @param z 球心z坐标
+   * @param color 颜色
+   * @returns 球体
+   */
   private createSphere(x: number, y: number, z: number, color: number) {
     const geometry = new THREE.SphereGeometry(20);
     const material = new THREE.MeshBasicMaterial({
@@ -644,7 +663,11 @@ export default class HnswSearchHnsw3dView implements TViewHandler {
     return { x: pos[0], z: pos[1] };
   }
 
-  //change sphere color
+  /**
+   * 修改球体颜色
+   * @param sphere 球体
+   * @param color 新的颜色
+   */
   private changeSphereColor(sphere: THREE.Mesh, color: number) {
     //clone sphere
     const material = new THREE.MeshBasicMaterial({
@@ -664,6 +687,12 @@ export default class HnswSearchHnsw3dView implements TViewHandler {
     return new Promise((resolve) => setTimeout(resolve, ms));
   }
 
+  /**
+   * 创建渐变纹理
+   * @param color1
+   * @param color2
+   * @returns THREE.CanvasTexture
+   */
   private createGradientTexture(color1: number, color2: number) {
     const canvas = document.createElement('canvas');
     canvas.width = 256;
@@ -1050,30 +1079,6 @@ export default class HnswSearchHnsw3dView implements TViewHandler {
     }
   }
 
-  private createDashedLineTexture(
-    backgroundColor = 0x00000000,
-    color = 0xffffff00,
-    dashSize = 20,
-    gapSize = 10
-  ) {
-    const canvas = document.createElement('canvas');
-    canvas.width = 128;
-    canvas.height = 1;
-    const context = canvas.getContext('2d');
-    context.fillStyle = `#${backgroundColor.toString(16)}`;
-    context.fillRect(0, 0, canvas.width, canvas.height);
-    context.strokeStyle = `#${color.toString(16)}`;
-    context.lineWidth = 10;
-    context.beginPath();
-    context.setLineDash([dashSize, gapSize]);
-    context.moveTo(0, 0);
-    context.lineTo(canvas.width, canvas.height);
-    context.stroke();
-    const texture = new THREE.Texture(canvas);
-    texture.needsUpdate = true;
-    return texture;
-  }
-
   /**
    * 设置拾取场景
    */
@@ -1152,6 +1157,12 @@ export default class HnswSearchHnsw3dView implements TViewHandler {
   //   });
   // }
 
+  /**
+   * 拾取
+   * @param x  e.target.offsetX
+   * @param y  e.target.offsetY
+   * @returns  picked object id
+   */
   private pick(x: number, y: number) {
     if (x < 0 || y < 0) return -1;
     const pixelRatio = this.renderer.getPixelRatio();
@@ -1185,6 +1196,12 @@ export default class HnswSearchHnsw3dView implements TViewHandler {
     return id;
   }
 
+  /**
+   * 获取拾取到的node节点id，未拾取到就返回-1
+   * @param x e.target.offsetX
+   * @param y e.target.offsetX
+   * @returns node id
+   */
   getPickedObject(x: number, y: number) {
     let id = this.pick(x, y);
     //console.log(id);
@@ -1214,6 +1231,10 @@ export default class HnswSearchHnsw3dView implements TViewHandler {
     return -1;
   }
 
+  /**
+   * 创建平面的渐变纹理
+   * @returns THREE.Texture
+   */
   createPlaneGradientTexture() {
     const canvas = document.createElement('canvas');
     canvas.width = 256;
@@ -1235,6 +1256,13 @@ export default class HnswSearchHnsw3dView implements TViewHandler {
     return texture;
   }
 
+  /**
+   * 绘制边际线
+   * @param from 起点
+   * @param to 终点
+   * @param color 颜色
+
+   */
   drawBorderLine(from: THREE.Vector3, to: THREE.Vector3, color: string) {
     const line = new MeshLine();
     line.setPoints([from.x, from.y, from.z, to.x, to.y, to.z]);
@@ -1247,6 +1275,9 @@ export default class HnswSearchHnsw3dView implements TViewHandler {
     this.scene.add(mesh);
   }
 
+  /**
+   * 设置平面
+   */
   setupPlanes() {
     let z0 = -30;
     const { visData } = this.visData;
@@ -1277,6 +1308,9 @@ export default class HnswSearchHnsw3dView implements TViewHandler {
     console.log(this.planes);
   }
 
+  /**
+   * 计算平面的大小范围
+   */
   computeBoundries() {
     const { visData } = this.visData;
     console.log(visData);
@@ -1293,6 +1327,9 @@ export default class HnswSearchHnsw3dView implements TViewHandler {
     }
   }
 
+  /**
+   * 渲染函数
+   */
   render() {
     //render
     const render = (t) => {
@@ -1316,7 +1353,6 @@ export default class HnswSearchHnsw3dView implements TViewHandler {
     };
     requestAnimationFrame(render);
   }
-
 
   /**
    * 设置控制器用于实现（平移、旋转、缩放）
