@@ -11,7 +11,7 @@ import renderClusters from './renderClusters';
 import renderTarget from './renderTarget';
 import renderNodes from './renderNodes';
 import * as d3 from 'd3';
-import { TCoord } from 'Types';
+import { EStepType, TCoord } from 'Types';
 import { getDisL2Square } from 'Utils/distFunc';
 import clearCanvas from '../../clearCanvas';
 import renderPolarAxis from './renderPolarAxis';
@@ -22,12 +22,6 @@ import updateHoveredPanelNodeView from './updateHoveredPanelNodeView';
 import updateHoveredPanelVoronoiView from './updateHoveredPanelVoronoiView';
 import updateStaticPanel from './updateStaticPanel';
 import switchView from './switchView';
-
-export enum EStepType {
-  voronoi = 'voronoi',
-  polar = 'polar',
-  project = 'project',
-}
 
 export default class IvfflatSearchView implements ViewHandler {
   searchViewClusters: TVisDataIvfflatSearchViewCluster[];

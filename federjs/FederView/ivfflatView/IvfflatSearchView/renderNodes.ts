@@ -1,7 +1,8 @@
 import * as d3 from 'd3';
 import { drawCircles, hexWithOpacity } from 'FederView/renderUtils2D';
+import { EStepType } from 'Types';
 import { TVisDataIvfflatSearchViewNode } from 'Types/visData';
-import IvfflatSearchView, { EStepType } from '.';
+import IvfflatSearchView from '.';
 
 export default function renderNodes(this: IvfflatSearchView) {
   const {

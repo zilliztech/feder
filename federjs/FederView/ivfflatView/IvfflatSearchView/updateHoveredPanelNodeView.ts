@@ -1,7 +1,7 @@
 import { TDivPosStyle, TInfoPanelContentItem } from 'FederView/InfoPanel';
-import { EMediaType } from 'Types';
+import { EMediaType, EStepType } from 'Types';
 import { vecMultiply } from 'Utils/distFunc';
-import IvfflatSearchView, { EStepType } from '.';
+import IvfflatSearchView from '.';
 
 export default async function updateHoveredPanelNodeView(
   this: IvfflatSearchView

@@ -1,6 +1,7 @@
 import { drawCircles } from 'FederView/renderUtils2D';
+import { EStepType, TCoord } from 'Types';
 import { TVisDataIvfflatSearchViewTargetNode } from 'Types/visData';
-import IvfflatSearchView, { EStepType } from '.';
+import IvfflatSearchView from '.';
 
 export const stepType2targePos = {
   [EStepType.voronoi]: (node: TVisDataIvfflatSearchViewTargetNode) =>
@@ -12,7 +13,7 @@ export const stepType2targePos = {
 };
 
 export default function renderTarget(this: IvfflatSearchView) {
-  const position = stepType2targePos[this.stepType](this.targetNode);
+  const position = stepType2targePos[this.stepType](this.targetNode) as TCoord;
   const { canvasScale, targetOuterR, targetInnerR, targetNodeStroke } =
     this.viewParams;
   drawCircles({

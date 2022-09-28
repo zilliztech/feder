@@ -1,6 +1,6 @@
 import { TInfoPanelContentItem } from 'FederView/InfoPanel';
-import { EMediaType } from 'Types';
-import IvfflatSearchView, { EStepType } from '.';
+import { EMediaType, EStepType } from 'Types';
+import IvfflatSearchView from '.';
 
 export default async function updateStaticPanel(
   this: IvfflatSearchView,
