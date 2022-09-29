@@ -1,8 +1,8 @@
 import { drawCircles, hexWithOpacity } from 'FederView/renderUtils2D';
-import { TCoord } from 'Types';
+import { EStepType, TCoord } from 'Types';
 import { TVisDataIvfflatSearchViewNode } from 'Types/visData';
 import { vecAdd, vecMultiply } from 'Utils/distFunc';
-import IvfflatSearchView, { EStepType } from '.';
+import IvfflatSearchView from '.';
 
 export default function transitionNodesMove(
   this: IvfflatSearchView,

@@ -127,7 +127,8 @@ export class Feder {
     new Promise(async () => {
       await this.initFederPromise;
       const target = await this.federIndex.getVectorById(id);
-      const targetMedia = this.viewParams.mediaContent(id);
+      const mediaContent = this.viewParams?.mediaContent || (() => undefined);
+      const targetMedia = mediaContent(id);
       this.executeAction(node, EActionType.search, {
         target,
         targetMedia,
@@ -145,7 +146,8 @@ export class Feder {
       const idCount = await this.federIndex.getVectorsCount();
       const id = Math.floor(Math.random() * idCount);
       const target = await this.federIndex.getVectorById(id);
-      const targetMedia = this.viewParams.mediaContent(id);
+      const mediaContent = this.viewParams?.mediaContent || (() => undefined);
+      const targetMedia = mediaContent(id);
       this.executeAction(node, EActionType.search, {
         target,
         targetMedia,

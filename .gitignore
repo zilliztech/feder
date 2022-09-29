@@ -13,3 +13,9 @@ dist
 *.index
 *.pyc
 test/output/*
+test/testFederView/data
+test/testFederView/lib
+dev/data
+dev/bundle.js
+case/oneServer/data
+case/twoServer/data

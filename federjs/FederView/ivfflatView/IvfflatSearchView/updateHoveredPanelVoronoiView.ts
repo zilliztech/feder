@@ -16,43 +16,31 @@ export default async function updateHoveredPanelVoronoiView(
     this.hoveredCluster.ids,
     this.viewParams.mediaContentCount
   );
+  let mediaContents = [] as TInfoPanelContentItem[];
   if (this.viewParams.mediaType === EMediaType.image) {
     const mediaContent = {} as TInfoPanelContentItem;
     mediaContent.images = representIds.map((id) =>
       this.viewParams.mediaContent(id)
     );
-    this.hoveredPanel.setContent({
-      themeColor: '#FFFC85',
-      hasBorder: true,
-      content: [
-        {
-          text: `cluster-${this.hoveredCluster.clusterId}`,
-        },
-        {
-          text: `including ${this.hoveredCluster.count} vectors`,
-        },
-        mediaContent,
-      ],
-    });
+    mediaContents = [mediaContent];
   } else if (this.viewParams.mediaType === EMediaType.text) {
-    const mediaContents = representIds.map(
-      (id) =>
-        ({ text: this.viewParams.mediaContent(id) } as TInfoPanelContentItem)
-    );
-    this.hoveredPanel.setContent({
-      themeColor: '#FFFC85',
-      hasBorder: true,
-      content: [
-        {
-          text: `cluster-${this.hoveredCluster.clusterId}`,
-        },
-        {
-          text: `including ${this.hoveredCluster.count} vectors`,
-        },
-        ...mediaContents,
-      ],
-    });
+    mediaContents = representIds.map((id) => ({
+      text: this.viewParams.mediaContent(id),
+    }));
   }
+  this.hoveredPanel.setContent({
+    themeColor: '#FFFC85',
+    hasBorder: true,
+    content: [
+      {
+        text: `cluster-${this.hoveredCluster.clusterId}`,
+      },
+      {
+        text: `including ${this.hoveredCluster.count} vectors`,
+      },
+      ...mediaContents,
+    ],
+  });
 
   const { width, height, canvasScale } = this.viewParams;
   const pos = vecMultiply(this.hoveredCluster.SVPolyCentroid, 1 / canvasScale);

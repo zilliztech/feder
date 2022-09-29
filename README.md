@@ -93,21 +93,63 @@ feder
 
 We prepare a simple case, which is the visualizations of the `hnsw` and `ivf_flat` with 17,000+ vectors that embedded from [VOC 2012](http://host.robots.ox.ac.uk/pascal/VOC/voc2012/VOCtrainval_11-May-2012.tar)).
 
-Only need enable a web service.
-
 ```shell
 git clone git@github.com:zilliztech/feder.git
-cd test
-python -m http.server
+cd feder
+yarn install
+yarn dev
 ```
 
-Then open http://localhost:8000/
+Then open http://localhost:12355/
 
 It will show 4 visualizations:
 - `hnsw` overview
 - `hnsw` search view
 - `ivf_flat` overview
 - `ivf_flat` search view
+
+## Feder for Large Index
+
+`Feder` consists of three components: 
+- `FederIndex` - parse the index file. It requires a lot of memory.
+- `FederLayout` - layout calculations. It consumes a lot of computational resources.
+- `FederView` - render and interaction.
+
+In case of excessive amount of data, we support separating the computation part and running it on a node server.
+We have two solutions for you:
+- oneServer
+  - federServer (with `FederIndex` and `FederLayout`).
+- twoServer
+  - indexServer (with `FederIndex`)
+  - layoutServer (with `FederLayout`)
+
+Referring to **case/oneServer** and **case/twoServer**.
+
+### Example with One Server
+1. launch the server
+```shell
+yarn test_one_server_backend
+```
+2. launch the front web service
+```shell
+yarn test_one_server_front
+```
+3. open http://localhost:8000
+
+### Example with Two Servers
+1. launch the FederIndex server
+```shell
+yarn test_two_server_feder_index
+```
+2. launch the FederLayout server
+```shell
+yarn test_two_server_feder_layout
+```
+3. launch the front web service
+```shell
+yarn test_two_server_front
+```
+4. open http://localhost:8000
 
 ## Pipeline - explore a new dataset with feder
 
@@ -141,12 +183,13 @@ import * as d3 from 'd3';
 
 const domSelector = '#container';
 const filePath = [index_file_path];
+const source = "hnswlib"; // "hnswlib" or "faiss"
 
 const mediaCallback = (rowId) => mediaUrl;
 
 const feder = new Feder({
   filePath,
-  source: 'hnswlib',
+  source,
   domSelector,
   viewParams: {
     mediaType: 'img',

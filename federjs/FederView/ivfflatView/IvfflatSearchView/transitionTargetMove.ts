@@ -1,7 +1,7 @@
 import { drawCircles } from 'FederView/renderUtils2D';
-import { TCoord } from 'Types';
+import { EStepType, TCoord } from 'Types';
 import { vecAdd, vecMultiply } from 'Utils/distFunc';
-import IvfflatSearchView, { EStepType } from '.';
+import IvfflatSearchView from '.';
 import { stepType2targePos } from './renderTarget';
 
 export default function transitionTargetMove(

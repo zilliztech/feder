@@ -38,6 +38,12 @@ export enum EViewType {
   hnsw3d = 'hnsw3d',
 }
 
+export enum EStepType {
+  voronoi = 'voronoi',
+  polar = 'polar',
+  project = 'project',
+}
+
 export interface TMetaParams {
   numOverviewLevel?: number;
 }

@@ -66,7 +66,6 @@ export class FederLayout {
       actionData.target,
       actionData.searchParams
     );
-    console.log('searchRecords got!');
     return this.federLayoutHandler.computeSearchViewVisData(
       viewType,
       searchRecords,

@@ -1,6 +1,7 @@
 import * as d3 from 'd3';
 import clearCanvas from 'FederView/clearCanvas';
-import IvfflatSearchView, { EStepType } from '.';
+import { EStepType } from 'Types';
+import IvfflatSearchView from '.';
 import transitionClustersExit from './transitionClustersExit';
 import transitionNodesEnter from './transitionNodesEnter';
 import transitionNodesMove from './transitionNodesMove';
