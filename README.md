@@ -108,15 +108,20 @@ It will show 4 visualizations:
 - `ivf_flat` overview
 - `ivf_flat` search view
 
-## Examples with Server
+## Feder for Large Index
+
+`Feder` consists of three components: 
+- `FederIndex` - parse the index file. It requires a lot of memory.
+- `FederLayout` - layout calculations. It consumes a lot of computational resources.
+- `FederView` - render and interaction.
 
 In case of excessive amount of data, we support separating the computation part and running it on a node server.
 We have two solutions for you:
 - oneServer
-  - server with FederIndex and FederLayout.
+  - federServer (with `FederIndex` and `FederLayout`).
 - twoServer
-  - server with FederIndex
-  - server with FederLayout
+  - indexServer (with `FederIndex`)
+  - layoutServer (with `FederLayout`)
 
 Referring to **case/oneServer** and **case/twoServer**.
 
@@ -131,7 +136,7 @@ yarn test_one_server_front
 ```
 3. open http://localhost:8000
 
-### Example with Two Server
+### Example with Two Servers
 1. launch the FederIndex server
 ```shell
 yarn test_two_server_feder_index
