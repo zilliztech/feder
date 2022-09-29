@@ -7,7 +7,7 @@ export default async function updateStaticPanel(
   newStepType: EStepType
 ) {
   const headerContent = {
-    title: 'IVF_Flat Search',
+    title: 'IVF_Flat - Search',
   };
   const { targetMedia } = this.actionData;
   let mediaContent = null;

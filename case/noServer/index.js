@@ -10,6 +10,7 @@ window.addEventListener('DOMContentLoaded', () => {
     viewParams: {
       width: 800,
       height: 400,
+      mediaContent: (id) => id
     },
   });
   feder.overview();
