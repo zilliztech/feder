@@ -1,4 +1,4 @@
-import { EProjectMethod, EViewType } from 'Types';
+import { EViewType } from 'Types';
 import { TIndexMetaIvfflat } from 'Types/indexMeta';
 import { TSearchRecords } from 'Types/searchRecords';
 import {
@@ -8,6 +8,7 @@ import {
   TVisDataIvfflatSearchView,
 } from 'Types/visData';
 import { TFederLayoutHandler } from '../../FederLayoutHandler';
+import { defaultLayoutParamsIvfflat } from './defaultLayoutParamsIvfflat';
 import IvfflatOverviewLayout from './overview';
 import IvfflatSearchViewLayout from './search';
 
@@ -19,22 +20,6 @@ const searchViewLayoutFuncMap = {
   [EViewType.default]: IvfflatSearchViewLayout,
 };
 
-const layoutParamsIvfflatDefault = {
-  numForceIterations: 100,
-  width: 800,
-  height: 480,
-  canvasScale: 2,
-  coarseSearchWithProjection: true,
-  fineSearchWithProjection: true,
-  projectMethod: EProjectMethod.umap,
-  projectParams: {},
-  polarOriginBias: 0.15,
-  polarRadiusUpperBound: 0.97,
-  nonTopkNodeR: 3,
-  minVoronoiRadius: 5,
-  projectPadding: [20, 30, 20, 30],
-  staticPanelWidth: 240,
-};
 export default class FederLayoutIvfflat implements TFederLayoutHandler {
   overviewLayoutParams: TLayoutParamsIvfflat = {};
   overviewClusters: TVisDataIvfflatOverviewCluster;
@@ -45,7 +30,7 @@ export default class FederLayoutIvfflat implements TFederLayoutHandler {
   ): Promise<TVisDataIvfflatOverview> {
     const layoutParams = Object.assign(
       {},
-      layoutParamsIvfflatDefault,
+      defaultLayoutParamsIvfflat,
       _layoutParams
     );
     this.overviewLayoutParams = layoutParams;
@@ -63,7 +48,7 @@ export default class FederLayoutIvfflat implements TFederLayoutHandler {
   ): Promise<TVisDataIvfflatSearchView> {
     const layoutParams = Object.assign(
       {},
-      layoutParamsIvfflatDefault,
+      defaultLayoutParamsIvfflat,
       _layoutParams
     );
     const searchViewLayoutFunc = searchViewLayoutFuncMap[viewType];

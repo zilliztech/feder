@@ -6,7 +6,7 @@ import {
 import clearCanvas from 'FederView/clearCanvas';
 import renderNodes from './renderNodes';
 import HnswSearchView from '.';
-import renderLayer from './renderLayer';
+import renderLayer from '../renderLayer';
 import renderLinks from './renderLinks';
 import renderInProcessLinks from './renderInProcessLinks';
 import renderEntryAndTargetLinks from './renderEntryAndTargetLinks';

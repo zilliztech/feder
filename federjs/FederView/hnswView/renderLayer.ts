@@ -4,7 +4,7 @@ import {
   hexWithOpacity,
 } from 'FederView/renderUtils2D';
 import { TCoord } from 'Types';
-import HnswSearchView from '.';
+import HnswSearchView from './HnswSearchView';
 
 export default function renderLayer(this: HnswSearchView, points: TCoord[]) {
   const {

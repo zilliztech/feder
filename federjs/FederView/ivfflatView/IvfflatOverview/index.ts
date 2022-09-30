@@ -12,6 +12,8 @@ import defaltViewParamsIvfflat from '../defaultViewParamsIvfflat';
 import renderClusters from './renderClusters';
 import updateHoveredPanel from './updateHoveredPanel';
 import updateStaticPanel from './updateStaticPanel';
+import initCanvas from 'FederView/initCanvas';
+import initEventListener from 'FederView/initEventListener';
 
 export default class IvfflatOverview implements ViewHandler {
   node: HTMLElement;
@@ -38,42 +40,9 @@ export default class IvfflatOverview implements ViewHandler {
     this.init();
   }
   init(): void {
-    this.initCanvas();
+    initCanvas.call(this);
     initPanels.call(this);
-    this.initEventListener();
-  }
-  initCanvas() {
-    const { width, height, canvasScale } = this.viewParams;
-    const divD3 = d3
-      .create('div')
-      .style('position', 'relative')
-      .style('width', `${width}px`)
-      .style('height', `${height}px`);
-    this.node = divD3.node();
-    const canvasD3 = divD3
-      .append('canvas')
-      .attr('width', width)
-      .attr('height', height);
-    this.ctx = canvasD3.node().getContext('2d');
-    this.ctx.scale(1 / canvasScale, 1 / canvasScale);
-  }
-  initEventListener() {
-    const { canvasScale } = this.viewParams;
-    this.ctx.canvas.addEventListener('mousemove', (e) => {
-      const { offsetX, offsetY } = e;
-      const x = offsetX * canvasScale;
-      const y = offsetY * canvasScale;
-      this.mouseMoveHandler && this.mouseMoveHandler({ x, y });
-    });
-    this.ctx.canvas.addEventListener('click', (e) => {
-      const { offsetX, offsetY } = e;
-      const x = offsetX * canvasScale;
-      const y = offsetY * canvasScale;
-      this.mouseClickHandler && this.mouseClickHandler({ x, y });
-    });
-    this.ctx.canvas.addEventListener('mouseleave', () => {
-      this.mouseLeaveHandler && this.mouseLeaveHandler();
-    });
+    initEventListener.call(this);
   }
   render(): void {
     this.initVoronoiView();

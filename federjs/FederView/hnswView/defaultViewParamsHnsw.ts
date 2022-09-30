@@ -5,7 +5,7 @@ export const defaultViewParamsHnsw = {
   width: 800,
   height: 480,
   padding: [80, 200, 60, 220],
-  canvasScale: 2,
+  canvasScale: 1,
 
   layerDotNum: 20,
   layerDotFill: '#ffffff',
