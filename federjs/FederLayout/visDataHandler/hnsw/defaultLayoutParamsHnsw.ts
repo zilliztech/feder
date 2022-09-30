@@ -3,7 +3,7 @@ import { TLayoutParamsHnsw } from 'Types/visData';
 export const defaultHnswLayoutParams = {
   width: 800,
   height: 480,
-  canvasScale: 2,
+  canvasScale: 1,
   targetOrigin: [0, 0],
   numForceIterations: 100,
   padding: [80, 200, 60, 220],

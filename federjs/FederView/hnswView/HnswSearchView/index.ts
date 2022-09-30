@@ -20,6 +20,8 @@ import { getDisL2Square } from 'Utils/distFunc';
 import initPanels from '../initPanels';
 import updateStaticPanel from './updateStaticPanel';
 import updateClickedPanel from './updateClickedPanel';
+import initCanvas from 'FederView/initCanvas';
+import initEventListener from 'FederView/initEventListener';
 
 export default class HnswSearchView implements TViewHandler {
   node: HTMLElement;
@@ -87,9 +89,9 @@ export default class HnswSearchView implements TViewHandler {
     this.init();
   }
   init() {
-    this.initCanvas();
+    initCanvas.call(this);
     this.initTimerController();
-    this.initEventListener();
+    initEventListener.call(this);
     initPanels.call(this);
   }
   initTimerController() {
@@ -108,39 +110,6 @@ export default class HnswSearchView implements TViewHandler {
     timeControllerView.setTimer(timer);
     this.timer = timer;
     // this.timer.start();
-  }
-  initCanvas() {
-    const { width, height, canvasScale } = this.viewParams;
-    const divD3 = d3
-      .create('div')
-      .style('width', `${width}px`)
-      .style('height', `${height}px`)
-      .style('position', 'relative');
-    this.node = divD3.node();
-    const canvasD3 = divD3
-      .append('canvas')
-      .attr('width', width)
-      .attr('height', height);
-    this.ctx = canvasD3.node().getContext('2d');
-    this.ctx.scale(1 / canvasScale, 1 / canvasScale);
-  }
-  initEventListener() {
-    const { canvasScale } = this.viewParams;
-    this.node.addEventListener('mousemove', (e) => {
-      const { offsetX, offsetY } = e;
-      const x = offsetX * canvasScale;
-      const y = offsetY * canvasScale;
-      this.mouseMoveHandler && this.mouseMoveHandler({ x, y });
-    });
-    this.node.addEventListener('click', (e) => {
-      const { offsetX, offsetY } = e;
-      const x = offsetX * canvasScale;
-      const y = offsetY * canvasScale;
-      this.mouseClickHandler && this.mouseClickHandler({ x, y });
-    });
-    this.node.addEventListener('mouseleave', () => {
-      this.mouseLeaveHandler && this.mouseLeaveHandler();
-    });
   }
   render() {
     this.initView();

@@ -22,6 +22,8 @@ import updateHoveredPanelNodeView from './updateHoveredPanelNodeView';
 import updateHoveredPanelVoronoiView from './updateHoveredPanelVoronoiView';
 import updateStaticPanel from './updateStaticPanel';
 import switchView from './switchView';
+import initCanvas from 'FederView/initCanvas';
+import initEventListener from 'FederView/initEventListener';
 
 export default class IvfflatSearchView implements ViewHandler {
   searchViewClusters: TVisDataIvfflatSearchViewCluster[];
@@ -75,10 +77,9 @@ export default class IvfflatSearchView implements ViewHandler {
   }
   init(): void {
     this.initColorScheme();
-    this.initCanvas();
+    initCanvas.call(this);
     initPanels.call(this);
-    this.initEventListener();
-    // this.initPanel();
+    initEventListener.call(this);
   }
   initColorScheme() {
     this.nprobe = this.searchViewClusters.filter(
@@ -87,39 +88,6 @@ export default class IvfflatSearchView implements ViewHandler {
     this.colorScheme = d3
       .range(this.nprobe)
       .map((i) => d3.hsl((360 * i) / this.nprobe, 1, 0.5).formatHex());
-  }
-  initCanvas() {
-    const { width, height, canvasScale } = this.viewParams;
-    const divD3 = d3
-      .create('div')
-      .style('width', `${width}px`)
-      .style('height', `${height}px`)
-      .style('position', 'relative');
-    this.node = divD3.node();
-    const canvasD3 = divD3
-      .append('canvas')
-      .attr('width', width)
-      .attr('height', height);
-    this.ctx = canvasD3.node().getContext('2d');
-    this.ctx.scale(1 / canvasScale, 1 / canvasScale);
-  }
-  initEventListener() {
-    const { canvasScale } = this.viewParams;
-    this.ctx.canvas.addEventListener('mousemove', (e) => {
-      const { offsetX, offsetY } = e;
-      const x = offsetX * canvasScale;
-      const y = offsetY * canvasScale;
-      this.mouseMoveHandler && this.mouseMoveHandler({ x, y });
-    });
-    this.ctx.canvas.addEventListener('click', (e) => {
-      const { offsetX, offsetY } = e;
-      const x = offsetX * canvasScale;
-      const y = offsetY * canvasScale;
-      this.mouseClickHandler && this.mouseClickHandler({ x, y });
-    });
-    this.ctx.canvas.addEventListener('mouseleave', () => {
-      this.mouseLeaveHandler && this.mouseLeaveHandler();
-    });
   }
 
   render() {

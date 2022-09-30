@@ -36,6 +36,9 @@ export default async function updateHoveredPanelVoronoiView(
         text: `cluster-${this.hoveredCluster.clusterId}`,
       },
       {
+        text: `distance: ${this.hoveredCluster.distance.toFixed(3)}`,
+      },
+      {
         text: `including ${this.hoveredCluster.count} vectors`,
       },
       ...mediaContents,

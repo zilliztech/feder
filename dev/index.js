@@ -15,13 +15,14 @@ window.addEventListener('DOMContentLoaded', async () => {
   const testSearchParams = {
     k: 4,
     ef: 6,
-    nprobe: 4,
+    nprobe: 6,
   };
 
   const mediaCallback = await getRowId2imgUrl();
   const viewParams = {
     width: 800,
     height: 480,
+    canvasScale: 1,
     projectParams: { projectSeed: 12315 },
     mediaType: 'img',
     mediaCallback,

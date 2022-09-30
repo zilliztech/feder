@@ -3,7 +3,7 @@ import { TViewParamsIvfflat } from 'Types/visData';
 export const defaltViewParamsIvfflat = {
   width: 800,
   height: 480,
-  canvasScale: 2,
+  canvasScale: 1,
 
   nonNprobeClusterFill: '#175FFF',
   nonNprobeClusterOpacity: 1,
