@@ -2,9 +2,7 @@
 
 ## What is feder
 
-Feder is an javascript tool that built for understanding your embedding vectors, feder visualizes faiss, hnswlib and other anns index files, so that we can have a better understanding how anns work and what are high dimensional vector embeddings.
-
-So far, we are focusing on the Faiss (only ivf_flat) index file and HNSWlib (hnsw) index file, we will cover more index types later. 
+Feder is a JavaScript tool designed to aid in the comprehension of embedding vectors. It visualizes index files from Faiss, HNSWlib, and other ANN libraries to provide insight into how these libraries function and the concept of high-dimensional vector embeddings. Currently, Feder is primarily focused on the IVF_FLAT index file type from Faiss and the HNSW index file type from HNSWlib, though additional index types will be added in the future.
 
 Feder is written in **javascript**, and we also provide a python library **federpy**, which is based on federjs.
 
